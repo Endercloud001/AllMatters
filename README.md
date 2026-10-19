@@ -1,6 +1,6 @@
 # AllMatters
 
-《杀戮尖塔 2》Mod，作者 Endercloud001。当前为开发初始化骨架，尚未实现 v0.1 的事件或卡牌调整。
+《杀戮尖塔 2》Mod，作者 Endercloud001。已实现「你好世界」升级调整；v0.1 事件仍在开发，真实游戏加载、联机与回放验收尚未完成。
 
 v0.1 计划从 [STS2-Balance-MOD](https://github.com/MT-SUPER-POWER/STS2-Balance-MOD) 移植 11 个一代回归事件（排除对对碰）、关联遗物和必要依赖，并让升级后的「你好世界」在每回合开始生成一张升级过的随机普通牌。
 
@@ -9,6 +9,8 @@ v0.1 计划从 [STS2-Balance-MOD](https://github.com/MT-SUPER-POWER/STS2-Balance
 - [参考源码与许可记录](docs/references.md)
 - [实施顺序](docs/implementation-plan.md)
 - [双分支 API 比较与编译验证](docs/research/dual-branch-api.md)
+- [你好世界设计与验收要求](docs/hello-world-design.md)
+- [你好世界测试方法与验证边界](docs/testing/hello-world.md)
 
 快速开始（PowerShell）：复制 `Paths.example.props` 为 `Paths.local.props`，填入游戏 DLL 目录，然后运行 `./tools/Build.ps1`。输出在 `dist/public-beta/AllMatters/`。`-Branch public` 使用另一套公开版 DLL。
 

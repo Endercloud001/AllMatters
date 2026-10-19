@@ -13,4 +13,4 @@ $outputDir = Join-Path $repoDir "bin/$Branch/$Configuration/net9.0"
 $packageDir = Join-Path $repoDir "dist/$Branch/AllMatters"
 New-Item -ItemType Directory -Path $packageDir -Force | Out-Null
 Copy-Item -LiteralPath (Join-Path $outputDir 'AllMatters.dll'), (Join-Path $outputDir 'AllMatters.json') -Destination $packageDir
-Write-Output "Development scaffold packaged at $packageDir"
+Write-Output "Development build packaged at $packageDir"
