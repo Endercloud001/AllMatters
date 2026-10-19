@@ -2,7 +2,7 @@
   "id": "AllMatters",
   "name": "AllMatters",
   "author": "Endercloud001",
-  "description": "AllMatters development scaffold; v0.1 content is not implemented yet.",
+  "description": "Hello World upgrades its generated cards when upgraded. Classic event content is still in development.",
   "version": "v0.1.0-dev",
   "has_pck": false,
   "has_dll": true,

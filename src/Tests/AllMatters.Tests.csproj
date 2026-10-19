@@ -1,0 +1,22 @@
+<Project Sdk="Godot.NET.Sdk/4.5.1">
+  <Import Project="../../Paths.local.props" Condition="Exists('../../Paths.local.props')" />
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GameBranch Condition="'$(GameBranch)' == ''">public-beta</GameBranch>
+    <GameDataDir Condition="'$(GameDataDir)' == '' and '$(GameBranch)' == 'public'">$(PublicGameDataDir)</GameDataDir>
+    <GameDataDir Condition="'$(GameDataDir)' == '' and '$(GameBranch)' == 'public-beta'">$(BetaGameDataDir)</GameDataDir>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <NoWarn>$(NoWarn);MSB3270</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="*.cs" />
+    <ProjectReference Include="../../AllMatters.csproj" />
+    <Reference Include="sts2" HintPath="$(GameDataDir)/sts2.dll" />
+    <Reference Include="0Harmony" HintPath="$(GameDataDir)/0Harmony.dll" />
+    <AssemblyMetadata Include="DependencyDirectory" Value="$(BetaGameDataDir)" />
+    <AssemblyMetadata Include="GameResourcePack" Value="$(BetaGameDataDir)/../SlayTheSpire2.pck" />
+  </ItemGroup>
+</Project>

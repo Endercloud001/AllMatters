@@ -12,6 +12,6 @@ public static class ModEntry
     public static void Initialize()
     {
         new Harmony(ModId).PatchAll(typeof(ModEntry).Assembly);
-        GD.Print($"[{ModId}] Development scaffold loaded; v0.1 content is not implemented yet.");
+        GD.Print($"[{ModId}] Hello World upgrade adjustment loaded; event content is not implemented yet.");
     }
 }
