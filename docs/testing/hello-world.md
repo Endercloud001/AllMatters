@@ -50,7 +50,12 @@ Test.ps1 可用 -Filter 'Mixed' 仅运行名称匹配的测试；无匹配、异
 
 两分支输出分别位于 dist/public/AllMatters 和 dist/public-beta/AllMatters，每包只有 AllMatters.dll 与 AllMatters.json。完整日志保存在忽略目录 docs/local/test-results；测试中显示的程序集版本 0.1.0.0 是游戏内部 AssemblyVersion，不用于识别游戏分支，分支依据来自对应引用目录及既有 API 调查。
 
-代码审查在实现提交后，以实现前 1e3ec0c 为起点执行 Standards 与 Spec 两轴检查；结论待追加。
+代码审查对实现提交 0590ee0，以实现前 1e3ec0c 为起点并行执行两个独立轴：
+
+- Standards：0 项发现；符合仓库代码范围与文档约定，测试排除于生产编译和打包，未新增 hash、冻结 contract、baseline 或 gate。
+- Spec：0 项代码问题；两类层数、分图标展示、一次原版共同生成、实例升级、普通来源原生路径及取消升级固有均符合已确认需求。
+
+两个轴都明确保留下列完整游戏验收限制。审查无代码问题不等于游戏内加载、画面、联机或回放验收完成。
 
 ## 仍需在完整游戏中验收
 
