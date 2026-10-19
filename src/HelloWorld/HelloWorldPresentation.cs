@@ -20,9 +20,16 @@ internal static class HelloWorldLocalizationPatch
                 ? "在你的回合开始时，将一张[gold]升级过的[/gold]随机[gold]普通[/gold]牌加入你的手牌。"
                 : "At the start of your turn, add an [gold]Upgraded[/gold] random [gold]Common[/gold] card into your [gold]Hand[/gold].";
             string original = __result.GetRawText("HELLO_WORLD.description");
+            // The game's upgrade-preview formatter colors its entire selected branch green.
+            // Keep the original sentence outside that branch so only the insertion is highlighted.
+            string description = chinese
+                ? original.Replace("随机", "{IfUpgraded:show:[gold]升级过的[/gold]|}随机", StringComparison.Ordinal)
+                : __instance.Language == "eng"
+                    ? original.Replace("random ", "random {IfUpgraded:show:[gold]Upgraded[/gold] |}", StringComparison.Ordinal)
+                    : "{IfUpgraded:show:" + upgraded + "|" + original + "}";
             __result.MergeWith(new Dictionary<string, string>
             {
-                [CardDescriptionKey] = "{IfUpgraded:show:" + upgraded + "|" + original + "}"
+                [CardDescriptionKey] = description
             });
         }
         else if (name == "powers")

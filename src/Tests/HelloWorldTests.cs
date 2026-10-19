@@ -55,7 +55,8 @@ internal static class HelloWorldTests
                 ("Owner character pool, unlocks and multiplayer restrictions are retained", OriginalPool),
                 ("Templates and unrelated generated cards stay unchanged", InstanceIsolation),
                 ("Another player's turn does not trigger generation", OtherPlayerTurn),
-                ("Chinese localization survives language changes", ChinesePresentation)
+                ("Chinese localization survives language changes", ChinesePresentation),
+                ("Upgrade preview highlights only the added words", UpgradePreviewHighlight)
             ];
             var selected = cases.Where(test => args.Length == 0 || test.Name.Contains(args[0], StringComparison.OrdinalIgnoreCase)).ToArray();
             Check(selected.Length > 0, "No test matches the supplied filter.");
@@ -135,6 +136,35 @@ internal static class HelloWorldTests
         string upgraded = card.GetDescriptionForPile(PileType.Hand);
         Check(ordinary != upgraded && upgraded.Contains("Upgraded", StringComparison.OrdinalIgnoreCase), "Upgraded card text must explain generated upgrades.");
         Check(card.GetDescriptionForUpgradePreview().Contains("Upgraded", StringComparison.OrdinalIgnoreCase), "Upgrade preview must show upgraded generation.");
+    }
+
+    private static Task UpgradePreviewHighlight()
+    {
+        try
+        {
+            foreach (var (language, expectedWords) in new[] { ("zhs", "升级过的"), ("eng", "Upgraded") })
+            {
+                LocManager.Instance.SetLanguage(language);
+                CardModel card = ModelDb.Card<HelloWorld>().ToMutable();
+                string preview = card.GetDescriptionForUpgradePreview();
+                var highlights = System.Text.RegularExpressions.Regex.Matches(preview, @"\[green\](.*?)\[/green\]",
+                    System.Text.RegularExpressions.RegexOptions.Singleline);
+                Check(highlights.Count == 1, "Upgrade preview must have exactly one changed phrase.");
+                string changedWords = System.Text.RegularExpressions.Regex.Replace(highlights[0].Groups[1].Value, @"\[[^\]]+\]", "");
+                Check(changedWords.Trim() == expectedWords, "Only the added words must be green, not the whole description.");
+                Check(card.GetDescriptionForPile(PileType.None) == new LocString("cards", "HELLO_WORLD.description").GetFormattedText(),
+                    "Ordinary card text must remain identical to the original localization.");
+                Upgrade(card);
+                Check(card.GetDescriptionForPile(PileType.None).Contains(expectedWords)
+                    && !card.GetDescriptionForPile(PileType.None).Contains("[green]"),
+                    "Normal upgraded display must retain its text without preview coloring.");
+            }
+        }
+        finally
+        {
+            LocManager.Instance.SetLanguage("eng");
+        }
+        return Task.CompletedTask;
     }
 
     private static async Task MultipleLayersAndTurns()
