@@ -1,6 +1,6 @@
 # AllMatters
 
-《杀戮尖塔 2》Mod，作者 Endercloud001。已实现「你好世界」升级调整；v0.1 事件仍在开发，真实游戏加载、联机与回放验收尚未完成。
+《杀戮尖塔 2》Mod，作者 Endercloud001。已实现「你好世界」升级调整，并通过 public-beta v0.111.0 的用户牌效及高亮实机验收；v0.1 事件仍在开发，public 完整环境、真实联机与回放验证待完成。
 
 v0.1 计划从 [STS2-Balance-MOD](https://github.com/MT-SUPER-POWER/STS2-Balance-MOD) 移植 11 个一代回归事件（排除对对碰）、关联遗物和必要依赖，并让升级后的「你好世界」在每回合开始生成一张升级过的随机普通牌。
 
