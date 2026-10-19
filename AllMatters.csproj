@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="Paths.local.props" Condition="Exists('Paths.local.props')" />
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Version>0.1.0-dev</Version>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
+    <GameBranch Condition="'$(GameBranch)' == ''">public-beta</GameBranch>
+    <GameDataDir Condition="'$(GameDataDir)' == '' and '$(GameBranch)' == 'public'">$(PublicGameDataDir)</GameDataDir>
+    <GameDataDir Condition="'$(GameDataDir)' == '' and '$(GameBranch)' == 'public-beta'">$(BetaGameDataDir)</GameDataDir>
+    <OutputPath>bin/$(GameBranch)/$(Configuration)/</OutputPath>
+    <IntermediateOutputPath>obj/$(GameBranch)/$(Configuration)/</IntermediateOutputPath>
+    <NoWarn>$(NoWarn);MSB3270</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="src/**/*.cs" />
+    <Reference Include="sts2" HintPath="$(GameDataDir)/sts2.dll" Private="false" />
+    <Reference Include="0Harmony" HintPath="$(GameDataDir)/0Harmony.dll" Private="false" />
+    <Reference Include="GodotSharp" HintPath="$(GameDataDir)/GodotSharp.dll" Private="false" />
+    <None Include="AllMatters.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <Target Name="CheckGameReferences" BeforeTargets="ResolveReferences">
+    <Error Condition="!Exists('$(GameDataDir)/sts2.dll')" Text="Set GameDataDir or the matching PublicGameDataDir/BetaGameDataDir in Paths.local.props. See docs/development.md." />
+  </Target>
+</Project>

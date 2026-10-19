@@ -1,0 +1,10 @@
+bin/
+obj/
+.godot/
+dist/
+.vs/
+*.user
+*.local.props
+docs/references/
+docs/local/
+.scratch/

@@ -1,0 +1,11 @@
+{
+  "id": "AllMatters",
+  "name": "AllMatters",
+  "author": "Endercloud001",
+  "description": "AllMatters development scaffold; v0.1 content is not implemented yet.",
+  "version": "v0.1.0-dev",
+  "has_pck": false,
+  "has_dll": true,
+  "affects_gameplay": true,
+  "dependencies": []
+}

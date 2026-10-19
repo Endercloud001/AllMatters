@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <BetaGameDataDir>E:/SteamLibrary/steamapps/common/Slay the Spire 2/data_sts2_windows_x86_64</BetaGameDataDir>
+    <PublicGameDataDir></PublicGameDataDir>
+  </PropertyGroup>
+</Project>
