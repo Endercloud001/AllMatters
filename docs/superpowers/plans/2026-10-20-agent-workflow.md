@@ -10,10 +10,10 @@
 
 ## 1. 测试启动
 
-- [ ] 修改 tools/Test.ps1，读取本机配置，保留显式参数优先，增加 -Branch All 顺序执行。
-- [ ] 添加 tools/ReadLocalPaths.ps1 共享配置读取，以及 tools/PrepareTestRuntime.ps1 准备本机已安装的 .NET 9 运行根目录。
-- [ ] 更新 Paths.example.props 与本机被忽略的配置；不覆盖现有游戏路径。
-- [ ] 验证不带路径运行、显式参数、双目标执行及缺失路径错误，提交本步。
+- [x] 修改 tools/Test.ps1，读取本机配置，保留显式参数优先，增加 -Branch All 顺序执行。
+- [x] 添加 tools/ReadLocalPaths.ps1 共享配置读取，以及 tools/PrepareTestRuntime.ps1 准备本机已安装的 .NET 9 运行根目录。
+- [x] 更新 Paths.example.props 与本机被忽略的配置；不覆盖现有游戏路径。
+- [x] 验证不带路径运行、显式参数、双目标执行及缺失路径错误，提交本步。
 
 ## 2. 机制阅读地图
 

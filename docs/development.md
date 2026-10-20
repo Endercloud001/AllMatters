@@ -30,6 +30,19 @@ Paths.local.props 不提交 Git；PublicGameDataDir 与 BetaGameDataDir 分别�
 
 你好世界的无界面测试使用目标分支真实游戏程序集、Godot 原生运行环境及本机 beta 资源包，测试命令和替代的宿主边界见 [验证记录](testing/hello-world.md)。两个分支测试按顺序运行，不能并行使用同一测试输出目录。
 
+## 测试
+
+测试时在 Paths.local.props 中配置 `GodotPath`（mono 可执行文件）及 `TestDotNetRoot`（例如 `docs/local/tools/dotnet9`），保留现有两分支游戏路径。工具路径可以相对仓库根目录填写；显式命令参数优先于配置。`global.json` 只控制构建 SDK，Godot 的运行时由 TestDotNetRoot 选择。
+
+```powershell
+./tools/PrepareTestRuntime.ps1  # 一次性：用本机已安装的 .NET 9 创建运行目录，不下载运行时
+./tools/Test.ps1               # 默认 public-beta，无需重复填写路径
+./tools/Test.ps1 -Branch All   # 顺序运行 public-beta 与 public
+./tools/Test.ps1 -Filter 'highlights only'
+```
+
+测试脚本恢复调用前的 DOTNET_ROOT，不修改系统配置；两个分支不能并行使用同一测试输出目录。CLI 仍可传 `-GodotPath`、`-DotNetRoot` 临时覆盖配置。
+
 ## 文档与参考目录
 
 本工作区 `AllMatters/docs` 是指向 `../AllMatters_docs` 的 junction，Git 索引保存其中的普通文档文件。重新 clone 时 docs 是普通目录，不依赖原机器路径。参考源码保存在 docs/references，由 .gitignore 排除。编译只枚举 src/**/*.cs，避免误编译参考仓库。

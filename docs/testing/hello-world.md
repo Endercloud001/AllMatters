@@ -9,13 +9,12 @@
 在仓库根目录依次运行（GodotPath 按本机路径填写）：
 
 ```powershell
-./tools/Test.ps1 -Branch public-beta -GodotPath 'E:/Godot_v4.5.1-stable_mono_win64/Godot_v4.5.1-stable_mono_win64_console.exe' -DotNetRoot docs/local/tools/dotnet9
-./tools/Test.ps1 -Branch public -GodotPath 'E:/Godot_v4.5.1-stable_mono_win64/Godot_v4.5.1-stable_mono_win64_console.exe' -DotNetRoot docs/local/tools/dotnet9
+./tools/Test.ps1 -Branch All
 ./tools/Build.ps1 -Branch public-beta
 ./tools/Build.ps1 -Branch public
 ```
 
-DotNetRoot 参数可省略，但 Godot 必须选用 .NET 9：本机 Godot 默认选择已安装的 .NET 10，与游戏当前 Harmony 不兼容。本机忽略目录 docs/local/tools/dotnet9 是只暴露已安装 .NET 9 host/fxr 与 shared/Microsoft.NETCore.App 的开发运行根目录，不随仓库分发；其他机器可指定自己的 .NET 9 运行根目录。测试编译仍使用系统 dotnet。
+本机路径配置及 .NET 9 运行目录准备见 [开发环境](../development.md)。测试脚本从 Paths.local.props 读取 GodotPath 与 TestDotNetRoot，显式参数仍可覆盖。本机忽略目录 docs/local/tools/dotnet9 不随仓库分发，可用 PrepareTestRuntime.ps1 从已安装运行时重新准备。测试编译仍使用系统 dotnet。
 
 Test.ps1 可用 -Filter 'Mixed' 仅运行名称匹配的测试；无匹配、异常及超时均失败。两个目标共用测试项目输出位置，按顺序运行。
 
