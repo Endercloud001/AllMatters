@@ -155,6 +155,8 @@ internal static class HelloWorldTests
                 Check(card.GetDescriptionForPile(PileType.None) == new LocString("cards", "HELLO_WORLD.description").GetFormattedText(),
                     "Ordinary card text must remain identical to the original localization.");
                 Upgrade(card);
+                Check(card.GetDescriptionForUpgradePreview() == preview,
+                    "Inspecting an already upgraded card must highlight the same changed words as its upgrade preview.");
                 Check(card.GetDescriptionForPile(PileType.None).Contains(expectedWords)
                     && !card.GetDescriptionForPile(PileType.None).Contains("[green]"),
                     "Normal upgraded display must retain its text without preview coloring.");
