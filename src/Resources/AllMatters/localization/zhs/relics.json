@@ -1,0 +1,5 @@
+{
+  "ALL_MATTERS_MUTAGENIC_STRENGTH.title": "突变之力",
+  "ALL_MATTERS_MUTAGENIC_STRENGTH.description": "每场战斗开始时，获得 [blue]{StrengthPower}[/blue] 点[gold]力量[/gold]并受到[red]突变衰退[/red]。在你的第三个回合结束时，失去 [blue]{StrengthPower}[/blue] 点[gold]力量[/gold]。",
+  "ALL_MATTERS_MUTAGENIC_STRENGTH.flavor": "基因实验留下的残余力量。"
+}

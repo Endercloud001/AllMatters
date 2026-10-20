@@ -34,5 +34,21 @@
   "ALL_MATTERS_EVENT_THE_DIVINE_FOUNTAIN.pages.INITIAL.options.LEAVE.title": "离开",
   "ALL_MATTERS_EVENT_THE_DIVINE_FOUNTAIN.pages.INITIAL.options.LEAVE.description": "",
   "ALL_MATTERS_EVENT_THE_DIVINE_FOUNTAIN.pages.DRINK.description": "你喝下 [blue][sine]水[/sine][/blue] 后，感觉到身体中不再有 [purple]黑暗的束缚[/purple]。",
-  "ALL_MATTERS_EVENT_THE_DIVINE_FOUNTAIN.pages.LEAVE.description": "你离开了这处奇怪的泉水。"
+  "ALL_MATTERS_EVENT_THE_DIVINE_FOUNTAIN.pages.LEAVE.description": "你离开了这处奇怪的泉水。",
+  "ALL_MATTERS_EVENT_AUGMENTER.title": "增益研究者",
+  "ALL_MATTERS_EVENT_AUGMENTER.pages.INITIAL.description": "一个戴着眼罩、笑容可疑的男人向你兜售危险的实验。\n“想不想试试能让你变强的东西？”",
+  "ALL_MATTERS_EVENT_AUGMENTER.pages.INITIAL.options.JAX.title": "试一下 J.A.X.",
+  "ALL_MATTERS_EVENT_AUGMENTER.pages.INITIAL.options.JAX.description": "将 [gold]J.A.X.[/gold] 加入你的 [gold]牌组[/gold]。",
+  "ALL_MATTERS_EVENT_AUGMENTER.pages.INITIAL.options.TRANSFORM.title": "当实验对象",
+  "ALL_MATTERS_EVENT_AUGMENTER.pages.INITIAL.options.TRANSFORM.description": "变化[blue]2[/blue]张牌，然后[gold]升级[/gold]得到的新牌",
+  "ALL_MATTERS_EVENT_AUGMENTER.pages.INITIAL.options.TRANSFORM_LOCKED.title": "锁定",
+  "ALL_MATTERS_EVENT_AUGMENTER.pages.INITIAL.options.TRANSFORM_LOCKED.description": "需要：[blue]2[/blue] 张可移除的牌。",
+  "ALL_MATTERS_EVENT_AUGMENTER.pages.INITIAL.options.MUTAGENS.title": "喝突变剂",
+  "ALL_MATTERS_EVENT_AUGMENTER.pages.INITIAL.options.MUTAGENS.description": "失去你的原初始遗物，获得[gold]突变之力[/gold]。",
+  "ALL_MATTERS_EVENT_AUGMENTER.pages.JAX.description": "他递给你一支装满 [blue][sine]发光液体[/sine][/blue] 的针筒，然后消失在阴影里。",
+  "ALL_MATTERS_EVENT_AUGMENTER.pages.TRANSFORM.description": "你短暂失去意识。醒来时，牌组已经发生了变化。",
+  "ALL_MATTERS_EVENT_AUGMENTER.pages.TRANSFORM.selectionScreenPrompt": "选择 2 张牌变化并升级。",
+  "ALL_MATTERS_EVENT_AUGMENTER.pages.MUTAGENS.description": "你喝下神秘液体，肌肉纤维开始 [jitter]颤动[/jitter]。",
+  "ALL_MATTERS_EVENT_AUGMENTER.pages.INITIAL.options.MUTAGENS_LOCKED.title": "锁定",
+  "ALL_MATTERS_EVENT_AUGMENTER.pages.INITIAL.options.MUTAGENS_LOCKED.description": "需要仍持有原初始遗物。"
 }
