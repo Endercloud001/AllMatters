@@ -1,5 +1,14 @@
 {
   "ALL_MATTERS_MUTAGENIC_STRENGTH.title": "Mutagenic Strength",
   "ALL_MATTERS_MUTAGENIC_STRENGTH.description": "At the start of each combat, gain [blue]{StrengthPower}[/blue] [gold]Strength[/gold] and [red]Mutagenic Decay[/red]. At the end of your third turn, lose [blue]{StrengthPower}[/blue] [gold]Strength[/gold].",
-  "ALL_MATTERS_MUTAGENIC_STRENGTH.flavor": "Residual power from a genetic experiment."
+  "ALL_MATTERS_MUTAGENIC_STRENGTH.flavor": "Residual power from a genetic experiment.",
+  "ALL_MATTERS_NECRONOMICON.title": "Necronomicon",
+  "ALL_MATTERS_NECRONOMICON.description": "On pickup, obtain [red]Necronomicurse[/red]. The first time you play an [gold]Attack[/gold] costing {Energy:energyIcons()} or more each turn, play it twice.",
+  "ALL_MATTERS_NECRONOMICON.flavor": "Only a fool would try to command such evil power.",
+  "ALL_MATTERS_NILRYS_CODEX.title": "Nilry's Codex",
+  "ALL_MATTERS_NILRYS_CODEX.description": "At the end of each turn, you may choose [blue]1[/blue] of [blue]3[/blue] random [gold]upgraded[/gold] cards from your character to shuffle into your [gold]Draw Pile[/gold].",
+  "ALL_MATTERS_NILRYS_CODEX.flavor": "Compiled by the infamous game master himself.",
+  "ALL_MATTERS_ENCHIRIDION.title": "Enchiridion",
+  "ALL_MATTERS_ENCHIRIDION.description": "At the start of each combat, add a random [gold]Power[/gold] card to your [gold]Hand[/gold]. It costs 0 this turn.",
+  "ALL_MATTERS_ENCHIRIDION.flavor": "A legendary journal from an ancient lich."
 }

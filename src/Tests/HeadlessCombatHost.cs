@@ -7,9 +7,23 @@ using System.Reflection;
 [HarmonyPatch(typeof(CombatManager), nameof(CombatManager.IsInProgress), MethodType.Getter)]
 internal static class HeadlessCombatInProgress
 {
+    // Event damage must use the real out-of-combat path, without combat history.
+    public static IDisposable EnterEvent()
+    {
+        bool previous = _inProgress;
+        _inProgress = false;
+        return new EventScope(previous);
+    }
+
+    private static bool _inProgress = true;
+    private sealed class EventScope(bool previous) : IDisposable
+    {
+        public void Dispose() => _inProgress = previous;
+    }
+
     private static bool Prefix(ref bool __result)
     {
-        __result = true;
+        __result = _inProgress;
         return false;
     }
 }
