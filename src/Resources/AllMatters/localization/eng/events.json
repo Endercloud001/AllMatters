@@ -34,5 +34,21 @@
   "ALL_MATTERS_EVENT_THE_DIVINE_FOUNTAIN.pages.INITIAL.options.LEAVE.title": "Leave",
   "ALL_MATTERS_EVENT_THE_DIVINE_FOUNTAIN.pages.INITIAL.options.LEAVE.description": "",
   "ALL_MATTERS_EVENT_THE_DIVINE_FOUNTAIN.pages.DRINK.description": "The [blue][sine]water[/sine][/blue] washes away the [purple]dark weight[/purple] in your deck.",
-  "ALL_MATTERS_EVENT_THE_DIVINE_FOUNTAIN.pages.LEAVE.description": "You leave the strange fountain behind."
+  "ALL_MATTERS_EVENT_THE_DIVINE_FOUNTAIN.pages.LEAVE.description": "You leave the strange fountain behind.",
+  "ALL_MATTERS_EVENT_AUGMENTER.title": "Augmenter",
+  "ALL_MATTERS_EVENT_AUGMENTER.pages.INITIAL.description": "A suspicious man offers you a dangerous experiment.",
+  "ALL_MATTERS_EVENT_AUGMENTER.pages.INITIAL.options.JAX.title": "Try J.A.X.",
+  "ALL_MATTERS_EVENT_AUGMENTER.pages.INITIAL.options.JAX.description": "Add [gold]J.A.X.[/gold] to your [gold]deck[/gold].",
+  "ALL_MATTERS_EVENT_AUGMENTER.pages.INITIAL.options.TRANSFORM.title": "Experiment",
+  "ALL_MATTERS_EVENT_AUGMENTER.pages.INITIAL.options.TRANSFORM.description": "Transform [blue]2[/blue] cards, then [gold]Upgrade[/gold] the resulting cards.",
+  "ALL_MATTERS_EVENT_AUGMENTER.pages.INITIAL.options.TRANSFORM_LOCKED.title": "Locked",
+  "ALL_MATTERS_EVENT_AUGMENTER.pages.INITIAL.options.TRANSFORM_LOCKED.description": "Requires [blue]2[/blue] removable cards.",
+  "ALL_MATTERS_EVENT_AUGMENTER.pages.INITIAL.options.MUTAGENS.title": "Drink Mutagens",
+  "ALL_MATTERS_EVENT_AUGMENTER.pages.INITIAL.options.MUTAGENS.description": "Lose your original starting relic. Obtain [gold]Mutagenic Strength[/gold].",
+  "ALL_MATTERS_EVENT_AUGMENTER.pages.JAX.description": "He hands you a syringe full of [blue][sine]glowing fluid[/sine][/blue].",
+  "ALL_MATTERS_EVENT_AUGMENTER.pages.TRANSFORM.description": "You wake up later. Your deck has changed.",
+  "ALL_MATTERS_EVENT_AUGMENTER.pages.TRANSFORM.selectionScreenPrompt": "Choose 2 cards to transform and upgrade.",
+  "ALL_MATTERS_EVENT_AUGMENTER.pages.MUTAGENS.description": "Your muscles begin to [jitter]twitch[/jitter].",
+  "ALL_MATTERS_EVENT_AUGMENTER.pages.INITIAL.options.MUTAGENS_LOCKED.title": "Locked",
+  "ALL_MATTERS_EVENT_AUGMENTER.pages.INITIAL.options.MUTAGENS_LOCKED.description": "Requires your original starting relic."
 }
