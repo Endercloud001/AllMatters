@@ -17,6 +17,7 @@
   <ItemGroup>
     <Compile Include="src/**/*.cs" />
     <Compile Remove="src/Tests/**/*.cs" />
+    <Compile Remove="src/Tooling/**/*.cs" />
     <Reference Include="sts2" HintPath="$(GameDataDir)/sts2.dll" Private="false" />
     <Reference Include="0Harmony" HintPath="$(GameDataDir)/0Harmony.dll" Private="false" />
     <Reference Include="GodotSharp" HintPath="$(GameDataDir)/GodotSharp.dll" Private="false" />

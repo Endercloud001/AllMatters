@@ -43,6 +43,21 @@ Paths.local.props 不提交 Git；PublicGameDataDir 与 BetaGameDataDir 分别�
 
 测试脚本恢复调用前的 DOTNET_ROOT，不修改系统配置；两个分支不能并行使用同一测试输出目录。CLI 仍可传 `-GodotPath`、`-DotNetRoot` 临时覆盖配置。
 
+## API 查询
+
+在 Paths.local.props 中配置 `IlspyPath`，使用现有两分支真实 DLL 路径。先找类型，再看成员摘要，需要方法体时才导出：
+
+```powershell
+./tools/ExportApiReference.ps1 -Find CardPreviewStyle
+./tools/ExportApiReference.ps1 -Branch public -Types MegaCrit.Sts2.Core.Random.Rng -Signatures -Member Counter
+./tools/ExportApiReference.ps1 -Types MegaCrit.Sts2.Core.Combat.CombatManager -Signatures -Member CheckForEmptyHand
+./tools/ExportApiReference.ps1 -Types MegaCrit.Sts2.Core.Models.Cards.HelloWorld -Member OnPlay
+```
+
+默认目标为 public-beta；每次输出实际程序集路径和版本来源。`-Find` 模糊查找类型全名，`-Signatures` 只读取元数据，不执行游戏初始化；`-Member` 按名称片段筛选，`-Limit` 控制返回数量。成员摘要只包含当前类型声明的 public/protected 成员，不展开可空引用注解及所有修饰信息；查继承成员时查询对应父类，精确调用和时序依据完整导出源码。
+
+不传 `-Find` 或 `-Signatures` 时按原行为导出方法体，省略 OutputDir 则写入忽略目录 `docs/local/api/queries/<目标与版本>/`，返回来源文件及成员匹配行。原有 `-AssemblyPath -OutputDir -IlspyPath -Types` 用法仍支持；显式程序集不会被配置覆盖。API 查询工具仅用于开发，不参与 Mod 编译/打包，也不需要 Godot 进程。
+
 ## 文档与参考目录
 
 本工作区 `AllMatters/docs` 是指向 `../AllMatters_docs` 的 junction，Git 索引保存其中的普通文档文件。重新 clone 时 docs 是普通目录，不依赖原机器路径。参考源码保存在 docs/references，由 .gitignore 排除。编译只枚举 src/**/*.cs，避免误编译参考仓库。

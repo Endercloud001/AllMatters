@@ -5,7 +5,7 @@ $paths = & (Join-Path $PSScriptRoot 'ReadLocalPaths.ps1')
 if (!$OutputDir) { $OutputDir = $paths['TestDotNetRoot'] }
 if (!$OutputDir) { $OutputDir = 'docs/local/tools/dotnet9' }
 if (![IO.Path]::IsPathRooted($OutputDir)) { $OutputDir = Join-Path $repoDir $OutputDir }
-if (!$IsWindows) { throw 'This runtime-directory helper uses Windows junctions. Supply a .NET 9 DotNetRoot on other systems.' }
+if ([Environment]::OSVersion.Platform -ne [PlatformID]::Win32NT) { throw 'This runtime-directory helper uses Windows junctions. Supply a .NET 9 DotNetRoot on other systems.' }
 $runtimes = & dotnet --list-runtimes
 if ($LASTEXITCODE -ne 0) { throw 'Cannot list installed .NET runtimes.' }
 $runtime = $runtimes | ForEach-Object {

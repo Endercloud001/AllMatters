@@ -22,9 +22,9 @@
 
 ## 3. API 查询
 
-- [ ] 扩展 tools/ExportApiReference.ps1：保留原导出用法，增加按分支查找类型、列出成员签名及按需读取方法体。
-- [ ] 本地添加只用于读取元数据签名的小工具，源码放 src，排除于 Mod 编译；输出实际来源和精简证据。
-- [ ] 用 CardPreviewStyle、两分支 Rng 和 CheckForEmptyHand 验证类型、成员与重载差异；检查缺失目标失败，提交本步。
+- [x] 扩展 tools/ExportApiReference.ps1：保留原导出用法，增加按分支查找类型、列出成员签名及按需读取方法体。
+- [x] 本地添加只用于读取元数据签名的小工具，源码放 src，排除于 Mod 编译；输出实际来源和精简证据。
+- [x] 用 CardPreviewStyle、两分支 Rng 和 CheckForEmptyHand 验证类型、成员与重载差异；检查缺失目标失败，提交本步。
 
 ## 4. 展示检查与审查
 
