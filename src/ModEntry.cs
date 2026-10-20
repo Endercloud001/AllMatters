@@ -17,6 +17,6 @@ public static class ModEntry
         RitsuLibFramework.EnsureGodotScriptsRegistered(typeof(ModEntry).Assembly,
             RitsuLibFramework.CreateLogger(ModId));
         new Harmony(ModId).PatchAll(typeof(ModEntry).Assembly);
-        GD.Print($"[{ModId}] Hello World adjustment and Cleric event loaded.");
+        GD.Print($"[{ModId}] Hello World adjustment and returning events loaded.");
     }
 }
