@@ -2,10 +2,10 @@
   "id": "AllMatters",
   "name": "AllMatters",
   "author": "Endercloud001",
-  "description": "Hello World upgrades its generated cards when upgraded. Classic event content is still in development.",
+  "description": "Upgraded Hello World generates upgraded cards. Adds the returning Cleric event.",
   "version": "v0.1.0-dev",
-  "has_pck": false,
+  "has_pck": true,
   "has_dll": true,
   "affects_gameplay": true,
-  "dependencies": []
+  "dependencies": [{ "id": "STS2-RitsuLib" }]
 }

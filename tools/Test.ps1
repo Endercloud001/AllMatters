@@ -14,6 +14,7 @@ if (!$GodotPath) { throw 'Set GodotPath in Paths.local.props or pass -GodotPath 
 if (![IO.Path]::IsPathRooted($GodotPath)) { $GodotPath = Join-Path $repoDir $GodotPath }
 if ($DotNetRoot -and ![IO.Path]::IsPathRooted($DotNetRoot)) { $DotNetRoot = Join-Path $repoDir $DotNetRoot }
 $godotExecutable = (Resolve-Path -LiteralPath $GodotPath).Path
+& (Join-Path $PSScriptRoot 'ExportResources.ps1') -GodotPath $godotExecutable
 $previousDotNetRoot = $env:DOTNET_ROOT
 try {
     if ($DotNetRoot) { $DotNetRoot = (Resolve-Path -LiteralPath $DotNetRoot).Path }

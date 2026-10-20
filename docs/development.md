@@ -3,12 +3,12 @@
 ## 已发现环境（2026-10-20）
 
 - .NET SDK：9.0.319；项目目标 net9.0。
-- Godot：工作区父目录提供 Godot 4.5.1 mono。Mod 仍为纯 DLL；独立无界面测试项目使用 Godot.NET.Sdk 4.5.1，实际导入 Mod 资源时再启用生产项目的 Godot SDK 和 PCK 导出。
+- Godot：工作区父目录提供 Godot 4.5.1 mono。生产 C# 项目使用 Microsoft.NET.Sdk；资源项目 `src/Resources/` 独立导入并导出 PCK，无需为没有 Godot C# 场景脚本的生产程序集切换 SDK。独立无界面测试项目使用 Godot.NET.Sdk 4.5.1。
 - 游戏：`E:/SteamLibrary/steamapps/common/Slay the Spire 2`。
 - DLL：游戏下 `data_sts2_windows_x86_64/`，含 sts2.dll、0Harmony.dll、GodotSharp.dll。
 - 本机 release_info.json：v0.111.0；Steam appmanifest 的 BetaKey 为 public-beta，Build ID 为 24724944。
 - [Steam 分支查询](https://api.steamcmd.net/v1/info/2868840)：public Build ID 23811903；public-beta Build ID 24724944。公开版 v0.107.1 的实际 DLL 已从 GitHub 开发仓库获取，并用其 ProductVersion 的构建提交号与同仓库 release_info.json 交叉核对。文件位于 `docs/local/api/public-github-0.107.1/`，仅作本地开发参考；尚无完整 public 游戏安装。另已准备两版 NuGet API 引用包。
-- RitsuLib 候选版本：0.6.7；完整 variant-pack 位于 `docs/local/dependencies/RitsuLib-0.6.7/`，未安装进游戏，未加入生产项目。双目标接入 API 编译探针已通过。
+- RitsuLib：0.6.7；完整 variant-pack 位于 `docs/local/dependencies/RitsuLib-0.6.7/`，牧师实现已加入对应目标引用和 manifest 依赖。`RitsuLibDir` 可覆盖此默认路径；编译引用 compat/0.107.1 或 compat/0.111.0，运行时安装完整包。
 
 分支信息会变化。每次准备发布时重查，记录实际测试版本。两目标骨架均已构建通过；这不能证明玩法兼容或游戏内加载通过。详见 [API 调查与证据](research/dual-branch-api.md)。
 
@@ -24,9 +24,11 @@ Copy-Item Paths.example.props Paths.local.props
 
 Paths.local.props 不提交 Git；PublicGameDataDir 与 BetaGameDataDir 分别指向两套 DLL。本工作区前者指向从 GitHub 核对后下载的 0.107.1 实际 DLL，后者指向本机 Steam beta 安装；复制示例 props 会覆盖这些本地设置，请按实际路径填写。也可直接运行 `dotnet build -p:GameBranch=public-beta`。引用游戏程序集时 Private=false，避免把游戏 DLL 打包进 Mod。
 
-输出按分支隔离到 `dist/<branch>/AllMatters/`；构建不会自动写游戏目录。需要本机验证时，将该目录复制到游戏 `mods/AllMatters/` 后启动游戏，查看日志中的 AllMatters 加载信息。目前只产出 DLL 和 manifest；has_pck=false 与实际产物一致。你好世界调整使用游戏原生模型发现及现有图像，中英文文案随 DLL 提供，不需要 RitsuLib 或独立 PCK。独立测试项目不参与 Mod 编译或打包。你好世界已由用户在 public-beta 进行牌效和升级高亮验收，具体证据及未覆盖范围见 [验证记录](testing/hello-world.md)。
+输出按分支隔离到 `dist/<branch>/AllMatters/`；构建不会自动写游戏目录。现在包含 DLL、manifest、PCK、GPLv3 LICENSE 和来源声明。构建脚本先导入 `src/Resources/`，再用 `--export-pack Resources` 生成资源包，不依赖 Windows 导出模板。`tools/ExportResources.ps1` 可单独运行；`tools/Test.ps1` 也会先导出最新 PCK。
 
-默认公开版完整运行环境的准备：可通过 Steam 切换至默认分支，退出游戏后准备独立开发副本，再切回 public-beta。GitHub 下载的 DLL 足以进行本轮方法体检查和编译，但没有 PCK、原生库等完整环境，不能用于启动游戏验收。本次没有改动 Steam 分支、安装或存档。
+需要本机验证时，将开发包复制到游戏 `mods/AllMatters/`，将完整 RitsuLib variant-pack 另装到 `mods/STS2-RitsuLib/`，再由用户通过 Steam 启动游戏。不要只复制 compat 下的单个 DLL。独立测试项目不参与 Mod 打包。牧师的手动验收及环境准备见 [牧师验证记录](testing/cleric.md)；你好世界既有用户验收见 [原验证记录](testing/hello-world.md)。
+
+默认公开版完整运行环境的准备：可通过 Steam 切换至默认分支，退出游戏后准备独立开发副本，再切回 public-beta。GitHub 下载的 DLL 足以进行本轮方法体检查和编译，但没有 PCK、原生库等完整环境，不能用于启动游戏验收。本次未切换 Steam 分支或修改存档；已更新 mods 中的 AllMatters 并安装 RitsuLib，原 AllMatters 已备份。
 
 你好世界的无界面测试使用目标分支真实游戏程序集、Godot 原生运行环境及本机 beta 资源包，测试命令和替代的宿主边界见 [验证记录](testing/hello-world.md)。两个分支测试按顺序运行，不能并行使用同一测试输出目录。
 

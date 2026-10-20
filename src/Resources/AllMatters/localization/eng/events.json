@@ -1,0 +1,17 @@
+{
+  "ALL_MATTERS_EVENT_CLERIC.title": "Cleric",
+  "ALL_MATTERS_EVENT_CLERIC.pages.INITIAL.description": "A strange blue humanoid in a golden helmet smiles widely.\n\"[jitter]Hello friend![/jitter] I am [blue]Cleric[/blue]! Want to try my services?\"",
+  "ALL_MATTERS_EVENT_CLERIC.pages.INITIAL.options.HEAL.title": "Heal",
+  "ALL_MATTERS_EVENT_CLERIC.pages.INITIAL.options.HEAL.description": "Lose [red]{HealCost}[/red] [gold]Gold[/gold]. Heal [green]{Heal}[/green] HP.",
+  "ALL_MATTERS_EVENT_CLERIC.pages.INITIAL.options.HEAL_LOCKED.title": "Locked",
+  "ALL_MATTERS_EVENT_CLERIC.pages.INITIAL.options.HEAL_LOCKED.description": "Requires [blue]{HealCost}[/blue] [gold]Gold[/gold].",
+  "ALL_MATTERS_EVENT_CLERIC.pages.INITIAL.options.PURIFY.title": "Purify",
+  "ALL_MATTERS_EVENT_CLERIC.pages.INITIAL.options.PURIFY.description": "Lose [red]{PurifyCost}[/red] [gold]Gold[/gold]. Remove a card from your [gold]deck[/gold].",
+  "ALL_MATTERS_EVENT_CLERIC.pages.INITIAL.options.PURIFY_LOCKED.title": "Locked",
+  "ALL_MATTERS_EVENT_CLERIC.pages.INITIAL.options.PURIFY_LOCKED.description": "Requires [blue]{PurifyCost}[/blue] [gold]Gold[/gold] and a removable card.",
+  "ALL_MATTERS_EVENT_CLERIC.pages.INITIAL.options.LEAVE.title": "Leave",
+  "ALL_MATTERS_EVENT_CLERIC.pages.INITIAL.options.LEAVE.description": "",
+  "ALL_MATTERS_EVENT_CLERIC.pages.HEAL.description": "A warm golden light surrounds you and fades.",
+  "ALL_MATTERS_EVENT_CLERIC.pages.PURIFY.description": "Cold blue flame surrounds you and fades.",
+  "ALL_MATTERS_EVENT_CLERIC.pages.LEAVE.description": "You decide not to trust this [blue]\"Cleric\"[/blue]."
+}
