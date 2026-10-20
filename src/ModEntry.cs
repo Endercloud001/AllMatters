@@ -1,6 +1,8 @@
 using Godot;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Modding;
+using STS2RitsuLib;
+using STS2RitsuLib.Interop;
 
 namespace AllMatters;
 
@@ -11,7 +13,10 @@ public static class ModEntry
 
     public static void Initialize()
     {
+        ModTypeDiscoveryHub.RegisterModAssembly(ModId, typeof(ModEntry).Assembly);
+        RitsuLibFramework.EnsureGodotScriptsRegistered(typeof(ModEntry).Assembly,
+            RitsuLibFramework.CreateLogger(ModId));
         new Harmony(ModId).PatchAll(typeof(ModEntry).Assembly);
-        GD.Print($"[{ModId}] Hello World upgrade adjustment loaded; event content is not implemented yet.");
+        GD.Print($"[{ModId}] Hello World adjustment and Cleric event loaded.");
     }
 }

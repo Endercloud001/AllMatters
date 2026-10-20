@@ -1,0 +1,17 @@
+{
+  "ALL_MATTERS_EVENT_CLERIC.title": "牧师",
+  "ALL_MATTERS_EVENT_CLERIC.pages.INITIAL.description": "一个戴着金头盔的奇怪蓝色人形生物脸上带着大大的微笑走到了你面前。\n“[jitter]你好啊朋友！[/jitter] 我是 [blue]牧师[/blue]！你想不想试试我的服务呐？！”",
+  "ALL_MATTERS_EVENT_CLERIC.pages.INITIAL.options.HEAL.title": "治疗",
+  "ALL_MATTERS_EVENT_CLERIC.pages.INITIAL.options.HEAL.description": "失去 [red]{HealCost}[/red] [gold]金币[/gold]。回复 [green]{Heal}[/green] 点生命。",
+  "ALL_MATTERS_EVENT_CLERIC.pages.INITIAL.options.HEAL_LOCKED.title": "锁定",
+  "ALL_MATTERS_EVENT_CLERIC.pages.INITIAL.options.HEAL_LOCKED.description": "需要：[blue]{HealCost}[/blue] [gold]金币[/gold]。",
+  "ALL_MATTERS_EVENT_CLERIC.pages.INITIAL.options.PURIFY.title": "净化",
+  "ALL_MATTERS_EVENT_CLERIC.pages.INITIAL.options.PURIFY.description": "失去 [red]{PurifyCost}[/red] [gold]金币[/gold]。从你的 [gold]牌组[/gold] 中移除一张牌。",
+  "ALL_MATTERS_EVENT_CLERIC.pages.INITIAL.options.PURIFY_LOCKED.title": "锁定",
+  "ALL_MATTERS_EVENT_CLERIC.pages.INITIAL.options.PURIFY_LOCKED.description": "需要 [blue]{PurifyCost}[/blue] [gold]金币[/gold]及至少一张可移除的牌。",
+  "ALL_MATTERS_EVENT_CLERIC.pages.INITIAL.options.LEAVE.title": "离开",
+  "ALL_MATTERS_EVENT_CLERIC.pages.INITIAL.options.LEAVE.description": "",
+  "ALL_MATTERS_EVENT_CLERIC.pages.HEAL.description": "一道温暖的金光笼罩了你然后消散了。\n那个生物咧嘴一笑：“牧师最强奶妈。那么 [jitter]祝你愉快啦！[/jitter]”",
+  "ALL_MATTERS_EVENT_CLERIC.pages.PURIFY.description": "一道寒冷的蓝色火焰笼罩了你然后消散了。\n那个生物咧嘴一笑：“牧师就是能干。那么 [jitter]祝你愉快啦！[/jitter]”",
+  "ALL_MATTERS_EVENT_CLERIC.pages.LEAVE.description": "你完全不相信这个 [blue]“牧师”[/blue]，就这样走开了。"
+}

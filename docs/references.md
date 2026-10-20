@@ -15,7 +15,7 @@
 
 Balance MOD 的自定义 Relics 目录不包括原生 RedMask；事件直接引用游戏 RedMask。不要因为目录缺少对应文件就再次注册一个同名遗物。
 
-本轮没有复制上游事件代码和资源。正式移植时逐项记录文件来源、修改和许可证声明，保留原作者归属；图片、音频、Spine 等资源另外核对声明。AllMatters 的整体许可证在开始复制上游代码时确定并写入 LICENSE，当前不以未完成审核的自定许可证覆盖来源声明。
+牧师实现已移植 Balance 的事件逻辑、中英文文本和 cleric.png（上游指南说明为重制图）。整体采用 GPL-3.0-only，许可证见根目录 LICENSE，文件来源与修改见 THIRD_PARTY_NOTICES.md。未复制 ActsFromThePast 或游戏自带素材；RitsuLib 作为独立 MIT 依赖安装，不打包其程序集。
 
 ## 读取入口
 

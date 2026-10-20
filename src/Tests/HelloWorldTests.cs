@@ -25,17 +25,20 @@ internal static class HelloWorldTests
     {
         TestMode.IsOn = true;
         LocalContext.NetId = 1;
+        // The real game constructs saves before loading mods; preserve that ordering.
+        SaveManager.Instance.InitSettingsDataForTest();
+        SaveManager.Instance.InitPrefsDataForTest();
+        // Install host lifecycle substitutes before framework patches prepare game methods.
+        new Harmony("AllMatters.TestHost").PatchAll(typeof(HelloWorldTests).Assembly);
+        STS2RitsuLib.RitsuLibFramework.Initialize();
+        ModEntry.Initialize();
         try
         {
-            new Harmony("AllMatters.Tests").PatchAll(typeof(ModEntry).Assembly);
-            new Harmony("AllMatters.TestHost").PatchAll(typeof(HelloWorldTests).Assembly);
             await ModManager.Initialize(null!, null, null);
-            SaveManager.Instance.InitSettingsDataForTest();
-            SaveManager.Instance.InitPrefsDataForTest();
             SaveManager.Instance.SettingsSave.Language = "eng";
             LocManager.Initialize();
             foreach (Type type in ReflectionHelper.GetSubtypes<AbstractModel>()
-                .Concat(typeof(ModEntry).Assembly.GetTypes().Where(type => type.IsSubclassOf(typeof(PowerModel)))))
+                .Concat(typeof(ModEntry).Assembly.GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(AbstractModel)))))
             {
                 ModelDb.Inject(type);
             }
@@ -58,7 +61,7 @@ internal static class HelloWorldTests
                 ("Chinese localization survives language changes", ChinesePresentation),
                 ("Upgrade preview highlights only the added words", UpgradePreviewHighlight)
             ];
-            var selected = cases.Where(test => args.Length == 0 || test.Name.Contains(args[0], StringComparison.OrdinalIgnoreCase)).ToArray();
+            var selected = cases.Concat(ClericTests.Cases).Where(test => args.Length == 0 || test.Name.Contains(args[0], StringComparison.OrdinalIgnoreCase)).ToArray();
             Check(selected.Length > 0, "No test matches the supplied filter.");
             foreach (var test in selected)
             {
@@ -155,6 +158,8 @@ internal static class HelloWorldTests
                 Check(card.GetDescriptionForPile(PileType.None) == new LocString("cards", "HELLO_WORLD.description").GetFormattedText(),
                     "Ordinary card text must remain identical to the original localization.");
                 Upgrade(card);
+                Check(card.GetDescriptionForUpgradePreview() == preview,
+                    "Inspecting an already upgraded card must highlight the same changed words as its upgrade preview.");
                 Check(card.GetDescriptionForPile(PileType.None).Contains(expectedWords)
                     && !card.GetDescriptionForPile(PileType.None).Contains("[green]"),
                     "Normal upgraded display must retain its text without preview coloring.");
