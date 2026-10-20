@@ -2,5 +2,5 @@
   "ALL_MATTERS_JAX.title": "J.A.X.",
   "ALL_MATTERS_JAX.description": "失去 {HpLoss:diff()} 点生命。\n获得 {StrengthPower:diff()} [gold]力量[/gold]。",
   "ALL_MATTERS_NECRONOMICURSE.title": "死灵诅咒",
-  "ALL_MATTERS_NECRONOMICURSE.description": "你无法逃脱这个 [red]诅咒[/red]。"
+  "ALL_MATTERS_NECRONOMICURSE.description": "你无法逃脱这个[red]诅咒[/red]。"
 }
