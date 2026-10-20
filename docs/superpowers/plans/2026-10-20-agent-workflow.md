@@ -33,6 +33,14 @@
 
 ## 5. 导航与交接
 
-- [ ] 在 AGENTS.md 增加有触发条件的短指针；具体操作集中在 docs/development.md。
-- [ ] 提供按 Mod 过滤最新游戏日志的只读入口；说明配置、输出范围及事实先查证、测试边界提前约定的交接顺序。
-- [ ] 验证所有示例及双分支测试，确认 Mod 包不含工具/测试依赖，提交本步。保留用户未提交改动；不自动推送或建立 PR。
+- [x] 在 AGENTS.md 增加有触发条件的短指针；具体操作集中在 docs/development.md。
+- [x] 提供按 Mod 过滤最新游戏日志的只读入口；说明配置、输出范围及事实先查证、测试边界提前约定的交接顺序。
+- [x] 验证所有示例及双分支测试，确认 Mod 包不含工具/测试依赖，提交本步。保留用户未提交改动；不自动推送或建立 PR。
+
+## 验证结果（2026-10-20）
+
+- `Test.ps1 -Branch All`：public-beta 0.111.0 与 public 0.107.1 各 15/15；构建均为零警告、零错误。仍使用既有宿主替代边界及 beta 资源包，不代表 public 完整游戏验收。
+- 两目标 `Build.ps1` 均通过，两个开发包仅含 `AllMatters.dll`、`AllMatters.json`，不含 API 工具、测试或其依赖。
+- API 示例已核对 CardPreviewStyle 全名、public Counter 的私有 setter、两分支 CheckForEmptyHand 参数差异，以及 HelloWorld.OnPlay 源码位置；缺失类型/成员明确失败。旧显式路径导出仍可用。
+- 运行时准备可重复执行；测试参数覆盖及 DOTNET_ROOT 恢复已核对。全部 PowerShell 脚本语法解析通过。
+- 日志入口已读取真实 AllMatters 初始化记录，并用本地样例核对最新文件选择、尾部数量、错误筛选及无匹配说明。未修改游戏或存档。

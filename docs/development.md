@@ -24,7 +24,7 @@ Copy-Item Paths.example.props Paths.local.props
 
 Paths.local.props 不提交 Git；PublicGameDataDir 与 BetaGameDataDir 分别指向两套 DLL。本工作区前者指向从 GitHub 核对后下载的 0.107.1 实际 DLL，后者指向本机 Steam beta 安装；复制示例 props 会覆盖这些本地设置，请按实际路径填写。也可直接运行 `dotnet build -p:GameBranch=public-beta`。引用游戏程序集时 Private=false，避免把游戏 DLL 打包进 Mod。
 
-输出按分支隔离到 `dist/<branch>/AllMatters/`；构建不会自动写游戏目录。需要本机验证时，将该目录复制到游戏 `mods/AllMatters/` 后启动游戏，查看日志中的 AllMatters 加载信息。目前只产出 DLL 和 manifest；has_pck=false 与实际产物一致。你好世界调整使用游戏原生模型发现及现有图像，中英文文案随 DLL 提供，不需要 RitsuLib 或独立 PCK。独立测试项目不参与 Mod 编译或打包。尚未进行完整游戏内加载验收。
+输出按分支隔离到 `dist/<branch>/AllMatters/`；构建不会自动写游戏目录。需要本机验证时，将该目录复制到游戏 `mods/AllMatters/` 后启动游戏，查看日志中的 AllMatters 加载信息。目前只产出 DLL 和 manifest；has_pck=false 与实际产物一致。你好世界调整使用游戏原生模型发现及现有图像，中英文文案随 DLL 提供，不需要 RitsuLib 或独立 PCK。独立测试项目不参与 Mod 编译或打包。你好世界已由用户在 public-beta 进行牌效和升级高亮验收，具体证据及未覆盖范围见 [验证记录](testing/hello-world.md)。
 
 默认公开版完整运行环境的准备：可通过 Steam 切换至默认分支，退出游戏后准备独立开发副本，再切回 public-beta。GitHub 下载的 DLL 足以进行本轮方法体检查和编译，但没有 PCK、原生库等完整环境，不能用于启动游戏验收。本次没有改动 Steam 分支、安装或存档。
 
@@ -57,6 +57,19 @@ Paths.local.props 不提交 Git；PublicGameDataDir 与 BetaGameDataDir 分别�
 默认目标为 public-beta；每次输出实际程序集路径和版本来源。`-Find` 模糊查找类型全名，`-Signatures` 只读取元数据，不执行游戏初始化；`-Member` 按名称片段筛选，`-Limit` 控制返回数量。成员摘要只包含当前类型声明的 public/protected 成员，不展开可空引用注解及所有修饰信息；查继承成员时查询对应父类，精确调用和时序依据完整导出源码。
 
 不传 `-Find` 或 `-Signatures` 时按原行为导出方法体，省略 OutputDir 则写入忽略目录 `docs/local/api/queries/<目标与版本>/`，返回来源文件及成员匹配行。原有 `-AssemblyPath -OutputDir -IlspyPath -Types` 用法仍支持；显式程序集不会被配置覆盖。API 查询工具仅用于开发，不参与 Mod 编译/打包，也不需要 Godot 进程。
+
+## 游戏日志与交接
+
+```powershell
+./tools/ReadGameLog.ps1                       # 最新 .log 中最后 40 条 AllMatters 匹配行
+./tools/ReadGameLog.ps1 -IncludeErrors -Tail 20 # 同时包含全局 ERROR/FATAL/Exception
+```
+
+日志目录读取 `Paths.local.props` 的 `GameLogDir`，未填写时使用 `%APPDATA%/SlayTheSpire2/logs`；可用 `-LogDir` 临时覆盖，`-ModId` 指定其他模组。脚本只读，按文件修改时间选择最新 `.log`，输出来源和原始行号；无匹配不代表加载失败。需要排查更早的启动过程时，直接读取输出中的来源文件。分享日志前检查其中的本机路径和个人信息。
+
+脚本读取 props 中的字面值，不展开 MSBuild 表达式；工具路径可相对仓库根目录填写，游戏程序集目录建议使用绝对路径。配置仅保存在本机忽略文件。
+
+交接实现任务时，先记录目标版本、已核实机制及源码入口，再列尚需用户决定的行为。已有决定直接沿用；在开始 TDD 前一次约定公开接口、验收例子、宿主替代边界和审查起点。机制入口见 [阅读地图](game-mechanics.md)，展示和证据范围见 [审查说明](agents/review.md)。查询时先找类型和成员，再按需导出方法体；保留大文件于本地，交接只给出来源、成员和必要证据。
 
 ## 文档与参考目录
 
