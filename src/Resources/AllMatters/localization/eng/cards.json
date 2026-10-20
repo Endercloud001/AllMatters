@@ -1,4 +1,6 @@
 {
   "ALL_MATTERS_JAX.title": "J.A.X.",
-  "ALL_MATTERS_JAX.description": "Lose {HpLoss:diff()} HP.\nGain {StrengthPower:diff()} [gold]Strength[/gold]."
+  "ALL_MATTERS_JAX.description": "Lose {HpLoss:diff()} HP.\nGain {StrengthPower:diff()} [gold]Strength[/gold].",
+  "ALL_MATTERS_NECRONOMICURSE.title": "Necronomicurse",
+  "ALL_MATTERS_NECRONOMICURSE.description": "There is no escape from this [red]Curse[/red]."
 }

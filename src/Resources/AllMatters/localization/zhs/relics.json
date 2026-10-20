@@ -1,5 +1,14 @@
 {
   "ALL_MATTERS_MUTAGENIC_STRENGTH.title": "突变之力",
   "ALL_MATTERS_MUTAGENIC_STRENGTH.description": "每场战斗开始时，获得 [blue]{StrengthPower}[/blue] 点[gold]力量[/gold]并受到[red]突变衰退[/red]。在你的第三个回合结束时，失去 [blue]{StrengthPower}[/blue] 点[gold]力量[/gold]。",
-  "ALL_MATTERS_MUTAGENIC_STRENGTH.flavor": "基因实验留下的残余力量。"
+  "ALL_MATTERS_MUTAGENIC_STRENGTH.flavor": "基因实验留下的残余力量。",
+  "ALL_MATTERS_NECRONOMICON.title": "死灵之书",
+  "ALL_MATTERS_NECRONOMICON.description": "拾起时，获得[red]死灵诅咒[/red]。每回合第一次打出耗能{Energy:energyIcons()}或以上的[gold]攻击[/gold]牌时，额外打出一次。",
+  "ALL_MATTERS_NECRONOMICON.flavor": "只有傻瓜才会想要去掌控这种邪恶的力量。",
+  "ALL_MATTERS_NILRYS_CODEX.title": "尼利的宝典",
+  "ALL_MATTERS_NILRYS_CODEX.description": "每回合结束时，你可以从[blue]3[/blue]张随机的本职业[gold]升级版[/gold]卡牌中选择[blue]1[/blue]张洗入你的[gold]抽牌堆[/gold]。",
+  "ALL_MATTERS_NILRYS_CODEX.flavor": "由臭名昭著的游戏大师本人编制，据说能拓宽人的心智。",
+  "ALL_MATTERS_ENCHIRIDION.title": "英雄宝典",
+  "ALL_MATTERS_ENCHIRIDION.description": "每场战斗开始时将一张随机[gold]能力[/gold]牌加入你的[gold]手牌[/gold]。该牌在第一回合可免费打出。",
+  "ALL_MATTERS_ENCHIRIDION.flavor": "一名古老巫妖的传奇日志。"
 }
