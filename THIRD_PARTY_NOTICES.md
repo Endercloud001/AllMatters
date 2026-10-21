@@ -37,6 +37,12 @@ AllMatters is distributed under GNU GPL version 3 (see LICENSE). Copyright 2026 
 - Presentation artwork added 2026-10-21: `Sts2BalanceMod/images/event_extras/wheel.png` and `wheelArrow.png`, copied unchanged to `AllMatters/images/event_extras/wheel.png` and `wheel_arrow.png`. These files also appear in Balance's `Assets/ActsFromPast/images/event_extras/` mirror; its minigame credits [Cany0udance/ActsFromThePast](https://github.com/Cany0udance/ActsFromThePast). Preserve that source attribution along with Balance's. The redistribution basis is Balance's repository GPLv3 declaration; no independent chain-of-title audit is claimed.
 - `WheelSpinPresentation.cs` is original AllMatters code displaying the attributed artwork with Godot built-in nodes. No upstream minigame code, spin-button texture or audio is included. No files are taken directly from the separately downloaded ActsFromThePast repository, whose root license remains unspecified.
 
+## Tomb of Lord Red Mask
+
+- Source: [MT-SUPER-POWER/STS2-Balance-MOD](https://github.com/MT-SUPER-POWER/STS2-Balance-MOD), local revision `d9eff9e067b07689e722c5283e7c3e7c451961ca`, checked 2026-10-21. Repository LICENSE declares GNU GPLv3; preserve upstream attribution when redistributing.
+- Adapted code: `Sts2BalanceModCode/Events/TombOfLordRedMask.cs` and corresponding English/Chinese event entries. Changes: AllMatters registration/resource identity; Act 3 admission including masked players; fixed 150 Gold offering and insufficient-funds lock; native Red Mask and independent 222 Gold reward retained. Balance credits ActsFromThePast as a reference; no files were copied directly from that separately downloaded repository.
+- Image copied unchanged from `Sts2BalanceMod/images/events/TombOfLordRedMask.png` to `AllMatters/images/events/tomb_of_lord_red_mask.png`. Its corresponding master image is present at `image_gen/source/events/TombOfLordRedMask.png`; pre-redraw originals and game assets are not included. Redistribution follows the repository's GPLv3 declaration; this records that declaration, not an independent chain-of-title audit. The optional Huiji Wiki reference returned HTTP 403, so no Wiki text was copied.
+
 ## RitsuLib
 
 RitsuLib 0.6.7, by OLC: [BAKAOLC/STS2-RitsuLib](https://github.com/BAKAOLC/STS2-RitsuLib), MIT licensed. It is a separately installed runtime dependency; AllMatters does not redistribute its assemblies in this package. Preserve RitsuLib's own license and complete variant-pack layout when installing or redistributing it.

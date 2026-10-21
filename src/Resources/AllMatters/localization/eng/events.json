@@ -106,5 +106,20 @@
   "ALL_MATTERS_EVENT_CURSED_TOME.pages.CHOOSE.options.NILRYS_CODEX.title": "Nilry’s Codex",
   "ALL_MATTERS_EVENT_CURSED_TOME.pages.CHOOSE.options.NILRYS_CODEX.description": "Obtain Nilry’s Codex.",
   "ALL_MATTERS_EVENT_CURSED_TOME.pages.CHOOSE.options.ENCHIRIDION.title": "Enchiridion",
-  "ALL_MATTERS_EVENT_CURSED_TOME.pages.CHOOSE.options.ENCHIRIDION.description": "Obtain Enchiridion."
+  "ALL_MATTERS_EVENT_CURSED_TOME.pages.CHOOSE.options.ENCHIRIDION.description": "Obtain Enchiridion.",
+  "ALL_MATTERS_EVENT_TOMB_OF_LORD_RED_MASK.title": "Tomb of Lord Red Mask",
+  "ALL_MATTERS_EVENT_TOMB_OF_LORD_RED_MASK.pages.INITIAL.description": "You find a tomb dedicated to a red mask.",
+  "ALL_MATTERS_EVENT_TOMB_OF_LORD_RED_MASK.pages.INITIAL.options.WEAR_MASK.title": "Wear the Mask",
+  "ALL_MATTERS_EVENT_TOMB_OF_LORD_RED_MASK.pages.INITIAL.options.WEAR_MASK.description": "Gain [gold]{Gold}[/gold] Gold.",
+  "ALL_MATTERS_EVENT_TOMB_OF_LORD_RED_MASK.pages.INITIAL.options.WEAR_MASK_LOCKED.title": "Wear the Mask",
+  "ALL_MATTERS_EVENT_TOMB_OF_LORD_RED_MASK.pages.INITIAL.options.WEAR_MASK_LOCKED.description": "Requires Red Mask.",
+  "ALL_MATTERS_EVENT_TOMB_OF_LORD_RED_MASK.pages.INITIAL.options.PAY_RESPECTS.title": "Pay Respects",
+  "ALL_MATTERS_EVENT_TOMB_OF_LORD_RED_MASK.pages.INITIAL.options.PAY_RESPECTS.description": "Lose [gold]{Offering}[/gold] Gold. Obtain Red Mask.",
+  "ALL_MATTERS_EVENT_TOMB_OF_LORD_RED_MASK.pages.INITIAL.options.PAY_RESPECTS_LOCKED.title": "Pay Respects",
+  "ALL_MATTERS_EVENT_TOMB_OF_LORD_RED_MASK.pages.INITIAL.options.PAY_RESPECTS_LOCKED.description": "Requires at least [gold]{Offering}[/gold] Gold.",
+  "ALL_MATTERS_EVENT_TOMB_OF_LORD_RED_MASK.pages.INITIAL.options.LEAVE.title": "Leave",
+  "ALL_MATTERS_EVENT_TOMB_OF_LORD_RED_MASK.pages.INITIAL.options.LEAVE.description": "Do not disturb the tomb.",
+  "ALL_MATTERS_EVENT_TOMB_OF_LORD_RED_MASK.pages.WEAR_MASK.description": "You put on the Red Mask. A mechanism opens, spilling gold at your feet.",
+  "ALL_MATTERS_EVENT_TOMB_OF_LORD_RED_MASK.pages.PAY_RESPECTS.description": "You offer 150 Gold. The Red Mask falls gently into your hands.",
+  "ALL_MATTERS_EVENT_TOMB_OF_LORD_RED_MASK.pages.LEAVE.description": "You decide not to disturb the tomb."
 }
