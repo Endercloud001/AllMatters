@@ -10,5 +10,17 @@
   "ALL_MATTERS_NILRYS_CODEX.flavor": "由臭名昭著的游戏大师本人编制，据说能拓宽人的心智。",
   "ALL_MATTERS_ENCHIRIDION.title": "英雄宝典",
   "ALL_MATTERS_ENCHIRIDION.description": "每场战斗开始时将一张随机[gold]能力[/gold]牌加入你的[gold]手牌[/gold]。该牌在第一回合可免费打出。",
-  "ALL_MATTERS_ENCHIRIDION.flavor": "一名古老巫妖的传奇日志。"
+  "ALL_MATTERS_ENCHIRIDION.flavor": "一名古老巫妖的传奇日志。",
+  "ALL_MATTERS_BOTTLED_FLAME.title": "瓶装火焰",
+  "ALL_MATTERS_BOTTLED_FLAME.description": "拾起时，选择一张攻击牌。在每场战斗开始时，这张牌会出现在手牌中。",
+  "ALL_MATTERS_BOTTLED_FLAME.selectionScreenPrompt": "选择一张攻击牌进行瓶装绑定。",
+  "ALL_MATTERS_BOTTLED_FLAME.flavor": "一只封存着火焰的古怪瓶子。",
+  "ALL_MATTERS_BOTTLED_LIGHTNING.title": "瓶装闪电",
+  "ALL_MATTERS_BOTTLED_LIGHTNING.description": "拾起时，选择一张技能牌。在每场战斗开始时，这张牌会出现在手牌中。",
+  "ALL_MATTERS_BOTTLED_LIGHTNING.selectionScreenPrompt": "选择一张技能牌进行瓶装绑定。",
+  "ALL_MATTERS_BOTTLED_LIGHTNING.flavor": "一只封存着闪电的古怪瓶子。",
+  "ALL_MATTERS_BOTTLED_TORNADO.title": "瓶装旋风",
+  "ALL_MATTERS_BOTTLED_TORNADO.description": "拾起时，选择一张能力牌。在每场战斗开始时，这张牌会出现在手牌中。",
+  "ALL_MATTERS_BOTTLED_TORNADO.selectionScreenPrompt": "选择一张能力牌进行瓶装绑定。",
+  "ALL_MATTERS_BOTTLED_TORNADO.flavor": "一只封存着旋风的古怪瓶子。"
 }

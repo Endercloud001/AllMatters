@@ -10,5 +10,17 @@
   "ALL_MATTERS_NILRYS_CODEX.flavor": "Compiled by the infamous game master himself.",
   "ALL_MATTERS_ENCHIRIDION.title": "Enchiridion",
   "ALL_MATTERS_ENCHIRIDION.description": "At the start of each combat, add a random [gold]Power[/gold] card to your [gold]Hand[/gold]. It costs 0 this turn.",
-  "ALL_MATTERS_ENCHIRIDION.flavor": "A legendary journal from an ancient lich."
+  "ALL_MATTERS_ENCHIRIDION.flavor": "A legendary journal from an ancient lich.",
+  "ALL_MATTERS_BOTTLED_FLAME.title": "Bottled Flame",
+  "ALL_MATTERS_BOTTLED_FLAME.description": "Upon pickup, choose an unbottled Attack without [gold]Innate[/gold]. It gains [gold]Innate[/gold]. While you hold this relic, that card cannot be removed or transformed outside combat.",
+  "ALL_MATTERS_BOTTLED_FLAME.selectionScreenPrompt": "Choose an Attack to bottle.",
+  "ALL_MATTERS_BOTTLED_FLAME.flavor": "A strange bottle containing flame.",
+  "ALL_MATTERS_BOTTLED_LIGHTNING.title": "Bottled Lightning",
+  "ALL_MATTERS_BOTTLED_LIGHTNING.description": "Upon pickup, choose an unbottled Skill without [gold]Innate[/gold]. It gains [gold]Innate[/gold]. While you hold this relic, that card cannot be removed or transformed outside combat.",
+  "ALL_MATTERS_BOTTLED_LIGHTNING.selectionScreenPrompt": "Choose a Skill to bottle.",
+  "ALL_MATTERS_BOTTLED_LIGHTNING.flavor": "A strange bottle containing lightning.",
+  "ALL_MATTERS_BOTTLED_TORNADO.title": "Bottled Tornado",
+  "ALL_MATTERS_BOTTLED_TORNADO.description": "Upon pickup, choose an unbottled Power without [gold]Innate[/gold]. It gains [gold]Innate[/gold]. While you hold this relic, that card cannot be removed or transformed outside combat.",
+  "ALL_MATTERS_BOTTLED_TORNADO.selectionScreenPrompt": "Choose a Power to bottle.",
+  "ALL_MATTERS_BOTTLED_TORNADO.flavor": "A strange bottle containing tornado."
 }
