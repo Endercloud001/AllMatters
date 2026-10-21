@@ -108,7 +108,7 @@
   "ALL_MATTERS_EVENT_CURSED_TOME.pages.CHOOSE.options.ENCHIRIDION.title": "英雄宝典",
   "ALL_MATTERS_EVENT_CURSED_TOME.pages.CHOOSE.options.ENCHIRIDION.description": "获得英雄宝典。",
   "ALL_MATTERS_EVENT_TOMB_OF_LORD_RED_MASK.title": "红面具大人之墓",
-  "ALL_MATTERS_EVENT_TOMB_OF_LORD_RED_MASK.pages.INITIAL.description": "你发现了一座供奉红面具的墓穴。",
+  "ALL_MATTERS_EVENT_TOMB_OF_LORD_RED_MASK.pages.INITIAL.description": "在一条悬浮道路的尽头，你可以看见一处装饰华丽的古墓，当你到达古墓时，你看到有一个可以投放[gold]金币[/gold]的开口，但上面的铭文已经被划得看不清楚了。",
   "ALL_MATTERS_EVENT_TOMB_OF_LORD_RED_MASK.pages.INITIAL.options.WEAR_MASK.title": "戴上红面具",
   "ALL_MATTERS_EVENT_TOMB_OF_LORD_RED_MASK.pages.INITIAL.options.WEAR_MASK.description": "获得 [gold]{Gold}[/gold] 金币。",
   "ALL_MATTERS_EVENT_TOMB_OF_LORD_RED_MASK.pages.INITIAL.options.WEAR_MASK_LOCKED.title": "戴上红面具",
@@ -119,7 +119,7 @@
   "ALL_MATTERS_EVENT_TOMB_OF_LORD_RED_MASK.pages.INITIAL.options.PAY_RESPECTS_LOCKED.description": "需要至少 [gold]{Offering}[/gold] 金币。",
   "ALL_MATTERS_EVENT_TOMB_OF_LORD_RED_MASK.pages.INITIAL.options.LEAVE.title": "离开",
   "ALL_MATTERS_EVENT_TOMB_OF_LORD_RED_MASK.pages.INITIAL.options.LEAVE.description": "不打扰墓穴。",
-  "ALL_MATTERS_EVENT_TOMB_OF_LORD_RED_MASK.pages.WEAR_MASK.description": "你戴上红面具，墓中机关开启，金币滚落到你面前。",
-  "ALL_MATTERS_EVENT_TOMB_OF_LORD_RED_MASK.pages.PAY_RESPECTS.description": "你献上 150 金币。墓前的红面具轻轻落入你的手中。",
+  "ALL_MATTERS_EVENT_TOMB_OF_LORD_RED_MASK.pages.WEAR_MASK.description": "你戴上面具，古墓似乎开始逐渐剥离……是一条密道！密道中有着数不清的偷来的财宝与大量的[gold]金币[/gold]！",
+  "ALL_MATTERS_EVENT_TOMB_OF_LORD_RED_MASK.pages.PAY_RESPECTS.description": "古墓上出现一个开口，一个小小的红面具滑了出来，旁边还有一张纸条：'如同我夺走你的东西一般，去抢夺别人的东西吧！'",
   "ALL_MATTERS_EVENT_TOMB_OF_LORD_RED_MASK.pages.LEAVE.description": "你决定不打扰这座墓。"
 }
