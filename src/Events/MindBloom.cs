@@ -10,6 +10,7 @@ using STS2RitsuLib.Interop.AutoRegistration;
 using STS2RitsuLib.Scaffolding.Content;
 using AllMatters.Relics;
 using AllMatters.Encounters;
+using MegaCrit.Sts2.Core.HoverTips;
 
 namespace AllMatters.Events;
 
@@ -24,10 +25,10 @@ public sealed class MindBloom : ModEventTemplate
     protected override IReadOnlyList<EventOption> GenerateInitialOptions() =>
     [
         new(this, Fight, InitialOptionKey("FIGHT"), []),
-        new(this, Upgrade, InitialOptionKey("UPGRADE"), []),
+        new(this, Upgrade, InitialOptionKey("UPGRADE"), [.. HoverTipFactory.FromRelic<MarkOfTheBloom>()]),
         Owner!.RunState.TotalFloor < 38
-            ? new(this, Gold, InitialOptionKey("GOLD"), [])
-            : new(this, Heal, InitialOptionKey("HEAL"), []),
+            ? new(this, Gold, InitialOptionKey("GOLD"), [.. HoverTipFactory.FromCardWithCardHoverTips<Normality>(), .. HoverTipFactory.FromCardWithCardHoverTips<Greed>()])
+            : new(this, Heal, InitialOptionKey("HEAL"), [.. HoverTipFactory.FromCardWithCardHoverTips<Enthralled>(), .. HoverTipFactory.FromCardWithCardHoverTips<Regret>()]),
     ];
 
     private Task Fight()

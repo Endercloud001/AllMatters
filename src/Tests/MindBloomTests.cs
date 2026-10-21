@@ -29,6 +29,7 @@ using MegaCrit.Sts2.Core.Entities.CardRewardAlternatives;
 using MegaCrit.Sts2.Core.Entities.Ascension;
 using MegaCrit.Sts2.Core.Models.Powers;
 using MegaCrit.Sts2.Core.MonsterMoves.Intents;
+using MegaCrit.Sts2.Core.HoverTips;
 
 internal static class MindBloomTests
 {
@@ -41,6 +42,7 @@ internal static class MindBloomTests
         ("Mind Bloom native reward hooks retain additional rewards and upgraded candidates", RewardModifications),
         ("Mind Bloom Lagavulin retains normal and ascension HP, attack and strength/dexterity drain", AscensionMoves),
         ("Mind Bloom portrait, bilingual text, power icons, Spine animations and two encounter slots load from PCK", Presentation),
+        ("Mind Bloom option copy uses requested colors and native relic and curse hover previews", OptionPresentation),
     ];
 
     private static EventModel Canonical => ModelDb.AllEvents.SingleOrDefault(m => m.Id.Entry == "ALL_MATTERS_EVENT_MIND_BLOOM")
@@ -357,6 +359,40 @@ internal static class MindBloomTests
                     var entries = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(Godot.FileAccess.GetFileAsString($"res://AllMatters/localization/{language}/{table}.json"))!;
                     foreach (var entry in entries.Where(e => e.Key.Contains("MIND_BLOOM") || e.Key.Contains("LAGAVULIN") || e.Key.Contains("METALLICIZE") || e.Key.Contains("MARK_OF_THE_BLOOM")))
                         Check(new LocString(table, entry.Key).GetRawText() == entry.Value, "Localized model key not merged: " + entry.Key);
+                }
+            }
+        }
+        finally { LocManager.Instance.SetLanguage("eng"); }
+    }
+
+    private static async Task OptionPresentation()
+    {
+        using var scope = HeadlessCombatInProgress.EnterEvent();
+        try
+        {
+            foreach (string language in new[] { "zhs", "eng" })
+            foreach (int floor in new[] { 37, 38 })
+            {
+                LocManager.Instance.SetLanguage(language);
+                var player = Player.CreateForNewRun<Ironclad>(UnlockState.all, 1);
+                var run = RunState.CreateForTest([player], acts: [], seed: "BLOOM_OPTION_PRESENTATION");
+                for (int i = 0; i < floor; i++) run.AppendToMapPointHistory(MapPointType.Unknown, RoomType.Event, Canonical.Id);
+                var model = await Begin(player);
+                var fight = model.CurrentOptions[0]; var upgrade = model.CurrentOptions[1]; var third = model.CurrentOptions[2];
+                Check(!fight.HoverTips.Any(), "Fight has no item reward preview.");
+                Check(upgrade.HoverTips.Any(t => t.CanonicalModel is AllMatters.Relics.MarkOfTheBloom), "Awakening must preview the actual Mark of the Bloom effect.");
+                var curseIds = third.HoverTips.OfType<CardHoverTip>().Select(t => t.Card.Id).ToArray();
+                ModelId[] expected = floor == 37
+                    ? [ModelDb.Card<Normality>().Id, ModelDb.Card<Greed>().Id]
+                    : [ModelDb.Card<Enthralled>().Id, ModelDb.Card<Regret>().Id];
+                Check(curseIds.SequenceEqual(expected), "Preview both actual curse cards, including the native Enthralled model.");
+                if (language == "zhs")
+                {
+                    Check(fight.Description.GetRawText() == "与两只[red]乐加维林[/red]战斗，胜利获得[gold]丰厚的奖励[/gold]。", "Fight copy and red/gold emphasis must match the request.");
+                    Check(upgrade.Description.GetRawText() == "升级你的所有手牌，获得[red]绽放印记[/red]。", "Awakening copy is presentation only; deck upgrades remain covered by behavior tests.");
+                    Check(third.Description.GetRawText() == (floor == 37
+                        ? "获得999金币。将[red]凡庸[/red]和[red]贪婪[/red]加入你的牌组。"
+                        : "[green]回复你的所有生命[/green]，将[red]执迷[/red]与[red]悔恨[/red]加入你的牌组"), "Curse names and full healing must use the requested copy and colors.");
                 }
             }
         }
