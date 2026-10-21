@@ -202,5 +202,15 @@
   "ALL_MATTERS_EVENT_MIND_BLOOM.pages.INITIAL.options.HEAL.description": "[green]回复你的所有生命[/green]，将[red]执迷[/red]与[red]悔恨[/red]加入你的牌组",
   "ALL_MATTERS_EVENT_MIND_BLOOM.pages.GOLD.description": "真的有这么简单的事吗？",
   "ALL_MATTERS_EVENT_MIND_BLOOM.pages.HEAL.description": "真的有这么简单的事吗？",
-  "ALL_MATTERS_EVENT_MIND_BLOOM.pages.UPGRADE.description": "一切都明白了。\n失去的记忆、不断地攀登、那个先古之民。\n这是一切事物原本的样子。\n也是一切事物将有的样子。\n很快，这一切又会被再次遗忘。"
+  "ALL_MATTERS_EVENT_MIND_BLOOM.pages.UPGRADE.description": "一切都明白了。\n失去的记忆、不断地攀登、那个先古之民。\n这是一切事物原本的样子。\n也是一切事物将有的样子。\n很快，这一切又会被再次遗忘。",
+  "ALL_MATTERS_EVENT_COLOSSEUM.title": "竞技场",
+  "ALL_MATTERS_EVENT_COLOSSEUM.pages.INITIAL.description": "哐！！！\n\n……\n\n你被打晕了……\n\n你悠悠醒转，脑袋还疼得厉害，脚也站不太稳。你发现自己正处于一座巨大竞技场的中央，观众席上挤满了[b]奴隶贩子、邪教徒[/b]和城市区的其它居民们！\n\n一个头戴金冠的重甲巨人伫立在上方，他对你咆哮：“那么现在，就让我们开始第4200轮战斗！！！”\n\n在你对面的大门缓缓打开了……",
+  "ALL_MATTERS_EVENT_COLOSSEUM.pages.INITIAL.options.FIGHT.title": "迎战",
+  "ALL_MATTERS_EVENT_COLOSSEUM.pages.INITIAL.options.FIGHT.description": "与[red]活雾和潮湿邪教徒[/red]战斗。胜利后无战利品。",
+  "ALL_MATTERS_EVENT_COLOSSEUM.pages.POST_FIRST.description": "“打得不错，弱者啊！”\n\n那名巨人假装鼓了鼓掌，用夸张的手势开始鼓动起观众们。\n\n[b]金币和彩纸从天而降洒落在你身旁！[/b]\n\n“接下来才是真正的挑战！！”\n\n上一场战斗在竞技场的围墙上留下了一个小小的缺口，你完全有机会在众人们没留意时从那里逃出去。\n\n你想要留下来继续战斗吗？",
+  "ALL_MATTERS_EVENT_COLOSSEUM.pages.POST_FIRST.options.FIGHT.title": "死斗",
+  "ALL_MATTERS_EVENT_COLOSSEUM.pages.POST_FIRST.options.FIGHT.description": "开始一场随机的[red]第二幕精英战斗[/red]，胜利获得[gold]100金币、一件随机稀有遗物和一组稀有卡牌奖励[/gold]。",
+  "ALL_MATTERS_EVENT_COLOSSEUM.pages.POST_FIRST.options.FLEE.title": "懦弱",
+  "ALL_MATTERS_EVENT_COLOSSEUM.pages.POST_FIRST.options.FLEE.description": "逃跑，避免下一场战斗。无奖励。",
+  "ALL_MATTERS_EVENT_COLOSSEUM.pages.FLEE.description": "趁着观众的欢呼声，你钻过缺口，悄悄逃离了竞技场。"
 }
