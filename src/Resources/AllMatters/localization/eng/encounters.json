@@ -1,5 +1,7 @@
 {
   "ALL_MATTERS_ENCOUNTER_RED_MASK_BANDITS.title": "Masked Bandits",
   "ALL_MATTERS_ENCOUNTER_RED_MASK_BANDITS.loss": "{name} was robbed.",
-  "ALL_MATTERS_ENCOUNTER_RED_MASK_BANDITS.groupTitle": "Events"
+  "ALL_MATTERS_ENCOUNTER_RED_MASK_BANDITS.groupTitle": "Events",
+  "ALL_MATTERS_ENCOUNTER_MIND_BLOOM_ENCOUNTER.title": "Two Lagavulins",
+  "ALL_MATTERS_ENCOUNTER_MIND_BLOOM_ENCOUNTER.loss": "{name} could not overcome the dream."
 }

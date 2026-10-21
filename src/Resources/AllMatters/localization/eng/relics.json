@@ -22,5 +22,8 @@
   "ALL_MATTERS_BOTTLED_TORNADO.title": "Bottled Tornado",
   "ALL_MATTERS_BOTTLED_TORNADO.description": "Upon pickup, choose an unbottled Power without [gold]Innate[/gold]. It gains [gold]Innate[/gold]. While you hold this relic, that card cannot be removed or transformed outside combat.",
   "ALL_MATTERS_BOTTLED_TORNADO.selectionScreenPrompt": "Choose a Power to bottle.",
-  "ALL_MATTERS_BOTTLED_TORNADO.flavor": "A strange bottle containing tornado."
+  "ALL_MATTERS_BOTTLED_TORNADO.flavor": "A strange bottle containing tornado.",
+  "ALL_MATTERS_MARK_OF_THE_BLOOM.title": "Mark of the Bloom",
+  "ALL_MATTERS_MARK_OF_THE_BLOOM.description": "You can no longer heal.",
+  "ALL_MATTERS_MARK_OF_THE_BLOOM.flavor": "In the deepest parts of the Spire, thought and reality are one."
 }

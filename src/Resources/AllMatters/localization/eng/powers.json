@@ -1,5 +1,11 @@
 {
   "ALL_MATTERS_POWER_MUTAGENIC_DECAY_POWER.title": "Mutagenic Decay",
   "ALL_MATTERS_POWER_MUTAGENIC_DECAY_POWER.description": "At the end of your turn, count down. After {Amount} more turns, lose [blue]3[/blue] [gold]Strength[/gold].",
-  "ALL_MATTERS_POWER_MUTAGENIC_DECAY_POWER.smartDescription": "At the end of your turn, count down. After {Amount} more turns, lose [blue]3[/blue] [gold]Strength[/gold]."
+  "ALL_MATTERS_POWER_MUTAGENIC_DECAY_POWER.smartDescription": "At the end of your turn, count down. After {Amount} more turns, lose [blue]3[/blue] [gold]Strength[/gold].",
+  "ALL_MATTERS_POWER_ASLEEP_LAGAVULIN_POWER.title": "Asleep",
+  "ALL_MATTERS_POWER_ASLEEP_LAGAVULIN_POWER.description": "This creature is asleep. Taking unblocked damage will awaken it immediately. Awakens naturally in {Amount} turns.",
+  "ALL_MATTERS_POWER_ASLEEP_LAGAVULIN_POWER.smartDescription": "This creature is asleep. Taking unblocked damage will awaken it immediately. Awakens in {Amount} turns.",
+  "ALL_MATTERS_POWER_METALLICIZE_POWER.title": "Metallicize",
+  "ALL_MATTERS_POWER_METALLICIZE_POWER.description": "At the end of round, gain {Amount} [gold]Block[/gold].",
+  "ALL_MATTERS_POWER_METALLICIZE_POWER.smartDescription": "At the end of round, gain {Amount} [gold]Block[/gold]."
 }

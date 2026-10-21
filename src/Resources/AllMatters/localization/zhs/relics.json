@@ -22,5 +22,8 @@
   "ALL_MATTERS_BOTTLED_TORNADO.title": "瓶装旋风",
   "ALL_MATTERS_BOTTLED_TORNADO.description": "拾起时，选择一张能力牌。在每场战斗开始时，这张牌会出现在手牌中。",
   "ALL_MATTERS_BOTTLED_TORNADO.selectionScreenPrompt": "选择一张能力牌进行瓶装绑定。",
-  "ALL_MATTERS_BOTTLED_TORNADO.flavor": "一只封存着旋风的古怪瓶子。"
+  "ALL_MATTERS_BOTTLED_TORNADO.flavor": "一只封存着旋风的古怪瓶子。",
+  "ALL_MATTERS_MARK_OF_THE_BLOOM.title": "绽放印记",
+  "ALL_MATTERS_MARK_OF_THE_BLOOM.description": "你无法再回复生命。",
+  "ALL_MATTERS_MARK_OF_THE_BLOOM.flavor": "在高塔的深处，思维与现实成为了一体。"
 }

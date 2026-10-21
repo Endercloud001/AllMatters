@@ -12,5 +12,12 @@
   "ALL_MATTERS_MONSTER_ROMEO.moves.MOCK.bearDead": "[sine]你会付出代价的！！[/sine]",
   "ALL_MATTERS_MONSTER_ROMEO.moves.CROSS_SLASH.title": "十字斩",
   "ALL_MATTERS_MONSTER_ROMEO.moves.AGONIZING_SLASH.title": "痛苦斩",
-  "ALL_MATTERS_MONSTER_ROMEO.deathReactLine": "[sine]不——！熊！！[/sine]"
+  "ALL_MATTERS_MONSTER_ROMEO.deathReactLine": "[sine]不——！熊！！[/sine]",
+  "ALL_MATTERS_MONSTER_LAGAVULIN.name": "乐加维林",
+  "ALL_MATTERS_MONSTER_LAGAVULIN.dialog.WAKE": "[red]谁在吵醒我！[/red]",
+  "ALL_MATTERS_MONSTER_LAGAVULIN.dialog.SLEEP_1": "[sine]呼……噜……[/sine]",
+  "ALL_MATTERS_MONSTER_LAGAVULIN.dialog.SLEEP_2": "[sine]呼噜噜……[/sine]",
+  "ALL_MATTERS_MONSTER_LAGAVULIN.moves.ATTACK.title": "重击",
+  "ALL_MATTERS_MONSTER_LAGAVULIN.moves.DEBUFF.title": "灵魂吸取",
+  "ALL_MATTERS_MONSTER_LAGAVULIN.moves.SLEEP.title": "沉睡"
 }

@@ -12,5 +12,12 @@
   "ALL_MATTERS_MONSTER_ROMEO.moves.MOCK.bearDead": "[sine]You[/sine] [sine]will[/sine] [sine]pay[/sine] [sine]for[/sine] [sine]this!![/sine]",
   "ALL_MATTERS_MONSTER_ROMEO.moves.CROSS_SLASH.title": "Cross Slash",
   "ALL_MATTERS_MONSTER_ROMEO.moves.AGONIZING_SLASH.title": "Agonizing Slash",
-  "ALL_MATTERS_MONSTER_ROMEO.deathReactLine": "[sine]Nooooooo,[/sine] [sine]Bear![/sine]"
+  "ALL_MATTERS_MONSTER_ROMEO.deathReactLine": "[sine]Nooooooo,[/sine] [sine]Bear![/sine]",
+  "ALL_MATTERS_MONSTER_LAGAVULIN.name": "Lagavulin",
+  "ALL_MATTERS_MONSTER_LAGAVULIN.dialog.WAKE": "[red]WHO AWAKENS ME![/red]",
+  "ALL_MATTERS_MONSTER_LAGAVULIN.dialog.SLEEP_1": "[sine]Zzz...[/sine]",
+  "ALL_MATTERS_MONSTER_LAGAVULIN.dialog.SLEEP_2": "[sine]Zzz... Zzz...[/sine]",
+  "ALL_MATTERS_MONSTER_LAGAVULIN.moves.ATTACK.title": "Attack",
+  "ALL_MATTERS_MONSTER_LAGAVULIN.moves.DEBUFF.title": "Siphon Soul",
+  "ALL_MATTERS_MONSTER_LAGAVULIN.moves.SLEEP.title": "Sleep"
 }

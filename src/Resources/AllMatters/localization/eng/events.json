@@ -189,5 +189,18 @@
   "ALL_MATTERS_EVENT_MASKED_BANDITS.pages.PAID_13.options.CONTINUE.description": "",
   "ALL_MATTERS_EVENT_MASKED_BANDITS.pages.PAID_14.description": "[sine]Hoh![/sine]",
   "ALL_MATTERS_EVENT_MASKED_BANDITS.pages.PAID_14.options.CONTINUE.title": "Continue",
-  "ALL_MATTERS_EVENT_MASKED_BANDITS.pages.PAID_14.options.CONTINUE.description": ""
+  "ALL_MATTERS_EVENT_MASKED_BANDITS.pages.PAID_14.options.CONTINUE.description": "",
+  "ALL_MATTERS_EVENT_MIND_BLOOM.title": "Mind Bloom",
+  "ALL_MATTERS_EVENT_MIND_BLOOM.pages.INITIAL.description": "The Spire flickers around you. For a moment, you see every possibility at once. What will you become?",
+  "ALL_MATTERS_EVENT_MIND_BLOOM.pages.INITIAL.options.FIGHT.title": "I am War",
+  "ALL_MATTERS_EVENT_MIND_BLOOM.pages.INITIAL.options.FIGHT.description": "Fight two sleeping Lagavulins. Receive 100 Gold, a random Rare Relic and a Rare card reward.",
+  "ALL_MATTERS_EVENT_MIND_BLOOM.pages.INITIAL.options.UPGRADE.title": "I am Awake",
+  "ALL_MATTERS_EVENT_MIND_BLOOM.pages.INITIAL.options.UPGRADE.description": "Upgrade all upgradable cards. Obtain Mark of the Bloom. You can no longer heal.",
+  "ALL_MATTERS_EVENT_MIND_BLOOM.pages.INITIAL.options.GOLD.title": "I am Rich",
+  "ALL_MATTERS_EVENT_MIND_BLOOM.pages.INITIAL.options.GOLD.description": "Gain 999 Gold. Become Cursed with Normality and Greed.",
+  "ALL_MATTERS_EVENT_MIND_BLOOM.pages.INITIAL.options.HEAL.title": "I am Healthy",
+  "ALL_MATTERS_EVENT_MIND_BLOOM.pages.INITIAL.options.HEAL.description": "Heal to full HP. Become Cursed with Enthralled and Regret.",
+  "ALL_MATTERS_EVENT_MIND_BLOOM.pages.GOLD.description": "Wealth spills into your hands. Two unwelcome thoughts settle into your mind.",
+  "ALL_MATTERS_EVENT_MIND_BLOOM.pages.HEAL.description": "Your wounds close, but your mind remains bound to the Spire.",
+  "ALL_MATTERS_EVENT_MIND_BLOOM.pages.UPGRADE.description": "Every possibility becomes clear. Your power blooms, and the chance to heal fades forever."
 }
