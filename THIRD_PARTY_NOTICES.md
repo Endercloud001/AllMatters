@@ -65,3 +65,11 @@ RitsuLib 0.6.7, by OLC: [BAKAOLC/STS2-RitsuLib](https://github.com/BAKAOLC/STS2-
 ## Game assets and assemblies
 
 Slay the Spire 2 and its game resources remain the property of Mega Crit and their respective owners. Game DLLs, native libraries, PCK files and decompiled game code are development inputs only and are not distributed with this mod.
+
+## Mind Bloom, Lagavulin and Mark of the Bloom
+
+- Source: MT-SUPER-POWER/STS2-Balance-MOD, revision `d9eff9e067b07689e722c5283e7c3e7c451961ca`, checked 2026-10-21. Repository LICENSE declares GPLv3. Preserve upstream attribution.
+- Adapted code: `Events/MindBloom.cs`, `Monsters/Lagavulin.cs`, `Powers/{AsleepLagavulinPower,MetallicizePower}.cs`, `Relics/MarkOfTheBloom.cs` under `Sts2BalanceModCode/`. Upstream credits ActsFromThePast. Changes: one double-Lagavulin encounter; specified shared effects, curses and exact rewards; native dual-target lifecycle and reward handling; AllMatters model/resource identities. Event prose is written for AllMatters; monster/power/relic localization is adapted from Balance.
+- Assets: `Sts2BalanceMod/images/events/MindBloom.png`, `images/relics/{,big/,outlines/}MarkOfTheBloom.png`, `images/powers/AsleepLagavulinPower.png`, the five scene/Spine/atlas/texture files in `monsters/lagavulin/`, and `Assets/ActsFromPast/images/powers/actsfromthepast-metallicize_power.png` (Metallicize icon, used for both sizes). Event/relic master images exist in upstream `image_gen/source/`; upstream identifies the event illustration as remade art. Monster scenes and text resources only change resource paths; PNG and binary skeleton files are unchanged. The sleep icon is used for both icon sizes.
+- The Lagavulin Spine assets also occur in Balance's ActsFromPast mirror. As with the existing bandit assets, redistribution follows Balance's repository GPLv3 declaration and preserves Balance/ActsFromThePast/original game attribution; this is not an independent audit of the underlying artwork's rights or a claim to relicense original game artwork. No files were copied directly from the separate ActsFromThePast archive. See `docs/research/2026-10-21-issue-12-source-assets.md` for remaining provenance limitations.
+- No game DLL, PCK, native Spine library, decompiled code, or mirrored Mind Bloom music is distributed.

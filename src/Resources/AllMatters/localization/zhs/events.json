@@ -189,5 +189,18 @@
   "ALL_MATTERS_EVENT_MASKED_BANDITS.pages.PAID_13.options.CONTINUE.description": "",
   "ALL_MATTERS_EVENT_MASKED_BANDITS.pages.PAID_14.description": "[sine]哗哈哈！[/sine]",
   "ALL_MATTERS_EVENT_MASKED_BANDITS.pages.PAID_14.options.CONTINUE.title": "继续",
-  "ALL_MATTERS_EVENT_MASKED_BANDITS.pages.PAID_14.options.CONTINUE.description": ""
+  "ALL_MATTERS_EVENT_MASKED_BANDITS.pages.PAID_14.options.CONTINUE.description": "",
+  "ALL_MATTERS_EVENT_MIND_BLOOM.title": "心灵绽放",
+  "ALL_MATTERS_EVENT_MIND_BLOOM.pages.INITIAL.description": "高塔在你身边闪烁。一瞬间，你看见了所有可能。你将成为什么？",
+  "ALL_MATTERS_EVENT_MIND_BLOOM.pages.INITIAL.options.FIGHT.title": "我必凯旋",
+  "ALL_MATTERS_EVENT_MIND_BLOOM.pages.INITIAL.options.FIGHT.description": "与两只沉睡的乐加维林战斗。胜利获得100金币、一件随机稀有遗物和一组稀有卡牌奖励。",
+  "ALL_MATTERS_EVENT_MIND_BLOOM.pages.INITIAL.options.UPGRADE.title": "我已觉醒",
+  "ALL_MATTERS_EVENT_MIND_BLOOM.pages.INITIAL.options.UPGRADE.description": "升级牌组中所有可升级的牌。获得绽放印记：你将无法回复生命。",
+  "ALL_MATTERS_EVENT_MIND_BLOOM.pages.INITIAL.options.GOLD.title": "我将富有",
+  "ALL_MATTERS_EVENT_MIND_BLOOM.pages.INITIAL.options.GOLD.description": "获得999金币。将「凡庸」和「贪婪」各一张加入牌组。",
+  "ALL_MATTERS_EVENT_MIND_BLOOM.pages.INITIAL.options.HEAL.title": "我无伤痛",
+  "ALL_MATTERS_EVENT_MIND_BLOOM.pages.INITIAL.options.HEAL.description": "回复所有生命。将「执迷」和「悔恨」各一张加入牌组。",
+  "ALL_MATTERS_EVENT_MIND_BLOOM.pages.GOLD.description": "财富涌入你的掌心。两个不受欢迎的念头，也留在了你的脑海中。",
+  "ALL_MATTERS_EVENT_MIND_BLOOM.pages.HEAL.description": "你的伤口愈合了，心灵却仍被高塔束缚。",
+  "ALL_MATTERS_EVENT_MIND_BLOOM.pages.UPGRADE.description": "一切可能都变得清晰。你的力量绽放了，治愈的机会却永远消失。"
 }
