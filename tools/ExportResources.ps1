@@ -10,5 +10,7 @@ $distDir = Join-Path $repoDir 'dist'
 New-Item -ItemType Directory -Path $distDir -Force | Out-Null
 & $GodotPath --headless --editor --path $resourceDir --import --quit
 if ($LASTEXITCODE -ne 0) { throw "Resource import failed (exit $LASTEXITCODE)." }
-& $GodotPath --headless --path $resourceDir --export-pack Resources (Join-Path $distDir 'AllMatters.pck')
+# Preserve Spine scenes as source resources: the stock editor cannot convert their
+# game-provided resource types. PCKPacker includes them without parsing dependencies.
+& $GodotPath --headless --path $resourceDir --script (Join-Path $repoDir 'src/Tooling/PackResources.gd') -- (Join-Path $distDir 'AllMatters.pck')
 if ($LASTEXITCODE -ne 0) { throw "Resource export failed (exit $LASTEXITCODE)." }
