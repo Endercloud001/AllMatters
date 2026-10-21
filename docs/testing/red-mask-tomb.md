@@ -1,0 +1,52 @@
+# 红面具大人之墓（GitHub #8）验证记录
+
+日期：2026-10-21。父规格 #2，直接阻塞 #3 已关闭；正文和三票评论已读取（均无评论）。玩法以范围事件表、父规格 A01/A18/A29 及 #8 为准。
+
+## 行为与来源
+
+- 仅 Act 3（索引 2）准入，不按金币或队伍是否已有红面具排除。事件为个人选择；框架注册到共享事件池不代表共同选项。
+- 未持有红面具：戴面具禁用；至少 150 金币可献上敬意，固定扣 150 并通过原生命令获得原生 RedMask；不足禁用且不扣费。持有者只显示戴面具及离开，戴面具获得 222 金币，不再购买重复遗物。离开无资源改变。
+- 不重新注册 RedMask，不调整其稀有度或池。代码、双语文本和事件重制图的来源及 GPLv3 声明见根目录 THIRD_PARTY_NOTICES.md。图片复制前读取 Balance 根 LICENSE；未执行参考仓库脚本，未复制游戏素材或单独的 ActsFromThePast 文件。
+- 用户提供的 Huiji Wiki 页面读取返回 HTTP 403，未复制该页面文本；用 Balance 短文本适配固定费用，中文选项沿用已确认名称。
+
+## 测试入口与恢复边界
+
+沿用已确认的 `EventModel.BeginEvent → CurrentOptions → EventOption.Chosen` 入口，检查金币、原生遗物、队友和结束状态。复用 Godot、RitsuLib、实际目标 DLL、原生命令及本地化宿主，不增加测试框架。
+
+新增五项：第三幕含持面具队友准入及 407→257 固定支付；149/150 边界和无面具离开；零金币持有者领取 222/离开及另一玩家独立献金；原生入口/库存快照恢复；PCK 图片与中英文动态费用/奖励。重复已选和未选的旧选项不会重复结算。
+
+两版 `EventRoom.ToSerializable` 都只记录事件身份和 IsPreFinished，普通事件不会像先古一样标记预完成；不能将领取后的库存直接拼回初始墓穴当作原生存档恢复。两版入口快照测试恢复领取前的玩家数据后重新进入并完成同一分支，最终只有一次费用/奖励；领取后库存序列化往返保留一件面具和正确金币，不调用获得效果。没有声称可在任意 UI 中间帧保存，也没有新增保存状态体系。
+
+宿主替代全局战斗进行中/结束中状态、空手通知及部分 UI/动作循环，事件用既有 EnterEvent scope。原生 EventRoom 只做序列化往返，未执行完整 RunManager 房间、磁盘保存、退出读档和网络调度。public 使用真实 0.107.1 DLL，但共享本机 beta 资源 PCK，不等于完整 public 环境。
+
+## 命令与证据
+
+- `./tools/Test.ps1 -Filter 'Red Mask Tomb'`：初次失败于事件尚未注册，日志 `.local/tomb-red.log`；接入后旧离开回调暴露结束状态异常，修复后首项通过，日志 `.local/tomb-green-payment.log`。
+- `./tools/Test.ps1 -Branch All -Filter 'Red Mask Tomb'`：public-beta 0.111.0、public 0.107.1 各五项通过，测试/生产编译零警告零错误；日志 `.local/tomb-targeted.log`。
+- `./tools/Check.ps1`：退出 0；public-beta 0.111.0 与 public 0.107.1 **各 61 项通过**（原有 56 项回归及本票 5 项），生产/测试编译零警告零错误，PCK 导出和双目标开发包成功。日志 `.local/tomb-final-check.log`、`.local/checks/last-run.log`。确认两包均含 DLL、manifest、PCK、LICENSE、来源声明，未混入游戏 DLL 或 RitsuLib 程序集。
+- 已检查所复制的 3440×1616 事件图；自动化仅证明纹理可从 PCK 加载，未生成正式游戏画面证据。
+- 按 implement、tdd 和 verification-before-completion 技能完成公开入口红绿验证及最终检查；code-review 以开工 HEAD `28e09c3ca3fc31782f3060c51898d4c7fc0038eb` 为起点，对本票九文件 staged diff 作提交前双轴审查。当前分支 main；原有未提交配置、文档、脚本改动均未纳入本票暂存范围。
+
+### Standards
+
+独立审查：0 项规范违反或需报告的代码异味；原生命令、玩家归属、既有模型测试入口及许可归属符合项目要求。
+
+### Spec
+
+独立审查：0 项代码偏离；第三幕、个人分支、150 扣款、222 奖励、原生 RedMask 及持有者不再献金均符合规格。beta 实机及真实保存退出/读档仍属未完成验收，不能以自动化通过关闭 #8。
+
+两轴代码问题合计：Standards 0、Spec 0；两轴均无剩余代码问题，实机证据缺口保留在本记录中。
+
+## 用户安装与实机验收
+
+Agent 遵守 AGENTS.md，不启动 Steam/游戏、不复制到游戏 mods、不修改安装或存档。当前未执行 beta 实机可玩验证，因此 GitHub #8 不以自动化通过关闭。完整 public、真实双端联机、回放及游戏内保存退出均未验证。
+
+开发包位于仓库下 `dist/public-beta/AllMatters/`（0.111.0）和 `dist/public/AllMatters/`（0.107.1）。独立依赖为 `.local/dependencies/RitsuLib-0.6.7/`，来源 [RitsuLib](https://github.com/BAKAOLC/STS2-RitsuLib)，需保留完整 variant-pack 的 shared、compat、manifest 和许可证，不能只装 compat DLL。
+
+用户退出游戏并备份现有安装后，将匹配分支的 AllMatters 整个目录更新至游戏 `mods/AllMatters/`，将完整 RitsuLib 包安装至 `mods/STS2-RitsuLib/`，再通过 Steam 启动匹配版本。保留其他 Mod，反馈实际版本、Mod 清单、操作和日志。
+
+1. 在第三幕通过既有开发控制台 `event ALL_MATTERS_EVENT_TOMB_OF_LORD_RED_MASK` 进入；自然未知房间入池仍需实际抽取验证。中英文分别检查标题、插画、选项和结果页。
+2. 无红面具、149 金币：献金禁用，离开无改变。150 金币：献金后金币为 0 且获得一件原生红面具；407 金币应剩 257。服务后无第二次领取。
+3. 已持面具、0 金币：能进入，戴面具后得到 222，遗物不增加；选择离开则金币/遗物不变。双端准备仅一人持面具，分别戴面具和献金，核对只影响各自资源。
+4. 在原生实际允许的入口/完成后保存节点退出读档，核对入口快照回滚及重新选择只结算一份；不要将模型库存往返当作实机存档通过。
+5. 联机需真实主客机各自操作、退出并核对；回放需真实重播比对。用户反馈仅按实际执行范围补记，不扩写为全部场景已通过。
