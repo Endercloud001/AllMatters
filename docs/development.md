@@ -24,7 +24,7 @@ Copy-Item Paths.example.props Paths.local.props
 
 Paths.local.props 不提交 Git；PublicGameDataDir 与 BetaGameDataDir 分别指向两套 DLL。本工作区前者指向从 GitHub 核对后下载的 0.107.1 实际 DLL，后者指向本机 Steam beta 安装；复制示例 props 会覆盖这些本地设置，请按实际路径填写。也可直接运行 `dotnet build -p:GameBranch=public-beta`。引用游戏程序集时 Private=false，避免把游戏 DLL 打包进 Mod。
 
-输出按分支隔离到 `dist/<branch>/AllMatters/`；构建不会自动写游戏目录。现在包含 DLL、manifest、PCK、GPLv3 LICENSE 和来源声明。构建脚本先导入 `src/Resources/`，再用 `--export-pack Resources` 生成资源包，不依赖 Windows 导出模板。`tools/ExportResources.ps1` 可单独运行；`tools/Test.ps1` 也会先导出最新 PCK。
+输出按分支隔离到 `dist/<branch>/AllMatters/`；构建不会自动写游戏目录。现在包含 DLL、manifest、PCK、GPLv3 LICENSE 和来源声明。构建脚本先导入 `src/Resources/`，再用 `src/Tooling/PackResources.gd` 的原生 `PCKPacker` 打包纹理导入文件及原样场景/Spine 资源，不依赖 Windows 导出模板。`tools/ExportResources.ps1` 可单独运行；`tools/Test.ps1` 也会先导出最新 PCK。
 
 需要本机验证时，将开发包复制到游戏 `mods/AllMatters/`，将完整 RitsuLib variant-pack 另装到 `mods/STS2-RitsuLib/`，再由用户通过 Steam 启动游戏。不要只复制 compat 下的单个 DLL。独立测试项目不参与 Mod 打包。牧师的手动验收及环境准备见 [牧师验证记录](testing/cleric.md)；你好世界既有用户验收见 [原验证记录](testing/hello-world.md)。
 

@@ -11,7 +11,7 @@ internal static class AllMattersLocalization
 
     private static void Postfix(LocManager __instance, string name, LocTable __result)
     {
-        if (name is not ("events" or "cards" or "relics" or "powers")) return;
+        if (name is not ("events" or "cards" or "relics" or "powers" or "monsters" or "encounters")) return;
         string language = __instance.Language == "zhs" ? "zhs" : "eng";
         string key = $"{language}/{name}";
         if (!Tables.TryGetValue(key, out var entries))

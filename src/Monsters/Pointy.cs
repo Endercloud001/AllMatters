@@ -1,0 +1,106 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Adapted from MT-SUPER-POWER/STS2-Balance-MOD; upstream credits ActsFromThePast.
+using MegaCrit.Sts2.Core.Animation;
+using MegaCrit.Sts2.Core.Bindings.MegaSpine;
+using MegaCrit.Sts2.Core.Combat;
+using MegaCrit.Sts2.Core.Commands;
+using MegaCrit.Sts2.Core.Entities.Ascension;
+using MegaCrit.Sts2.Core.Entities.Creatures;
+using MegaCrit.Sts2.Core.Helpers;
+using MegaCrit.Sts2.Core.Localization;
+using MegaCrit.Sts2.Core.MonsterMoves.Intents;
+using MegaCrit.Sts2.Core.MonsterMoves.MonsterMoveStateMachine;
+using MegaCrit.Sts2.Core.Nodes.Vfx;
+using STS2RitsuLib.Content;
+using STS2RitsuLib.Interop.AutoRegistration;
+using STS2RitsuLib.Scaffolding.Content;
+
+namespace AllMatters.Monsters;
+
+// ======================== 红面具三人帮 — Pointy ========================
+
+/// <summary>
+/// STS1-EVENT — 红面具强盗 Pointy（尖头），快速二连刺。
+/// </summary>
+[RegisterMonster]
+public sealed class Pointy : BanditMonster
+{
+  public override MonsterAssetProfile AssetProfile => new(
+    "res://AllMatters/monsters/pointy/pointy.tscn");
+
+  public override int MinInitialHp => AscensionHelper.GetValueIfAscension(AscensionLevel.ToughEnemies, 34, 30);
+  public override int MaxInitialHp => MinInitialHp;
+
+  private static int AttackDamage => AscensionHelper.GetValueIfAscension(AscensionLevel.DeadlyEnemies, 6, 5);
+  private const int AttackHits = 2;
+  private static readonly LocString DeathReactLine =
+    new("monsters", "ALL_MATTERS_MONSTER_POINTY.deathReactLine");
+
+  private const string STAB = "STAB";
+  protected override string AttackSfx => "event:/sfx/enemy/enemy_attacks/gremlin_merc/sneaky_gremlin_attack";
+
+  public override async Task AfterAddedToRoom()
+  {
+    await base.AfterAddedToRoom();
+
+    ICombatState? combatState = Creature.CombatState;
+    if (combatState == null)
+    {
+      return;
+    }
+
+    Creature? bear = combatState.GetTeammatesOf(Creature)
+      .FirstOrDefault(t => t.Monster is Bear);
+    if (bear != null)
+    {
+      bear.Died += BearDeathResponse;
+    }
+  }
+
+  private void BearDeathResponse(Creature deadCreature)
+  {
+    deadCreature.Died -= BearDeathResponse;
+    if (Creature.IsDead)
+    {
+      return;
+    }
+
+    TalkCmd.Play(DeathReactLine, Creature, VfxColor.Red, VfxDuration.Long);
+  }
+
+  protected override MonsterMoveStateMachine GenerateMoveStateMachine()
+  {
+    var stabState = new MoveState(STAB, Stab, [new MultiAttackIntent(AttackDamage, AttackHits)]);
+    stabState.FollowUpState = stabState;
+    return new MonsterMoveStateMachine([stabState], stabState);
+  }
+
+  private async Task Stab(IReadOnlyList<Creature> targets)
+  {
+    await DamageCmd.Attack(AttackDamage)
+        .WithHitCount(AttackHits).OnlyPlayAnimOnce()
+        .FromMonster(this)
+        .WithAttackerAnim("Attack", 0.4f)
+        .WithAttackerFx(null, AttackSfx)
+        .WithHitFx("vfx/vfx_attack_slash")
+        .Execute(null);
+  }
+
+  public override CreatureAnimator GenerateAnimator(MegaSprite controller)
+  {
+    var idle = new AnimState("Idle", true);
+    var attack = new AnimState("Attack");
+    var hit = new AnimState("Hit");
+
+    attack.NextState = idle;
+    hit.NextState = idle;
+
+    var animator = new CreatureAnimator(idle, controller);
+    animator.AddAnyState("Attack", attack);
+    animator.AddAnyState("Slash", attack);
+    animator.AddAnyState(STAB, attack);
+    animator.AddAnyState("Hit", hit);
+
+    return animator;
+  }
+}

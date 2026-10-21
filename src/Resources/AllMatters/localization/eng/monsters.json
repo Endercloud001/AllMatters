@@ -1,0 +1,16 @@
+{
+  "ALL_MATTERS_MONSTER_BEAR.name": "Bear",
+  "ALL_MATTERS_MONSTER_BEAR.moves.BEAR_HUG.title": "Bear Hug",
+  "ALL_MATTERS_MONSTER_BEAR.moves.MAUL.title": "Maul",
+  "ALL_MATTERS_MONSTER_BEAR.moves.LUNGE.title": "Lunge",
+  "ALL_MATTERS_MONSTER_POINTY.name": "Pointy",
+  "ALL_MATTERS_MONSTER_POINTY.moves.STAB.title": "Stab",
+  "ALL_MATTERS_MONSTER_POINTY.deathReactLine": "[sine]Beeeaaar!!!![/sine]",
+  "ALL_MATTERS_MONSTER_ROMEO.name": "Romeo",
+  "ALL_MATTERS_MONSTER_ROMEO.moves.MOCK.title": "Mock",
+  "ALL_MATTERS_MONSTER_ROMEO.moves.MOCK.bearAlive": "[sine]Grab[/sine] [sine]em'[/sine] [sine]Bear!![/sine]",
+  "ALL_MATTERS_MONSTER_ROMEO.moves.MOCK.bearDead": "[sine]You[/sine] [sine]will[/sine] [sine]pay[/sine] [sine]for[/sine] [sine]this!![/sine]",
+  "ALL_MATTERS_MONSTER_ROMEO.moves.CROSS_SLASH.title": "Cross Slash",
+  "ALL_MATTERS_MONSTER_ROMEO.moves.AGONIZING_SLASH.title": "Agonizing Slash",
+  "ALL_MATTERS_MONSTER_ROMEO.deathReactLine": "[sine]Nooooooo,[/sine] [sine]Bear![/sine]"
+}

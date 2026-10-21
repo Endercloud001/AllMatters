@@ -139,5 +139,20 @@
   "ALL_MATTERS_EVENT_THE_LIBRARY.pages.READ.description_2": "The book tells of a group of youkai who set out to mend the imperfect moon. They resolved a misunderstanding with strangers from the moon, and the full moon was restored.",
   "ALL_MATTERS_EVENT_THE_LIBRARY.pages.READ.description_3": "The book tells of a magician who sensed a disturbance underground. With help from humans and youkai, she ventured deep beneath the earth and defeated a crow youkai.",
   "ALL_MATTERS_EVENT_THE_LIBRARY.pages.SLEEP.description": "Perhaps you have been reading for too long.\n\nYou doze off in the armchair.\n[b]Zzz...zzz.....Zz....[/b]\nYou wake up feeling refreshed.",
-  "ALL_MATTERS_EVENT_THE_LIBRARY.pages.CLEAN.description": "Perhaps this place has not been cleaned in over a hundred years.\n\nYou tidy up the area and uncover a strange bottle among the clutter."
+  "ALL_MATTERS_EVENT_THE_LIBRARY.pages.CLEAN.description": "Perhaps this place has not been cleaned in over a hundred years.\n\nYou tidy up the area and uncover a strange bottle among the clutter.",
+  "ALL_MATTERS_EVENT_MASKED_BANDITS.title": "Masked Bandits",
+  "ALL_MATTERS_EVENT_MASKED_BANDITS.pages.INITIAL.description": "Three masked bandits block your path!\n\"[shake]Not so fast![/shake] Hand over your [gold]Gold[/gold] or fight us!\"",
+  "ALL_MATTERS_EVENT_MASKED_BANDITS.pages.INITIAL.options.PAY.title": "Pay Up",
+  "ALL_MATTERS_EVENT_MASKED_BANDITS.pages.INITIAL.options.PAY.description": "Lose all [gold]Gold[/gold].",
+  "ALL_MATTERS_EVENT_MASKED_BANDITS.pages.INITIAL.options.FIGHT.title": "Fight",
+  "ALL_MATTERS_EVENT_MASKED_BANDITS.pages.INITIAL.options.FIGHT.description": "Fight the bandits for [gold]Red Mask[/gold]!",
+  "ALL_MATTERS_EVENT_MASKED_BANDITS.pages.EMPTY.description": "",
+  "ALL_MATTERS_EVENT_MASKED_BANDITS.pages.PAID.description": "You hand over your gold and slink away. The bandits laugh as they count their spoils.",
+  "ALL_MATTERS_EVENT_MASKED_BANDITS.pages.PAID_1.description": "Hehehe.. Thanks for the [gold]gold![/gold]\nOh, I love [gold]gold.[/gold] It's so nice.\n[sine]shiny[/sine] [sine]shiny[/sine] chits they are!",
+  "ALL_MATTERS_EVENT_MASKED_BANDITS.pages.PAID_1.options.CONTINUE.title": "Continue",
+  "ALL_MATTERS_EVENT_MASKED_BANDITS.pages.PAID_1.options.CONTINUE.description": "",
+  "ALL_MATTERS_EVENT_MASKED_BANDITS.pages.PAID_2.description": "Hey [blue]Bear,[/blue] hey!\nThis guy gave us all his [gold]gold![/gold] What a sucker, right?\nGet this, I just had to ask nicely. Who knew?!\nI certainly didn't! What a chump!",
+  "ALL_MATTERS_EVENT_MASKED_BANDITS.pages.PAID_2.options.CONTINUE.title": "Continue",
+  "ALL_MATTERS_EVENT_MASKED_BANDITS.pages.PAID_2.options.CONTINUE.description": "",
+  "ALL_MATTERS_EVENT_MASKED_BANDITS.pages.PAID_3.description": "Gang, let's all have a laugh for this wondrous occasion!\n[jitter]Hahaah[/jitter]\n[jitter]Ho[/jitter] [jitter]HOH[/jitter] [sine]hoho![/sine]\n[sine]Hoh![/sine]"
 }
