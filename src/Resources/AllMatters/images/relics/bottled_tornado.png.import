@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://g8u7cf2r7ub8"
-path="res://.godot/imported/bottled_lightning.svg-ac9bad7c4ed25e32ebdfaa4dee83b7a0.ctex"
+uid="uid://dm4pr3jwof6g"
+path="res://.godot/imported/bottled_tornado.png-00cad420ae034d704c5fb8d528eb9273.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://AllMatters/images/relics/bottled_lightning.svg"
-dest_files=["res://.godot/imported/bottled_lightning.svg-ac9bad7c4ed25e32ebdfaa4dee83b7a0.ctex"]
+source_file="res://AllMatters/images/relics/bottled_tornado.png"
+dest_files=["res://.godot/imported/bottled_tornado.png-00cad420ae034d704c5fb8d528eb9273.ctex"]
 
 [params]
 
@@ -38,6 +38,3 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
-svg/scale=1.0
-editor/scale_with_editor_scale=false
-editor/convert_colors_with_editor_theme=false

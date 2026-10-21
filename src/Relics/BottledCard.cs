@@ -21,9 +21,9 @@ public abstract class BottledCard : ModRelicTemplate
     protected abstract string IconName { get; }
     public override RelicRarity Rarity => RelicRarity.Event;
     public override RelicAssetProfile AssetProfile => new(
-        IconPath: $"res://AllMatters/images/relics/{IconName}.svg",
+        IconPath: $"res://AllMatters/images/relics/{IconName}.png",
         IconOutlinePath: $"res://AllMatters/images/relics/outlines/{IconName}.svg",
-        BigIconPath: $"res://AllMatters/images/relics/{IconName}.svg");
+        BigIconPath: $"res://AllMatters/images/relics/{IconName}.png");
 
     public bool CanBind(CardModel card) => card.Type == BoundType
         && !card.Keywords.Contains(CardKeyword.Innate) && string.IsNullOrEmpty(Binding.GetValueOrDefault(card));

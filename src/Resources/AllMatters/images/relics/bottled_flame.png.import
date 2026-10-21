@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ccdyrdf3tir3q"
-path="res://.godot/imported/bottled_flame.svg-a2fcc1aefb1eef615e502a6087791c48.ctex"
+uid="uid://yb68ab6uj8bn"
+path="res://.godot/imported/bottled_flame.png-cd5c1795982d8f26740834c0dd83b4bf.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://AllMatters/images/relics/bottled_flame.svg"
-dest_files=["res://.godot/imported/bottled_flame.svg-a2fcc1aefb1eef615e502a6087791c48.ctex"]
+source_file="res://AllMatters/images/relics/bottled_flame.png"
+dest_files=["res://.godot/imported/bottled_flame.png-cd5c1795982d8f26740834c0dd83b4bf.ctex"]
 
 [params]
 
@@ -38,6 +38,3 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
-svg/scale=1.0
-editor/scale_with_editor_scale=false
-editor/convert_colors_with_editor_theme=false
