@@ -25,7 +25,7 @@ internal static class MaskedBanditsTests
     public static readonly (string Name, Func<Task> Test)[] Cases =
     [
         ("Masked Bandits admission checks act, floor 22/23 and every player's mask", Admission),
-        ("Masked Bandits shared payment charges each owner once and retains three dialogue pages", Payment),
+        ("Masked Bandits shared payment charges each owner once and advances one sentence per dialogue page", Payment),
         ("Masked Bandits combat entrance and rewards work for either local owner without double gold", FightRewards),
         ("Masked Bandits Bear hug applies minus two dexterity to each player with native intent", BearHug),
         ("Masked Bandits bilingual monster scenes and encounter slots load from the pack", Presentation),
@@ -62,11 +62,19 @@ internal static class MaskedBanditsTests
         Check(first.Gold == 0 && second.Gold == 0, "Each owner's payment must occur once.");
         foreach (var model in new[] { a, b })
         {
-            Check(!model.IsFinished && model.CurrentOptions.Count == 1, "First dialogue must allow continuing.");
-            await model.CurrentOptions[0].Chosen();
-            Check(!model.IsFinished && model.CurrentOptions.Count == 1, "Second dialogue must allow continuing.");
-            await model.CurrentOptions[0].Chosen();
-            Check(model.IsFinished && model.CurrentOptions.Count == 0, "Third dialogue must finish.");
+            // Three Pointy sentences followed by eleven Romeo sentences.
+            for (int line = 1; line <= 14; line++)
+            {
+                Check(!model.IsFinished && model.CurrentOptions.Count == 1,
+                    $"Dialogue sentence {line} must remain readable before continuing.");
+                Check(model.CurrentOptions[0].TextKey.Contains($".PAID_{line}."),
+                    "Continue must belong to the currently displayed sentence.");
+                var dialogue = new LocString("events", model.CurrentOptions[0].TextKey.Replace(".options.CONTINUE", ".description"));
+                Check(dialogue.Exists() && !dialogue.GetFormattedText().Contains('\n'),
+                    "A speech bubble must contain a single dialogue line.");
+                await model.CurrentOptions[0].Chosen();
+            }
+            Check(model.IsFinished && model.CurrentOptions.Count == 0, "Only continuing past the final sentence may finish.");
         }
     }
     private static async Task FightRewards()

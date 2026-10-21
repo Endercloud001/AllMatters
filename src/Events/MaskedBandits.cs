@@ -73,27 +73,32 @@ public sealed class MaskedBandits : ModEventTemplate
     if (goldToLose > 0)
       await PlayerCmd.LoseGold(goldToLose, owner, GoldLossType.Stolen);
 
-    SetEventState(EmptyDescription,
-    [
-      new EventOption(this, Paid2, $"{Id.Entry}.pages.PAID_1.options.CONTINUE", []),
-    ]);
-    PlayPaidLine<Pointy>("PAID_1");
+    await ShowPaidLine(1);
   }
 
-  private Task Paid2()
+  private Task ShowPaidLine(int line)
   {
+    const int lastLine = 14;
+    if (line > lastLine)
+    {
+      if (_speechBubble != null)
+      {
+        _ = _speechBubble.AnimOut();
+        _speechBubble = null;
+      }
+      SetEventFinished(EmptyDescription);
+      return Task.CompletedTask;
+    }
+
+    string page = $"PAID_{line}";
     SetEventState(EmptyDescription,
     [
-      new EventOption(this, Paid3, $"{Id.Entry}.pages.PAID_2.options.CONTINUE", []),
+      new EventOption(this, () => ShowPaidLine(line + 1), $"{Id.Entry}.pages.{page}.options.CONTINUE", []),
     ]);
-    PlayPaidLine<Romeo>("PAID_2");
-    return Task.CompletedTask;
-  }
-
-  private Task Paid3()
-  {
-    SetEventFinished(EmptyDescription);
-    PlayPaidLine<Romeo>("PAID_3");
+    if (line <= 3)
+      PlayPaidLine<Pointy>(page);
+    else
+      PlayPaidLine<Romeo>(page);
     return Task.CompletedTask;
   }
 
