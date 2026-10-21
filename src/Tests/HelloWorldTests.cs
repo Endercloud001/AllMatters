@@ -65,7 +65,7 @@ internal static class HelloWorldTests
                 ("Chinese localization survives language changes", ChinesePresentation),
                 ("Upgrade preview highlights only the added words", UpgradePreviewHighlight)
             ];
-            var selected = cases.Concat(ClericTests.Cases).Concat(BeggarFountainTests.Cases).Concat(AugmenterTests.Cases).Concat(CursedTomeTests.Cases)
+            var selected = cases.Concat(ClericTests.Cases).Concat(BeggarFountainTests.Cases).Concat(AugmenterTests.Cases).Concat(CursedTomeTests.Cases).Concat(WheelOfChangeTests.Cases)
                 .Where(test => args.Length == 0 || test.Name.Contains(args[0], StringComparison.OrdinalIgnoreCase)).ToArray();
             Check(selected.Length > 0, "No test matches the supplied filter.");
             foreach (var test in selected)
