@@ -41,9 +41,11 @@ public sealed class WheelOfChange : ModEventTemplate
 
     private async Task Spin()
     {
-        // Balance advances the per-event stream by act so recurring wheels need
-        // not repeat their first-act outcome. NextInt(1) preserves uniform odds.
-        for (int act = 0; act < Owner!.RunState.CurrentActIndex; act++) Rng.NextInt(1);
+        // Native event RNG resets for each instance in the same run. Include the
+        // map visit as well as Balance's act offset so later visits can differ,
+        // while reloading this same visit still reproduces its result.
+        int advance = Owner!.RunState.TotalFloor + Owner.RunState.CurrentActIndex;
+        for (int draw = 0; draw < advance; draw++) Rng.NextInt(1);
         int result = Rng.NextInt(6);
         // Visuals consume no gameplay randomness and only run for the local owner.
         if (Node != null && LocalContext.IsMe(Owner!))

@@ -14,6 +14,7 @@ using MegaCrit.Sts2.Core.Models.Relics;
 using MegaCrit.Sts2.Core.Models.RelicPools;
 using MegaCrit.Sts2.Core.TestSupport;
 using MegaCrit.Sts2.Core.Rooms;
+using MegaCrit.Sts2.Core.Map;
 using MegaCrit.Sts2.Core.Localization;
 using Godot;
 using System.Text.Json;
@@ -26,12 +27,51 @@ internal static class WheelOfChangeTests
         ("Wheel of Change six seeded results display before personal effects and cannot repeat", SixResults),
         ("Wheel of Change relics choose rarity before unequal pools and never escape general drops", RelicPools),
         ("Wheel of Change relics retain legal multiplayer chest fallback candidates", MultiplayerFallback),
+        ("Wheel of Change repeated visits in one run do not reset to one outcome", RepeatedVisits),
+        ("Wheel of Change six-outcome frequencies stay balanced across 600 run seeds", OutcomeFrequencies),
         ("Wheel of Change empty relic pools or no removable cards explain and finish without reroll", EmptyResults),
         ("Wheel of Change native entry snapshots reproduce results without stacking effects", SaveBoundaries),
         ("Wheel of Change bilingual pack and actual spin scene agree with the result", Presentation),
     ];
 
     private static EventModel Canonical => ModelDb.AllEvents.Single(model => model.Id.Entry == "ALL_MATTERS_EVENT_WHEEL_OF_CHANGE");
+
+    private static async Task RepeatedVisits()
+    {
+        var player = Player.CreateForNewRun<Ironclad>(UnlockState.all, 1);
+        var run = RunState.CreateForTest([player], acts: [], seed: "R8RJZHQFU7P2");
+        var results = new List<string>();
+        for (int floor = 1; floor <= 10; floor++)
+        {
+            run.AppendToMapPointHistory(MapPointType.Unknown, RoomType.Event, Canonical.Id);
+            var model = await Begin(player);
+            await model.CurrentOptions.Single().Chosen();
+            results.Add(model.CurrentOptions.Single().TextKey.Split('.').Last());
+            var reloaded = await Begin(player);
+            await reloaded.CurrentOptions.Single().Chosen();
+            Check(reloaded.CurrentOptions.Single().TextKey == model.CurrentOptions.Single().TextKey,
+                "The same visit must keep its result when its event instance is recreated.");
+        }
+        Console.WriteLine("Wheel same-run visit probe: " + string.Join(", ", results));
+        Check(results.Distinct().Count() > 1, "Different map visits must not reset to the same event draw ten times.");
+    }
+
+    private static async Task OutcomeFrequencies()
+    {
+        string[] outcomes = ["GOLD", "RELIC", "HEAL", "CURSE", "REMOVE", "DAMAGE"];
+        var counts = outcomes.ToDictionary(key => key, _ => 0);
+        for (int seed = 0; seed < 600; seed++)
+        {
+            var player = Player.CreateForNewRun<Ironclad>(UnlockState.all, 1);
+            var run = RunState.CreateForTest([player], acts: [], seed: "WHEEL_DISTRIBUTION_" + seed);
+            run.AppendToMapPointHistory(MapPointType.Unknown, RoomType.Event, Canonical.Id);
+            var model = await Begin(player);
+            await model.CurrentOptions.Single().Chosen();
+            counts[model.CurrentOptions.Single().TextKey.Split('.').Last()]++;
+        }
+        Console.WriteLine("Wheel 600-seed frequencies: " + string.Join(", ", counts.Select(pair => $"{pair.Key}={pair.Value}")));
+        Check(counts.Values.All(count => count is >= 60 and <= 140), "Each outcome should remain near 100/600, without a dominant relic branch.");
+    }
 
     private static async Task Gold()
     {
@@ -233,27 +273,58 @@ internal static class WheelOfChangeTests
         finally { LocManager.Instance.SetLanguage("eng"); }
         var tree = (SceneTree)Engine.GetMainLoop();
         await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
+        string? captureDirectory = System.Environment.GetEnvironmentVariable("ALLMATTERS_WHEEL_CAPTURE");
+        if (captureDirectory != null)
+        {
+            Directory.CreateDirectory(captureDirectory);
+            LocManager.Instance.SetLanguage("zhs");
+        }
         for (int outcome = 0; outcome < 6; outcome++)
         {
             var (_, model) = await Prepare(outcome);
             var scene = new Control { Size = new Vector2(1280, 720) };
             tree.Root.AddChild(scene);
             model.SetNode(scene);
+            if (captureDirectory != null)
+                scene.AddChild(new TextureRect
+                {
+                    ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+                    Texture = Canonical.CreateInitialPortrait(), Size = scene.Size,
+                    StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered,
+                });
             try
             {
                 var spin = model.CurrentOptions.Single().Chosen();
                 Check(!spin.IsCompleted, "The local spin must wait for its real Godot animation.");
-                var overlay = scene.GetChildren().OfType<Control>().Single();
+                var overlay = scene.GetChildren().OfType<Control>().Last();
                 var disk = overlay.GetChildren().OfType<Node2D>().Single(node => node is not Polygon2D);
-                Check(disk.GetChildren().OfType<Label>().Count() == 6, "All six localized result segments must be visible.");
-                await spin;
-                float angle = Mathf.PosMod(disk.RotationDegrees, 360);
+                var art = disk.GetChildren().OfType<TextureRect>().Single();
+                Check(art.Texture.GetWidth() > 0 && art.Size.X > 0, "The six-icon wheel artwork must load at a visible size.");
+                Check(art.Size.X <= Math.Min(scene.Size.X, scene.Size.Y)
+                    && (art.Position + art.Size / 2).Length() < 1,
+                    "The wheel must fit the viewport and rotate around its own center without orbiting or clipping.");
+                var finalRotation = ReadFinalRotation();
+                if (captureDirectory != null)
+                {
+                    await scene.ToSignal(tree.CreateTimer(3.25), SceneTreeTimer.SignalName.Timeout);
+                    await scene.ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+                    using var frame = tree.Root.GetTexture().GetImage();
+                    Check(frame.SavePng(Path.Combine(captureDirectory, $"wheel-{outcome}.png")) == Error.Ok,
+                        "Save the actual Godot viewport for visual review.");
+                }
+                float angle = Mathf.PosMod(await finalRotation, 360);
                 float selectedAngle = Mathf.PosMod(angle + outcome * 60, 360);
                 Check(Math.Min(selectedAngle, 360 - selectedAngle) < 0.1f, "The pointer must land on the sector whose result is offered.");
                 Check(model.CurrentOptions.Single().TextKey.EndsWith(new[] { ".GOLD", ".RELIC", ".HEAL", ".CURSE", ".REMOVE", ".DAMAGE" }[outcome]), "Animation and settlement use the same draw.");
+                async Task<float> ReadFinalRotation()
+                {
+                    await spin;
+                    return disk.RotationDegrees;
+                }
             }
             finally { scene.Free(); }
         }
+        LocManager.Instance.SetLanguage("eng");
         // Room teardown while spinning must release the awaited option and overlay.
         var (_, interrupted) = await Prepare(0);
         var leaving = new Control { Size = new Vector2(1280, 720) };
