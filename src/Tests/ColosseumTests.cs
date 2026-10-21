@@ -58,9 +58,15 @@ internal static class ColosseumTests
         try
         {
             var model = await Begin(player);
-            Check(model.IsShared && model.CurrentOptions.Count == 1, "First combat is compulsory.");
+            Check(model.IsShared && model.CurrentOptions.Count == 1 && model.CurrentOptions[0].TextKey.EndsWith(".CONTINUE"), "The opening offers only Continue.");
+            var proceed = model.CurrentOptions.Single();
+            int openingGold = player.Gold, openingHp = player.Creature.CurrentHp;
+            await proceed.Chosen(); await proceed.Chosen();
+            Check(HeadlessBanditRoomEntrance.Rooms.Count == 0 && player.Gold == openingGold && player.Creature.CurrentHp == openingHp && model.CurrentOptions.Single().TextKey.Contains(".AWAKE.options.FIGHT"),
+                "Continue only reveals the waking page and compulsory fight without starting combat or changing resources.");
             var fight = model.CurrentOptions.Single();
             await fight.Chosen(); await fight.Chosen();
+            await proceed.Chosen();
             Check(HeadlessBanditRoomEntrance.Rooms.Count == 1, "The first fight must start only once.");
             var room = HeadlessBanditRoomEntrance.Rooms.Single();
             Check(room.ShouldResumeParentEventAfterCombat && room.ParentEventId == Canonical.Id && !room.Encounter!.ShouldGiveRewards,
@@ -111,6 +117,8 @@ internal static class ColosseumTests
                 sync.GenerateInternalCombatStateIfNecessary(sync.GetLocalEvent());
 #endif
                 var a = sync.GetEventForPlayer(first); var b = sync.GetEventForPlayer(second);
+                foreach (var model in new[] { a, b }) await model.CurrentOptions.Single().Chosen();
+                Check(HeadlessBanditRoomEntrance.Rooms.Count == 0, "Both owners must reach the waking page before any combat.");
                 var initialChoices = new[] { a.CurrentOptions[0], b.CurrentOptions[0] };
                 foreach (var option in initialChoices) await option.Chosen();
                 Check(HeadlessBanditRoomEntrance.Rooms.Count == 1, "All participant handlers enter one first room.");
@@ -278,6 +286,8 @@ internal static class ColosseumTests
                 LocManager.Instance.SetLanguage(language);
                 var model = await Begin(player);
                 Check(model.Title.Exists() && model.InitialDescription.Exists() && model.CurrentOptions.Single().Description.Exists(), "Opening page and option must be localized.");
+                await model.CurrentOptions.Single().Chosen();
+                Check(model.CurrentOptions.Single().TextKey.Contains(".AWAKE.options.FIGHT") && model.CurrentOptions.Single().Description.Exists(), "The second page has a localized fight option.");
                 var room = new CombatRoom(ModelDb.Encounter<ColosseumFirstEncounter>().ToMutable(), run);
                 // Prepare the same public transition used on victory.
                 await model.CurrentOptions.Single().Chosen();

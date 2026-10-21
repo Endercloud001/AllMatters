@@ -14,7 +14,7 @@ namespace AllMatters.Events;
 [RegisterSharedEvent]
 public sealed class Colosseum : ModEventTemplate
 {
-    private enum Stage { Initial, FirstCombat, Intermission, SecondCombat, Finished }
+    private enum Stage { Initial, Awake, FirstCombat, Intermission, SecondCombat, Finished }
     private Stage _stage;
 
     public override bool IsShared => true;
@@ -42,12 +42,23 @@ public sealed class Colosseum : ModEventTemplate
 
     protected override IReadOnlyList<EventOption> GenerateInitialOptions() =>
     [
-        new(this, Fight, InitialOptionKey("FIGHT"), []),
+        new(this, Continue, InitialOptionKey("CONTINUE"), []),
     ];
+
+    private Task Continue()
+    {
+        if (_stage != Stage.Initial) return Task.CompletedTask;
+        _stage = Stage.Awake;
+        SetEventState(PageDescription("AWAKE"),
+        [
+            new(this, Fight, $"{Id.Entry}.pages.AWAKE.options.FIGHT", []),
+        ]);
+        return Task.CompletedTask;
+    }
 
     private Task Fight()
     {
-        if (_stage != Stage.Initial) return Task.CompletedTask;
+        if (_stage != Stage.Awake) return Task.CompletedTask;
         _stage = Stage.FirstCombat;
         EnterCombatWithoutExitingEvent<ColosseumFirstEncounter>([], true);
         return Task.CompletedTask;
