@@ -202,5 +202,18 @@
   "ALL_MATTERS_EVENT_MIND_BLOOM.pages.INITIAL.options.HEAL.description": "Heal to full HP. Become Cursed with Enthralled and Regret.",
   "ALL_MATTERS_EVENT_MIND_BLOOM.pages.GOLD.description": "Wealth spills into your hands. Two unwelcome thoughts settle into your mind.",
   "ALL_MATTERS_EVENT_MIND_BLOOM.pages.HEAL.description": "Your wounds close, but your mind remains bound to the Spire.",
-  "ALL_MATTERS_EVENT_MIND_BLOOM.pages.UPGRADE.description": "Every possibility becomes clear. Your power blooms, and the chance to heal fades forever."
+  "ALL_MATTERS_EVENT_MIND_BLOOM.pages.UPGRADE.description": "Every possibility becomes clear. Your power blooms, and the chance to heal fades forever.",
+  "ALL_MATTERS_EVENT_COLOSSEUM.title": "Colosseum",
+  "ALL_MATTERS_EVENT_COLOSSEUM.pages.INITIAL.description": "BAM!!!\n\n...\n\nYou were knocked unconscious.",
+  "ALL_MATTERS_EVENT_COLOSSEUM.pages.INITIAL.options.CONTINUE.title": "Continue",
+  "ALL_MATTERS_EVENT_COLOSSEUM.pages.INITIAL.options.CONTINUE.description": "",
+  "ALL_MATTERS_EVENT_COLOSSEUM.pages.AWAKE.description": "You wake with a pounding head and unsteady legs in the middle of a vast arena. The stands are packed with [b]slavers, cultists[/b] and the city's other inhabitants!\n\nA heavily armored giant wearing a golden crown towers above you. \"And now, let round 4200 begin!!!\"\n\nThe great gate opposite you slowly opens...",
+  "ALL_MATTERS_EVENT_COLOSSEUM.pages.AWAKE.options.FIGHT.title": "Fight",
+  "ALL_MATTERS_EVENT_COLOSSEUM.pages.AWAKE.options.FIGHT.description": "Fight [red]the slavers’ pet[/red] and [red]a cultist[/red].",
+  "ALL_MATTERS_EVENT_COLOSSEUM.pages.POST_FIRST.description": "\"Well fought, weakling!\"\n\nThe giant gives a mocking clap, then whips the crowd into a frenzy with exaggerated gestures.\n\n[b]Gold and confetti rain down around you![/b]\n\n\"Now comes the real challenge!!\"\n\nThe last fight left a small gap in the arena wall. You could slip through while the crowd is distracted.\n\nWill you stay and fight?",
+  "ALL_MATTERS_EVENT_COLOSSEUM.pages.POST_FIRST.options.FIGHT.title": "Fight to the Death",
+  "ALL_MATTERS_EVENT_COLOSSEUM.pages.POST_FIRST.options.FIGHT.description": "Fight an Act 2 [red]Elite[/red]. Win [gold]rich rewards[/gold].",
+  "ALL_MATTERS_EVENT_COLOSSEUM.pages.POST_FIRST.options.FLEE.title": "Cowardice",
+  "ALL_MATTERS_EVENT_COLOSSEUM.pages.POST_FIRST.options.FLEE.description": "Slip away and avoid another fight.",
+  "ALL_MATTERS_EVENT_COLOSSEUM.pages.FLEE.description": "You slip through the gap while the crowd roars. The arena fades behind you."
 }

@@ -62,6 +62,12 @@ AllMatters is distributed under GNU GPL version 3 (see LICENSE). Copyright 2026 
 
 RitsuLib 0.6.7, by OLC: [BAKAOLC/STS2-RitsuLib](https://github.com/BAKAOLC/STS2-RitsuLib), MIT licensed. It is a separately installed runtime dependency; AllMatters does not redistribute its assemblies in this package. Preserve RitsuLib's own license and complete variant-pack layout when installing or redistributing it.
 
+## Colosseum
+
+- Source: MT-SUPER-POWER/STS2-Balance-MOD, revision `d9eff9e067b07689e722c5283e7c3e7c451961ca`, checked 2026-10-22. Root LICENSE declares GPLv3; upstream credits ActsFromThePast. Adapted `Sts2BalanceModCode/Events/Colosseum.cs` and the continuous-combat lifecycle idea in `Patches/Events/ColosseumCombatPatch.cs`. Changes: AllMatters registration, Act 3 admission, native Living Fog/Damp Cultist first encounter, three complete native elite candidates, exact rewards, guarded choices, branch-specific reset and native history restoration.
+- Illustration: `Sts2BalanceMod/images/events/Colosseum.png`, copied unchanged to `AllMatters/images/events/colosseum.png`; master image exists at `image_gen/source/events/Colosseum.png`. Upstream identifies this as remade event artwork. Redistribution follows its repository GPLv3 declaration; no independent chain-of-title audit is claimed. No pre-redraw original is included.
+- Chinese narrative is adapted from the user's supplied reference screenshot; English is an AllMatters translation. The first encounter layout is original AllMatters work. All participating monsters and three elite encounter scenes use the installed game's native models/resources; no additional game artwork, assemblies or decompiled source is redistributed.
+
 ## Game assets and assemblies
 
 Slay the Spire 2 and its game resources remain the property of Mega Crit and their respective owners. Game DLLs, native libraries, PCK files and decompiled game code are development inputs only and are not distributed with this mod.

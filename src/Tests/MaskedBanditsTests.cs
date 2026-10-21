@@ -215,6 +215,8 @@ internal static class HeadlessBanditRoomEntrance
 {
     public static bool Active;
     public static readonly List<CombatRoom> Rooms = [];
+    // Let production entry prefixes run before replacing the UI/scheduler.
+    [HarmonyPriority(Priority.Last)]
     private static bool Prefix(AbstractRoom room, ref Task __result)
     {
         if (!Active) return true;

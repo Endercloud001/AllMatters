@@ -8,11 +8,17 @@ using MegaCrit.Sts2.Core.Runs;
 namespace AllMatters.Encounters;
 
 [HarmonyPatch(typeof(RewardsSet), nameof(RewardsSet.WithRewardsFromRoom))]
-internal static class MindBloomRewards
+internal static class EventCombatRewards
 {
     private static bool Prefix(RewardsSet __instance, AbstractRoom room, ref RewardsSet __result)
     {
-        if (room is not CombatRoom { Encounter: MindBloomEncounter }) return true;
+        if (room is CombatRoom { Encounter: ColosseumFirstEncounter })
+        {
+            __result = __instance.EmptyForRoom(room);
+            return false;
+        }
+        if (room is not CombatRoom combat ||
+            (combat.Encounter is not MindBloomEncounter && !AllMatters.Events.Colosseum.IsSecondCombat(combat))) return true;
         var player = __instance.Player;
         var options = CardCreationOptions.ForRoom(player, RoomType.Boss);
 #if !STS2_PUBLIC
