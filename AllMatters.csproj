@@ -14,7 +14,7 @@
     <OutputPath>bin/$(GameBranch)/$(Configuration)/</OutputPath>
     <IntermediateOutputPath>obj/$(GameBranch)/$(Configuration)/</IntermediateOutputPath>
     <NoWarn>$(NoWarn);MSB3270</NoWarn>
-    <RitsuLibDir Condition="'$(RitsuLibDir)' == ''">$(MSBuildProjectDirectory)/docs/local/dependencies/RitsuLib-0.6.7</RitsuLibDir>
+    <RitsuLibDir Condition="'$(RitsuLibDir)' == ''">$(MSBuildProjectDirectory)/.local/dependencies/RitsuLib-0.6.7</RitsuLibDir>
     <RitsuLibReferenceTarget Condition="'$(GameBranch)' == 'public'">0.107.1</RitsuLibReferenceTarget>
     <RitsuLibReferenceTarget Condition="'$(GameBranch)' == 'public-beta'">0.111.0</RitsuLibReferenceTarget>
   </PropertyGroup>

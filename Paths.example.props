@@ -3,10 +3,10 @@
     <BetaGameDataDir>E:/SteamLibrary/steamapps/common/Slay the Spire 2/data_sts2_windows_x86_64</BetaGameDataDir>
     <PublicGameDataDir></PublicGameDataDir>
     <GodotPath></GodotPath>
-    <TestDotNetRoot>docs/local/tools/dotnet9</TestDotNetRoot>
-    <IlspyPath>docs/local/tools/ilspycmd.exe</IlspyPath>
+    <TestDotNetRoot>.local/tools/dotnet9</TestDotNetRoot>
+    <IlspyPath>.local/tools/ilspycmd.exe</IlspyPath>
     <GameLogDir></GameLogDir>
     <!-- Unpack the complete RitsuLib 0.6.7 variant-pack here, or set an absolute directory. -->
-    <RitsuLibDir>$(MSBuildThisFileDirectory)docs/local/dependencies/RitsuLib-0.6.7</RitsuLibDir>
+    <RitsuLibDir>$(MSBuildThisFileDirectory).local/dependencies/RitsuLib-0.6.7</RitsuLibDir>
   </PropertyGroup>
 </Project>

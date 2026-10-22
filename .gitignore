@@ -8,3 +8,4 @@ dist/
 docs/references/
 docs/local/
 .scratch/
+.local/

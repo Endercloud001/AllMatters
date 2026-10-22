@@ -16,4 +16,6 @@ v0.1 计划从 [STS2-Balance-MOD](https://github.com/MT-SUPER-POWER/STS2-Balance
 
 快速开始（PowerShell）：复制 `Paths.example.props` 为 `Paths.local.props`，填入游戏 DLL、Godot mono 和完整 RitsuLib 0.6.7 variant-pack 目录，然后运行 `./tools/Build.ps1`。输出在 `dist/public-beta/AllMatters/`。`-Branch public` 使用另一套公开版 DLL。安装时复制整个 AllMatters 输出目录到游戏 `mods/`，并将完整 RitsuLib 包另装为 `mods/STS2-RitsuLib/`，保留其 compat、shared 及 assets.zip 等文件。
 
-本地文档实际保存在相邻 `AllMatters_docs`，通过 `docs` junction 作为普通文档纳入 Git。其他机器正常 clone 后使用仓库内的 `docs/` 即可。游戏 DLL、参考源码和本机配置不会提交。
+本地文档实际保存在相邻 `AllMatters_docs`，通过 `docs` junction 作为普通文档纳入 Git。其他机器正常 clone 后使用仓库内的 `docs/` 即可。本机依赖、参考源码、工具与日志放在 Git 忽略的 `.local/`，不依赖文档 junction。游戏 DLL 和本机配置不会提交。
+
+运行 `./tools/Check.ps1` 可完成脚本语法检查、双目标行为测试与开发包构建。运行 `./tools/InstallHooks.ps1` 可接入本仓库推送前自动检查；失败会明确提示并保留日志，不拦截推送。实机安装与测试均由用户手动进行。

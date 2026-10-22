@@ -1,0 +1,18 @@
+#!/bin/sh
+# Advisory checks: report failures without changing the user's push decision.
+cd "$(git rev-parse --show-toplevel)" || exit 0
+mkdir -p .local/checks
+if command -v pwsh >/dev/null 2>&1; then
+    shell=pwsh
+elif command -v powershell.exe >/dev/null 2>&1; then
+    shell=powershell.exe
+else
+    echo "AllMatters: PowerShell unavailable; run tools/Check.ps1 manually." >&2
+    exit 0
+fi
+if "$shell" -NoProfile -File tools/Check.ps1 >.local/checks/hook-console.log 2>&1; then
+    echo "AllMatters: automated checks passed."
+else
+    echo "AllMatters: checks FAILED; inspect .local/checks/hook-console.log before using this push." >&2
+fi
+exit 0

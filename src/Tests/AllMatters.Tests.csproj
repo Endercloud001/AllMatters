@@ -10,7 +10,7 @@
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <NoWarn>$(NoWarn);MSB3270</NoWarn>
-    <RitsuLibDir Condition="'$(RitsuLibDir)' == ''">$(MSBuildProjectDirectory)/../../docs/local/dependencies/RitsuLib-0.6.7</RitsuLibDir>
+    <RitsuLibDir Condition="'$(RitsuLibDir)' == ''">$(MSBuildProjectDirectory)/../../.local/dependencies/RitsuLib-0.6.7</RitsuLibDir>
     <RitsuLibReferenceTarget Condition="'$(GameBranch)' == 'public'">0.107.1</RitsuLibReferenceTarget>
     <DefineConstants Condition="'$(GameBranch)' == 'public'">$(DefineConstants);STS2_PUBLIC</DefineConstants>
     <RitsuLibReferenceTarget Condition="'$(GameBranch)' == 'public-beta'">0.111.0</RitsuLibReferenceTarget>

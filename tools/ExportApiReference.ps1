@@ -78,7 +78,7 @@ if (![IO.Path]::IsPathRooted($IlspyPath)) { $IlspyPath = Join-Path $repoDir $Ils
 $ilspy = (Resolve-Path -LiteralPath $IlspyPath).Path
 if (!$OutputDir) {
     $versionName = "$targetLabel-$gameVersion" -replace '[^a-zA-Z0-9._-]', '_'
-    $OutputDir = Join-Path $repoDir "docs/local/api/queries/$versionName"
+    $OutputDir = Join-Path $repoDir ".local/api/queries/$versionName"
 }
 if (![IO.Path]::IsPathRooted($OutputDir)) { $OutputDir = Join-Path $repoDir $OutputDir }
 New-Item -ItemType Directory -Path $OutputDir -Force | Out-Null

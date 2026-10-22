@@ -10,4 +10,8 @@
 
 多行正文写入临时文件后传入 `--body-file`。技能要求发布到 issue tracker 时才创建 issue；初始化本身不自动创建任务或留言。
 
+CLI 出现 TLS/连接超时后，元数据读取与 PR/issue 操作优先使用已连接的 GitHub 工具；先筛选结构化字段再输出。PR 状态只需 number/state/merged/mergeable/head_sha/base_sha，完整 diff 留在工具结果中按文件读取，不直接打印整个 fetch_pr 结果。
+
+Git 传输可用 `tools/GitRemote.ps1 -Operation fetch`（或 push、ls-remote），按现有配置使用代理；没有 Git/环境代理时读取系统代理，只作用于当前命令。该工具不设置全局代理，不输出代理凭据。
+
 **PRs as a request surface: no.**
