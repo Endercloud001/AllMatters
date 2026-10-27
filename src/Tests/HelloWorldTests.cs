@@ -70,7 +70,7 @@ internal static class HelloWorldTests
                 .Concat(NativeCounterTests.Cases)
                 .Concat(AmbrosiaTests.Cases)
                 .Concat(JungleMazeAdventureTests.Cases)
-                .Concat(NativeLockedOptionTests.Cases)
+                .Concat(NativeLockedOptionTests.Cases).Concat(NativeVegetationTests.Cases)
                 .Where(test => args.Length == 0 || test.Name.Contains(args[0], StringComparison.OrdinalIgnoreCase)).ToArray();
             Check(selected.Length > 0, "No test matches the supplied filter.");
             foreach (var test in selected)
