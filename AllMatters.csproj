@@ -7,6 +7,7 @@
     <DefineConstants Condition="'$(GameBranch)' == 'public'">$(DefineConstants);STS2_PUBLIC</DefineConstants>
     <Version>0.1.0-dev</Version>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
     <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
     <GameBranch Condition="'$(GameBranch)' == ''">public-beta</GameBranch>
     <GameDataDir Condition="'$(GameDataDir)' == '' and '$(GameBranch)' == 'public'">$(PublicGameDataDir)</GameDataDir>
