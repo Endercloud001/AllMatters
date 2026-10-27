@@ -41,19 +41,19 @@ internal static class WhisperingSharedPage
 // The native synchronizer reads the canonical model, which has no owning run.
 // Use its already initialized player model for this conditional shared event.
 [HarmonyPatch(typeof(EventSynchronizer), "get_IsShared")]
-internal static class WhisperingSharedSynchronization
+internal static class ConditionalSharedSynchronization
 {
     private static void Postfix(EventSynchronizer __instance, ref bool __result)
     {
-        if (__instance.Events.FirstOrDefault() is WhisperingHollow model) __result = model.IsShared;
+        if (__instance.Events.FirstOrDefault() is WhisperingHollow or FieldOfManSizedHoles) __result = __instance.Events[0].IsShared;
     }
 }
 
 [HarmonyPatch(typeof(EventSynchronizer), "ChooseSharedEventOption")]
-internal static class WhisperingUnanimousChoice
+internal static class EventBattleUnanimousChoice
 {
     private static bool Prefix(EventSynchronizer __instance, List<uint?> ____playerVotes)
-        => __instance.Events.FirstOrDefault() is not WhisperingHollow
+        => __instance.Events.FirstOrDefault() is not (WhisperingHollow or FieldOfManSizedHoles or RoundTeaParty or Trial)
             || (____playerVotes.All(vote => vote.HasValue) && ____playerVotes.Distinct().Count() == 1);
 }
 

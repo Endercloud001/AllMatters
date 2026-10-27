@@ -22,5 +22,16 @@
   "ALL_MATTERS_POWER_FASTING_POWER.smartDescription": "Gain {Amount} less Energy each turn.",
   "ALL_MATTERS_POWER_OMEGA_POWER.title": "Omega",
   "ALL_MATTERS_POWER_OMEGA_POWER.description": "At the end of your turn, deal {Amount} damage to ALL enemies.",
-  "ALL_MATTERS_POWER_OMEGA_POWER.smartDescription": "At the end of your turn, deal {Amount} damage to ALL enemies."
+  "ALL_MATTERS_POWER_OMEGA_POWER.smartDescription": "At the end of your turn, deal {Amount} damage to ALL enemies.",
+  "ALL_MATTERS_POWER_FADING_POWER.title": "Fading",
+  "ALL_MATTERS_POWER_FADING_POWER.description": "Dies in {Amount} turns.",
+  "ALL_MATTERS_POWER_FADING_POWER.smartDescription": "Dies in {Amount} turns.",
+  "ALL_MATTERS_POWER_SHIFTING_POWER.title": "Shifting",
+  "ALL_MATTERS_POWER_SHIFTING_POWER.description": "Whenever it takes damage, it loses that much Strength until the end of the turn.",
+  "ALL_MATTERS_POWER_SHIFTING_POWER.smartDescription": "Whenever it takes damage, it loses that much Strength until the end of the turn.",
+  "ALL_MATTERS_POWER_TIGHT_GRIP_POWER.title": "Tight Grip",
+  "ALL_MATTERS_POWER_TIGHT_GRIP_POWER.description": "Whenever you play a card, lose 1 Energy.",
+  "ALL_MATTERS_POWER_TIGHT_GRIP_POWER.smartDescription": "Whenever you play a card, lose 1 Energy.",
+  "ALL_MATTERS_WEIGHTED.title": "Weighted",
+  "ALL_MATTERS_WEIGHTED.description": "Lose 1 Energy when this card is played."
 }

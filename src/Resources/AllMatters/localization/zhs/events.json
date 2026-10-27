@@ -215,5 +215,16 @@
   "ALL_MATTERS_EVENT_COLOSSEUM.pages.POST_FIRST.options.FIGHT.description": "与第二幕的一名[red]精英[/red]战斗，胜利后获取[gold]丰厚的奖励[/gold]",
   "ALL_MATTERS_EVENT_COLOSSEUM.pages.POST_FIRST.options.FLEE.title": "懦弱",
   "ALL_MATTERS_EVENT_COLOSSEUM.pages.POST_FIRST.options.FLEE.description": "溜之大吉，避免再战。",
-  "ALL_MATTERS_EVENT_COLOSSEUM.pages.FLEE.description": "趁着观众的欢呼声，你钻过缺口，悄悄逃离了竞技场。"
+  "ALL_MATTERS_EVENT_COLOSSEUM.pages.FLEE.description": "趁着观众的欢呼声，你钻过缺口，悄悄逃离了竞技场。",
+  "FIELD_OF_MAN_SIZED_HOLES.pages.INITIAL.options.AM_FIGHT.title": "洞里有什么？",
+  "FIELD_OF_MAN_SIZED_HOLES.pages.INITIAL.options.AM_FIGHT.description": "与倏忽魔战斗。",
+  "FIELD_OF_MAN_SIZED_HOLES.pages.AM_FIGHT.description": "你花了很久很久绕到这片人形洞穴的另一侧，然而这里的洞穴形状已被[red]扭曲[/red]得常人不可能从中通过。\n\n你注意到其中一个洞穴里似乎有什么在往外[jitter]蠕动[/jitter]......\n\n不......这不可能......",
+  "ROUND_TEA_PARTY.pages.INITIAL.options.AM_FIGHT.title": "反客为主",
+  "ROUND_TEA_PARTY.pages.INITIAL.options.AM_FIGHT.description": "与[red]第一勇士[/red]战斗，获取[gold]冠军腰带[/gold]与[gold]丰厚的奖励[/gold]。",
+  "TRIAL.pages.INITIAL.options.AM_CHALLENGE.title": "挑战总仲裁官",
+  "TRIAL.pages.INITIAL.options.AM_CHALLENGE.description": "进入一场[red]艰难的战斗[/red]。",
+  "TRIAL.pages.AM_CHALLENGE.description": "[jitter]“很好，不是接受安排，而是向我挑战吗？”[/jitter]\n\n[gold]法院总仲裁官[/gold]大声喊道。\n\n[jitter]“一决高下吧！”[/jitter]",
+  "TRIAL.pages.AM_CHALLENGE.options.AM_CONTINUE.title": "继续",
+  "TRIAL.pages.AM_CHALLENGE.options.AM_CONTINUE.description": "[red]紧握[/red]你的信条。",
+  "TRIAL.pages.AM_VICTORY.description": "当审判被狂热的氛围裹挟时，让这一切熄灭也许才是正确的选择。"
 }

@@ -22,5 +22,18 @@
   "ALL_MATTERS_MONSTER_LAGAVULIN.moves.SLEEP.title": "沉睡",
   "ALL_MATTERS_MONSTER_SENTRY.name": "哨卫",
   "ALL_MATTERS_MONSTER_SENTRY.moves.BOLT.title": "充能",
-  "ALL_MATTERS_MONSTER_SENTRY.moves.BEAM.title": "激光"
+  "ALL_MATTERS_MONSTER_SENTRY.moves.BEAM.title": "激光",
+  "ALL_MATTERS_MONSTER_TRANSIENT.name": "倏忽魔",
+  "ALL_MATTERS_MONSTER_TRANSIENT.moves.ATTACK.title": "攻击",
+  "ALL_MATTERS_MONSTER_CHAMPION.name": "第一勇士",
+  "ALL_MATTERS_MONSTER_CHAMPION.moves.DEFEND.title": "防御态势",
+  "ALL_MATTERS_MONSTER_CHAMPION.moves.TAUNT.title": "挑衅",
+  "ALL_MATTERS_MONSTER_CHAMPION.moves.SLASH.title": "重斩",
+  "ALL_MATTERS_MONSTER_CHAMPION.moves.SLAP.title": "打脸",
+  "ALL_MATTERS_MONSTER_CHAMPION.moves.ANGER.title": "爆发",
+  "ALL_MATTERS_MONSTER_CHAMPION.moves.EXECUTE.title": "处刑",
+  "ALL_MATTERS_MONSTER_CHAMPION.dialog.OPEN": "很好，你惹恼我了...",
+  "ALL_MATTERS_MONSTER_CHAMPION.dialog.DEFEND": "来啊，我让你打！没用的弱者！",
+  "ALL_MATTERS_MONSTER_CHAMPION.dialog.TAUNT": "你管这叫攻击？",
+  "ALL_MATTERS_MONSTER_CHAMPION.dialog.ANGER": "迎接我的怒火吧！"
 }

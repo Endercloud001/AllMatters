@@ -15,6 +15,7 @@ public static class ModEntry
     {
         Encounters.PersonalCombatRewards.Initialize();
         Events.WhisperingSharedPage.Initialize();
+        Events.HolesSharedPage.Initialize();
         ModTypeDiscoveryHub.RegisterModAssembly(ModId, typeof(ModEntry).Assembly);
         RitsuLibFramework.EnsureGodotScriptsRegistered(typeof(ModEntry).Assembly,
             RitsuLibFramework.CreateLogger(ModId));

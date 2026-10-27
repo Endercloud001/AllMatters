@@ -27,14 +27,15 @@ internal static class ColosseumCombatReset
 #endif
 
 [HarmonyPatch(typeof(RunManager), nameof(RunManager.EnterRoomWithoutExitingCurrentRoom))]
-internal static class ColosseumReplayInitialization
+internal static class EventCombatReplayInitialization
 {
     private static void Prefix(RunManager __instance, AbstractRoom room)
     {
-        if (room is not CombatRoom combat || !Colosseum.IsSecondCombat(combat)) return;
+        if (room is not CombatRoom combat || (!Colosseum.IsSecondCombat(combat)
+            && combat.Encounter is not (HolesEncounter or ChampionEncounter or TrialEncounter))) return;
         var writer = __instance.CombatReplayWriter;
-        // Both targets stop recording at first victory. Begin recording before
-        // the second room's setup/actions, without a process-global event flag.
+        // A prior victory can stop recording on either target. Embedded event
+        // battles need an initial state before their first turn or player action.
         if (!writer.IsEnabled || writer.IsRecordingReplay) return;
         var snapshot = __instance.ToSave(null);
         // RunReplay loads PreFinishedRoom even when it is not finished. A null
@@ -42,12 +43,12 @@ internal static class ColosseumReplayInitialization
         // without relaxing native restrictions on ordinary event combat saves.
         var replayRoom = new CombatRoom(combat.Encounter!, combat.CombatState.RunState).ToSerializable();
         replayRoom.ParentEventId = combat.ParentEventId;
-        replayRoom.ShouldResumeParentEvent = false;
+        replayRoom.ShouldResumeParentEvent = combat.ShouldResumeParentEventAfterCombat;
         snapshot.PreFinishedRoom = replayRoom;
 
         // The entry method has not appended this room yet. ToSave only copies
         // outer history lists, so replace the node before appending to avoid
-        // adding a duplicate second room to the real run's history.
+        // adding a duplicate embedded room to the real run's history.
         var actHistory = snapshot.MapPointHistory.Last();
         var point = actHistory.Last();
         actHistory[^1] = new MapPointHistoryEntry

@@ -22,5 +22,18 @@
   "ALL_MATTERS_MONSTER_LAGAVULIN.moves.SLEEP.title": "Sleep",
   "ALL_MATTERS_MONSTER_SENTRY.name": "Sentry",
   "ALL_MATTERS_MONSTER_SENTRY.moves.BOLT.title": "Bolt",
-  "ALL_MATTERS_MONSTER_SENTRY.moves.BEAM.title": "Beam"
+  "ALL_MATTERS_MONSTER_SENTRY.moves.BEAM.title": "Beam",
+  "ALL_MATTERS_MONSTER_TRANSIENT.name": "Transient",
+  "ALL_MATTERS_MONSTER_TRANSIENT.moves.ATTACK.title": "Attack",
+  "ALL_MATTERS_MONSTER_CHAMPION.name": "The Champ",
+  "ALL_MATTERS_MONSTER_CHAMPION.moves.DEFEND.title": "Defensive Stance",
+  "ALL_MATTERS_MONSTER_CHAMPION.moves.TAUNT.title": "Taunt",
+  "ALL_MATTERS_MONSTER_CHAMPION.moves.SLASH.title": "Heavy Slash",
+  "ALL_MATTERS_MONSTER_CHAMPION.moves.SLAP.title": "Face Slap",
+  "ALL_MATTERS_MONSTER_CHAMPION.moves.ANGER.title": "Anger",
+  "ALL_MATTERS_MONSTER_CHAMPION.moves.EXECUTE.title": "Execute",
+  "ALL_MATTERS_MONSTER_CHAMPION.dialog.OPEN": "Well, now you have angered me...",
+  "ALL_MATTERS_MONSTER_CHAMPION.dialog.DEFEND": "Come on, hit me! Useless weakling!",
+  "ALL_MATTERS_MONSTER_CHAMPION.dialog.TAUNT": "You call that an attack?",
+  "ALL_MATTERS_MONSTER_CHAMPION.dialog.ANGER": "Face my wrath!"
 }
