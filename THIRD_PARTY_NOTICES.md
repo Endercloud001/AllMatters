@@ -91,3 +91,9 @@ Chrysalis and Cursed Key use the unchanged STS1 archive entries images/1024Portr
 Strange Mushroom and Du-Vu Doll likewise use unchanged images/relics/{mushroom,duvuDoll}.png and corresponding outline images from the owned STS1 archive; original artwork ownership is retained.
 
 Ink Bottle and the global Symbiotic Virus replacement use unchanged `images/relics/{ink_bottle,virus}.png` and corresponding `images/relics/outline/` entries from the same owned STS1 archive. Ambrosia is a static composite of that archive's `images/potion/eye/{body,liquid}.png`, with a green liquid tint; its outline is `images/potion/eye/outline.png`. The potion image also identifies its temporary power. These assets retain Mega Crit/original artists' ownership and are not relicensed by this repository.
+
+## Jungle Maze Sentries
+
+- Source: MT-SUPER-POWER/STS2-Balance-MOD, revision `d9eff9e067b07689e722c5283e7c3e7c451961ca`, checked 2026-10-27; repository LICENSE declares GPLv3, upstream credits ActsFromThePast.
+- Adapted `Sts2BalanceModCode/Monsters/Sentry.cs`: fixed requested values, two opposite first moves, one Artifact in multiplayer, AllMatters model/resource identities and native event integration.
+- Assets: the five scene/Spine/atlas/texture files in `Sts2BalanceMod/monsters/sentry/` (Spine 4.2.11). Scene and atlas paths are adapted; binary skeleton and PNG are unchanged. Original STS1 artwork remains Mega Crit/original artists' property. Redistribution follows the same Balance/ActsFromThePast provenance limitations as the Lagavulin assets above, without claiming an independent underlying artwork license audit. No game DLL, PCK or native Spine library is distributed.

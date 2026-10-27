@@ -19,5 +19,8 @@
   "ALL_MATTERS_MONSTER_LAGAVULIN.dialog.SLEEP_2": "[sine]Zzz... Zzz...[/sine]",
   "ALL_MATTERS_MONSTER_LAGAVULIN.moves.ATTACK.title": "Attack",
   "ALL_MATTERS_MONSTER_LAGAVULIN.moves.DEBUFF.title": "Siphon Soul",
-  "ALL_MATTERS_MONSTER_LAGAVULIN.moves.SLEEP.title": "Sleep"
+  "ALL_MATTERS_MONSTER_LAGAVULIN.moves.SLEEP.title": "Sleep",
+  "ALL_MATTERS_MONSTER_SENTRY.name": "Sentry",
+  "ALL_MATTERS_MONSTER_SENTRY.moves.BOLT.title": "Bolt",
+  "ALL_MATTERS_MONSTER_SENTRY.moves.BEAM.title": "Beam"
 }

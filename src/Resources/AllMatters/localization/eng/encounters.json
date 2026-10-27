@@ -5,5 +5,8 @@
   "ALL_MATTERS_ENCOUNTER_MIND_BLOOM_ENCOUNTER.title": "Two Lagavulins",
   "ALL_MATTERS_ENCOUNTER_MIND_BLOOM_ENCOUNTER.loss": "{name} could not overcome the dream.",
   "ALL_MATTERS_ENCOUNTER_COLOSSEUM_FIRST_ENCOUNTER.title": "Colosseum Opening Fight",
-  "ALL_MATTERS_ENCOUNTER_COLOSSEUM_FIRST_ENCOUNTER.loss": "{name} fell in the arena."
+  "ALL_MATTERS_ENCOUNTER_COLOSSEUM_FIRST_ENCOUNTER.loss": "{name} fell in the arena.",
+  "ALL_MATTERS_ENCOUNTER_JUNGLE_MAZE_ENCOUNTER.title": "Two Sentries",
+  "ALL_MATTERS_ENCOUNTER_JUNGLE_MAZE_ENCOUNTER.loss": "{name} fell to the maze sentries.",
+  "ALL_MATTERS_ENCOUNTER_JUNGLE_MAZE_ENCOUNTER.groupTitle": "Events"
 }

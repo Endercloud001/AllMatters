@@ -19,5 +19,8 @@
   "ALL_MATTERS_MONSTER_LAGAVULIN.dialog.SLEEP_2": "[sine]呼噜噜……[/sine]",
   "ALL_MATTERS_MONSTER_LAGAVULIN.moves.ATTACK.title": "重击",
   "ALL_MATTERS_MONSTER_LAGAVULIN.moves.DEBUFF.title": "灵魂吸取",
-  "ALL_MATTERS_MONSTER_LAGAVULIN.moves.SLEEP.title": "沉睡"
+  "ALL_MATTERS_MONSTER_LAGAVULIN.moves.SLEEP.title": "沉睡",
+  "ALL_MATTERS_MONSTER_SENTRY.name": "哨卫",
+  "ALL_MATTERS_MONSTER_SENTRY.moves.BOLT.title": "充能",
+  "ALL_MATTERS_MONSTER_SENTRY.moves.BEAM.title": "激光"
 }

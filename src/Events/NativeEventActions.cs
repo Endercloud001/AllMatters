@@ -5,6 +5,7 @@ using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.Rewards;
 using MegaCrit.Sts2.Core.Nodes.Rooms;
 using MegaCrit.Sts2.Core.ValueProps;
 
@@ -19,6 +20,11 @@ internal static class NativeEventActions
 
     internal static void State(EventModel model, string key, IEnumerable<EventOption> options)
         => AccessTools.Method(typeof(EventModel), "SetEventState").Invoke(model, [new LocString("events", key), options]);
+
+    internal static void EnterCombat(EventModel model, EncounterModel encounter, IReadOnlyList<Reward> rewards, bool resume)
+        => AccessTools.Method(typeof(EventModel), "EnterCombatWithoutExitingEvent",
+            [typeof(EncounterModel), typeof(IReadOnlyList<Reward>), typeof(bool)])
+            .Invoke(model, [encounter, rewards, resume]);
 
     internal static async Task Leave(EventModel model)
     {
