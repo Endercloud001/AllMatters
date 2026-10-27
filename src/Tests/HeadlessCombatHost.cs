@@ -80,6 +80,50 @@ internal static class HeadlessTestSetup
         return combat;
     }
 
+    // Event-monster tests need the real encounter identity and must restore all
+    // global host state even when setup or the first behavior assertion fails.
+    internal sealed class EncounterCombatScope : IDisposable
+    {
+        private readonly ulong? _previousNetId = MegaCrit.Sts2.Core.Context.LocalContext.NetId;
+        private bool _disposed;
+        public RunState Run { get; }
+        public CombatState Combat { get; }
+        public MonsterModel Monster { get; }
+
+        internal EncounterCombatScope(RunState run, EncounterModel encounter)
+        {
+            Run = run;
+            Combat = new CombatState(encounter, run) { RoundNumber = 1 };
+            try
+            {
+                foreach (var player in run.Players)
+                {
+                    Combat.AddPlayer(player);
+                    player.ResetCombatState();
+                }
+                RunManager.Instance.SetUpTest(run, new MegaCrit.Sts2.Core.Multiplayer.NetSingleplayerGameService());
+                MegaCrit.Sts2.Core.Context.LocalContext.NetId = run.Players[0].NetId;
+                CombatManager.Instance.Reset(true);
+                CombatManager.Instance.SetUpCombat(Combat);
+                encounter.GenerateMonstersWithSlots(run);
+                var (monster, slot) = encounter.MonstersWithSlots.Single();
+                Monster = monster;
+                Combat.AddCreature(Combat.CreateCreature(monster, CombatSide.Enemy, slot));
+                monster.SetUpForCombat();
+            }
+            catch { Dispose(); throw; }
+        }
+
+        public void Dispose()
+        {
+            if (_disposed) return;
+            _disposed = true;
+            CombatManager.Instance.Reset(true);
+            RunManager.Instance.CleanUp(false);
+            MegaCrit.Sts2.Core.Context.LocalContext.NetId = _previousNetId;
+        }
+    }
+
     // Compare before/after within one target. The beta API serializes RNG state;
     // peek at a clone so observing it never advances the actual gameplay RNG.
     internal static ulong RngPosition(Rng rng)

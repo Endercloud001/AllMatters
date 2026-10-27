@@ -35,5 +35,8 @@
   "ALL_MATTERS_INSERTER.title": "Inserter",
   "ALL_MATTERS_INSERTER.description": "Every [blue]2[/blue] turns, gain [blue]1[/blue] Orb slot.",
   "ALL_MATTERS_INSERTER.flavor": "“A heart of steel.”",
-  "ALL_MATTERS_PRESERVED_INSECT.shrinkDescription": "This creature's Attacks deal [blue]30%[/blue] less damage for [blue]99[/blue] turns."
+  "ALL_MATTERS_PRESERVED_INSECT.shrinkDescription": "This creature's Attacks deal [blue]30%[/blue] less damage for [blue]99[/blue] turns.",
+  "ALL_MATTERS_CHAMPION_BELT.title": "Champion Belt",
+  "ALL_MATTERS_CHAMPION_BELT.description": "Whenever you apply [gold]Vulnerable[/gold], also apply 1 [gold]Weak[/gold].",
+  "ALL_MATTERS_CHAMPION_BELT.flavor": "A belt fit for a champion."
 }

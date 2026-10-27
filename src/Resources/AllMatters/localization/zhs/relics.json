@@ -35,5 +35,8 @@
   "ALL_MATTERS_INSERTER.title": "机械臂",
   "ALL_MATTERS_INSERTER.description": "每 [blue]2[/blue] 回合，获得 [blue]1[/blue] 个充能球栏位。",
   "ALL_MATTERS_INSERTER.flavor": "“钢铁之心。”",
-  "ALL_MATTERS_PRESERVED_INSECT.shrinkDescription": "这个生物的攻击伤害在[blue]99[/blue]回合内减少[blue]30%[/blue]。"
+  "ALL_MATTERS_PRESERVED_INSECT.shrinkDescription": "这个生物的攻击伤害在[blue]99[/blue]回合内减少[blue]30%[/blue]。",
+  "ALL_MATTERS_CHAMPION_BELT.title": "冠军腰带",
+  "ALL_MATTERS_CHAMPION_BELT.description": "每当你给予[gold]易伤[/gold]时，同时给予1层[gold]虚弱[/gold]。",
+  "ALL_MATTERS_CHAMPION_BELT.flavor": "胜者的腰带。"
 }

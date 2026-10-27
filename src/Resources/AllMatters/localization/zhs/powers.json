@@ -22,5 +22,14 @@
   "ALL_MATTERS_POWER_FASTING_POWER.smartDescription": "每回合开始时少获得{Amount}点能量。",
   "ALL_MATTERS_POWER_OMEGA_POWER.title": "欧米伽",
   "ALL_MATTERS_POWER_OMEGA_POWER.description": "回合结束时对所有敌人造成{Amount}点伤害。",
-  "ALL_MATTERS_POWER_OMEGA_POWER.smartDescription": "回合结束时对所有敌人造成{Amount}点伤害。"
+  "ALL_MATTERS_POWER_OMEGA_POWER.smartDescription": "回合结束时对所有敌人造成{Amount}点伤害。",
+  "ALL_MATTERS_POWER_FADING_POWER.title": "消逝",
+  "ALL_MATTERS_POWER_FADING_POWER.description": "完成 {Amount} 次攻击后死亡。",
+  "ALL_MATTERS_POWER_FADING_POWER.smartDescription": "完成 {Amount} 次攻击后死亡。",
+  "ALL_MATTERS_POWER_SHIFTING_POWER.title": "变幻",
+  "ALL_MATTERS_POWER_SHIFTING_POWER.description": "每受到未被格挡的伤害，暂时失去等量力量。在敌方回合结束时恢复。",
+  "ALL_MATTERS_POWER_SHIFTING_POWER.smartDescription": "每受到未被格挡的伤害，暂时失去等量力量。在敌方回合结束时恢复。",
+  "ALL_MATTERS_POWER_TIGHT_GRIP_POWER.title": "紧握",
+  "ALL_MATTERS_POWER_TIGHT_GRIP_POWER.description": "每当任意玩家打出一张牌，该玩家失去1点能量。下回合玩家行动前移除。",
+  "ALL_MATTERS_POWER_TIGHT_GRIP_POWER.smartDescription": "每当任意玩家打出一张牌，该玩家失去1点能量。下回合玩家行动前移除。"
 }
