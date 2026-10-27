@@ -93,7 +93,7 @@ internal static class TeaTrialTests
         using var battle = Battle<ChampionEncounter>();
         var (run, combat, monster) = (battle.Run, battle.Combat, battle.Monster);
         var c = monster.Creature; var p = run.Players[0]; var ctx = new ThrowingPlayerChoiceContext();
-        NativeEventTests.Check(c.MaxHp == 320 && combat.Encounter!.RoomType == RoomType.Boss, "Champion has 320 singleplayer HP and Boss identity.");
+        NativeEventTests.Check(c.MaxHp == 320 && combat.Encounter!.RoomType == RoomType.Monster, "Champion has 320 singleplayer HP and ordinary event-combat identity, without Boss victory routing.");
         monster.RollMove(combat.PlayerCreatures);
         NativeEventTests.Check(monster.NextMove.Id == "DEFEND", "First move is always Defense.");
         await monster.PerformMove();
@@ -175,15 +175,22 @@ internal static class TeaTrialTests
         using var battle = Battle<TrialEncounter>(2);
         var (run, combat, monster) = (battle.Run, battle.Combat, battle.Monster);
         var ctx = new ThrowingPlayerChoiceContext();
+        var existing = combat.CreateCard<StrikeIronclad>(run.Players[0]);
+        existing.AfflictInternal(ModelDb.Affliction<MegaCrit.Sts2.Core.Models.Afflictions.Entangled>().ToMutable(), 1);
+        var originalAffliction = existing.Affliction;
         for (int round = 1; round <= 10; round++)
         {
             combat.RoundNumber = round;
             await monster.BeforeSideTurnStart(ctx, CombatSide.Player, combat.PlayerCreatures, combat);
             bool active = round % 3 == 0;
+            NativeEventTests.Check(ReferenceEquals(existing.Affliction, originalAffliction), "The display leaves existing native afflictions intact across Grip application and removal.");
             NativeEventTests.Check(monster.Creature.HasPower<TightGripPower>() == active, "Grip exists only on player turns 3, 6, 9 and is gone before 4, 7, 10.");
             foreach (var p in run.Players) await PlayerCmd.SetEnergy(8, p);
             var card = combat.CreateCard<DefendIronclad>(run.Players[0]);
             await CardPileCmd.Add(card, PileType.Hand);
+            NativeEventTests.Check(card.HoverTips.OfType<MegaCrit.Sts2.Core.HoverTips.HoverTip>()
+                .Any(t => t.Title == "Weighted") == active, "Weighted presentation follows the current Grip window without adding a real affliction.");
+            NativeEventTests.Check(card.Affliction == null, "Grip visuals never occupy or overwrite the real affliction slot.");
             await card.SpendResources();
             await card.OnPlayWrapper(ctx, null, true, default, skipCardPileVisuals: true);
             NativeEventTests.Check(run.Players[0].PlayerCombatState!.Energy == (active ? 6 : 7)
@@ -198,6 +205,7 @@ internal static class TeaTrialTests
         var player = run.Players[0]; await PlayerCmd.SetEnergy(8, player);
         await combat.CreateCard<DefendIronclad>(player).OnPlayWrapper(ctx, null, true, default, skipCardPileVisuals: true);
         NativeEventTests.Check(player.PlayerCombatState!.Energy == 8, "Magistrate death immediately stops the penalty.");
+        NativeEventTests.Check(!existing.HoverTips.OfType<MegaCrit.Sts2.Core.HoverTips.HoverTip>().Any(t => t.Title == "Weighted"), "Weighted display stops immediately on the magistrate's death.");
 
         battle.Dispose();
         using var ordinaryBattle = Battle<MegaCrit.Sts2.Core.Models.Encounters.OwlMagistrateNormal>();
@@ -228,16 +236,25 @@ internal static class TeaTrialTests
                 await e.BeginEvent(player, sync, false);
                 sync.InitializeForEvent(e);
 #endif
+                run.AppendToMapPointHistory(MegaCrit.Sts2.Core.Map.MapPointType.Unknown, RoomType.Event, e.Id);
+                RunManager.Instance.CombatReplayWriter.StopRecording();
+                RunManager.Instance.CombatReplayWriter.IsEnabled = true;
                 await e.CurrentOptions.Single(o => o.TextKey.EndsWith(tea ? ".AM_FIGHT" : ".AM_CHALLENGE")).Chosen();
                 if (!tea) await e.CurrentOptions.Single().Chosen();
+                NativeEventTests.Check(RunManager.Instance.CombatReplayWriter.IsRecordingReplay,
+                    "Event battle must record its initial state before the first turn checksum or immediate card play.");
                 var room = HeadlessBanditRoomEntrance.Rooms.Single();
+                var replay = ColosseumReplayCapture.InitialState?.PreFinishedRoom;
+                NativeEventTests.Check(replay != null && replay.EncounterId == room.Encounter!.Id && replay.ShouldResumeParentEvent,
+                    "Recorded entry restores the selected encounter and keeps its parent-event return route.");
+                NativeEventTests.Check(room.RoomType == RoomType.Monster, "Both event fights avoid the native Boss victory and next-act route.");
                 NativeEventTests.Check(room.ShouldResumeParentEventAfterCombat
                     && (tea ? room.Encounter is ChampionEncounter : room.Encounter is TrialEncounter), "The native room resumes the correct parent event.");
                 await e.Resume(room);
                 NativeEventTests.Check(e.IsFinished, "Victory finishes on its dedicated ending page.");
             }
         }
-        finally { HeadlessBanditRoomEntrance.Active = false; RunManager.Instance.CleanUp(false); MegaCrit.Sts2.Core.Context.LocalContext.NetId = previousNetId; }
+        finally { RunManager.Instance.CombatReplayWriter.StopRecording(); RunManager.Instance.CombatReplayWriter.IsEnabled = false; HeadlessBanditRoomEntrance.Active = false; RunManager.Instance.CleanUp(false); MegaCrit.Sts2.Core.Context.LocalContext.NetId = previousNetId; }
     }
 
     private static async Task Rewards()
@@ -284,6 +301,8 @@ internal static class TeaTrialTests
             }
             finally { tree.Root.RemoveChild(visuals); visuals.Free(); }
         }
+        using var weighted = Godot.ResourceLoader.Load<Godot.PackedScene>("res://AllMatters/scenes/weighted.tscn").Instantiate<Godot.Control>();
+        NativeEventTests.Check(weighted.GetNode<Godot.ColorRect>("VoidOverlay").Material is Godot.ShaderMaterial { Shader: not null }, "Legacy Weighted overlay loads with the retained native affliction shader.");
         var belt = ModelDb.Relic<AllMatters.Relics.ChampionBelt>();
         NativeEventTests.Check(belt.Icon != null && belt.IconOutline != null && ModelDb.Power<TightGripPower>().Icon != null, "Relic icon/outline and Tight Grip icon load.");
         foreach (var lang in new[] { "eng", "zhs" })

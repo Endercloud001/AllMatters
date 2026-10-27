@@ -1,0 +1,25 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Shader" path="res://shaders/afflictions/devoured.gdshader" id="1"]
+
+[sub_resource type="ShaderMaterial" id="WeightedMaterial"]
+shader = ExtResource("1")
+shader_parameter/edge_intensity = 0.8
+shader_parameter/pulse_speed = 1.436
+shader_parameter/void_width = 0.175
+shader_parameter/noise_scale = 5.0
+shader_parameter/void_stretch = 3.0
+shader_parameter/void_color = Color(0.682353, 0.219608, 0.121569, 1)
+shader_parameter/void_edge_color = Color(0.713726, 0.019608, 0.243137, 1)
+shader_parameter/corner_radius = 0.055
+
+[node name="Weighted" type="Control"]
+mouse_filter = 2
+
+[node name="VoidOverlay" type="ColorRect" parent="."]
+material = SubResource("WeightedMaterial")
+offset_left = -150.0
+offset_top = -211.0
+offset_right = 150.0
+offset_bottom = 211.0
+mouse_filter = 2

@@ -217,7 +217,7 @@
   "ALL_MATTERS_EVENT_COLOSSEUM.pages.POST_FIRST.options.FLEE.description": "Slip away and avoid another fight.",
   "ALL_MATTERS_EVENT_COLOSSEUM.pages.FLEE.description": "You slip through the gap while the crowd roars. The arena fades behind you.",
   "FIELD_OF_MAN_SIZED_HOLES.pages.INITIAL.options.AM_FIGHT.title": "What is in the hole?",
-  "FIELD_OF_MAN_SIZED_HOLES.pages.INITIAL.options.AM_FIGHT.description": "Enter [red]combat[/red]. Gain [gold]double Gold and card rewards[/gold].",
+  "FIELD_OF_MAN_SIZED_HOLES.pages.INITIAL.options.AM_FIGHT.description": "Fight the Transient.",
   "FIELD_OF_MAN_SIZED_HOLES.pages.AM_FIGHT.description": "After a long, long walk, you reach the other side of the holes. Their shapes are so [red]distorted[/red] that no person could pass through.\n\nSomething seems to be [jitter]wriggling[/jitter] out of one of them...\n\nNo... Impossible...",
   "ROUND_TEA_PARTY.pages.INITIAL.options.AM_FIGHT.title": "Turn the Tables",
   "ROUND_TEA_PARTY.pages.INITIAL.options.AM_FIGHT.description": "Fight [red]the Champ[/red] for the [gold]Champion Belt[/gold] and [gold]rich rewards[/gold].",
@@ -225,6 +225,6 @@
   "TRIAL.pages.INITIAL.options.AM_CHALLENGE.description": "Enter a [red]difficult battle[/red].",
   "TRIAL.pages.AM_CHALLENGE.description": "[jitter]“Very well. You challenge me rather than accept your fate?”[/jitter]\n\nThe [gold]Chief Arbiter of the Court[/gold] cries out.\n\n[jitter]“Let us settle this!”[/jitter]",
   "TRIAL.pages.AM_CHALLENGE.options.AM_CONTINUE.title": "Continue",
-  "TRIAL.pages.AM_CHALLENGE.options.AM_CONTINUE.description": "Fight the Owl Magistrate, who gains Tight Grip every third round.",
+  "TRIAL.pages.AM_CHALLENGE.options.AM_CONTINUE.description": "[red]Grasp[/red] your convictions.",
   "TRIAL.pages.AM_VICTORY.description": "When judgment is swept up in a fevered frenzy, perhaps putting an end to it is the right choice."
 }

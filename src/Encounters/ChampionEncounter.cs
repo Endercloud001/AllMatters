@@ -10,7 +10,7 @@ namespace AllMatters.Encounters;
 public sealed class ChampionEncounter : ModEncounterTemplate
 {
     public override bool IsValidForAct(ActModel act) => false;
-    public override RoomType RoomType => RoomType.Boss;
+    public override RoomType RoomType => RoomType.Monster;
     public override int MinGoldReward => ModelDb.Encounter<MegaCrit.Sts2.Core.Models.Encounters.DecimillipedeElite>().MinGoldReward;
     public override int MaxGoldReward => ModelDb.Encounter<MegaCrit.Sts2.Core.Models.Encounters.DecimillipedeElite>().MaxGoldReward;
     public override EncounterAssetProfile AssetProfile => new(EncounterScenePath: "res://AllMatters/scenes/champion.tscn");

@@ -20,6 +20,24 @@ public sealed class TightGripPower : ModPowerTemplate
     public override PowerAssetProfile AssetProfile => new(
         IconPath: "res://AllMatters/images/powers/tight_grip.png", BigIconPath: "res://AllMatters/images/powers/tight_grip.png");
 
+    public override Task AfterApplied(Creature? applier, CardModel? cardSource)
+    {
+        WeightedCardPresentation.RefreshViews();
+        return Task.CompletedTask;
+    }
+
+    public override Task AfterRemoved(Creature oldOwner)
+    {
+        WeightedCardPresentation.RefreshViews();
+        return Task.CompletedTask;
+    }
+
+    public override Task AfterDeath(PlayerChoiceContext choiceContext, Creature creature, bool wasRemovalPrevented, float deathAnimLength)
+    {
+        if (creature == Owner) WeightedCardPresentation.RefreshViews();
+        return Task.CompletedTask;
+    }
+
     public override async Task AfterCardPlayed(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
         if (Owner.IsDead || cardPlay.Card.Owner.Creature.CombatState != Owner.CombatState) return;
