@@ -12,7 +12,7 @@ internal static class NativeSelectionLocalization
         if (name == "cards") __result.MergeWith(new Dictionary<string, string>
         {
             ["ALL_MATTERS_CHRYSALIS.title"] = zh ? "结茧" : "Chrysalis",
-            ["ALL_MATTERS_CHRYSALIS.description"] = zh ? "在你的抽牌堆中加入{Cards:diff()}张随机技能牌。它们在本场战斗中耗能为[blue]0[/blue]。[gold]消耗[/gold]。" : "Add {Cards:diff()} random Skills into your Draw Pile. They cost [blue]0[/blue] this combat. [gold]Exhaust[/gold].",
+            ["ALL_MATTERS_CHRYSALIS.description"] = zh ? "在你的抽牌堆中加入{Cards:diff()}张随机技能牌。它们在本场战斗中可以被免费打出。" : "Add {Cards:diff()} random Skills into your Draw Pile. They can be played for free this combat.",
         });
         else if (name == "relics") __result.MergeWith(new Dictionary<string, string>
         {

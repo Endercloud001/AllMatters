@@ -24,9 +24,29 @@ internal static class AmbrosiaTests
     public static readonly (string Name, Func<Task> Test)[] Cases =
     [
         ("Ambrosia wellspring bottles one potion or leaves and retains Bathe", Event),
+        ("Feedback previews wellspring bottle describes Ambrosia in current language", Preview),
         ("Ambrosia actual damage is single triple powered attacks and expires on own turn", Damage),
         ("Ambrosia forfeits all personal fixed combat loot but retains allies healing and next combat", Rewards),
     ];
+
+    private static async Task Preview()
+    {
+        using var scope = HeadlessCombatInProgress.EnterEvent();
+        try
+        {
+            foreach (string language in new[] { "eng", "zhs" })
+            {
+                MegaCrit.Sts2.Core.Localization.LocManager.Instance.SetLanguage(language);
+                var e = await NativeEventTests.Begin<Wellspring>(NativeEventTests.Player());
+                var tip = e.CurrentOptions[0].HoverTips.OfType<MegaCrit.Sts2.Core.HoverTips.HoverTip>()
+                    .Single(t => t.CanonicalModel is Ambrosia);
+                NativeEventTests.Check(tip.Title == ModelDb.Potion<Ambrosia>().Title.GetFormattedText()
+                    && tip.Description == ModelDb.Potion<Ambrosia>().DynamicDescription.GetFormattedText(), "Bottle hover describes the actual potion in the current language.");
+                NativeEventTests.Check(e.CurrentOptions[0].HoverTips.Count() == ModelDb.Potion<Ambrosia>().HoverTips.Count(), "Bottle keeps the potion's additional effect explanations.");
+            }
+        }
+        finally { MegaCrit.Sts2.Core.Localization.LocManager.Instance.SetLanguage("eng"); }
+    }
 
     private static async Task Event()
     {

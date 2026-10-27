@@ -32,7 +32,7 @@ internal static class NativeCounterLocalization
             ["EMBER_TEA.description"] = zh ? "在接下来的[blue]{Combats}[/blue]场战斗开始时，获得[blue]1[/blue]点[gold]力量[/gold]和[blue]1[/blue]点[gold]敏捷[/gold]。" : "At the start of your next [blue]{Combats}[/blue] combats, gain [blue]1[/blue] [gold]Strength[/gold] and [blue]1[/blue] [gold]Dexterity[/gold].",
             ["TEA_OF_DISCOURTESY.description"] = zh ? "下一场战斗开始时，加入2张晕眩、2张受伤或获得1层混乱（购买时确定）。" : "At the start of your next combat, add 2 Dazed, 2 Wounds, or gain 1 Confused, as shown when chosen.",
             ["ALL_MATTERS_INK_BOTTLE.title"] = zh ? "墨水瓶" : "Ink Bottle",
-            ["ALL_MATTERS_INK_BOTTLE.description"] = zh ? "每打出[blue]10[/blue]张牌，抽[blue]1[/blue]张牌。计数跨战斗保留。" : "Every [blue]10[/blue] cards you play, draw [blue]1[/blue] card. The count persists between combats.",
+            ["ALL_MATTERS_INK_BOTTLE.description"] = zh ? "每打出[blue]10[/blue]张牌，抽[blue]1[/blue]张牌。" : "Every [blue]10[/blue] cards you play, draw [blue]1[/blue] card.",
             ["SYMBIOTIC_VIRUS.description"] = zh ? "在你的回合开始时，额外抽[blue]1[/blue]张牌。每打出[blue]5[/blue]张非攻击牌，将[blue]1[/blue]张[gold]晕眩[/gold]加入抽牌堆。" : "At the start of your turn, draw [blue]1[/blue] additional card. Every [blue]5[/blue] non-Attack cards you play, add [blue]1[/blue] [gold]Dazed[/gold] to your Draw Pile.",
             ["HISTORY_COURSE.description"] = zh ? "在你的回合开始时，打出上一回合最后打出的[gold]攻击牌[/gold]或[gold]技能牌[/gold]的复制品。" : "At the start of your turn, play a copy of the last [gold]Attack[/gold] or [gold]Skill[/gold] you played last turn.",
         });

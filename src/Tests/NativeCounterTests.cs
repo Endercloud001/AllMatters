@@ -18,7 +18,46 @@ internal static class NativeCounterTests
         ("Native counters discourtesy freezes its displayed next combat effect and expires", Discourtesy),
         ("Native counters history replays last own turn skill and never falls back to older turns", History),
         ("Native counters presentation retains scriptorium narrative and loads native virus artwork", Presentation),
+        ("Feedback previews tea variants match event and owned relic after restoration", TeaPreviews),
     ];
+
+    private static async Task TeaPreviews()
+    {
+        using var scope = HeadlessCombatInProgress.EnterEvent();
+        try
+        {
+            foreach (string language in new[] { "eng", "zhs" })
+            {
+                MegaCrit.Sts2.Core.Localization.LocManager.Instance.SetLanguage(language);
+                var seen = new HashSet<int>();
+                for (int seed = 0; seed < 80 && seen.Count < 3; seed++)
+                {
+                    var p = NativeEventTests.Player("TEA_PREVIEW_" + seed);
+                    var e = await NativeEventTests.Begin<TeaMaster>(p);
+                    var option = e.CurrentOptions.Last();
+                    int effect = int.Parse(option.TextKey[^1..]);
+                    if (!seen.Add(effect)) continue;
+                    CheckTips(option.HoverTips, effect);
+                    await option.Chosen();
+                    var restored = MegaCrit.Sts2.Core.Entities.Players.Player.FromSerializable(p.ToSerializable());
+                    CheckTips(restored.Relics.OfType<TeaOfDiscourtesy>().Single().HoverTips, effect);
+                }
+                NativeEventTests.Check(seen.Count == 3, "Exercise all three random tea effects.");
+            }
+        }
+        finally { MegaCrit.Sts2.Core.Localization.LocManager.Instance.SetLanguage("eng"); }
+
+        static void CheckTips(IEnumerable<MegaCrit.Sts2.Core.HoverTips.IHoverTip> source, int effect)
+        {
+            var tips = source.ToArray();
+            var cards = tips.OfType<MegaCrit.Sts2.Core.HoverTips.CardHoverTip>().ToArray();
+            if (effect == 2)
+                NativeEventTests.Check(cards.Length == 0 && tips.OfType<MegaCrit.Sts2.Core.HoverTips.HoverTip>()
+                    .Any(t => t.Title == ModelDb.Power<ConfusedPower>().Title.GetFormattedText()), "Confusion tea explains Confused without unrelated Dazed or keywords.");
+            else
+                NativeEventTests.Check(cards.Length == 1 && cards[0].Card.GetType() == (effect == 1 ? typeof(Wound) : typeof(Dazed)), "Tea previews only its actual status card.");
+        }
+    }
 
     private static async Task Bone()
     {

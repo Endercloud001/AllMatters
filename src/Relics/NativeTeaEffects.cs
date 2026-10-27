@@ -65,6 +65,21 @@ internal static class NativeEmberHoverTips
         __result = [HoverTipFactory.FromPower<StrengthPower>(), HoverTipFactory.FromPower<DexterityPower>()];
 }
 
+[HarmonyPatch(typeof(TeaOfDiscourtesy), "get_ExtraHoverTips")]
+internal static class NativeDiscourtesyHoverTips
+{
+    private static void Postfix(TeaOfDiscourtesy __instance, ref IEnumerable<IHoverTip> __result)
+    {
+        int effect = __instance.IsMutable ? DiscourtesyVariant.Effect.GetValueOrDefault(__instance) : 0;
+        __result = effect switch
+        {
+            2 => [HoverTipFactory.FromPower<ConfusedPower>()],
+            1 => HoverTipFactory.FromCardWithCardHoverTips<Wound>(),
+            _ => HoverTipFactory.FromCardWithCardHoverTips<Dazed>()
+        };
+    }
+}
+
 [HarmonyPatch(typeof(TeaOfDiscourtesy), nameof(TeaOfDiscourtesy.BeforeCombatStart))]
 internal static class NativeDiscourtesyStart
 {
