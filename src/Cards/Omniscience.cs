@@ -96,4 +96,3 @@ internal static class OmniscienceNativeRepeat
     }
     private static async Task<int> AddOnePlay(Task<int> nativeCount) => await nativeCount + 1;
 }
-
