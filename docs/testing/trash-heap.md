@@ -39,3 +39,7 @@
 实机安装、自然池抽取、完整 public 资源、保存恢复、真实联机及回放均待用户执行。无界面测试替代现有宿主生命周期，不据此宣称这些项目已通过。
 
 本机产物：[public-beta 开发包](E:/Godot_v4.5.1-stable_mono_win64/sts2mod/AllMatters/dist/public-beta/AllMatters/)、[public 开发包](E:/Godot_v4.5.1-stable_mono_win64/sts2mod/AllMatters/dist/public/AllMatters/)。独立依赖完整包：`E:/Godot_v4.5.1-stable_mono_win64/sts2mod/AllMatters/.local/dependencies/RitsuLib-0.6.7/`。
+
+## 用户验收确认（2026-10-27）
+
+用户确认“经检查测试通过”，授权 #39–#44 提交、推送、创建 PR 并合并，最终工作区保持 main。此记录更新上述待用户执行状态；未逐项确认的语言、目标分支、保存恢复、真实联机和回放不扩写为全部通过。后续 #40–#44 及实测反馈修正的双目标完整回归各通过 191 项，详见 [开发与人工验收记录](events-40-44.md)。
