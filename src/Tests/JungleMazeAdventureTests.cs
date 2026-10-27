@@ -23,7 +23,8 @@ internal static class JungleMazeAdventureTests
         ("Jungle Maze shared choice enters two elite Sentries and grants eligible players native elite loot plus bonus gold", SharedFight),
         ("Jungle Maze Sentries use fixed STS1 values, opposite first intents, all-player damage and Dazed", SentryBehavior),
         ("Jungle Maze encounter, bilingual copy and complete Sentry Spine assets load", Presentation),
-        ("Jungle Maze move commands trigger distinct Spine actions and load their actual hit effects", VisualActions),
+        ("Jungle Maze move commands trigger distinct Spine actions and laser volleys", VisualActions),
+        ("Jungle Maze laser resources, multiplayer geometry, fade and cleanup", LaserPresentation),
     ];
 
     private static EventModel Canonical => ModelDb.Event<JungleMazeAdventure>();
@@ -239,22 +240,98 @@ internal static class JungleMazeAdventureTests
             var sprite = visuals.SpineBody!;
             SentryVisualCommandProbe.Animator = ModelDb.Monster<Sentry>().GenerateAnimator(sprite);
             SentryVisualCommandProbe.Sprite = sprite;
+            SentryVisualCommandProbe.Container = visuals;
             SentryVisualCommandProbe.Errors.Clear();
             SentryVisualCommandProbe.Attacks = 0;
             SentryVisualCommandProbe.Bolts = 0;
+            SentryVisualCommandProbe.Lasers = 0;
+            SentryVisualCommandProbe.Endpoints = 0;
+            SentryVisualCommandProbe.Sounds = 0;
             await SentryBehavior();
             NativeEventTests.Check(SentryVisualCommandProbe.Errors.Count == 0,
                 string.Join("; ", SentryVisualCommandProbe.Errors));
             NativeEventTests.Check(SentryVisualCommandProbe.Attacks == 4 && SentryVisualCommandProbe.Bolts == 4,
                 "Exercise both visual moves in singleplayer and multiplayer.");
+            NativeEventTests.Check(SentryVisualCommandProbe.Lasers == 4 && SentryVisualCommandProbe.Endpoints == 6
+                && SentryVisualCommandProbe.Sounds == 4, "Each Beam callback emits one volley and sound, reaching every living target.");
         }
         finally
         {
             SentryVisualCommandProbe.Animator = null;
             SentryVisualCommandProbe.Sprite = null;
+            SentryVisualCommandProbe.Container = null;
             tree.Root.RemoveChild(visuals);
             visuals.Free();
         }
+    }
+
+    private static async Task LaserPresentation()
+    {
+        using var texture = Godot.ResourceLoader.Load<Godot.Texture2D>(AllMatters.Vfx.SmallLaserEffect.TexturePath);
+        using var sound = Godot.ResourceLoader.Load<Godot.AudioStreamOggVorbis>(AllMatters.Vfx.SmallLaserEffect.SoundPath);
+        NativeEventTests.Check(texture.GetWidth() == 981 && texture.GetHeight() == 101
+            && sound.GetLength() > 0 && !sound.Loop, "Packed original laser crop and nonlooping audio decode.");
+        NativeEventTests.Check(AllMatters.Vfx.SmallLaserEffect.Create(Godot.Vector2.Zero, []) == null,
+            "No living targets produces no visual node.");
+        var tree = (Godot.SceneTree)Godot.Engine.GetMainLoop();
+        await tree.ToSignal(tree, Godot.SceneTree.SignalName.ProcessFrame);
+        using var parent = new Godot.Node2D { Position = new Godot.Vector2(70, 80), Scale = new Godot.Vector2(2, 2), Rotation = 0.3f };
+        tree.Root.AddChild(parent);
+        try
+        {
+            var source = new Godot.Vector2(900, 350);
+            Godot.Vector2[] targets = [new(250, 300), new(400, 500)];
+            float previousMaster = MegaCrit.Sts2.Core.Saves.SaveManager.Instance.SettingsSave.VolumeMaster;
+            try
+            {
+                SentryVisualCommandProbe.CaptureSound = true;
+                foreach (float volume in new[] { 0f, 0.5f, 1f })
+                {
+                    MegaCrit.Sts2.Core.Saves.SaveManager.Instance.SettingsSave.VolumeMaster = volume;
+                    AllMatters.Vfx.SmallLaserEffect.PlayAt(parent, source, targets);
+                    NativeEventTests.Check(SentryVisualCommandProbe.SoundVolume == volume * volume
+                        && SentryVisualCommandProbe.SoundPitch is >= 0.5f and <= 1.5f
+                        && SentryVisualCommandProbe.SoundBus == STS2RitsuLib.Audio.FmodStudioRouting.SfxBus,
+                        "Virtual sound preserves master mute/volume and samples the native SFX bus with original pitch variance.");
+                }
+                foreach (var child in parent.GetChildren()) child.Free();
+            }
+            finally
+            {
+                SentryVisualCommandProbe.CaptureSound = false;
+                MegaCrit.Sts2.Core.Saves.SaveManager.Instance.SettingsSave.VolumeMaster = previousMaster;
+            }
+            var effect = AllMatters.Vfx.SmallLaserEffect.Create(source, targets)!;
+            parent.AddChild(effect);
+            effect.SetProcess(false);
+            NativeEventTests.Check(effect.GetChildCount() == 2 && effect.GlobalTransform.IsEqualApprox(Godot.Transform2D.Identity),
+                "One beam per player uses global combat coordinates even inside a transformed container.");
+            for (int i = 0; i < targets.Length; i++)
+            {
+                var pivot = effect.GetChild<Godot.Node2D>(i);
+                var primary = pivot.GetNode<Godot.Sprite2D>("Primary");
+                NativeEventTests.Check(pivot.GlobalPosition.IsEqualApprox(source)
+                    && pivot.ToGlobal(new Godot.Vector2(primary.Scale.X * texture.GetWidth(), 0)).DistanceTo(targets[i]) < 0.01f,
+                    "Beam starts at the attacker and reaches its own player's center.");
+                NativeEventTests.Check(primary.UseParentMaterial && pivot.UseParentMaterial
+                    && ((Godot.CanvasItemMaterial)effect.Material).BlendMode == Godot.CanvasItemMaterial.BlendModeEnum.Add,
+                    "Beam layers inherit additive blending.");
+            }
+            effect._Process(0.125);
+            NativeEventTests.Check(Math.Abs(effect.Modulate.A - 0.75f) < 0.001f, "Original quadratic fade reaches 0.75 at 0.125 seconds.");
+            effect._Process(0.125);
+            NativeEventTests.Check(Math.Abs(effect.Modulate.A - 1) < 0.001f, "Original pulse peaks halfway through its lifetime.");
+            effect._Process(0.25);
+            NativeEventTests.Check(effect.IsQueuedForDeletion(), "Pulse queues cleanup at 0.5 seconds without awaiting animation signals.");
+            await tree.ToSignal(tree, Godot.SceneTree.SignalName.ProcessFrame);
+            NativeEventTests.Check(!Godot.GodotObject.IsInstanceValid(effect), "Pulse is freed on the next frame.");
+            var interrupted = AllMatters.Vfx.SmallLaserEffect.Create(source, targets)!;
+            parent.AddChild(interrupted);
+            parent.QueueFree();
+            await tree.ToSignal(tree, Godot.SceneTree.SignalName.ProcessFrame);
+            NativeEventTests.Check(!Godot.GodotObject.IsInstanceValid(interrupted), "Leaving the combat container cleans up an unfinished pulse.");
+        }
+        finally { if (Godot.GodotObject.IsInstanceValid(parent)) parent.Free(); }
     }
 }
 
@@ -264,9 +341,54 @@ internal static class SentryVisualCommandProbe
 {
     public static MegaCrit.Sts2.Core.Animation.CreatureAnimator? Animator;
     public static MegaCrit.Sts2.Core.Bindings.MegaSpine.MegaSprite? Sprite;
+    public static Godot.Node? Container;
     public static readonly List<string> Errors = [];
     public static int Attacks;
     public static int Bolts;
+    public static int Lasers;
+    public static int Endpoints;
+    public static int Sounds;
+    public static bool CaptureSound;
+    public static float SoundVolume;
+    public static float SoundPitch;
+    public static string? SoundBus;
+
+    [HarmonyLib.HarmonyPatch(typeof(STS2RitsuLib.Audio.VirtualFmodEventRegistry), nameof(STS2RitsuLib.Audio.VirtualFmodEventRegistry.RegisterOneShot))]
+    private static class SoundDefinition
+    {
+        private static void Prefix(string eventPath, string busPath, float volume, float pitch)
+        {
+            if (!CaptureSound || eventPath != AllMatters.Vfx.SmallLaserEffect.SoundEvent) return;
+            SoundVolume = volume; SoundPitch = pitch; SoundBus = busPath;
+        }
+    }
+
+    [HarmonyLib.HarmonyPatch(typeof(AllMatters.Vfx.SmallLaserEffect), nameof(AllMatters.Vfx.SmallLaserEffect.Play))]
+    private static class Laser
+    {
+        private static bool Prefix(IReadOnlyList<MegaCrit.Sts2.Core.Entities.Creatures.Creature> targets)
+        {
+            if (Animator == null) return true;
+            // Only replace absent room-to-creature coordinate lookup; exercise the
+            // production creation/audio path from the actual move's BeforeDamage.
+            var endpoints = targets.Where(target => target.IsAlive)
+                .Select((_, i) => new Godot.Vector2(200 + i * 200, 300)).ToArray();
+            Lasers++; Endpoints += endpoints.Length;
+            AllMatters.Vfx.SmallLaserEffect.PlayAt(Container!, new Godot.Vector2(900, 350), endpoints);
+            return false;
+        }
+    }
+
+    [HarmonyLib.HarmonyPatch(typeof(MegaCrit.Sts2.Core.Commands.SfxCmd), nameof(MegaCrit.Sts2.Core.Commands.SfxCmd.Play), [typeof(string), typeof(float)])]
+    private static class Sound
+    {
+        private static bool Prefix(string __0)
+        {
+            if ((Animator == null && !CaptureSound) || __0 != AllMatters.Vfx.SmallLaserEffect.SoundEvent) return true;
+            Sounds++;
+            return false; // No FMOD device in the headless host; decode audio separately.
+        }
+    }
 
     [HarmonyLib.HarmonyPatch(typeof(MegaCrit.Sts2.Core.Commands.CreatureCmd), nameof(MegaCrit.Sts2.Core.Commands.CreatureCmd.TriggerAnim))]
     private static class Animation

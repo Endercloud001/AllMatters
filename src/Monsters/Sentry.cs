@@ -73,8 +73,12 @@ public sealed class Sentry : ModMonsterTemplate
     {
         NGame.Instance?.ScreenShake(ShakeStrength.Weak, ShakeDuration.Short);
         await DamageCmd.Attack(9).FromMonster(this)
-            .WithAttackerAnim("Attack", 0.25f)
-            .WithHitFx("vfx/vfx_attack_slash").Execute(null);
+            .WithAttackerAnim("Attack", 0f)
+            .BeforeDamage(async () =>
+            {
+                Vfx.SmallLaserEffect.Play(Creature, targets);
+                await Cmd.CustomScaledWait(0.1f, 0.3f);
+            }).Execute(null);
     }
 
     public override CreatureAnimator GenerateAnimator(MegaSprite controller)
