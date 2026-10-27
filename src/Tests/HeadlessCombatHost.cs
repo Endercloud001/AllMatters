@@ -1,6 +1,13 @@
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Combat;
 using System.Reflection;
+using MegaCrit.Sts2.Core.Assets;
+using MegaCrit.Sts2.Core.Entities.Players;
+using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.Models.Characters;
+using MegaCrit.Sts2.Core.Random;
+using MegaCrit.Sts2.Core.Runs;
+using MegaCrit.Sts2.Core.Unlocks;
 
 // The host supplies an active combat without starting the game's UI/network action loop.
 // Card models, factories, RNG, hooks, power application and pile commands remain real.
@@ -49,5 +56,59 @@ internal static class HeadlessEmptyHandNotification
     {
         __result = Task.CompletedTask;
         return false;
+    }
+}
+
+// Shared preparation only; gameplay still runs through native models and commands.
+internal static class HeadlessTestSetup
+{
+    internal static RunState Run(string seed, params CharacterModel[] characters)
+        => RunState.CreateForTest(characters.Select((character, index) =>
+            Player.CreateForNewRun(character, UnlockState.all, (ulong)index + 1)).ToArray(), acts: [], seed: seed);
+
+    internal static Player PlayerWithRun(string seed = "NATIVE_EVENTS", CharacterModel? character = null)
+        => Run(seed, character ?? ModelDb.Character<Ironclad>()).Players[0];
+
+    internal static CombatState Combat(IRunState run)
+    {
+        var combat = new CombatState(runState: run) { RoundNumber = 1 };
+        foreach (var player in run.Players)
+        {
+            combat.AddPlayer(player);
+            player.ResetCombatState();
+        }
+        return combat;
+    }
+
+    // Compare before/after within one target. The beta API serializes RNG state;
+    // peek at a clone so observing it never advances the actual gameplay RNG.
+    internal static ulong RngPosition(Rng rng)
+    {
+#if STS2_PUBLIC
+        return (ulong)rng.Counter;
+#else
+        return new Rng(rng.ToSerializable()).NextUnsignedLong();
+#endif
+    }
+
+    internal static IDisposable LoadAtlases(params string[] names)
+    {
+        var loader = new AtlasResourceLoader();
+        try
+        {
+            foreach (string name in names) AtlasManager.LoadAtlas(name);
+            Godot.ResourceLoader.AddResourceFormatLoader(loader, atFront: true);
+            return new AtlasScope(loader);
+        }
+        catch { loader.Dispose(); throw; }
+    }
+
+    private sealed class AtlasScope(AtlasResourceLoader loader) : IDisposable
+    {
+        public void Dispose()
+        {
+            Godot.ResourceLoader.RemoveResourceFormatLoader(loader);
+            loader.Dispose();
+        }
     }
 }

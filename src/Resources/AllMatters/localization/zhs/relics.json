@@ -25,5 +25,15 @@
   "ALL_MATTERS_BOTTLED_TORNADO.flavor": "一只封存着旋风的古怪瓶子。",
   "ALL_MATTERS_MARK_OF_THE_BLOOM.title": "绽放印记",
   "ALL_MATTERS_MARK_OF_THE_BLOOM.description": "你无法再回复生命。",
-  "ALL_MATTERS_MARK_OF_THE_BLOOM.flavor": "在高塔的深处，思维与现实成为了一体。"
+  "ALL_MATTERS_MARK_OF_THE_BLOOM.flavor": "在高塔的深处，思维与现实成为了一体。",
+  "ALL_MATTERS_OMAMORI.title": "怀中御守",
+  "ALL_MATTERS_OMAMORI.description": "抵消接下来加入你牌组的 [blue]2[/blue] 张[gold]诅咒[/gold]。",
+  "ALL_MATTERS_OMAMORI.flavor": "“等到御守里不再有嘀嗒声，我们就回来了。”",
+  "ALL_MATTERS_PRESERVED_INSECT.title": "昆虫标本",
+  "ALL_MATTERS_PRESERVED_INSECT.description": "精英敌人的攻击伤害降低[blue]30%[/blue]。",
+  "ALL_MATTERS_PRESERVED_INSECT.flavor": "“这只昆虫似乎会对尤其巨大的敌人们散发出虚弱的光环。”",
+  "ALL_MATTERS_INSERTER.title": "机械臂",
+  "ALL_MATTERS_INSERTER.description": "每 [blue]2[/blue] 回合，获得 [blue]1[/blue] 个充能球栏位。",
+  "ALL_MATTERS_INSERTER.flavor": "“钢铁之心。”",
+  "ALL_MATTERS_PRESERVED_INSECT.shrinkDescription": "这个生物的攻击伤害在[blue]99[/blue]回合内减少[blue]30%[/blue]。"
 }

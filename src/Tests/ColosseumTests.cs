@@ -177,9 +177,12 @@ internal static class ColosseumTests
                         "Native generation must give 100 gold, a rare relic and three skippable unlocked class rares.");
                     int beforeGold = player.Gold, beforeDeck = player.Deck.Cards.Count;
                     LocalContext.NetId = player.NetId;
-                    await gold.SelectUnsynchronized(); await relic.SelectUnsynchronized();
+                    await gold.SelectUnsynchronized();
+                    // Rare relics such as Old Coin can grant additional gold on pickup.
+                    Check(player.Gold == beforeGold + 100, "The native gold reward pays exactly 100 to its owner.");
+                    await relic.SelectUnsynchronized();
                     using (CardSelectCmd.UseSelector(new ChooseReward(player == second))) await cards.SelectUnsynchronized();
-                    Check(player.Gold == beforeGold + 100 && player.Relics.Any(r => r.Id == relic.Relic!.Id) && player.Deck.Cards.Count == beforeDeck + (player == second ? 0 : 1),
+                    Check(player.Relics.Any(r => r.Id == relic.Relic!.Id) && player.Deck.Cards.Count == beforeDeck + (player == second ? 0 : 1),
                         "Native reward selection pays the owner, including choosing versus skipping the card.");
                     var inventory = Player.FromSerializable(player.ToSerializable());
                     Check(inventory.Gold == player.Gold && inventory.Relics.Select(r => r.Id).SequenceEqual(player.Relics.Select(r => r.Id)) && inventory.Deck.Cards.Select(c => c.Id).SequenceEqual(player.Deck.Cards.Select(c => c.Id)),
