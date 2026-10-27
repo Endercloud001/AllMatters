@@ -102,30 +102,39 @@ internal static class AmbrosiaTests
         var ally = Player.CreateForNewRun<Silent>(UnlockState.all, 2);
         var run = RunState.CreateForTest([p, ally], acts: [], seed: "AMBROSIA_REWARDS");
         RunManager.Instance.SetUpTest(run, new NetSingleplayerGameService());
-        var room = new CombatRoom(ModelDb.Encounter<AllMatters.Encounters.RedMaskBandits>().ToMutable(), run);
-        room.CombatState.AddPlayer(p); room.CombatState.AddPlayer(ally); p.ResetCombatState(); ally.ResetCombatState();
-        // The existing playable event's fixed gold and guaranteed Red Mask.
-        room.AddExtraReward(p, new GoldReward(25, 35, p));
-        room.AddExtraReward(p, new RelicReward(ModelDb.Relic<RedMask>().ToMutable(), p));
-        room.AddExtraReward(ally, new GoldReward(25, 35, ally));
-        room.AddExtraReward(ally, new RelicReward(ModelDb.Relic<RedMask>().ToMutable(), ally));
-        await Drink(p);
-        var rewards = new RewardsSet(p).WithRewardsFromRoom(room);
-        // A guaranteed potion added after room generation must also be filtered.
-        rewards.WithCustomRewards([new PotionReward(ModelDb.Potion<Ambrosia>().ToMutable(), p)]);
-        await rewards.GenerateWithoutOffering();
-        NativeEventTests.Check(rewards.Rewards.Count == 0, "No personal gold card potion or guaranteed relic survives reward hooks.");
-        var teamRewards = new RewardsSet(ally).WithRewardsFromRoom(room);
-        NativeEventTests.Check(teamRewards.Rewards.OfType<GoldReward>().Any() && teamRewards.Rewards.OfType<RelicReward>().Any() && teamRewards.Rewards.OfType<CardReward>().Any(), "Ally keeps normal and guaranteed loot.");
-        p.Creature.SetCurrentHpInternal(10); await CreatureCmd.Heal(p.Creature, 5);
-        NativeEventTests.Check(p.Creature.CurrentHp == 15, "Healing remains normal.");
-        var story = new RewardsSet(p).WithCustomRewards([new GoldReward(7, 7, p)]);
-        await story.GenerateWithoutOffering();
-        NativeEventTests.Check(story.Rewards.Count == 1, "Out of combat story reward remains eligible.");
-        var restoredRun = RunState.FromSerializable(RunManager.Instance.ToSave(null));
-        var restored = restoredRun.Players.Single(player => player.NetId == p.NetId);
-        NativeEventTests.Check(!PersonalCombatRewards.IsEligible(restored), "Forfeiture survives serialization.");
-        p.ResetCombatState();
-        NativeEventTests.Check(PersonalCombatRewards.IsEligible(p) && new RewardsSet(p).WithRewardsFromRoom(room).Rewards.OfType<RelicReward>().Any(), "Next combat restores personal loot.");
+        var previousNetId = MegaCrit.Sts2.Core.Context.LocalContext.NetId;
+        try
+        {
+            var room = new CombatRoom(ModelDb.Encounter<AllMatters.Encounters.RedMaskBandits>().ToMutable(), run);
+            room.CombatState.AddPlayer(p); room.CombatState.AddPlayer(ally); p.ResetCombatState(); ally.ResetCombatState();
+            // The existing playable event's fixed gold and guaranteed Red Mask.
+            room.AddExtraReward(p, new GoldReward(25, 35, p));
+            room.AddExtraReward(p, new RelicReward(ModelDb.Relic<RedMask>().ToMutable(), p));
+            room.AddExtraReward(ally, new GoldReward(25, 35, ally));
+            room.AddExtraReward(ally, new RelicReward(ModelDb.Relic<RedMask>().ToMutable(), ally));
+            await Drink(p);
+            var rewards = new RewardsSet(p).WithRewardsFromRoom(room);
+            // A guaranteed potion added after room generation must also be filtered.
+            rewards.WithCustomRewards([new PotionReward(ModelDb.Potion<Ambrosia>().ToMutable(), p)]);
+            await rewards.GenerateWithoutOffering();
+            NativeEventTests.Check(rewards.Rewards.Count == 0, "No personal gold card potion or guaranteed relic survives reward hooks.");
+            var teamRewards = new RewardsSet(ally).WithRewardsFromRoom(room);
+            NativeEventTests.Check(teamRewards.Rewards.OfType<GoldReward>().Any() && teamRewards.Rewards.OfType<RelicReward>().Any() && teamRewards.Rewards.OfType<CardReward>().Any(), "Ally keeps normal and guaranteed loot.");
+            p.Creature.SetCurrentHpInternal(10); await CreatureCmd.Heal(p.Creature, 5);
+            NativeEventTests.Check(p.Creature.CurrentHp == 15, "Healing remains normal.");
+            var story = new RewardsSet(p).WithCustomRewards([new GoldReward(7, 7, p)]);
+            await story.GenerateWithoutOffering();
+            NativeEventTests.Check(story.Rewards.Count == 1, "Out of combat story reward remains eligible.");
+            var restoredRun = RunState.FromSerializable(RunManager.Instance.ToSave(null));
+            var restored = restoredRun.Players.Single(player => player.NetId == p.NetId);
+            NativeEventTests.Check(!PersonalCombatRewards.IsEligible(restored), "Forfeiture survives serialization.");
+            p.ResetCombatState();
+            NativeEventTests.Check(PersonalCombatRewards.IsEligible(p) && new RewardsSet(p).WithRewardsFromRoom(room).Rewards.OfType<RelicReward>().Any(), "Next combat restores personal loot.");
+        }
+        finally
+        {
+            RunManager.Instance.CleanUp(false);
+            MegaCrit.Sts2.Core.Context.LocalContext.NetId = previousNetId;
+        }
     }
 }
