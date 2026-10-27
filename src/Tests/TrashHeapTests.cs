@@ -21,14 +21,6 @@ using MegaCrit.Sts2.Core.Runs;
 
 internal static class TrashHeapTests
 {
-    private static ulong RngPosition(Rng rng)
-    {
-#if STS2_PUBLIC
-        return (ulong)rng.Counter;
-#else
-        return new Rng(rng.ToSerializable()).NextUnsignedLong();
-#endif
-    }
     public static readonly (string Name, Func<Task> Test)[] Cases =
     [
         ("Trash heap grab grants 50 gold and a retained card once without display RNG", Grab),
@@ -73,9 +65,9 @@ internal static class TrashHeapTests
         var seen = new HashSet<Type>();
         for (int i = 0; i < 24; i++)
         {
-            var player = Player.CreateForNewRun<Ironclad>(UnlockState.all, 1);
-            var other = Player.CreateForNewRun<Silent>(UnlockState.all, 2);
-            RunState.CreateForTest([player, other], acts: [], seed: "TRASH_DIVE_" + i);
+            var run = HeadlessTestSetup.Run("TRASH_DIVE_" + i, ModelDb.Character<Ironclad>(), ModelDb.Character<Silent>());
+            var player = run.Players[0];
+            var other = run.Players[1];
             var model = await NativeEventTests.Begin<TrashHeap>(player);
             var option = model.CurrentOptions.Single(o => o.TextKey.EndsWith(".DIVE_IN"));
             int hp = player.Creature.CurrentHp, gold = player.Gold, otherHp = other.Creature.CurrentHp;
@@ -85,9 +77,9 @@ internal static class TrashHeapTests
             seen.Add(awarded.GetType());
             NativeEventTests.Check(awarded is DarkstonePeriapt or DreamCatcher or HandDrill && player.Relics.Count == relics + 1
                 && player.Creature.CurrentHp == hp - 8 && player.Gold == gold && model.IsFinished, "Dive loses eight HP and awards one retained relic, then finishes.");
-            var rng = RngPosition(model.Rng);
+            var rng = HeadlessTestSetup.RngPosition(model.Rng);
             await option.Chosen();
-            NativeEventTests.Check(player.Creature.CurrentHp == hp - 8 && player.Relics.Count == relics + 1 && RngPosition(model.Rng) == rng
+            NativeEventTests.Check(player.Creature.CurrentHp == hp - 8 && player.Relics.Count == relics + 1 && HeadlessTestSetup.RngPosition(model.Rng) == rng
                 && other.Creature.CurrentHp == otherHp && other.Relics.Count == otherRelics, "Stale choices do not repeat damage/rewards or affect teammates.");
         }
         NativeEventTests.Check(seen.SetEquals(new[] { typeof(DarkstonePeriapt), typeof(DreamCatcher), typeof(HandDrill) }), "All three retained relics can be awarded.");
@@ -135,64 +127,49 @@ internal static class TrashHeapTests
 
     private static Task CardPools()
     {
-        using var loader = new AtlasResourceLoader();
-        AtlasManager.LoadAtlas("card_atlas");
-        Godot.ResourceLoader.AddResourceFormatLoader(loader, atFront: true);
-        try
+        using var atlases = HeadlessTestSetup.LoadAtlases("card_atlas");
+        foreach (var entry in new (CardModel Card, CharacterModel Character, CardRarity Rarity)[]
         {
-            foreach (var entry in new (CardModel Card, CharacterModel Character, CardRarity Rarity)[]
-            {
             (ModelDb.Card<Rebound>(), ModelDb.Character<Defect>(), CardRarity.Uncommon),
             (ModelDb.Card<Stack>(), ModelDb.Character<Defect>(), CardRarity.Common),
             (ModelDb.Card<RipAndTear>(), ModelDb.Character<Defect>(), CardRarity.Uncommon),
             (ModelDb.Card<DualWield>(), ModelDb.Character<Ironclad>(), CardRarity.Uncommon),
             (ModelDb.Card<Entrench>(), ModelDb.Character<Ironclad>(), CardRarity.Uncommon),
-            })
-            {
-                var player = Player.CreateForNewRun(entry.Character, UnlockState.all, 1);
-                RunState.CreateForTest([player], acts: [], seed: "TRASH_POOL");
-                var pool = player.Character.CardPool.GetUnlockedCards(player.UnlockState, player.RunState.CardMultiplayerConstraint).ToArray();
-                NativeEventTests.Check(pool.Any(c => c.Id == entry.Card.Id) && entry.Card.Pool == player.Character.CardPool
-                    && entry.Card.Rarity == entry.Rarity && !ModelDb.CardPool<EventCardPool>().AllCardIds.Contains(entry.Card.Id),
-                    $"{entry.Card.Id} belongs to its normal character pool at the specified rarity.");
-                var legal = pool.Where(c => c.Id == entry.Card.Id);
-                var shop = CardFactory.CreateForMerchant(player, legal, entry.Rarity).Card;
-                var combat = new CombatState(runState: player.RunState);
-                combat.AddPlayer(player);
-                player.ResetCombatState();
-                var generated = CardFactory.GetDistinctForCombat(player, legal, 1, player.RunState.Rng.CombatCardGeneration).Single();
-                NativeEventTests.Check(shop.Id == entry.Card.Id && shop.Owner == player && generated.Id == entry.Card.Id,
-                    "Native shop and combat generation can actually create the migrated card.");
-                NativeEventTests.Check(entry.Card.PortraitPath.Contains("/event/") && entry.Card.Portrait != null
-                    && (AtlasManager.HasSprite("card_atlas", "event/" + entry.Card.Id.Entry.ToLowerInvariant())
-                        || entry.Card.HasPortrait || entry.Card.HasBetaPortrait),
-                    "Migration loads the original portrait, including native beta artwork where no atlas sprite exists.");
-            }
+        })
+        {
+            var player = HeadlessTestSetup.PlayerWithRun("TRASH_POOL", entry.Character);
+            var pool = player.Character.CardPool.GetUnlockedCards(player.UnlockState, player.RunState.CardMultiplayerConstraint).ToArray();
+            NativeEventTests.Check(pool.Any(c => c.Id == entry.Card.Id) && entry.Card.Pool == player.Character.CardPool
+                && entry.Card.Rarity == entry.Rarity && !ModelDb.CardPool<EventCardPool>().AllCardIds.Contains(entry.Card.Id),
+                $"{entry.Card.Id} belongs to its normal character pool at the specified rarity.");
+            var legal = pool.Where(c => c.Id == entry.Card.Id);
+            var shop = CardFactory.CreateForMerchant(player, legal, entry.Rarity).Card;
+            HeadlessTestSetup.Combat(player.RunState);
+            var generated = CardFactory.GetDistinctForCombat(player, legal, 1, player.RunState.Rng.CombatCardGeneration).Single();
+            NativeEventTests.Check(shop.Id == entry.Card.Id && shop.Owner == player && generated.Id == entry.Card.Id,
+                "Native shop and combat generation can actually create the migrated card.");
+            NativeEventTests.Check(entry.Card.PortraitPath.Contains("/event/") && entry.Card.Portrait != null
+                && (AtlasManager.HasSprite("card_atlas", "event/" + entry.Card.Id.Entry.ToLowerInvariant())
+                    || entry.Card.HasPortrait || entry.Card.HasBetaPortrait),
+                "Migration loads the original portrait, including native beta artwork where no atlas sprite exists.");
         }
-        finally { Godot.ResourceLoader.RemoveResourceFormatLoader(loader); }
         return Task.CompletedTask;
     }
 
     private static Task RelicPools()
     {
-        using var loader = new AtlasResourceLoader();
-        AtlasManager.LoadAtlas("relic_atlas");
-        Godot.ResourceLoader.AddResourceFormatLoader(loader, atFront: true);
-        try
+        using var atlases = HeadlessTestSetup.LoadAtlases("relic_atlas");
+        foreach (var relic in new RelicModel[] { ModelDb.Relic<MawBank>(), ModelDb.Relic<TheBoot>() })
         {
-            foreach (var relic in new RelicModel[] { ModelDb.Relic<MawBank>(), ModelDb.Relic<TheBoot>() })
-            {
-                var player = NativeEventTests.Player();
-                player.RelicGrabBag.Populate(player, player.RunState.Rng.UpFront);
-                NativeEventTests.Check(ModelDb.RelicPool<SharedRelicPool>().GetUnlockedRelics(player.UnlockState).Any(r => r.Id == relic.Id)
-                    && !ModelDb.RelicPool<EventRelicPool>().AllRelicIds.Contains(relic.Id) && relic.Rarity == RelicRarity.Common,
-                    "Both relics move into the normal common shared pool.");
-                var reward = RelicFactory.PullNextRelicFromFront(player, RelicRarity.Common, r => r.Id == relic.Id);
-                NativeEventTests.Check(reward.Id == relic.Id && relic.Icon != null && relic.IconOutline != null && relic.BigIcon != null,
-                    "The real reward bag yields the migrated relic and its original artwork loads.");
-            }
+            var player = NativeEventTests.Player();
+            player.RelicGrabBag.Populate(player, player.RunState.Rng.UpFront);
+            NativeEventTests.Check(ModelDb.RelicPool<SharedRelicPool>().GetUnlockedRelics(player.UnlockState).Any(r => r.Id == relic.Id)
+                && !ModelDb.RelicPool<EventRelicPool>().AllRelicIds.Contains(relic.Id) && relic.Rarity == RelicRarity.Common,
+                "Both relics move into the normal common shared pool.");
+            var reward = RelicFactory.PullNextRelicFromFront(player, RelicRarity.Common, r => r.Id == relic.Id);
+            NativeEventTests.Check(reward.Id == relic.Id && relic.Icon != null && relic.IconOutline != null && relic.BigIcon != null,
+                "The real reward bag yields the migrated relic and its original artwork loads.");
         }
-        finally { Godot.ResourceLoader.RemoveResourceFormatLoader(loader); }
         return Task.CompletedTask;
     }
 
@@ -207,19 +184,19 @@ internal static class TrashHeapTests
             var option = model.CurrentOptions.Single(o => o.TextKey.EndsWith(".GRAB"));
             option.Description.Add("Gold", model.DynamicVars.Gold.IntValue);
             int gold = player.Gold, count = player.Deck.Cards.Count;
-            var rng = RngPosition(model.Rng);
+            var rng = HeadlessTestSetup.RngPosition(model.Rng);
             NativeEventTests.Check(option.Description.GetFormattedText().Contains("50"), "The option displays 50 gold.");
             _ = option.Description.GetFormattedText();
-            NativeEventTests.Check(RngPosition(model.Rng) == rng, "Formatting consumes no event RNG.");
+            NativeEventTests.Check(HeadlessTestSetup.RngPosition(model.Rng) == rng, "Formatting consumes no event RNG.");
             await option.Chosen();
             NativeEventTests.Check(player.Gold == gold + 50 && player.Deck.Cards.Count == count + 1 && model.IsFinished,
                 "Grab grants exactly 50 gold and one permanent card, then finishes.");
             NativeEventTests.Check(player.Deck.Cards.Last() is Caltrops or Clash or Distraction or MegaCrit.Sts2.Core.Models.Cards.HelloWorld or Outmaneuver,
                 "The five retained original candidates remain the only base card outcomes.");
             seen.Add(player.Deck.Cards.Last().GetType());
-            rng = RngPosition(model.Rng);
+            rng = HeadlessTestSetup.RngPosition(model.Rng);
             await option.Chosen();
-            NativeEventTests.Check(player.Gold == gold + 50 && player.Deck.Cards.Count == count + 1 && RngPosition(model.Rng) == rng,
+            NativeEventTests.Check(player.Gold == gold + 50 && player.Deck.Cards.Count == count + 1 && HeadlessTestSetup.RngPosition(model.Rng) == rng,
                 "A stale option cannot repeat rewards or reroll.");
         }
         NativeEventTests.Check(seen.SetEquals(new[] { typeof(Caltrops), typeof(Clash), typeof(Distraction), typeof(MegaCrit.Sts2.Core.Models.Cards.HelloWorld), typeof(Outmaneuver) }),

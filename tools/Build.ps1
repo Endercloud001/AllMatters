@@ -2,7 +2,8 @@ param(
     [ValidateSet('public', 'public-beta')][string]$Branch = 'public-beta',
     [string]$GameDataDir,
     [string]$GodotPath,
-    [ValidateSet('Debug', 'Release')][string]$Configuration = 'Debug'
+    [ValidateSet('Debug', 'Release')][string]$Configuration = 'Debug',
+    [switch]$SkipResourceExport
 )
 $ErrorActionPreference = 'Stop'
 $repoDir = Split-Path -Parent $PSScriptRoot
@@ -10,7 +11,14 @@ $arguments = @('build', (Join-Path $repoDir 'AllMatters.csproj'), '-c', $Configu
 if ($GameDataDir) { $arguments += "-p:GameDataDir=$GameDataDir" }
 & dotnet @arguments
 if ($LASTEXITCODE -ne 0) { throw "Build failed for $Branch (exit $LASTEXITCODE)." }
-& (Join-Path $PSScriptRoot 'ExportResources.ps1') -GodotPath $GodotPath
+if ($SkipResourceExport) {
+    if (!(Test-Path -LiteralPath (Join-Path $repoDir 'dist/AllMatters.pck') -PathType Leaf)) {
+        throw 'No resource pack to reuse. Run without -SkipResourceExport first.'
+    }
+}
+else {
+    & (Join-Path $PSScriptRoot 'ExportResources.ps1') -GodotPath $GodotPath
+}
 $outputDir = Join-Path $repoDir "bin/$Branch/$Configuration/net9.0"
 $packageDir = Join-Path $repoDir "dist/$Branch/AllMatters"
 New-Item -ItemType Directory -Path $packageDir -Force | Out-Null

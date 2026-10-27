@@ -41,21 +41,34 @@ Paths.local.props 不提交 Git；PublicGameDataDir 与 BetaGameDataDir 分别�
 ./tools/Test.ps1               # 默认 public-beta，无需重复填写路径
 ./tools/Test.ps1 -Branch All   # 顺序运行 public-beta 与 public
 ./tools/Test.ps1 -Filter 'highlights only'
+./tools/Test.ps1 -Filter 'Trash heap' -SkipResourceExport # 仅 C# 改动，显式复用上次资源包
 ```
 
 测试脚本恢复调用前的 DOTNET_ROOT，不修改系统配置；两个分支不能并行使用同一测试输出目录。CLI 仍可传 `-GodotPath`、`-DotNetRoot` 临时覆盖配置。
+
+独立 `Test.ps1` 先编译，再导出一次资源并顺序执行目标；编译失败不启动资源导入。`-SkipResourceExport` 仅用于已成功导出且 `src/Resources/`、`src/Tooling/PackResources.gd` 未变的迭代，资源包缺失会报错；资源改动后使用默认命令重新导出。`Build.ps1` 支持相同选项。完整 `Check.ps1` 每次重新导出一次资源，供双目标测试和打包共用，不依赖资源缓存判定。
+
+新增原生 API 调用后先用真实 DLL 编译两个目标，再运行专项行为测试：
+
+```powershell
+dotnet build src/Tests/AllMatters.Tests.csproj -p:GameBranch=public-beta --nologo
+dotnet build src/Tests/AllMatters.Tests.csproj -p:GameBranch=public --nologo
+```
+
+测试准备复用 `src/Tests/HeadlessCombatHost.cs` 中的 `HeadlessTestSetup`：`PlayerWithRun` 返回已绑定测试局的玩家，`Run` 创建指定角色的多人测试局，`Combat` 为局内玩家准备真实战斗状态；已有 `NativeEventTests.Player/Combat` 继续代理该入口。原生资源测试用 `using var atlases = HeadlessTestSetup.LoadAtlases("card_atlas", "relic_atlas")` 加载并自动撤销资源加载器；需要遗物袋时调用原生 `player.RelicGrabBag.Populate(player, player.RunState.Rng.UpFront)`。比较单目标前后 RNG 是否变化时复用 `RngPosition`，其数值不用于跨版本比较。事件原生文案的变量绑定沿实际 UI 使用事件 DynamicVars；既有框架初始化和生命周期替代顺序保持不变。
 
 ## 自动检查与 PR 范围
 
 ```powershell
 ./tools/Check.ps1                  # 语法、空白、两分支完整行为检查及开发包
+./tools/Tests/Workflow.Tests.ps1   # 独立运行脚本流程测试，不需要游戏依赖
 ./tools/InstallHooks.ps1           # 为当前仓库安装提示型 pre-push 自动入口
 ./tools/ReviewScope.ps1            # 相对 origin/main 的提交、变更统计与未提交文件
 ./tools/ReviewScope.ps1 -ReviewedFrom '<已审查起点>'
 ./tools/GitRemote.ps1 -Operation fetch
 ```
 
-`Check.ps1` 失败返回非零，详细日志在 `.local/checks/last-run.log`；pre-push 自动调用同一命令，将输出留在 `.local/checks/hook-console.log`，失败会警示但仍允许推送。它不是强制合并条件，也不启动正式游戏或安装产物。安装器遇到已有 hook 或 hooksPath 时保留它们并停止，避免覆盖安全措施。其他 clone 需要自行运行安装器；没有依赖的公共 CI runner 不代跑本机测试。
+`Check.ps1` 分步骤汇总 PASS/FAIL/SKIP，任一步失败或跳过均返回非零，详细日志在 `.local/checks/last-run.log`。空白问题不阻止其他独立检查，单目标测试失败也继续另一目标及开发包构建；新资源导出失败则明确跳过依赖它的测试和打包，避免使用旧包。脚本流程测试使用隔离临时目录和命令替身验证执行顺序、资源复用与失败传播，不启动游戏。pre-push 自动调用同一命令，将输出留在 `.local/checks/hook-console.log`，失败会警示但仍允许推送。它不是强制合并条件，也不启动正式游戏或安装产物。安装器遇到已有 hook 或 hooksPath 时保留它们并停止，避免覆盖安全措施。其他 clone 需要自行运行安装器；没有依赖的公共 CI runner 不代跑本机测试。
 
 开始新工单前先刷新目标分支并查看 `ReviewScope.ps1`，选择相对 main 的独立分支或明确已有提交的处理方式。准备 PR 时再核对同一范围；审查起点覆盖不到的额外提交由 reviewer 补审或拆分。工具只展示差异，不替代范围判断。
 
@@ -82,6 +95,8 @@ Agent 完成适当的自动化测试和两目标构建后，向用户提供 `dis
 
 默认目标为 public-beta；每次输出实际程序集路径和版本来源。`-Find` 模糊查找类型全名，`-Signatures` 只读取元数据，不执行游戏初始化；`-Member` 按名称片段筛选，`-Limit` 控制返回数量。成员摘要只包含当前类型声明的 public/protected 成员，不展开可空引用注解及所有修饰信息；查继承成员时查询对应父类，精确调用和时序依据完整导出源码。
 
+新增调用先在两目标分别查签名、返回类型及所属类，已有同版本方法体只读取相关成员。两版 Rng 观察方式不同，测试直接复用上述宿主帮助方法；`CardCmd.Upgrade` 返回 void。编译错误或宿主初始化失败属于准备问题，TDD 的红阶段应由目标行为断言失败证明。
+
 不传 `-Find` 或 `-Signatures` 时按原行为导出方法体，省略 OutputDir 则写入忽略目录 `.local/api/queries/<目标与版本>/`，返回来源文件及成员匹配行。原有 `-AssemblyPath -OutputDir -IlspyPath -Types` 用法仍支持；显式程序集不会被配置覆盖。API 查询工具仅用于开发，不参与 Mod 编译/打包，也不需要 Godot 进程。
 
 ## 游戏日志与交接
@@ -96,6 +111,8 @@ Agent 完成适当的自动化测试和两目标构建后，向用户提供 `dis
 脚本读取 props 中的字面值，不展开 MSBuild 表达式；工具路径可相对仓库根目录填写，游戏程序集目录建议使用绝对路径。配置仅保存在本机忽略文件。
 
 交接实现任务时，先记录目标版本、已核实机制及源码入口，再列尚需用户决定的行为。已有决定直接沿用；在开始 TDD 前一次约定公开接口、验收例子、宿主替代边界和审查起点。机制入口见 [阅读地图](game-mechanics.md)，展示和证据范围见 [审查说明](agents/review.md)。查询时先找类型和成员，再按需导出方法体；保留大文件于本地，交接只给出来源、成员和必要证据。
+
+工作区父目录可能不是 Git 仓库，先定位含 `AGENTS.md`、项目文件和 `.git` 的仓库根目录，再执行 Git/工具命令。文件查找先 `rg --files <目录> -g '<模式>'`，确认文件后按章节或成员读取；PowerShell 下使用 `rg '<内容>' src/Tests -g '*.cs'`，不将 `src/Tests/*.cs` 当成已展开路径。长日志保留本地，只返回退出码、通过数、首个相关错误及来源行；遇到输出截断时缩小范围。
 
 ## 文档与参考目录
 

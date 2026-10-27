@@ -24,6 +24,8 @@
 | 单卡查看升级为何与牌组列表颜色不同 | `CardModel.GetDescriptionForPile`、`GetDescriptionForUpgradePreview`；`IfUpgradedVar`；`ShowIfUpgradedFormatter` | beta 格式化器在 UpgradePreview 中给整个选中分支加绿色标签；应把实际变化的词语放在需要高亮的范围内。两分支中英文回归测试已覆盖你好世界的普通、升级和预览输出。 |
 | 新模型需要怎样注册 | `ModManager` 加载程序集；`ReflectionHelper.GetSubtypesInMods`；`ModelDb.AllAbstractModelSubtypes`、`Init`、`InitIds` | public 方法体包含 Mod 子类型发现；beta 实机已加载本 Mod 两类能力。你好世界调整使用原生发现即可；事件注册及 Godot 脚本注册仍按具体功能查证，不据此默认添加框架依赖。 |
 | 事件战斗后如何恢复原事件 | `EventRoom`、`CombatRoom`、`EventModel`、`RunManager`、事件同步器、回放写入器 | 两分支存在实际内部流程差异。直接阅读 [连续事件战斗调查](research/dual-branch-api.md#连续事件战斗的具体风险)，不要将相同方法名视为相同时序。 |
+| 垃圾堆追加内容或将事件实体迁入正常池 | `src/Events/TrashHeapCandidates.cs`；`src/Cards/TrashHeapPoolMigration.cs`；原生 `CardPoolModel`、`RelicPoolModel` | #40–#44 通过 `RegisterCards/RegisterRelics` 各注册一次候选提供者，按模型 ID 合并。提供者只枚举候选，角色过滤由分组完成，RNG 在选择结算时消费。迁池同时检查实际池、稀有度与解锁/人数/生成限制；原生卡图路径依赖 Pool，迁移牌仍需指向原 event 素材。见 [#39 记录](testing/trash-heap.md)。 |
+| 无界面测试如何加载原生卡图和遗物图 | `HeadlessTestSetup.LoadAtlases`；原生 `AtlasManager`、`AtlasResourceLoader` | 复用 `src/Tests/HeadlessCombatHost.cs` 的资源作用域，离开后撤销加载器。原版贴图可能来自图集或 beta PNG，仅以独立 PNG 缺失不能判定无图；确认具体贴图可加载。准备入口与双目标命令见 [开发环境](development.md#测试)。 |
 
 ## 读取顺序
 

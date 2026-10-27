@@ -38,11 +38,7 @@ internal static class NativeEventTests
     ];
 
     internal static Player Player(string seed = "NATIVE_EVENTS")
-    {
-        var player = MegaCrit.Sts2.Core.Entities.Players.Player.CreateForNewRun<Ironclad>(UnlockState.all, 1);
-        RunState.CreateForTest([player], acts: [], seed: seed);
-        return player;
-    }
+        => HeadlessTestSetup.PlayerWithRun(seed);
 
     internal static async Task<EventModel> Begin<T>(Player player) where T : EventModel
     {
@@ -73,9 +69,7 @@ internal static class NativeEventTests
     internal static (Player Player, CombatState Combat) Combat()
     {
         var player = Player();
-        var combat = new CombatState(runState: player.RunState) { RoundNumber = 1 };
-        combat.AddPlayer(player);
-        player.ResetCombatState();
+        var combat = HeadlessTestSetup.Combat(player.RunState);
         return (player, combat);
     }
 

@@ -1,6 +1,6 @@
 # AllMatters
 
-开发前读取 `docs/v0.1-scope.md`。构建、版本验证和本机路径见 `docs/development.md`；移植时查阅 `docs/references.md`。
+开发前读取目标工单、父规格和阻塞项；涉及既有玩法时查阅对应版本范围（`docs/v0.1-scope.md`、`docs/v0.1.1-scope.md`）。构建、版本验证和本机路径见 `docs/development.md`；移植时查阅 `docs/references.md`。
 
 涉及卡牌、能力、牌池、展示或事件流程时，先从 `docs/game-mechanics.md` 定位目标分支源码；API 查询、测试和日志命令见 `docs/development.md`。开始工单或准备 PR 时运行 `tools/ReviewScope.ps1`；审查时读取 `docs/agents/review.md`。
 
