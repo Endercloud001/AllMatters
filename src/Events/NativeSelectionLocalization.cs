@@ -14,13 +14,33 @@ internal static class NativeSelectionLocalization
             ["ALL_MATTERS_CHRYSALIS.title"] = zh ? "结茧" : "Chrysalis",
             ["ALL_MATTERS_CHRYSALIS.description"] = zh ? "在你的抽牌堆中加入{Cards:diff()}张随机技能牌。它们在本场战斗中可以被免费打出。" : "Add {Cards:diff()} random Skills into your Draw Pile. They can be played for free this combat.",
         });
+        else if (name == "monsters") __result.MergeWith(new Dictionary<string, string>
+        {
+            ["ALL_MATTERS_MONSTER_WRITHING_MASS.name"] = zh ? "扭曲团块" : "Writhing Mass",
+            ["ALL_MATTERS_MONSTER_WRITHING_MASS.moves.PARASITE.title"] = zh ? "寄生" : "Parasite",
+            ["ALL_MATTERS_MONSTER_WRITHING_MASS.moves.WITHER.title"] = zh ? "凋零" : "Wither",
+            ["ALL_MATTERS_MONSTER_WRITHING_MASS.moves.FLAIL.title"] = zh ? "三连击" : "Flail",
+            ["ALL_MATTERS_MONSTER_WRITHING_MASS.moves.SHIELD.title"] = zh ? "木盾" : "Wooden Shield",
+        });
+        else if (name == "powers") __result.MergeWith(new Dictionary<string, string>
+        {
+            ["ALL_MATTERS_POWER_REACTIVE_POWER.title"] = zh ? "扭动" : "Reactive",
+            ["ALL_MATTERS_POWER_REACTIVE_POWER.description"] = zh ? "首回合寄生锁定。之后每次受到未被格挡的攻击伤害时，等概率改变意图，排除上次实际行动。未受攻击时使用木盾，可连续。" : "Opening Parasite is locked. Afterwards, each unblocked attack hit rerolls intent equally, excluding the last performed action. Without attacks, uses Wooden Shield, which may repeat.",
+            ["ALL_MATTERS_POWER_REACTIVE_POWER.smartDescription"] = zh ? "首回合后，每次受到未被格挡的攻击伤害时改变意图，排除上次实际行动。" : "After the opening turn, each unblocked attack hit rerolls intent, excluding the last performed action.",
+        });
         else if (name == "relics") __result.MergeWith(new Dictionary<string, string>
         {
+            ["ALL_MATTERS_DEAD_BRANCH.title"] = zh ? "腐化树枝" : "Dead Branch",
+            ["ALL_MATTERS_DEAD_BRANCH.description"] = zh ? "每当你[gold]消耗[/gold]一张牌，将一张随机牌加入你的手牌。" : "Whenever you [gold]Exhaust[/gold] a card, add a random card to your Hand.",
+            ["ALL_MATTERS_DEAD_BRANCH.flavor"] = zh ? "枯枝中仍有某种生命在蠢动。" : "Something still stirs within the dead wood.",
             ["ALL_MATTERS_CURSED_KEY.title"] = zh ? "诅咒钥匙" : "Cursed Key",
             ["ALL_MATTERS_CURSED_KEY.description"] = zh ? "你每次打开一个非Boss宝箱都有[gold]50%[/gold]的概率获得一张随机的[red]诅咒[/red]。在每回合开始时获得[blue]1[/blue]点[gold]能量[/gold]。" : "Whenever you open a non-Boss chest, [gold]50%[/gold] chance to gain a random [red]Curse[/red]. At the start of each turn, gain [blue]1[/blue] [gold]Energy[/gold].",
         });
         else if (name == "events") __result.MergeWith(new Dictionary<string, string>
         {
+            ["WHISPERING_HOLLOW.pages.INITIAL.options.AM_BURN.title"] = zh ? "焚烧树木" : "Burn the Tree",
+            ["WHISPERING_HOLLOW.pages.INITIAL.options.AM_BURN.description"] = zh ? "进行一场[red]艰难的战斗[/red]。胜利后获得[purple]腐化树枝[/purple]。" : "Enter a [red]difficult battle[/red]. Obtain [purple]Dead Branch[/purple] upon victory.",
+            ["WHISPERING_HOLLOW.pages.AM_BURN.description"] = zh ? "你点燃了一团火，向这棵诡异的树掷去。在一阵痛苦的哀嚎之后，它竟变成了一个[red]活物[/red]！\n\n所幸它的生命已是风中残烛，你在它的遗骸中拾到了珍贵的[gold]宝物[/gold]。" : "You light a fire and hurl it at the eerie tree. With a cry of agony, it becomes a [red]living creature[/red]!\n\nFortunately, its life is already fading. You find precious [gold]treasure[/gold] among its remains.",
             ["WHISPERING_HOLLOW.pages.INITIAL.options.AM_HUG_1.title"] = zh ? "拥抱树木" : "Hug a Tree",
             ["WHISPERING_HOLLOW.pages.INITIAL.options.AM_HUG_1.description"] = zh ? "失去[red]9[/red]点生命。选择[gold]1[/gold]张牌[gold]变化[/gold]。" : "Lose [red]9[/red] HP. [gold]Transform 1[/gold] card.",
             ["WHISPERING_HOLLOW.pages.INITIAL.options.AM_HUG_2.title"] = zh ? "拥抱树木" : "Hug a Tree",
