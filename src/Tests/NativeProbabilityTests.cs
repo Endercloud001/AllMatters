@@ -149,6 +149,7 @@ internal static class NativeProbabilityTests
         await PotionCmd.TryToProcure<BlockPotion>(p);
         var e = await NativeEventTests.Begin<TheFutureOfPotions>(p);
         ((RunState)p.RunState).AppendToMapPointHistory(MegaCrit.Sts2.Core.Map.MapPointType.Unknown, MegaCrit.Sts2.Core.Rooms.RoomType.Event, e.Id);
+        var localId = MegaCrit.Sts2.Core.Context.LocalContext.NetId;
         RunManager.Instance.SetUpTest((RunState)p.RunState, new NetSingleplayerGameService());
         try
         {
@@ -157,7 +158,11 @@ internal static class NativeProbabilityTests
             NativeEventTests.Check(e.IsFinished && p.Deck.Cards.Count == count + 1 && p.Deck.Cards.Last().IsUpgraded && p.Potions.Count() == 1,
                 "Pay one bound potion and obtain one of the upgraded cards, then finish.");
         }
-        finally { RunManager.Instance.CleanUp(false); }
+        finally
+        {
+            RunManager.Instance.CleanUp(false);
+            MegaCrit.Sts2.Core.Context.LocalContext.NetId = localId;
+        }
     }
 
     private sealed class ChooseReward : ICardSelector

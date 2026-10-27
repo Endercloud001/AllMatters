@@ -44,6 +44,7 @@ internal static class NativeNlothTests
         var p = Player.CreateForNewRun<Ironclad>(UnlockState.all, 1);
         var other = Player.CreateForNewRun<Silent>(UnlockState.all, 2);
         var run = RunState.CreateForTest([p, other], acts: [], seed: "NLOTH_CHEST");
+        var localId = MegaCrit.Sts2.Core.Context.LocalContext.NetId;
         RunManager.Instance.SetUpTest(run, new NetSingleplayerGameService());
         try
         {
@@ -67,7 +68,11 @@ internal static class NativeNlothTests
             await Hook.AfterRoomEntered(run, next);
             NativeEventTests.Check(Hook.ShouldGenerateTreasure(run, p), "The following chest works normally.");
         }
-        finally { RunManager.Instance.CleanUp(false); }
+        finally
+        {
+            RunManager.Instance.CleanUp(false);
+            MegaCrit.Sts2.Core.Context.LocalContext.NetId = localId;
+        }
     }
 
     private static async Task Gift()

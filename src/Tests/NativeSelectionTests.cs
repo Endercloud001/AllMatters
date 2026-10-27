@@ -195,6 +195,7 @@ internal static class NativeSelectionTests
         {
             var p = NativeEventTests.Player("KEY_CHEST" + seed);
             var run = (RunState)p.RunState;
+            var localId = MegaCrit.Sts2.Core.Context.LocalContext.NetId;
             RunManager.Instance.SetUpTest(run, new NetSingleplayerGameService());
             try
             {
@@ -211,7 +212,11 @@ internal static class NativeSelectionTests
                 await RunManager.Instance.OneOffSynchronizer.DoLocalTreasureRoomRewards();
                 NativeEventTests.Check(p.Deck.Cards.Count == before + added, "Reopening same chest must not reroll or add another curse.");
             }
-            finally { RunManager.Instance.CleanUp(false); }
+            finally
+            {
+                RunManager.Instance.CleanUp(false);
+                MegaCrit.Sts2.Core.Context.LocalContext.NetId = localId;
+            }
         }
         NativeEventTests.Check(cursed > 0 && clear > 0, "Exercise both chest outcomes.");
     }

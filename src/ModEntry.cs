@@ -13,6 +13,7 @@ public static class ModEntry
 
     public static void Initialize()
     {
+        Encounters.PersonalCombatRewards.Initialize();
         ModTypeDiscoveryHub.RegisterModAssembly(ModId, typeof(ModEntry).Assembly);
         RitsuLibFramework.EnsureGodotScriptsRegistered(typeof(ModEntry).Assembly,
             RitsuLibFramework.CreateLogger(ModId));

@@ -89,3 +89,5 @@ Slay the Spire 2 and its game resources remain the property of Mega Crit and the
 Chrysalis and Cursed Key use the unchanged STS1 archive entries images/1024Portraits/colorless/skill/chrysalis.png, images/relics/cursedKey.png and images/relics/outline/cursedKey.png, retaining Mega Crit/original artists' ownership.
 
 Strange Mushroom and Du-Vu Doll likewise use unchanged images/relics/{mushroom,duvuDoll}.png and corresponding outline images from the owned STS1 archive; original artwork ownership is retained.
+
+Ink Bottle and the global Symbiotic Virus replacement use unchanged `images/relics/{ink_bottle,virus}.png` and corresponding `images/relics/outline/` entries from the same owned STS1 archive. Ambrosia is a static composite of that archive's `images/potion/eye/{body,liquid}.png`, with a green liquid tint; its outline is `images/potion/eye/outline.png`. The potion image also identifies its temporary power. These assets retain Mega Crit/original artists' ownership and are not relicensed by this repository.
