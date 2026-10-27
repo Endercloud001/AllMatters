@@ -23,6 +23,7 @@ internal static class JungleMazeAdventureTests
         ("Jungle Maze shared choice enters two elite Sentries and grants eligible players native elite loot plus bonus gold", SharedFight),
         ("Jungle Maze Sentries use fixed STS1 values, opposite first intents, all-player damage and Dazed", SentryBehavior),
         ("Jungle Maze encounter, bilingual copy and complete Sentry Spine assets load", Presentation),
+        ("Jungle Maze move commands trigger distinct Spine actions and load their actual hit effects", VisualActions),
     ];
 
     private static EventModel Canonical => ModelDb.Event<JungleMazeAdventure>();
@@ -150,28 +151,33 @@ internal static class JungleMazeAdventureTests
                         "Each sentry starts with exactly one Artifact in singleplayer and multiplayer.");
                 }
 
-                foreach (var sentry in sentries)
+                for (int round = 0; round < 2; round++)
                 {
-                    sentry.RollMove(combat.PlayerCreatures);
-                    if (sentry.NextMove.Id == Sentry.BEAM)
+                    foreach (var sentry in sentries)
                     {
-                        var before = players.ToDictionary(player => player, player => player.Creature.CurrentHp);
-                        await sentry.NextMove.PerformMove(combat.PlayerCreatures);
-                        foreach (var player in players)
-                            NativeEventTests.Check(player.Creature.CurrentHp == before[player] - 9, "Each Beam hits every player for exactly 9.");
+                        sentry.RollMove(combat.PlayerCreatures);
+                        if (sentry.NextMove.Id == Sentry.BEAM)
+                        {
+                            var before = players.ToDictionary(player => player, player => player.Creature.CurrentHp);
+                            await sentry.NextMove.PerformMove(combat.PlayerCreatures);
+                            foreach (var player in players)
+                                NativeEventTests.Check(player.Creature.CurrentHp == before[player] - 9, "Each Beam hits every player for exactly 9.");
+                        }
+                        else
+                        {
+                            var before = players.ToDictionary(player => player,
+                                player => player.PlayerCombatState!.DiscardPile.Cards.Count(card => card.Id == ModelDb.Card<Dazed>().Id));
+                            await sentry.NextMove.PerformMove(combat.PlayerCreatures);
+                            foreach (var player in players)
+                                NativeEventTests.Check(player.PlayerCombatState!.DiscardPile.Cards.Count(card => card.Id == ModelDb.Card<Dazed>().Id) == before[player] + 2,
+                                    "Each Bolt puts exactly two Dazed into every player's discard pile.");
+                        }
+                        sentry.MoveStateMachine!.OnMovePerformed(sentry.NextMove);
                     }
-                    else
-                    {
-                        await sentry.NextMove.PerformMove(combat.PlayerCreatures);
-                        foreach (var player in players)
-                            NativeEventTests.Check(player.PlayerCombatState!.DiscardPile.Cards.Count(card => card.Id == ModelDb.Card<Dazed>().Id) == 2,
-                                "Each Bolt puts exactly two Dazed into every player's discard pile.");
-                    }
-                    sentry.MoveStateMachine!.OnMovePerformed(sentry.NextMove);
+                    foreach (var sentry in sentries) sentry.RollMove(combat.PlayerCreatures);
+                    NativeEventTests.Check(sentries[0].NextMove.Id != sentries[1].NextMove.Id,
+                        "The sentries continue alternating independently after their first moves.");
                 }
-                foreach (var sentry in sentries) sentry.RollMove(combat.PlayerCreatures);
-                NativeEventTests.Check(sentries[0].NextMove.Id != sentries[1].NextMove.Id,
-                    "The sentries continue alternating independently after their first moves.");
             }
             finally { RunManager.Instance.CleanUp(false); LocalContext.NetId = previousNetId; }
         }
@@ -219,6 +225,101 @@ internal static class JungleMazeAdventureTests
             NativeEventTests.Check(skeleton != null && new[] { "idle", "attack", "spaz1", "spaz2", "spaz3", "hit" }.All(skeleton.HasAnimation),
                 "Sentry visuals load all idle, attack, bolt and hit animations.");
             tree.Root.RemoveChild(visuals); visuals.Free();
+        }
+    }
+
+    private static async Task VisualActions()
+    {
+        var tree = (Godot.SceneTree)Godot.Engine.GetMainLoop();
+        await tree.ToSignal(tree, Godot.SceneTree.SignalName.ProcessFrame);
+        using var visuals = ModelDb.Monster<Sentry>().CreateVisuals();
+        tree.Root.AddChild(visuals);
+        try
+        {
+            var sprite = visuals.SpineBody!;
+            SentryVisualCommandProbe.Animator = ModelDb.Monster<Sentry>().GenerateAnimator(sprite);
+            SentryVisualCommandProbe.Sprite = sprite;
+            SentryVisualCommandProbe.Errors.Clear();
+            SentryVisualCommandProbe.Attacks = 0;
+            SentryVisualCommandProbe.Bolts = 0;
+            await SentryBehavior();
+            NativeEventTests.Check(SentryVisualCommandProbe.Errors.Count == 0,
+                string.Join("; ", SentryVisualCommandProbe.Errors));
+            NativeEventTests.Check(SentryVisualCommandProbe.Attacks == 4 && SentryVisualCommandProbe.Bolts == 4,
+                "Exercise both visual moves in singleplayer and multiplayer.");
+        }
+        finally
+        {
+            SentryVisualCommandProbe.Animator = null;
+            SentryVisualCommandProbe.Sprite = null;
+            tree.Root.RemoveChild(visuals);
+            visuals.Free();
+        }
+    }
+}
+
+// The headless host has no NCreature room nodes, so bridge only visual commands to
+// the real Spine animator and load the hit effect that the actual move selected.
+internal static class SentryVisualCommandProbe
+{
+    public static MegaCrit.Sts2.Core.Animation.CreatureAnimator? Animator;
+    public static MegaCrit.Sts2.Core.Bindings.MegaSpine.MegaSprite? Sprite;
+    public static readonly List<string> Errors = [];
+    public static int Attacks;
+    public static int Bolts;
+
+    [HarmonyLib.HarmonyPatch(typeof(MegaCrit.Sts2.Core.Commands.CreatureCmd), nameof(MegaCrit.Sts2.Core.Commands.CreatureCmd.TriggerAnim))]
+    private static class Animation
+    {
+        private static void Prefix(MegaCrit.Sts2.Core.Entities.Creatures.Creature creature, string triggerName)
+        {
+            if (Animator == null || creature.Monster is not Sentry) return;
+            if (triggerName.StartsWith("spaz")) Bolts++; else Attacks++;
+            if (!Animator.HasTrigger(triggerName))
+            {
+                Errors.Add($"Sentry move requested unregistered animation trigger '{triggerName}'.");
+                return;
+            }
+            Animator.SetTrigger(triggerName);
+#if STS2_PUBLIC
+            var track = Sprite!.GetAnimationState().GetCurrent(0);
+#else
+            using var track = Sprite!.GetAnimationState().GetCurrent(0);
+#endif
+            string expected = triggerName == "Attack" ? "attack" : triggerName;
+            if (track?.GetAnimationName() != expected)
+                Errors.Add($"Trigger {triggerName} did not start its Spine action {expected}.");
+            if (track != null)
+            {
+                var state = Sprite.GetAnimationState();
+                state.Update(track.GetAnimationDuration() + 0.1f);
+                state.Apply(Sprite.GetSkeleton()!);
+                state.Update(0.01f);
+                state.Apply(Sprite.GetSkeleton()!);
+#if STS2_PUBLIC
+                var next = state.GetCurrent(0);
+#else
+                using var next = state.GetCurrent(0);
+#endif
+                if (next?.GetAnimationName() != "idle") Errors.Add($"Sentry {expected} did not return to idle.");
+            }
+        }
+    }
+
+    [HarmonyLib.HarmonyPatch(typeof(MegaCrit.Sts2.Core.Commands.Builders.AttackCommand), nameof(MegaCrit.Sts2.Core.Commands.Builders.AttackCommand.Execute))]
+    private static class HitEffect
+    {
+        private static void Prefix(MegaCrit.Sts2.Core.Commands.Builders.AttackCommand __instance)
+        {
+            if (Animator == null || __instance.Attacker?.Monster is not Sentry || __instance.HitVfx == null) return;
+            string path = $"res://scenes/{__instance.HitVfx}.tscn";
+            if (!Godot.ResourceLoader.Exists(path))
+            {
+                Errors.Add($"Sentry hit effect is missing: {path}");
+                return;
+            }
+            using var scene = Godot.ResourceLoader.Load<Godot.PackedScene>(path);
+            NativeEventTests.Check(scene.CanInstantiate(), $"Sentry hit effect could not load: {path}");
         }
     }
 }

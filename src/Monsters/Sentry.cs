@@ -71,10 +71,10 @@ public sealed class Sentry : ModMonsterTemplate
 
     private async Task BeamMove(IReadOnlyList<Creature> targets)
     {
-        await CreatureCmd.TriggerAnim(Creature, "attack", 0f);
         NGame.Instance?.ScreenShake(ShakeStrength.Weak, ShakeDuration.Short);
-        await Cmd.Wait(0.25f);
-        await DamageCmd.Attack(9).FromMonster(this).WithHitFx("vfx/vfx_attack_pierce").Execute(null);
+        await DamageCmd.Attack(9).FromMonster(this)
+            .WithAttackerAnim("Attack", 0.25f)
+            .WithHitFx("vfx/vfx_attack_slash").Execute(null);
     }
 
     public override CreatureAnimator GenerateAnimator(MegaSprite controller)
