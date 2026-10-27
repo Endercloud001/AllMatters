@@ -66,7 +66,10 @@ internal static class HelloWorldTests
                 ("Upgrade preview highlights only the added words", UpgradePreviewHighlight)
             ];
             var selected = cases.Concat(ClericTests.Cases).Concat(BeggarFountainTests.Cases).Concat(AugmenterTests.Cases).Concat(CursedTomeTests.Cases).Concat(WheelOfChangeTests.Cases).Concat(TombOfLordRedMaskTests.Cases)
-                .Concat(LibraryTests.Cases).Concat(MaskedBanditsTests.Cases).Concat(MindBloomTests.Cases).Concat(ColosseumTests.Cases)
+                .Concat(LibraryTests.Cases).Concat(MaskedBanditsTests.Cases).Concat(MindBloomTests.Cases).Concat(ColosseumTests.Cases).Concat(NativeEventTests.Cases).Concat(NativeProbabilityTests.Cases).Concat(NativeRadianceTests.Cases).Concat(NativeNlothTests.Cases).Concat(NativeCandleTests.Cases).Concat(NativeSelectionTests.Cases).Concat(NativeRelicEventTests.Cases)
+                .Concat(NativeCounterTests.Cases)
+                .Concat(AmbrosiaTests.Cases)
+                .Concat(NativeLockedOptionTests.Cases)
                 .Where(test => args.Length == 0 || test.Name.Contains(args[0], StringComparison.OrdinalIgnoreCase)).ToArray();
             Check(selected.Length > 0, "No test matches the supplied filter.");
             foreach (var test in selected)

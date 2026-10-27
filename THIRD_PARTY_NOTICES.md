@@ -70,6 +70,12 @@ RitsuLib 0.6.7, by OLC: [BAKAOLC/STS2-RitsuLib](https://github.com/BAKAOLC/STS2-
 
 ## Game assets and assemblies
 
+The v0.1.1 Brilliance portrait is copied unchanged from the locally owned Slay the Spire `desktop-1.0.jar`, entry `images/1024Portraits/purple/attack/brilliance.png`. It remains Mega Crit/original artists' artwork; the repository's code license does not relicense it. Native Slay the Spire 2 events, models and visuals are referenced from the player's installation.
+
+N'loth's Hungry Face and N'loth's Gift use the unchanged `images/relics/{nloth,nlothsGift}.png` and corresponding `images/relics/outline/` images from the same owned STS1 archive. The images retain Mega Crit/original artists' ownership and are not relicensed by this repository.
+
+Blue Candle likewise uses unchanged `images/relics/blueCandle.png` and `images/relics/outline/blueCandle.png` from the owned STS1 archive, with the same original artwork ownership.
+
 Slay the Spire 2 and its game resources remain the property of Mega Crit and their respective owners. Game DLLs, native libraries, PCK files and decompiled game code are development inputs only and are not distributed with this mod.
 
 ## Mind Bloom, Lagavulin and Mark of the Bloom
@@ -79,3 +85,9 @@ Slay the Spire 2 and its game resources remain the property of Mega Crit and the
 - Assets: `Sts2BalanceMod/images/events/MindBloom.png`, `images/relics/{,big/,outlines/}MarkOfTheBloom.png`, `images/powers/AsleepLagavulinPower.png`, the five scene/Spine/atlas/texture files in `monsters/lagavulin/`, and `Assets/ActsFromPast/images/powers/actsfromthepast-metallicize_power.png` (Metallicize icon, used for both sizes). Event/relic master images exist in upstream `image_gen/source/`; upstream identifies the event illustration as remade art. Monster scenes and text resources only change resource paths; PNG and binary skeleton files are unchanged. The sleep icon is used for both icon sizes.
 - The Lagavulin Spine assets also occur in Balance's ActsFromPast mirror. As with the existing bandit assets, redistribution follows Balance's repository GPLv3 declaration and preserves Balance/ActsFromThePast/original game attribution; this is not an independent audit of the underlying artwork's rights or a claim to relicense original game artwork. No files were copied directly from the separate ActsFromThePast archive. See `docs/research/2026-10-21-issue-12-source-assets.md` for remaining provenance limitations.
 - No game DLL, PCK, native Spine library, decompiled code, or mirrored Mind Bloom music is distributed.
+
+Chrysalis and Cursed Key use the unchanged STS1 archive entries images/1024Portraits/colorless/skill/chrysalis.png, images/relics/cursedKey.png and images/relics/outline/cursedKey.png, retaining Mega Crit/original artists' ownership.
+
+Strange Mushroom and Du-Vu Doll likewise use unchanged images/relics/{mushroom,duvuDoll}.png and corresponding outline images from the owned STS1 archive; original artwork ownership is retained.
+
+Ink Bottle and the global Symbiotic Virus replacement use unchanged `images/relics/{ink_bottle,virus}.png` and corresponding `images/relics/outline/` entries from the same owned STS1 archive. Ambrosia is a static composite of that archive's `images/potion/eye/{body,liquid}.png`, with a green liquid tint; its outline is `images/potion/eye/outline.png`. The potion image also identifies its temporary power. These assets retain Mega Crit/original artists' ownership and are not relicensed by this repository.
