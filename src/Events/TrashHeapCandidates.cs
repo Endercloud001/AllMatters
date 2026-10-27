@@ -20,6 +20,7 @@ public static class TrashHeapCandidates
             ModelDb.Card<AllMatters.Cards.Bullseye>(), ModelDb.Card<AllMatters.Cards.CoreSurge>()],
         _ => [ModelDb.Card<AllMatters.Cards.EndlessAgony>(), ModelDb.Card<AllMatters.Cards.Terror>(), ModelDb.Card<AllMatters.Cards.Dropkick>(),
             ModelDb.Card<AllMatters.Cards.Reaper>(), ModelDb.Card<AllMatters.Cards.Disarm>(), ModelDb.Card<AllMatters.Cards.GhostlyArmor>()],
+        _ => [ModelDb.Card<AllMatters.Cards.TalkToTheHand>(), ModelDb.Card<AllMatters.Cards.Fasting>(), ModelDb.Card<AllMatters.Cards.Alpha>(), ModelDb.Card<AllMatters.Cards.ForeignInfluence>()],
     ];
     private static readonly List<Func<Player, IEnumerable<RelicModel>>> RelicGroups = [];
 

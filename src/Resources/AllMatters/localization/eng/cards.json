@@ -22,5 +22,17 @@
   "ALL_MATTERS_DISARM.title": "Disarm",
   "ALL_MATTERS_DISARM.description": "Enemy loses {StrengthLoss:diff()} [gold]Strength[/gold].",
   "ALL_MATTERS_GHOSTLY_ARMOR.title": "Ghostly Armor",
-  "ALL_MATTERS_GHOSTLY_ARMOR.description": "Gain {Block:diff()} [gold]Block[/gold]."
+  "ALL_MATTERS_GHOSTLY_ARMOR.description": "Gain {Block:diff()} [gold]Block[/gold].",
+  "ALL_MATTERS_TALK_TO_THE_HAND.title": "Talk to the Hand",
+  "ALL_MATTERS_TALK_TO_THE_HAND.description": "Deal {Damage:diff()} damage. Whenever this enemy is attacked, gain {BoundBlock:diff()} Block.",
+  "ALL_MATTERS_FASTING.title": "Fasting",
+  "ALL_MATTERS_FASTING.description": "Gain {Stats:diff()} Strength and Dexterity. Gain 1 less Energy at the start of each turn.",
+  "ALL_MATTERS_ALPHA.title": "Alpha",
+  "ALL_MATTERS_ALPHA.description": "{IfUpgraded:show:Innate. |}Shuffle a Beta into your draw pile. Exhaust.",
+  "ALL_MATTERS_BETA.title": "Beta",
+  "ALL_MATTERS_BETA.description": "Shuffle an Omega into your draw pile. Exhaust.",
+  "ALL_MATTERS_OMEGA.title": "Omega",
+  "ALL_MATTERS_OMEGA.description": "At the end of your turn, deal {EndDamage:diff()} damage to ALL enemies.",
+  "ALL_MATTERS_FOREIGN_INFLUENCE.title": "Foreign Influence",
+  "ALL_MATTERS_FOREIGN_INFLUENCE.description": "Choose 1 of 3 {IfUpgraded:show:upgraded |}Skills from other characters to add to your hand. It costs 0 this turn."
 }

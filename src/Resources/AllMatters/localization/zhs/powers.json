@@ -13,5 +13,14 @@
   "ALL_MATTERS_POWER_ELECTRODYNAMICS_POWER.smartDescription": "你的闪电充能球会击中所有敌人。",
   "ALL_MATTERS_POWER_LOCK_ON_POWER.title": "跟踪锁定",
   "ALL_MATTERS_POWER_LOCK_ON_POWER.description": "施加者的充能球对其造成的伤害增加50%。每回合结束时减少1层。",
-  "ALL_MATTERS_POWER_LOCK_ON_POWER.smartDescription": "施加者的充能球对其造成的伤害增加50%。每回合结束时减少1层。"
+  "ALL_MATTERS_POWER_LOCK_ON_POWER.smartDescription": "施加者的充能球对其造成的伤害增加50%。每回合结束时减少1层。",
+  "ALL_MATTERS_POWER_TALK_TO_THE_HAND_POWER.title": "以手拒之",
+  "ALL_MATTERS_POWER_TALK_TO_THE_HAND_POWER.description": "受到攻击时，施加者获得{Amount}点格挡。",
+  "ALL_MATTERS_POWER_TALK_TO_THE_HAND_POWER.smartDescription": "受到攻击时，施加者获得{Amount}点格挡。",
+  "ALL_MATTERS_POWER_FASTING_POWER.title": "斋戒",
+  "ALL_MATTERS_POWER_FASTING_POWER.description": "每回合开始时少获得{Amount}点能量。",
+  "ALL_MATTERS_POWER_FASTING_POWER.smartDescription": "每回合开始时少获得{Amount}点能量。",
+  "ALL_MATTERS_POWER_OMEGA_POWER.title": "欧米伽",
+  "ALL_MATTERS_POWER_OMEGA_POWER.description": "回合结束时对所有敌人造成{Amount}点伤害。",
+  "ALL_MATTERS_POWER_OMEGA_POWER.smartDescription": "回合结束时对所有敌人造成{Amount}点伤害。"
 }

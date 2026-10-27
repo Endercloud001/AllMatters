@@ -13,5 +13,14 @@
   "ALL_MATTERS_POWER_ELECTRODYNAMICS_POWER.smartDescription": "Your Lightning Orbs hit ALL enemies.",
   "ALL_MATTERS_POWER_LOCK_ON_POWER.title": "Lock-On",
   "ALL_MATTERS_POWER_LOCK_ON_POWER.description": "Orbs of the player who applied this deal 50% more damage to this enemy. Decreases by 1 at the end of its turn.",
-  "ALL_MATTERS_POWER_LOCK_ON_POWER.smartDescription": "Orbs of the player who applied this deal 50% more damage to this enemy. Decreases by 1 at the end of its turn."
+  "ALL_MATTERS_POWER_LOCK_ON_POWER.smartDescription": "Orbs of the player who applied this deal 50% more damage to this enemy. Decreases by 1 at the end of its turn.",
+  "ALL_MATTERS_POWER_TALK_TO_THE_HAND_POWER.title": "Talk to the Hand",
+  "ALL_MATTERS_POWER_TALK_TO_THE_HAND_POWER.description": "When attacked, the applier gains {Amount} Block.",
+  "ALL_MATTERS_POWER_TALK_TO_THE_HAND_POWER.smartDescription": "When attacked, the applier gains {Amount} Block.",
+  "ALL_MATTERS_POWER_FASTING_POWER.title": "Fasting",
+  "ALL_MATTERS_POWER_FASTING_POWER.description": "Gain {Amount} less Energy each turn.",
+  "ALL_MATTERS_POWER_FASTING_POWER.smartDescription": "Gain {Amount} less Energy each turn.",
+  "ALL_MATTERS_POWER_OMEGA_POWER.title": "Omega",
+  "ALL_MATTERS_POWER_OMEGA_POWER.description": "At the end of your turn, deal {Amount} damage to ALL enemies.",
+  "ALL_MATTERS_POWER_OMEGA_POWER.smartDescription": "At the end of your turn, deal {Amount} damage to ALL enemies."
 }
