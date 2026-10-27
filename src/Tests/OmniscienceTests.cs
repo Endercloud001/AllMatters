@@ -15,6 +15,7 @@ internal static class OmniscienceTests
     {
         foreach(string scenario in new[]{"attack","exhaust","power","unplayable","conditionFalse","conditionTrue","candle","recursive","lethal"})
         {
+            var previousNetId = MegaCrit.Sts2.Core.Context.LocalContext.NetId;
             MegaCrit.Sts2.Core.Context.LocalContext.NetId=1;
             var(p,combat)=NativeEventTests.Combat();var ctx=new ThrowingPlayerChoiceContext();
             MegaCrit.Sts2.Core.Runs.RunManager.Instance.SetUpTest((MegaCrit.Sts2.Core.Runs.RunState)p.RunState,new MegaCrit.Sts2.Core.Multiplayer.NetSingleplayerGameService());
@@ -58,7 +59,7 @@ internal static class OmniscienceTests
                 if(scenario=="recursive") NativeEventTests.Check(selector.Calls==3 && p.Creature.Block==20 && p.PlayerCombatState.ExhaustPile.Cards.Contains(a!) && p.PlayerCombatState.ExhaustPile.Cards.Contains(b!),"Nested Omniscience opens two distinct subsequent choices after source exhausted.");
                 if(scenario=="lethal") NativeEventTests.Check(damage>=1 && damage<=12,"Native automatic targeting remains valid when a target dies.");
             }
-            finally{CombatManager.Instance.Reset(true);MegaCrit.Sts2.Core.Runs.RunManager.Instance.CleanUp(false);}
+            finally{CombatManager.Instance.Reset(true);MegaCrit.Sts2.Core.Runs.RunManager.Instance.CleanUp(false); MegaCrit.Sts2.Core.Context.LocalContext.NetId = previousNetId;}
         }
     }
     private sealed class Choose(CardModel source,CardModel[] choices):ICardSelector

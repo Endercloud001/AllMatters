@@ -23,7 +23,13 @@ public static class TrashHeapCandidates
         _ => [ModelDb.Card<AllMatters.Cards.TalkToTheHand>(), ModelDb.Card<AllMatters.Cards.Fasting>(), ModelDb.Card<AllMatters.Cards.Alpha>(), ModelDb.Card<AllMatters.Cards.ForeignInfluence>()],
         _ => [ModelDb.Card<AllMatters.Cards.Omniscience>()],
     ];
-    private static readonly List<Func<Player, IEnumerable<RelicModel>>> RelicGroups = [];
+    private static readonly List<Func<Player, IEnumerable<RelicModel>>> RelicGroups =
+    [
+        player => new RelicModel[] { ModelDb.Relic<AllMatters.Relics.Omamori>(), ModelDb.Relic<AllMatters.Relics.PreservedInsect>() }
+            .Concat(player.Character is MegaCrit.Sts2.Core.Models.Characters.Defect ? new RelicModel[] { ModelDb.Relic<AllMatters.Relics.Inserter>() } : [])
+            .Concat(player.Character is MegaCrit.Sts2.Core.Models.Characters.Silent ? new RelicModel[] { ModelDb.Relic<ToughBandages>() } : [])
+            .Concat(player.Character is MegaCrit.Sts2.Core.Models.Characters.Ironclad ? new RelicModel[] { ModelDb.Relic<CharonsAshes>() } : []),
+    ];
 
     public static void RegisterCards(Func<Player, IEnumerable<CardModel>> group) => CardGroups.Add(group);
     public static void RegisterRelics(Func<Player, IEnumerable<RelicModel>> group) => RelicGroups.Add(group);

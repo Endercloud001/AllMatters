@@ -113,3 +113,5 @@ The six red/green returning portraits (#41) are unchanged owned STS1 `images/102
 The six colorless portraits (#42) are unchanged owned STS1 entries `images/1024Portraits/{purple/attack/talk_to_the_hand,purple/power/fasting,purple/skill/alpha,purple/skill/foreign_influence,colorless/skill/beta,colorless/power/omega}.png`. Power icons extract the corresponding `128/{talk_to_hand,fasting,omega}` regions from `powers/powers.atlas` and `powers/powers.png`, restoring original transparent padding. Artwork remains Mega Crit/original artists property.
 
 Omniscience (#43) uses the unchanged owned STS1 portrait `images/1024Portraits/purple/skill/omniscience.png`; Mega Crit/original artists retain ownership.
+
+- #44: Omamori, Preserved Insect and Inserter icons and outlines are extracted from the locally owned Slay the Spire `desktop-1.0.jar` (`images/relics/` and `images/relics/outline/`); original assets belong to Mega Crit.

@@ -25,5 +25,14 @@
   "ALL_MATTERS_BOTTLED_TORNADO.flavor": "A strange bottle containing tornado.",
   "ALL_MATTERS_MARK_OF_THE_BLOOM.title": "Mark of the Bloom",
   "ALL_MATTERS_MARK_OF_THE_BLOOM.description": "You can no longer heal.",
-  "ALL_MATTERS_MARK_OF_THE_BLOOM.flavor": "In the deepest parts of the Spire, thought and reality are one."
+  "ALL_MATTERS_MARK_OF_THE_BLOOM.flavor": "In the deepest parts of the Spire, thought and reality are one.",
+  "ALL_MATTERS_OMAMORI.title": "Omamori",
+  "ALL_MATTERS_OMAMORI.description": "Negate the next [blue]2[/blue] [gold]Curses[/gold] added to your deck.",
+  "ALL_MATTERS_OMAMORI.flavor": "“We will return when the ticking inside stops.”",
+  "ALL_MATTERS_PRESERVED_INSECT.title": "Preserved Insect",
+  "ALL_MATTERS_PRESERVED_INSECT.description": "At the start of combat, remove [gold]Artifact[/gold] from Elite enemies and apply [blue]99[/blue] [gold]Shrink[/gold]. Their attack damage is reduced by [blue]30%[/blue].",
+  "ALL_MATTERS_PRESERVED_INSECT.flavor": "“The insect seems to radiate a faint weakening aura toward especially large enemies.”",
+  "ALL_MATTERS_INSERTER.title": "Inserter",
+  "ALL_MATTERS_INSERTER.description": "Every [blue]2[/blue] turns, gain [blue]1[/blue] Orb slot.",
+  "ALL_MATTERS_INSERTER.flavor": "“A heart of steel.”"
 }

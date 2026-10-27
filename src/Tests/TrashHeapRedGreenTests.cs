@@ -32,6 +32,7 @@ internal static class TrashHeapRedGreenTests
     {
         foreach (bool upgraded in new[] { false, true })
         {
+            var previousNetId = MegaCrit.Sts2.Core.Context.LocalContext.NetId;
             MegaCrit.Sts2.Core.Context.LocalContext.NetId = 1;
             var (p, combat) = NativeEventTests.Combat(); var ctx = new ThrowingPlayerChoiceContext();
             MegaCrit.Sts2.Core.Runs.RunManager.Instance.SetUpTest((MegaCrit.Sts2.Core.Runs.RunState)p.RunState, new MegaCrit.Sts2.Core.Multiplayer.NetSingleplayerGameService());
@@ -74,7 +75,7 @@ internal static class TrashHeapRedGreenTests
             NativeEventTests.Check(p.Creature.CurrentHp==(upgraded?15:13) && second.CurrentHp==(upgraded?96:98), $"Reaper heals actual HP loss: owner={p.Creature.CurrentHp}, second={second.CurrentHp}, upgraded={upgraded}.");
             NativeEventTests.Check(new CardModel[]{terror,disarm,reaper}.All(c=>p.PlayerCombatState.ExhaustPile.Cards.Contains(c)), "Native Exhaust applies to all three cards.");
             }
-            finally { MegaCrit.Sts2.Core.Combat.CombatManager.Instance.Reset(true); MegaCrit.Sts2.Core.Runs.RunManager.Instance.CleanUp(false); }
+            finally { MegaCrit.Sts2.Core.Combat.CombatManager.Instance.Reset(true); MegaCrit.Sts2.Core.Runs.RunManager.Instance.CleanUp(false); MegaCrit.Sts2.Core.Context.LocalContext.NetId = previousNetId; }
         }
     }
     private static Task Eligibility()

@@ -75,14 +75,14 @@ internal static class TrashHeapTests
             await option.Chosen();
             var awarded = player.Relics.Last();
             seen.Add(awarded.GetType());
-            NativeEventTests.Check(awarded is DarkstonePeriapt or DreamCatcher or HandDrill && player.Relics.Count == relics + 1
+            NativeEventTests.Check(awarded is DarkstonePeriapt or DreamCatcher or HandDrill or AllMatters.Relics.Omamori or AllMatters.Relics.PreservedInsect or CharonsAshes && player.Relics.Count == relics + 1
                 && player.Creature.CurrentHp == hp - 8 && player.Gold == gold && model.IsFinished, "Dive loses eight HP and awards one retained relic, then finishes.");
             var rng = HeadlessTestSetup.RngPosition(model.Rng);
             await option.Chosen();
             NativeEventTests.Check(player.Creature.CurrentHp == hp - 8 && player.Relics.Count == relics + 1 && HeadlessTestSetup.RngPosition(model.Rng) == rng
                 && other.Creature.CurrentHp == otherHp && other.Relics.Count == otherRelics, "Stale choices do not repeat damage/rewards or affect teammates.");
         }
-        NativeEventTests.Check(seen.SetEquals(new[] { typeof(DarkstonePeriapt), typeof(DreamCatcher), typeof(HandDrill) }), "All three retained relics can be awarded.");
+        NativeEventTests.Check(seen.SetEquals(new[] { typeof(DarkstonePeriapt), typeof(DreamCatcher), typeof(HandDrill), typeof(AllMatters.Relics.Omamori), typeof(AllMatters.Relics.PreservedInsect), typeof(CharonsAshes) }), "All retained and new Ironclad candidates can be awarded.");
     }
 
     private static async Task DistractionUpgrade()
