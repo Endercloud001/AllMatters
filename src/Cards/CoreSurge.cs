@@ -25,16 +25,8 @@ public sealed class CoreSurge : ModCardTemplate
     public override IEnumerable<CardKeyword> CanonicalKeywords => [CardKeyword.Exhaust];
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        await Attack(choiceContext, cardPlay);
+        await ReturningCardAttack.Single(this, cardPlay, choiceContext);
         await PowerCmd.Apply<ArtifactPower>(choiceContext, Owner.Creature, 1, Owner.Creature, this);
     }
     protected override void OnUpgrade() => DynamicVars.Damage.UpgradeValueBy(4);
-    private async Task Attack(PlayerChoiceContext context, CardPlay play)
-    {
-#if STS2_PUBLIC
-        await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this).Targeting(play.Target!).Execute(context);
-#else
-        await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this, play).Targeting(play.Target!).Execute(context);
-#endif
-    }
 }

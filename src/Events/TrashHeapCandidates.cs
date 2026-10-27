@@ -18,6 +18,8 @@ public static class TrashHeapCandidates
     [
         _ => [ModelDb.Card<AllMatters.Cards.Electrodynamics>(), ModelDb.Card<AllMatters.Cards.AutoShields>(),
             ModelDb.Card<AllMatters.Cards.Bullseye>(), ModelDb.Card<AllMatters.Cards.CoreSurge>()],
+        _ => [ModelDb.Card<AllMatters.Cards.EndlessAgony>(), ModelDb.Card<AllMatters.Cards.Terror>(), ModelDb.Card<AllMatters.Cards.Dropkick>(),
+            ModelDb.Card<AllMatters.Cards.Reaper>(), ModelDb.Card<AllMatters.Cards.Disarm>(), ModelDb.Card<AllMatters.Cards.GhostlyArmor>()],
     ];
     private static readonly List<Func<Player, IEnumerable<RelicModel>>> RelicGroups = [];
 

@@ -120,6 +120,3 @@ internal static class TrashHeapDefectTests
         }
     }
 }
-
-
-

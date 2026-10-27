@@ -107,3 +107,5 @@ Ink Bottle and the global Symbiotic Virus replacement use unchanged `images/reli
 ## Returning Trash Heap content (#40)
 
 Electrodynamics, Auto Shields, Bullseye and Core Surge portraits are unchanged STS1 archive entries `images/1024Portraits/blue/{power/electrodynamics,skill/auto_shields,attack/lock_on,attack/core_surge}.png`. The Electrodynamics and Lock-On power icons come unchanged from Balance `images/powers/{ElectrodynamicsPower,LockOnPower}.png` at the revision credited above. Original game artwork remains Mega Crit/original artists’ property; the repository code license does not relicense it.
+
+The six red/green returning portraits (#41) are unchanged owned STS1 `images/1024Portraits/{green/attack/endless_agony,green/skill/terror,red/attack/drop_kick,red/attack/reaper,red/skill/disarm,red/skill/ghostly_armor}.png`, retaining Mega Crit/original artists’ ownership.

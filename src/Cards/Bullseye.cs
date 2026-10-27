@@ -24,16 +24,8 @@ public sealed class Bullseye : ModCardTemplate
     protected override IEnumerable<DynamicVar> CanonicalVars => [new DamageVar(8, ValueProp.Move), new DynamicVar("LockOn", 2)];
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        await Attack(choiceContext, cardPlay);
+        await ReturningCardAttack.Single(this, cardPlay, choiceContext);
         await PowerCmd.Apply<LockOnPower>(choiceContext, cardPlay.Target!, DynamicVars["LockOn"].BaseValue, Owner.Creature, this);
     }
     protected override void OnUpgrade() { DynamicVars.Damage.UpgradeValueBy(3); DynamicVars["LockOn"].UpgradeValueBy(1); }
-    private async Task Attack(PlayerChoiceContext context, CardPlay play)
-    {
-#if STS2_PUBLIC
-        await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this).Targeting(play.Target!).Execute(context);
-#else
-        await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this, play).Targeting(play.Target!).Execute(context);
-#endif
-    }
 }

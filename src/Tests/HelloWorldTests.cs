@@ -67,7 +67,7 @@ internal static class HelloWorldTests
             ];
             var selected = cases.Concat(ClericTests.Cases).Concat(BeggarFountainTests.Cases).Concat(AugmenterTests.Cases).Concat(CursedTomeTests.Cases).Concat(WheelOfChangeTests.Cases).Concat(TombOfLordRedMaskTests.Cases)
                 .Concat(LibraryTests.Cases).Concat(MaskedBanditsTests.Cases).Concat(MindBloomTests.Cases).Concat(ColosseumTests.Cases).Concat(NativeEventTests.Cases).Concat(NativeProbabilityTests.Cases).Concat(NativeRadianceTests.Cases).Concat(NativeNlothTests.Cases).Concat(NativeCandleTests.Cases).Concat(NativeSelectionTests.Cases).Concat(NativeRelicEventTests.Cases)
-                .Concat(NativeCounterTests.Cases).Concat(TrashHeapTests.Cases).Concat(TrashHeapDefectTests.Cases)
+                .Concat(NativeCounterTests.Cases).Concat(TrashHeapTests.Cases).Concat(TrashHeapDefectTests.Cases).Concat(TrashHeapRedGreenTests.Cases)
                 .Concat(AmbrosiaTests.Cases)
                 .Concat(JungleMazeAdventureTests.Cases)
                 .Concat(NativeLockedOptionTests.Cases).Concat(NativeVegetationTests.Cases)

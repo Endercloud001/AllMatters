@@ -10,5 +10,17 @@
   "ALL_MATTERS_BULLSEYE.title": "Bullseye",
   "ALL_MATTERS_BULLSEYE.description": "Deal {Damage:diff()} damage.\nApply {LockOn:diff()} [gold]Lock-On[/gold].",
   "ALL_MATTERS_ELECTRODYNAMICS.title": "Electrodynamics",
-  "ALL_MATTERS_ELECTRODYNAMICS.description": "Your [gold]Lightning[/gold] Orbs hit ALL enemies.\nChannel [blue]3[/blue] [gold]Lightning[/gold]."
+  "ALL_MATTERS_ELECTRODYNAMICS.description": "Your [gold]Lightning[/gold] Orbs hit ALL enemies.\nChannel [blue]3[/blue] [gold]Lightning[/gold].",
+  "ALL_MATTERS_ENDLESS_AGONY.title": "Endless Agony",
+  "ALL_MATTERS_ENDLESS_AGONY.description": "Deal {Damage:diff()} damage.\nWhen drawn, add a copy of this card to your hand.",
+  "ALL_MATTERS_TERROR.title": "Terror",
+  "ALL_MATTERS_TERROR.description": "Apply [blue]99[/blue] [gold]Vulnerable[/gold].",
+  "ALL_MATTERS_DROPKICK.title": "Dropkick",
+  "ALL_MATTERS_DROPKICK.description": "Deal {Damage:diff()} damage.\nIf the enemy is [gold]Vulnerable[/gold], gain [blue]1[/blue] Energy and draw [blue]1[/blue] card.",
+  "ALL_MATTERS_REAPER.title": "Reaper",
+  "ALL_MATTERS_REAPER.description": "Deal {Damage:diff()} damage to ALL enemies.\nHeal HP equal to the HP they lose.",
+  "ALL_MATTERS_DISARM.title": "Disarm",
+  "ALL_MATTERS_DISARM.description": "Enemy loses {StrengthLoss:diff()} [gold]Strength[/gold].",
+  "ALL_MATTERS_GHOSTLY_ARMOR.title": "Ghostly Armor",
+  "ALL_MATTERS_GHOSTLY_ARMOR.description": "Gain {Block:diff()} [gold]Block[/gold]."
 }
