@@ -88,6 +88,10 @@ internal static class NativeProbabilityTests
             foreach (var card in p.Deck.Cards.Except(selected).ToArray()) p.Deck.RemoveInternal(card);
             var e = await NativeEventTests.Begin<SapphireSeed>(p);
             var option = e.CurrentOptions.Single(o => o.TextKey.EndsWith(".AM_CATALYZE"));
+            var preview = ModelDb.Enchantment<Sown>().ToMutable();
+            preview.Amount = 1; preview.RecalculateValues();
+            var expected = preview.HoverTips.OfType<MegaCrit.Sts2.Core.HoverTips.HoverTip>().First();
+            NativeEventTests.Check(option.HoverTips.OfType<MegaCrit.Sts2.Core.HoverTips.HoverTip>().Any(t => t.Description == expected.Description), "Seed offer must preview Sown with its actual amount.");
             NativeEventTests.Check(option.IsLocked == (count == 1), "Payment requires two legal targets.");
             if (count == 1)
             {

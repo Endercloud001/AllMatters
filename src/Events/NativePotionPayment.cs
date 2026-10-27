@@ -56,7 +56,8 @@ internal static class NativePotionPayment
     {
         var potion = Potion(model)!;
         var description = new LocString("events", key + ".description");
-        description.Add("Potion", potion.Title);
+        // Keep payment separate from native reward variables applied by the event button.
+        description.Add("AmPaymentPotion", potion.Title);
         return new EventOption(model, legal ? async () =>
         {
             if (model.IsFinished || !model.Owner!.Potions.Contains(potion)) return;

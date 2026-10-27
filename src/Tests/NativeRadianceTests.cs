@@ -1,4 +1,5 @@
 using MegaCrit.Sts2.Core.Commands;
+using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.Creatures;
@@ -31,6 +32,22 @@ internal static class NativeRadianceTests
         await CreatureCmd.GainBlock(p.Creature, 20, ValueProp.Unpowered, null);
         var target = combat.CreateCreature(ModelDb.Monster<AllMatters.Monsters.Lagavulin>().ToMutable(), CombatSide.Enemy, "target");
         combat.AddCreature(target); target.SetMaxHpInternal(100); target.SetCurrentHpInternal(100);
+        await CardPileCmd.Add(card, PileType.Hand);
+        foreach (string language in new[] { "eng", "zhs" })
+        {
+            LocManager.Instance.SetLanguage(language);
+            try
+            {
+                string outside;
+                using (HeadlessCombatInProgress.EnterEvent()) outside = card.GetDescriptionForPile(PileType.Deck);
+                card.UpdateDynamicVarPreview(CardPreviewMode.Normal, target, card.DynamicVars);
+                string inside = card.GetDescriptionForPile(PileType.Hand, target);
+                string exhaust = language == "zhs" ? "消耗" : "Exhaust";
+                NativeEventTests.Check(outside.Split(exhaust).Length == 2 && inside.Split(exhaust).Length == 2, "Brilliance must display Exhaust exactly once.");
+                NativeEventTests.Check(!outside.Contains("11") && inside.Contains("11"), $"Only the combat description displays calculated damage including current Strength. Outside={outside}; inside={inside}");
+            }
+            finally { LocManager.Instance.SetLanguage("eng"); }
+        }
         await card.OnPlayWrapper(context, target, true, default, skipCardPileVisuals: true);
         NativeEventTests.Check(target.CurrentHp == 89, "Cumulative gains 3+2+4 produce9 base damage plus2 current Strength; Block does not contribute.");
         NativeEventTests.Check(card.Keywords.Contains(CardKeyword.Exhaust) && card.EnergyCost.Canonical == 2, "Brilliance costs2 and exhausts.");
@@ -59,14 +76,24 @@ internal static class NativeRadianceTests
     private static async Task Lighthouse()
     {
         using var scope = HeadlessCombatInProgress.EnterEvent();
-        var p = NativeEventTests.Player();
-        await PotionCmd.TryToProcure<MegaCrit.Sts2.Core.Models.Potions.BlockPotion>(p);
-        var e = await NativeEventTests.Begin<MegaCrit.Sts2.Core.Models.Events.DrowningBeacon>(p);
-        var option = e.CurrentOptions.Single(o => o.TextKey.EndsWith(".AM_LIGHT"));
-        NativeEventTests.Check(option.Description.GetFormattedText().Contains(p.Potions.Single().Title.GetFormattedText()), "Offer must display the concrete potion.");
-        await option.Chosen();
-        NativeEventTests.Check(e.IsFinished && !p.Potions.Any() && p.Deck.Cards.Last() is AllMatters.Cards.Brilliance, "One potion buys an actual Brilliance card.");
-        NativeEventTests.Check(Godot.ResourceLoader.Load<Godot.Texture2D>("res://AllMatters/images/card_portraits/brilliance.png").GetWidth() > 0, "Original Brilliance portrait must load from the pack.");
+        try
+        {
+            foreach (string language in new[] { "eng", "zhs" })
+            {
+                LocManager.Instance.SetLanguage(language);
+                var p = NativeEventTests.Player();
+                await PotionCmd.TryToProcure<MegaCrit.Sts2.Core.Models.Potions.StrengthPotion>(p);
+                var e = await NativeEventTests.Begin<MegaCrit.Sts2.Core.Models.Events.DrowningBeacon>(p);
+                var option = e.CurrentOptions.Single(o => o.TextKey.EndsWith(".AM_LIGHT"));
+                // Match NEventOptionButton._Ready: native display variables are applied after construction.
+                e.DynamicVars.AddTo(option.Description);
+                NativeEventTests.Check(option.Description.GetFormattedText().Contains(p.Potions.Single().Title.GetFormattedText()), "Offer must display the concrete potion.");
+                await option.Chosen();
+                NativeEventTests.Check(e.IsFinished && !p.Potions.Any() && p.Deck.Cards.Last() is AllMatters.Cards.Brilliance, "One potion buys an actual Brilliance card.");
+                NativeEventTests.Check(Godot.ResourceLoader.Load<Godot.Texture2D>("res://AllMatters/images/card_portraits/brilliance.png").GetWidth() > 0, "Original Brilliance portrait must load from the pack.");
+            }
+        }
+        finally { LocManager.Instance.SetLanguage("eng"); }
     }
 
     private static async Task Ownership()

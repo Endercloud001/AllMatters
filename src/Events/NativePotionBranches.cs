@@ -36,13 +36,18 @@ internal static class NativePotionBranches
         {
             var enchantment = ModelDb.Enchantment<Sown>();
             bool legal = model.Owner!.Deck.Cards.Count(enchantment.CanEnchant) >= 2;
-            options.Add(NativePotionPayment.Option(model, "SAPPHIRE_SEED.pages.INITIAL.options.AM_CATALYZE", async () =>
+            var option = NativePotionPayment.Option(model, "SAPPHIRE_SEED.pages.INITIAL.options.AM_CATALYZE", async () =>
             {
                 var cards = await CardSelectCmd.FromDeckForEnchantment(model.Owner!, enchantment, 1,
                     new CardSelectorPrefs(CardSelectorPrefs.EnchantSelectionPrompt, 2));
                 foreach (var card in cards) CardCmd.Enchant<Sown>(card, 1);
                 NativeEventActions.Finish(model, "SAPPHIRE_SEED.pages.AM_CATALYZE.description");
-            }, legal));
+            }, legal);
+            var preview = enchantment.ToMutable();
+            preview.Amount = 1;
+            preview.RecalculateValues();
+            option.HoverTips = option.HoverTips.Concat(preview.HoverTips).ToArray();
+            options.Add(option);
         }
         __result = options;
     }

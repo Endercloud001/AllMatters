@@ -43,7 +43,7 @@ internal static class NativeWellspringLocalization
         else if (name == "potions") __result.MergeWith(new Dictionary<string, string>
         {
             ["ALL_MATTERS_AMBROSIA.title"] = zh ? "仙馔密酒" : "Ambrosia",
-            ["ALL_MATTERS_AMBROSIA.description"] = zh ? "本回合，你对敌人造成的攻击伤害变为[blue]3[/blue]倍。本场战斗你无法获得任何战利品。重复饮用不会叠加倍率。" : "This turn, your powered attack damage to enemies is tripled. You forfeit all your combat loot this combat. Drinking again does not multiply the bonus.",
+            ["ALL_MATTERS_AMBROSIA.description"] = zh ? "本回合，你对敌人造成的攻击伤害变为[blue]3[/blue]倍。本场战斗你无法获得任何战利品。" : "This turn, your powered attack damage to enemies is tripled. You forfeit all your combat loot this combat.",
         });
         else if (name == "powers") __result.MergeWith(new Dictionary<string, string>
         {
