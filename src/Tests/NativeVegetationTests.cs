@@ -170,7 +170,10 @@ internal static class NativeVegetationTests
                 {
                     string text = option.Description.GetFormattedText();
                     Check(!text.Contains('{') && text.Contains(language == "zhs" ? "进入战斗" : "Enter combat"), "Action descriptions format in both languages.");
+                    Check(!text.Contains('：') && !text.Contains(':') && !text.Contains('\n'), "The effect follows the action title without a repeated label or an added line break.");
                 }
+                Check(Action(model, "HEAL").Title.GetFormattedText() == (language == "zhs" ? "休息" : "Rest"), "Healing uses the original rest-site Rest title.");
+                Check(Action(model, "SMITH").Title.GetFormattedText() == (language == "zhs" ? "锻造" : "Smith"), "Upgrading uses the original rest-site Smith title.");
                 Check(Action(model, "HEAL").Description.GetFormattedText().Contains("24"), "Heal displays 30 percent of 80.");
             }
         }

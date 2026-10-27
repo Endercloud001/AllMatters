@@ -84,7 +84,6 @@ internal static class NativeDenseVegetation
         {
             string key = "DENSE_VEGETATION.pages.INITIAL.options.AM_REST_" + action.OptionId;
             var description = new LocString("events", "DENSE_VEGETATION.AM_ACTION.description");
-            description.Add("ActionName", action.Title.GetFormattedText());
             description.Add("ActionDescription", action.Description.GetFormattedText());
             return new EventOption(model, async () =>
             {
@@ -111,7 +110,7 @@ internal static class NativeDenseVegetation
                     SharedSelection.Value = previousSelection;
                     visit.Choosing = false;
                 }
-            }, new LocString("events", "DENSE_VEGETATION.pages.INITIAL.options.REST.title"), description, key, []);
+            }, action.Title, description, key, []);
         }).ToList();
         options.Add(new EventOption(model, async () =>
         {
@@ -151,8 +150,8 @@ internal static class DenseVegetationLocalization
         __result.MergeWith(new Dictionary<string, string>
         {
             ["DENSE_VEGETATION.AM_ACTION.description"] = zh
-                ? "[gold]{ActionName}[/gold]：{ActionDescription}\n进入战斗。"
-                : "[gold]{ActionName}[/gold]: {ActionDescription}\nEnter combat.",
+                ? "{ActionDescription}进入战斗。"
+                : "{ActionDescription} Enter combat.",
             ["DENSE_VEGETATION.pages.AM_REST.description"] = zh
                 ? "你完成了休整。\n\n忽然，身旁的植被开始剧烈摇晃。你并不孤单……"
                 : "You finish tending to yourself.\n\nSuddenly, the vegetation around you begins to shake. You are not alone…",

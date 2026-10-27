@@ -26,6 +26,8 @@ Godot 宿主沿用既有全局战斗状态、空手通知和房间调度替代�
 
 ## 人工安装与验收
 
+2026-10-27 实机截图反馈：选项标题改用原生行动名称（如“休息”“锻造”），描述移除重复的行动名称前缀，直接显示原生效果并在同一段追加“进入战斗。”；英文同步调整。双目标各 13 项植被专项测试通过，覆盖两种语言的标题、效果、无重复前缀及无额外换行；两分支开发包重新构建。证据见 `.local/vegetation-label-tests.log` 及 `.local/vegetation-label-build-{beta,public}.log`。更新包后的实机显示仍待用户复验。
+
 退出游戏并备份现有 Mod。根据游戏分支复制对应开发包至 `mods/AllMatters/`；完整 RitsuLib 包另放 `mods/STS2-RitsuLib/`，不能只复制 compat DLL。由用户通过 Steam 启动。
 
 - public 开发包：`E:/Godot_v4.5.1-stable_mono_win64/sts2mod/AllMatters/dist/public/AllMatters/`
