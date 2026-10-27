@@ -70,6 +70,8 @@ RitsuLib 0.6.7, by OLC: [BAKAOLC/STS2-RitsuLib](https://github.com/BAKAOLC/STS2-
 
 ## Game assets and assemblies
 
+The v0.1.1 Brilliance portrait is copied unchanged from the locally owned Slay the Spire `desktop-1.0.jar`, entry `images/1024Portraits/purple/attack/brilliance.png`. It remains Mega Crit/original artists' artwork; the repository's code license does not relicense it. Native Slay the Spire 2 events, models and visuals are referenced from the player's installation.
+
 Slay the Spire 2 and its game resources remain the property of Mega Crit and their respective owners. Game DLLs, native libraries, PCK files and decompiled game code are development inputs only and are not distributed with this mod.
 
 ## Mind Bloom, Lagavulin and Mark of the Bloom
