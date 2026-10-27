@@ -1,10 +1,15 @@
 using System.Runtime.CompilerServices;
+using System.Reflection;
 using HarmonyLib;
+using MegaCrit.Sts2.Core.CardSelection;
+using MegaCrit.Sts2.Core.Commands;
+using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Entities.RestSite;
 using MegaCrit.Sts2.Core.Events;
 using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Events;
+using MegaCrit.Sts2.Core.Runs;
 
 namespace AllMatters.Events;
 
@@ -20,22 +25,53 @@ internal static class NativeDenseVegetation
     }
 
     private static readonly ConditionalWeakTable<DenseVegetation, Visit> Visits = new();
+    private sealed class SharedActions
+    {
+        internal readonly Dictionary<Player, Dictionary<string, RestSiteOption>> ByPlayer = new();
+        internal readonly HashSet<Player> Joined = [];
+    }
+    private static readonly ConditionalWeakTable<IRunState, SharedActions> Groups = new();
+    private static readonly AsyncLocal<bool> SharedSelection = new();
+    internal static bool RequiresSelection => SharedSelection.Value;
+
+    private static RestSiteOption[] GenerateActions(DenseVegetation model)
+    {
+        var owner = model.Owner!;
+        var run = owner.RunState;
+        // Each owner joins once. Seeing the same owner again starts a new visit,
+        // so revisiting cannot retain old deck/relic eligibility.
+        if (!Groups.TryGetValue(run, out var group) || group.Joined.Contains(owner))
+        {
+            group = new SharedActions();
+            foreach (var player in run.Players)
+                group.ByPlayer.Add(player, RestSiteOption.Generate(player)
+                    .Where(o => o is not MendRestSiteOption and not HatchRestSiteOption && o.IsEnabled)
+                    .ToDictionary(o => o.OptionId));
+            Groups.Remove(run);
+            Groups.Add(run, group);
+        }
+        group.Joined.Add(owner);
+        // The native shared vote executes one index for every owner. Only offer
+        // actions everyone can execute, in identical order, with each owner's hooks.
+        var ids = group.ByPlayer[owner].Keys
+            .Where(id => group.ByPlayer.Values.All(actions => actions.ContainsKey(id)))
+            .Order(StringComparer.Ordinal).ToList();
+        var selected = new List<RestSiteOption>();
+        while (ids.Count > 0 && selected.Count < 3)
+        {
+            int index = model.Rng.NextInt(ids.Count);
+            selected.Add(group.ByPlayer[owner][ids[index]]);
+            ids.RemoveAt(index);
+        }
+        return selected.ToArray();
+    }
 
     private static void Postfix(DenseVegetation __instance, ref IReadOnlyList<EventOption> __result)
     {
         var model = __instance;
         if (!Visits.TryGetValue(model, out var visit))
         {
-            var actions = RestSiteOption.Generate(model.Owner!)
-                .Where(o => o is not MendRestSiteOption and not HatchRestSiteOption && o.IsEnabled).ToList();
-            var selected = new List<RestSiteOption>();
-            while (actions.Count > 0 && selected.Count < 3)
-            {
-                int index = model.Rng.NextInt(actions.Count);
-                selected.Add(actions[index]);
-                actions.RemoveAt(index);
-            }
-            visit = new Visit { Actions = selected.ToArray(), Trudge = __result.Single(o => o.TextKey.EndsWith(".TRUDGE_ON")) };
+            visit = new Visit { Actions = GenerateActions(model), Trudge = __result.Single(o => o.TextKey.EndsWith(".TRUDGE_ON")) };
             Visits.Add(model, visit);
         }
         __result = Options(model, visit);
@@ -54,6 +90,8 @@ internal static class NativeDenseVegetation
             {
                 if (visit.Choosing || visit.Completed || !action.IsEnabled) return;
                 visit.Choosing = true;
+                bool previousSelection = SharedSelection.Value;
+                SharedSelection.Value = model.Owner!.RunState.Players.Count > 1;
                 try
                 {
                     // OnSelect owns the effect, selection UI and action-specific hooks.
@@ -68,7 +106,11 @@ internal static class NativeDenseVegetation
                     else
                         NativeEventActions.State(model, "DENSE_VEGETATION.pages.INITIAL.description", Options(model, visit));
                 }
-                finally { visit.Choosing = false; }
+                finally
+                {
+                    SharedSelection.Value = previousSelection;
+                    visit.Choosing = false;
+                }
             }, new LocString("events", "DENSE_VEGETATION.pages.INITIAL.options.REST.title"), description, key, []);
         }).ToList();
         options.Add(new EventOption(model, async () =>
@@ -79,6 +121,23 @@ internal static class NativeDenseVegetation
         }, visit.Trudge.Title, visit.Trudge.Description, visit.Trudge.TextKey, visit.Trudge.HoverTips)
             .ThatDoesDamage(model.DynamicVars.HpLoss.BaseValue));
         return options;
+    }
+}
+
+// A shared vote has committed every player to the same action. A cancelled
+// selection for only one owner would put the team's event pages out of sync.
+[HarmonyPatch]
+internal static class DenseVegetationSharedSelection
+{
+    private static IEnumerable<MethodBase> TargetMethods()
+    {
+        yield return AccessTools.Method(typeof(CardSelectCmd), nameof(CardSelectCmd.FromDeckForUpgrade));
+        yield return AccessTools.Method(typeof(CardSelectCmd), nameof(CardSelectCmd.FromDeckForRemoval));
+    }
+
+    private static void Prefix(ref CardSelectorPrefs prefs)
+    {
+        if (NativeDenseVegetation.RequiresSelection) prefs = prefs with { Cancelable = false };
     }
 }
 

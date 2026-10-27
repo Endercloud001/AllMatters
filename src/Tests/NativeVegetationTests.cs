@@ -8,6 +8,10 @@ using MegaCrit.Sts2.Core.Runs;
 using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.RestSite;
+using MegaCrit.Sts2.Core.Multiplayer.Game;
+using MegaCrit.Sts2.Core.Multiplayer.Serialization;
+using MegaCrit.Sts2.Core.Multiplayer.Messages.Game.Sync;
+using MegaCrit.Sts2.Core.CardSelection;
 using static NativeEventTests;
 
 internal static class NativeVegetationTests
@@ -25,7 +29,8 @@ internal static class NativeVegetationTests
         ("Native vegetation native encounter starts once after action and preserves room restoration", Fight),
         ("Native vegetation samples three from many legal actions with reproducible offers", Sampling),
         ("Native vegetation Dig and Clone deliver native relic and deck results", DigAndClone),
-        ("Native vegetation excludes available Mend and Hatch and isolates player results", ExclusionAndIsolation)
+        ("Native vegetation excludes available Mend and Hatch and isolates player results", ExclusionAndIsolation),
+        ("Native vegetation shared choices align despite different relics and decks", SharedChoices)
     ];
 
     private static IEnumerable<MegaCrit.Sts2.Core.Events.EventOption> Rest(EventModel model)
@@ -69,7 +74,7 @@ internal static class NativeVegetationTests
         => Rest(model).Single(o => o.TextKey.EndsWith("_" + id));
 
     // Initialize real selection/reward services, without any rest-site room or UI.
-    private static async Task WithPlayer(Func<MegaCrit.Sts2.Core.Entities.Players.Player, Task> test, bool multiplayer = false)
+    private static async Task WithPlayer(Func<MegaCrit.Sts2.Core.Entities.Players.Player, Task> test, bool multiplayer = false, INetGameService? service = null)
     {
         using var scope = HeadlessCombatInProgress.EnterEvent();
         var previousNetId = MegaCrit.Sts2.Core.Context.LocalContext.NetId;
@@ -79,7 +84,7 @@ internal static class NativeVegetationTests
             : Player("VEGETATION_ACTION");
         if (multiplayer)
             RunState.CreateForTest([player, MegaCrit.Sts2.Core.Entities.Players.Player.CreateForNewRun<MegaCrit.Sts2.Core.Models.Characters.Silent>(MegaCrit.Sts2.Core.Unlocks.UnlockState.all, 2)], acts: [], seed: "VEGETATION_PARTY");
-        RunManager.Instance.SetUpTest((RunState)player.RunState, new NetSingleplayerGameService());
+        RunManager.Instance.SetUpTest((RunState)player.RunState, service ?? new NetSingleplayerGameService());
         try { await test(player); }
         finally
         {
@@ -94,7 +99,7 @@ internal static class NativeVegetationTests
         await RelicCmd.Obtain<RegalPillow>(player);
         var model = await Begin<DenseVegetation>(player);
         var keys = model.CurrentOptions.Select(o => o.TextKey).ToArray();
-        using (CardSelectCmd.UseSelector(new Cancel())) await Action(model, "SMITH").Chosen();
+        using (CardSelectCmd.UseSelector(new SelectCards(cancel: true))) await Action(model, "SMITH").Chosen();
         Check(model.CurrentOptions.Select(o => o.TextKey).SequenceEqual(keys) && player.Deck.Cards.All(c => !c.IsUpgraded), "Cancel preserves offers without performing an action.");
         var card = player.Deck.Cards.First();
         using (CardSelectCmd.UseSelector(new Select(card))) await Action(model, "SMITH").Chosen();
@@ -256,13 +261,117 @@ internal static class NativeVegetationTests
             && other.Creature.CurrentHp == otherHp && other.Gold == otherGold, "Only the choosing owner's deck changes.");
     }, multiplayer: true);
 
-    private sealed class Cancel : MegaCrit.Sts2.Core.TestSupport.ICardSelector
+    private static async Task SharedChoices()
+    {
+        await SharedChoices("SMITH");
+        await SharedChoices("COOK");
+    }
+
+    private static Task SharedChoices(string actionId)
+    {
+        var service = new PeerMessages();
+        return WithPlayer(async player =>
+        {
+        await RelicCmd.Obtain<Shovel>(player);
+        var run = (RunState)player.RunState;
+        if (actionId == "COOK")
+            foreach (var member in run.Players) await RelicCmd.Obtain<MeatCleaver>(member);
+        var originalDeckCounts = run.Players.Select(p => p.Deck.Cards.Count).ToArray();
+        run.AppendToMapPointHistory(MegaCrit.Sts2.Core.Map.MapPointType.Unknown, MegaCrit.Sts2.Core.Rooms.RoomType.Event, ModelDb.Event<DenseVegetation>().Id);
+        var sync = RunManager.Instance.EventSynchronizer;
+        sync.BeginEvent(ModelDb.Event<DenseVegetation>());
+        var a = sync.GetEventForPlayer(player);
+        var b = sync.GetEventForPlayer(run.Players[1]);
+        Check(a.CurrentOptions.Select(o => o.TextKey).SequenceEqual(b.CurrentOptions.Select(o => o.TextKey)),
+            "Shared votes must refer to the same legal actions for every participant despite owner-only Shovel.");
+        int expectedActions = actionId == "COOK" ? 3 : 2;
+        Check(Rest(a).Count() == expectedActions, "Only actions legal for the whole team are offered.");
+        SharedSelectionObservation.Observed.Clear();
+        SharedSelectionObservation.Active = true;
+        try
+        {
+            int action = a.CurrentOptions.ToList().FindIndex(o => o.TextKey.EndsWith("_" + actionId));
+            using (CardSelectCmd.UseSelector(new SelectCards()))
+            {
+                sync.ChooseLocalOption(action);
+                Check(a.CurrentOptions.Count == expectedActions + 1 && service.LastVote.HasValue, "Local vote alone does not execute the shared action.");
+                service.Receive(service.LastVote!.Value, 2);
+                await sync.AwaitPendingOptionTasks();
+            }
+            Check(SharedSelectionObservation.Observed.Count == 2 && SharedSelectionObservation.Observed.All(cancelable => !cancelable),
+                "Both native selection screens require completion after a shared vote.");
+            Check(sync.Events.All(e => e.CurrentOptions.Count == 1 && e.CurrentOptions[0].TextKey.EndsWith(".FIGHT")), "Both owners reach the fight page.");
+            if (actionId == "SMITH")
+                Check(run.Players.All(p => p.Deck.Cards.Count(c => c.IsUpgraded) == 1), "Shared Smith upgrades one card per owner.");
+            else
+                Check(run.Players.Select((p, index) => p.Deck.Cards.Count == originalDeckCounts[index] - 2).All(removed => removed), "Shared Cook removes two chosen cards per owner.");
+#if !STS2_PUBLIC
+            sync.GenerateInternalCombatStateIfNecessary(sync.GetLocalEvent());
+#endif
+            HeadlessBanditRoomEntrance.Active = true;
+            HeadlessBanditRoomEntrance.Rooms.Clear();
+            sync.ChooseLocalOption(0);
+            service.Receive(service.LastVote!.Value, 2);
+            await sync.AwaitPendingOptionTasks();
+            Check(HeadlessBanditRoomEntrance.Rooms.Count == 1, "The shared fight vote enters just one room.");
+        }
+        finally
+        {
+            SharedSelectionObservation.Active = false;
+            HeadlessBanditRoomEntrance.Active = false;
+        }
+        foreach (var card in run.Players[1].Deck.Cards.Where(c => c.IsUpgradable)) { card.UpgradeInternal(); card.FinalizeUpgradeInternal(); }
+        sync.BeginEvent(ModelDb.Event<DenseVegetation>());
+        Check(sync.Events.All(e => Rest(e).All(o => !o.TextKey.EndsWith("_SMITH"))),
+            "A new visit refreshes team eligibility: no Smith when one owner lacks upgrade targets.");
+        }, multiplayer: true, service: service);
+    }
+
+    private sealed class SelectCards(bool cancel = false) : MegaCrit.Sts2.Core.TestSupport.ICardSelector
     {
         public Task<IEnumerable<CardModel>> GetSelectedCards(IEnumerable<CardModel> options, int minSelect, int maxSelect)
-            => Task.FromResult<IEnumerable<CardModel>>([]);
+            => Task.FromResult<IEnumerable<CardModel>>(cancel ? [] : options.Take(minSelect).ToArray());
         public MegaCrit.Sts2.Core.TestSupport.CardRewardSelection GetSelectedCardReward(
             IReadOnlyList<MegaCrit.Sts2.Core.Entities.Cards.CardCreationResult> options,
             IReadOnlyList<MegaCrit.Sts2.Core.Entities.CardRewardAlternatives.CardRewardAlternative> alternatives)
             => throw new InvalidOperationException("Not a card reward.");
+    }
+
+    // Replace transport only: messages still pass through the native run-location
+    // buffer, shared voting, index execution and pending-task synchronization.
+    private sealed class PeerMessages : NetSingleplayerGameService, INetGameService
+    {
+        private readonly Dictionary<Type, Delegate> _handlers = new();
+        internal VotedForSharedEventOptionMessage? LastVote;
+        public new void RegisterMessageHandler<T>(MessageHandlerDelegate<T> handler) where T : INetMessage
+            => _handlers[typeof(T)] = Delegate.Combine(_handlers.GetValueOrDefault(typeof(T)), handler)!;
+        public new void UnregisterMessageHandler<T>(MessageHandlerDelegate<T> handler) where T : INetMessage
+        {
+            var remaining = Delegate.Remove(_handlers.GetValueOrDefault(typeof(T)), handler);
+            if (remaining == null) _handlers.Remove(typeof(T)); else _handlers[typeof(T)] = remaining;
+        }
+        public new void SendMessage<T>(T message) where T : INetMessage
+        {
+            if (message is VotedForSharedEventOptionMessage vote) LastVote = vote;
+        }
+        internal void Receive<T>(T message, ulong sender) where T : INetMessage
+            => ((MessageHandlerDelegate<T>)_handlers[typeof(T)])(message, sender);
+    }
+}
+
+[HarmonyLib.HarmonyPatch]
+internal static class SharedSelectionObservation
+{
+    internal static bool Active;
+    internal static readonly List<bool> Observed = [];
+    private static IEnumerable<System.Reflection.MethodBase> TargetMethods()
+    {
+        yield return HarmonyLib.AccessTools.Method(typeof(CardSelectCmd), nameof(CardSelectCmd.FromDeckForUpgrade));
+        yield return HarmonyLib.AccessTools.Method(typeof(CardSelectCmd), nameof(CardSelectCmd.FromDeckForRemoval));
+    }
+    [HarmonyLib.HarmonyPriority(HarmonyLib.Priority.Last)]
+    private static void Prefix(CardSelectorPrefs prefs)
+    {
+        if (Active) Observed.Add(prefs.Cancelable);
     }
 }
