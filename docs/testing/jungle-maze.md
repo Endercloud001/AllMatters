@@ -71,3 +71,19 @@
 最终验证：`./tools/Check.ps1` 退出码 0，public 0.107.1 与 public-beta 0.111.0 各 150 项测试通过，两个开发包均生成，日志 `.local/laser-check-final.log`。专项两目标各 5 项通过，日志 `.local/laser-tests.log`。保留既有宿主诊断及可空引用警告；临时规范无关 scope 文件末尾后已按原字节恢复。
 
 规范审查：发现虚拟音效主音量未继承及平方曲线缺失，已修复并补静音/比例断言，复审无剩余问题。需求审查：无剩余问题，确认图集 packed crop 合理、全体目标与原生结算保留；真实端点和音频听感明确留给人工复验。审查范围为 `eed7d37` 后本轮激光改动；先前 #36 实现与回合修复的审查见上述记录。
+
+## 再次实机反馈：激光始终透明的运行时修复（2026-10-27）
+
+用户再次反馈攻击没有可见激光。只读核对发现已安装 DLL/PCK 的长度与修改时间和上一轮开发包一致，游戏日志记录了 BEAM，未见激光资源缺失；不能把问题归因于用户未更新。新增测试将效果加入真实 SceneTree，等待 0.15 秒而不调用任何更新方法，修复前断言失败，见 `.local/laser-recheck-red.log`。
+
+根因：AllMatters.csproj 使用 Microsoft.NET.Sdk，未接入 Godot 脚本源生成器；此前自定义 SmallLaserEffect : Node2D 的 `_Process`、`_Draw` override 没有生成原生调用桥接。效果创建时 alpha=0，实际运行中一直为 0。旧测试手动调用 `_Process` 后才检查透明度与释放，绕过了真实故障。因此上一轮测试通过不能证明游戏内可见，此前完成结论过早。
+
+修复沿用仓库 WheelSpinPresentation 的原生节点模式：SmallLaserEffect 改为静态工厂，创建原生 Node2D；TreeEntered 信号创建绑定该节点的 Tween，通过委托更新透明度和双层抖动，通过 Draw 信号绘制边框，半秒后自动释放。父容器释放同时终止 Tween；未改变攻击规则、音效或原生伤害结算。无需新增 Godot SDK、脚本注册或构建依赖。
+
+回归测试移除手动 `_Process` 调用，改为自然 SceneTree 时间验证出现、峰值和释放，保留几何、材质、资源、音频参数及提前离场清理断言。修复后 public/public-beta 各 5 项激光相关测试通过，见 `.local/laser-recheck-green.log`。另在独立 Godot 测试宿主使用 OpenGL Compatibility 渲染 SubViewport，并从内部区域检测可见青蓝像素；第一次绘制预热后通过，检测到 8,183 个可见像素，见 `.local/laser-render.log`。截图为测试坐标和透明背景，不是实机战斗截图，也不证明真实战斗坐标或音效听感。
+
+![独立测试宿主渲染的激光](images/sentry-laser-render.png)
+
+人工验证沿用上一节步骤：完整退出游戏，替换对应分支的新 DLL 和 PCK 后重新启动，进入新战斗观察 BEAM 激光、连续两轮行动及伤害；勿只替换 PCK 或在进程运行时替换 DLL。此次 Agent 仍未启动游戏/Steam，未改动游戏 mods 安装。
+
+最终完整检查 `./tools/Check.ps1` 退出码 0：public 0.107.1 与 public-beta 0.111.0 各 150 项测试通过，两个开发包重新生成，见 `.local/laser-callback-check.log`。public 独立渲染复验也通过，见 `.local/laser-render-public.log`；规范与需求两路审查均无剩余问题。本轮审查起点 `6b7d2ec`。已有无关 scope 末尾空白仅检查期间临时规范，随后按原字节恢复。

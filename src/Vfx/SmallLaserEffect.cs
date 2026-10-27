@@ -9,15 +9,12 @@ using STS2RitsuLib.Audio;
 
 namespace AllMatters.Vfx;
 
-public partial class SmallLaserEffect : Node2D
+public static class SmallLaserEffect
 {
     public const string TexturePath = "res://AllMatters/vfx/sentry_laser.png";
     public const string SoundPath = "res://AllMatters/sfx/sentry_beam_short.ogg";
     public const string SoundEvent = "event:/AllMatters/sentry/beam_short";
     public const float Duration = 0.5f;
-
-    private readonly List<(Sprite2D Primary, Sprite2D Secondary, float Length)> _beams = [];
-    private float _elapsed;
 
     public static void Play(Creature attacker, IReadOnlyList<Creature> targets)
     {
@@ -44,12 +41,15 @@ public partial class SmallLaserEffect : Node2D
         SfxCmd.Play(SoundEvent);
     }
 
-    public static SmallLaserEffect? Create(Vector2 source, IReadOnlyList<Vector2> targets)
+    public static Node2D? Create(Vector2 source, IReadOnlyList<Vector2> targets)
     {
         if (targets.Count == 0) return null;
         var texture = ResourceLoader.Load<Texture2D>(TexturePath);
         if (texture == null) return null;
-        var effect = new SmallLaserEffect { TopLevel = true, Modulate = new Color(1, 1, 1, 0) };
+        // The mod uses Microsoft.NET.Sdk, without Godot script generators.
+        // Built-in nodes/signals/tweens work without registering custom scripts.
+        var effect = new Node2D { TopLevel = true, Modulate = new Color(1, 1, 1, 0) };
+        var beams = new List<(Sprite2D Primary, Sprite2D Secondary, float Length)>();
         effect.Material = new CanvasItemMaterial { BlendMode = CanvasItemMaterial.BlendModeEnum.Add };
         foreach (var target in targets)
         {
@@ -68,34 +68,39 @@ public partial class SmallLaserEffect : Node2D
             };
             pivot.UseParentMaterial = true;
             pivot.AddChild(primary); pivot.AddChild(secondary); effect.AddChild(pivot);
-            effect._beams.Add((primary, secondary, primary.Scale.X));
+            beams.Add((primary, secondary, primary.Scale.X));
         }
+        effect.Draw += () => DrawBorder(effect);
+        effect.TreeEntered += () =>
+        {
+            var tween = effect.CreateTween();
+            tween.TweenMethod(Callable.From<float>(elapsed => UpdatePulse(effect, beams, elapsed)), 0f, Duration, Duration);
+            tween.TweenCallback(Callable.From(effect.QueueFree));
+        };
         return effect;
     }
 
-    public override void _Process(double delta)
+    private static void UpdatePulse(Node2D effect, List<(Sprite2D Primary, Sprite2D Secondary, float Length)> beams, float elapsed)
     {
-        _elapsed += (float)delta;
-        if (_elapsed >= Duration) { QueueFree(); return; }
-        float remaining = Duration - _elapsed;
+        float remaining = Duration - elapsed;
         float alpha = remaining > 0.25f ? 1 - Mathf.Pow((remaining - 0.25f) * 4, 2) : 1 - BounceOut(1 - remaining * 4);
-        Modulate = new Color(1, 1, 1, alpha);
-        foreach (var (primary, secondary, length) in _beams)
+        effect.Modulate = new Color(1, 1, 1, alpha);
+        foreach (var (primary, secondary, length) in beams)
         {
             primary.Scale = new Vector2(length + (float)GD.RandRange(-0.01, 0.01), primary.Scale.Y);
             float height = (float)GD.RandRange(50, 90);
             secondary.Scale = new Vector2(length + (float)GD.RandRange(-0.02, 0.02), height / secondary.Texture.GetHeight());
             secondary.Position = new Vector2(0, -height / 2);
         }
-        QueueRedraw();
+        effect.QueueRedraw();
     }
 
-    public override void _Draw()
+    private static void DrawBorder(Node2D effect)
     {
         // A short sky-blue border flash accompanies the pulse in STS1.
-        var viewport = GetViewportRect();
+        var viewport = effect.GetViewportRect();
         for (int i = 0; i < 12; i++)
-            DrawRect(viewport.Grow(-i * 6), new Color(0.53f, 0.81f, 0.92f, 0.22f * (1 - i / 12f)), false, 6);
+            effect.DrawRect(viewport.Grow(-i * 6), new Color(0.53f, 0.81f, 0.92f, 0.22f * (1 - i / 12f)), false, 6);
     }
 
     private static float BounceOut(float value)

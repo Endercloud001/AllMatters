@@ -301,9 +301,20 @@ internal static class JungleMazeAdventureTests
                 SentryVisualCommandProbe.CaptureSound = false;
                 MegaCrit.Sts2.Core.Saves.SaveManager.Instance.SettingsSave.VolumeMaster = previousMaster;
             }
+            // Let renderer initialization / first-frame shader work settle before
+            // measuring the half-second pulse in the optional graphical host.
+            if (Godot.DisplayServer.GetName() != "headless")
+                await tree.ToSignal(tree.CreateTimer(0.5), Godot.SceneTreeTimer.SignalName.Timeout);
+            var livePulse = AllMatters.Vfx.SmallLaserEffect.Create(source, targets)!;
+            parent.AddChild(livePulse);
+            await tree.ToSignal(tree.CreateTimer(0.15), Godot.SceneTreeTimer.SignalName.Timeout);
+            NativeEventTests.Check(Godot.GodotObject.IsInstanceValid(livePulse) && livePulse.Modulate.A > 0.1f,
+                $"SceneTree processing makes the pulse visible: valid={Godot.GodotObject.IsInstanceValid(livePulse)}, alpha={(Godot.GodotObject.IsInstanceValid(livePulse) ? livePulse.Modulate.A : -1)}.");
+            await tree.ToSignal(tree.CreateTimer(0.5), Godot.SceneTreeTimer.SignalName.Timeout);
+            NativeEventTests.Check(!Godot.GodotObject.IsInstanceValid(livePulse),
+                "SceneTree processing automatically frees the pulse after its lifetime.");
             var effect = AllMatters.Vfx.SmallLaserEffect.Create(source, targets)!;
             parent.AddChild(effect);
-            effect.SetProcess(false);
             NativeEventTests.Check(effect.GetChildCount() == 2 && effect.GlobalTransform.IsEqualApprox(Godot.Transform2D.Identity),
                 "One beam per player uses global combat coordinates even inside a transformed container.");
             for (int i = 0; i < targets.Length; i++)
@@ -317,14 +328,10 @@ internal static class JungleMazeAdventureTests
                     && ((Godot.CanvasItemMaterial)effect.Material).BlendMode == Godot.CanvasItemMaterial.BlendModeEnum.Add,
                     "Beam layers inherit additive blending.");
             }
-            effect._Process(0.125);
-            NativeEventTests.Check(Math.Abs(effect.Modulate.A - 0.75f) < 0.001f, "Original quadratic fade reaches 0.75 at 0.125 seconds.");
-            effect._Process(0.125);
-            NativeEventTests.Check(Math.Abs(effect.Modulate.A - 1) < 0.001f, "Original pulse peaks halfway through its lifetime.");
-            effect._Process(0.25);
-            NativeEventTests.Check(effect.IsQueuedForDeletion(), "Pulse queues cleanup at 0.5 seconds without awaiting animation signals.");
-            await tree.ToSignal(tree, Godot.SceneTree.SignalName.ProcessFrame);
-            NativeEventTests.Check(!Godot.GodotObject.IsInstanceValid(effect), "Pulse is freed on the next frame.");
+            await tree.ToSignal(tree.CreateTimer(0.25), Godot.SceneTreeTimer.SignalName.Timeout);
+            NativeEventTests.Check(effect.Modulate.A > 0.9f, "SceneTree tween brings the pulse near its peak halfway through its lifetime.");
+            await tree.ToSignal(tree.CreateTimer(0.35), Godot.SceneTreeTimer.SignalName.Timeout);
+            NativeEventTests.Check(!Godot.GodotObject.IsInstanceValid(effect), "Tween frees the pulse without direct lifecycle calls.");
             var interrupted = AllMatters.Vfx.SmallLaserEffect.Create(source, targets)!;
             parent.AddChild(interrupted);
             parent.QueueFree();
@@ -332,6 +339,39 @@ internal static class JungleMazeAdventureTests
             NativeEventTests.Check(!Godot.GodotObject.IsInstanceValid(interrupted), "Leaving the combat container cleans up an unfinished pulse.");
         }
         finally { if (Godot.GodotObject.IsInstanceValid(parent)) parent.Free(); }
+        if (Godot.DisplayServer.GetName() != "headless") await RenderLaser(tree);
+    }
+
+    private static async Task RenderLaser(Godot.SceneTree tree)
+    {
+        using var viewport = new Godot.SubViewport
+        {
+            Size = new Godot.Vector2I(1024, 600),
+            RenderTargetUpdateMode = Godot.SubViewport.UpdateMode.Always,
+            TransparentBg = true,
+        };
+        tree.Root.AddChild(viewport);
+        try
+        {
+            viewport.AddChild(AllMatters.Vfx.SmallLaserEffect.Create(new Godot.Vector2(900, 350), [new(250, 300)])!);
+            await tree.ToSignal(tree.CreateTimer(0.15), Godot.SceneTreeTimer.SignalName.Timeout);
+            await tree.ToSignal(Godot.RenderingServer.Singleton, Godot.RenderingServer.SignalName.FramePostDraw);
+            using var image = viewport.GetTexture().GetImage();
+            int litPixels = 0;
+            // Interior of the beam, away from the border flash and both endpoints.
+            for (int y = 280; y < 380; y++)
+                for (int x = 400; x < 650; x++)
+                {
+                    var pixel = image.GetPixel(x, y);
+                    if (pixel.G > 0.2f && pixel.B > 0.2f && pixel.A > 0.1f) litPixels++;
+                }
+            NativeEventTests.Check(litPixels > 100, "Renderer produces visible cyan/blue pixels between the two endpoints.");
+            string capture = Godot.OS.GetEnvironment("ALLMATTERS_LASER_CAPTURE");
+            if (!string.IsNullOrEmpty(capture))
+                NativeEventTests.Check(image.SavePng(capture) == Godot.Error.Ok, "Save the independent rendering evidence.");
+            Console.WriteLine($"Laser rendering probe: {litPixels} visible interior pixels.");
+        }
+        finally { viewport.Free(); }
     }
 }
 
