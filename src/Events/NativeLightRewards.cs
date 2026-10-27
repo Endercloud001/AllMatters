@@ -90,7 +90,8 @@ internal static class PunchActPools
         .OfType<MethodBase>();
     private static void Postfix(ActModel __instance, ref IEnumerable<EventModel> __result)
     {
-        if (__instance.Index is 0 or 1) __result = __result.Append(ModelDb.Event<PunchOff>()).Append(ModelDb.Event<WhisperingHollow>()).DistinctBy(e => e.Id);
+        if (__instance.Index is 0 or 1) __result = __result.Append(ModelDb.Event<PunchOff>()).Append(ModelDb.Event<WhisperingHollow>())
+            .Append(ModelDb.Event<DenseVegetation>()).DistinctBy(e => e.Id);
     }
 }
 
