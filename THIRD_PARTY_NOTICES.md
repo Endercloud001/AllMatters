@@ -88,3 +88,4 @@ Slay the Spire 2 and its game resources remain the property of Mega Crit and the
 
 Chrysalis and Cursed Key use the unchanged STS1 archive entries images/1024Portraits/colorless/skill/chrysalis.png, images/relics/cursedKey.png and images/relics/outline/cursedKey.png, retaining Mega Crit/original artists' ownership.
 
+Strange Mushroom and Du-Vu Doll likewise use unchanged images/relics/{mushroom,duvuDoll}.png and corresponding outline images from the owned STS1 archive; original artwork ownership is retained.
