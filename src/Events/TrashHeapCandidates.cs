@@ -14,7 +14,11 @@ namespace AllMatters.Events;
 // the event consumes RNG once, when the player actually chooses an option.
 public static class TrashHeapCandidates
 {
-    private static readonly List<Func<Player, IEnumerable<CardModel>>> CardGroups = [];
+    private static readonly List<Func<Player, IEnumerable<CardModel>>> CardGroups =
+    [
+        _ => [ModelDb.Card<AllMatters.Cards.Electrodynamics>(), ModelDb.Card<AllMatters.Cards.AutoShields>(),
+            ModelDb.Card<AllMatters.Cards.Bullseye>(), ModelDb.Card<AllMatters.Cards.CoreSurge>()],
+    ];
     private static readonly List<Func<Player, IEnumerable<RelicModel>>> RelicGroups = [];
 
     public static void RegisterCards(Func<Player, IEnumerable<CardModel>> group) => CardGroups.Add(group);

@@ -2,5 +2,13 @@
   "ALL_MATTERS_JAX.title": "J.A.X.",
   "ALL_MATTERS_JAX.description": "Lose {HpLoss:diff()} HP.\nGain {StrengthPower:diff()} [gold]Strength[/gold].",
   "ALL_MATTERS_NECRONOMICURSE.title": "Necronomicurse",
-  "ALL_MATTERS_NECRONOMICURSE.description": "There is no escape from this [red]Curse[/red]."
+  "ALL_MATTERS_NECRONOMICURSE.description": "There is no escape from this [red]Curse[/red].",
+  "ALL_MATTERS_AUTO_SHIELDS.title": "Auto Shields",
+  "ALL_MATTERS_AUTO_SHIELDS.description": "If you have no [gold]Block[/gold], gain {Block:diff()} [gold]Block[/gold].",
+  "ALL_MATTERS_CORE_SURGE.title": "Core Surge",
+  "ALL_MATTERS_CORE_SURGE.description": "Deal {Damage:diff()} damage.\nGain [blue]1[/blue] [gold]Artifact[/gold].",
+  "ALL_MATTERS_BULLSEYE.title": "Bullseye",
+  "ALL_MATTERS_BULLSEYE.description": "Deal {Damage:diff()} damage.\nApply {LockOn:diff()} [gold]Lock-On[/gold].",
+  "ALL_MATTERS_ELECTRODYNAMICS.title": "Electrodynamics",
+  "ALL_MATTERS_ELECTRODYNAMICS.description": "Your [gold]Lightning[/gold] Orbs hit ALL enemies.\nChannel [blue]3[/blue] [gold]Lightning[/gold]."
 }

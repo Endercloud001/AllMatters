@@ -103,3 +103,7 @@ Ink Bottle and the global Symbiotic Virus replacement use unchanged `images/reli
 - Added 2026-10-27 from the locally owned original Slay the Spire `desktop-1.0.jar`, by Mega Crit and the respective rights holders. `src/Resources/AllMatters/vfx/sentry_laser.png` is the nonrotated 981×101 packed `combat/laserThin` region at (2,104) of `vfx/vfx2.png`, located by `vfx/vfx.atlas`. No full atlas is distributed.
 - `src/Resources/AllMatters/sfx/sentry_beam_short.ogg` is the unchanged `audio/sound/SOTE_SFX_SlowMagic_BeamShort_v1.ogg` from that jar. These game assets retain their original ownership; the mod's GPL code license does not relicense them.
 - `SmallLaserEffect.cs` is original AllMatters Godot implementation based on observation of the original game's behavior. No Java source, jar, game library or separately downloaded ActsFromThePast implementation is redistributed.
+
+## Returning Trash Heap content (#40)
+
+Electrodynamics, Auto Shields, Bullseye and Core Surge portraits are unchanged STS1 archive entries `images/1024Portraits/blue/{power/electrodynamics,skill/auto_shields,attack/lock_on,attack/core_surge}.png`. The Electrodynamics and Lock-On power icons come unchanged from Balance `images/powers/{ElectrodynamicsPower,LockOnPower}.png` at the revision credited above. Original game artwork remains Mega Crit/original artists’ property; the repository code license does not relicense it.

@@ -63,7 +63,7 @@ internal static class TrashHeapTests
     {
         using var scope = HeadlessCombatInProgress.EnterEvent();
         var seen = new HashSet<Type>();
-        for (int i = 0; i < 24; i++)
+        for (int i = 0; i < 128; i++)
         {
             var run = HeadlessTestSetup.Run("TRASH_DIVE_" + i, ModelDb.Character<Ironclad>(), ModelDb.Character<Silent>());
             var player = run.Players[0];
@@ -177,7 +177,7 @@ internal static class TrashHeapTests
     {
         using var scope = HeadlessCombatInProgress.EnterEvent();
         var seen = new HashSet<Type>();
-        for (int i = 0; i < 24; i++)
+        for (int i = 0; i < 128; i++)
         {
             var player = NativeEventTests.Player("TRASH_" + i);
             var model = await NativeEventTests.Begin<TrashHeap>(player);
@@ -191,15 +191,15 @@ internal static class TrashHeapTests
             await option.Chosen();
             NativeEventTests.Check(player.Gold == gold + 50 && player.Deck.Cards.Count == count + 1 && model.IsFinished,
                 "Grab grants exactly 50 gold and one permanent card, then finishes.");
-            NativeEventTests.Check(player.Deck.Cards.Last() is Caltrops or Clash or Distraction or MegaCrit.Sts2.Core.Models.Cards.HelloWorld or Outmaneuver,
-                "The five retained original candidates remain the only base card outcomes.");
+            NativeEventTests.Check(AllMatters.Events.TrashHeapCandidates.Cards(player).Any(c => c.Id == player.Deck.Cards.Last().Id),
+                "Grab awards a member of the actual incremental candidate pool.");
             seen.Add(player.Deck.Cards.Last().GetType());
             rng = HeadlessTestSetup.RngPosition(model.Rng);
             await option.Chosen();
             NativeEventTests.Check(player.Gold == gold + 50 && player.Deck.Cards.Count == count + 1 && HeadlessTestSetup.RngPosition(model.Rng) == rng,
                 "A stale option cannot repeat rewards or reroll.");
         }
-        NativeEventTests.Check(seen.SetEquals(new[] { typeof(Caltrops), typeof(Clash), typeof(Distraction), typeof(MegaCrit.Sts2.Core.Models.Cards.HelloWorld), typeof(Outmaneuver) }),
+        NativeEventTests.Check(seen.IsSupersetOf(new[] { typeof(Caltrops), typeof(Clash), typeof(Distraction), typeof(MegaCrit.Sts2.Core.Models.Cards.HelloWorld), typeof(Outmaneuver) }),
             "Every retained card, including Hello World, remains obtainable from Grab.");
     }
 }

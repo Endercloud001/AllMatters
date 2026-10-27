@@ -2,5 +2,13 @@
   "ALL_MATTERS_JAX.title": "J.A.X.",
   "ALL_MATTERS_JAX.description": "失去 {HpLoss:diff()} 点生命。\n获得 {StrengthPower:diff()} [gold]力量[/gold]。",
   "ALL_MATTERS_NECRONOMICURSE.title": "死灵诅咒",
-  "ALL_MATTERS_NECRONOMICURSE.description": "你无法逃脱这个[red]诅咒[/red]。"
+  "ALL_MATTERS_NECRONOMICURSE.description": "你无法逃脱这个[red]诅咒[/red]。",
+  "ALL_MATTERS_AUTO_SHIELDS.title": "自动护盾",
+  "ALL_MATTERS_AUTO_SHIELDS.description": "如果你没有[gold]格挡[/gold]，获得{Block:diff()}点[gold]格挡[/gold]。",
+  "ALL_MATTERS_CORE_SURGE.title": "核心电涌",
+  "ALL_MATTERS_CORE_SURGE.description": "造成{Damage:diff()}点伤害。\n获得[blue]1[/blue]层[gold]人工制品[/gold]。",
+  "ALL_MATTERS_BULLSEYE.title": "瞄准靶心",
+  "ALL_MATTERS_BULLSEYE.description": "造成{Damage:diff()}点伤害。\n给予{LockOn:diff()}回合[gold]跟踪锁定[/gold]。",
+  "ALL_MATTERS_ELECTRODYNAMICS.title": "电动力学",
+  "ALL_MATTERS_ELECTRODYNAMICS.description": "你的[gold]闪电[/gold]充能球现在会击中所有敌人。\n生成[blue]3[/blue]个[gold]闪电[/gold]充能球。"
 }

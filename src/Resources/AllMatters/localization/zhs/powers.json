@@ -7,5 +7,11 @@
   "ALL_MATTERS_POWER_ASLEEP_LAGAVULIN_POWER.smartDescription": "该生物正在沉睡。受到未被格挡的伤害会使其立刻苏醒。剩余 {Amount} 回合后苏醒。",
   "ALL_MATTERS_POWER_METALLICIZE_POWER.title": "金属化",
   "ALL_MATTERS_POWER_METALLICIZE_POWER.description": "在回合结束时，获得 {Amount} 点[gold]格挡[/gold]。",
-  "ALL_MATTERS_POWER_METALLICIZE_POWER.smartDescription": "在回合结束时，获得 {Amount} 点[gold]格挡[/gold]。"
+  "ALL_MATTERS_POWER_METALLICIZE_POWER.smartDescription": "在回合结束时，获得 {Amount} 点[gold]格挡[/gold]。",
+  "ALL_MATTERS_POWER_ELECTRODYNAMICS_POWER.title": "电动力学",
+  "ALL_MATTERS_POWER_ELECTRODYNAMICS_POWER.description": "你的闪电充能球会击中所有敌人。",
+  "ALL_MATTERS_POWER_ELECTRODYNAMICS_POWER.smartDescription": "你的闪电充能球会击中所有敌人。",
+  "ALL_MATTERS_POWER_LOCK_ON_POWER.title": "跟踪锁定",
+  "ALL_MATTERS_POWER_LOCK_ON_POWER.description": "施加者的充能球对其造成的伤害增加50%。每回合结束时减少1层。",
+  "ALL_MATTERS_POWER_LOCK_ON_POWER.smartDescription": "施加者的充能球对其造成的伤害增加50%。每回合结束时减少1层。"
 }
