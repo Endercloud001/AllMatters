@@ -1,4 +1,4 @@
-using MegaCrit.Sts2.Core.Commands;
+﻿using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Characters;
@@ -28,6 +28,8 @@ internal static class NativeEventTests
         ("Native events Big Mushroom adds 40 Max HP and keeps opening hand penalty", BigMushroomPickup),
         ("Native events Fragrant Mushroom loses 15 HP and upgrades the chosen cards", FragrantPickup),
         ("Native events treasury shows and grants the same one or two curse gold combination", Treasury),
+        ("Native events Punch Off escape cancels the punching loop", PunchEscape),
+        ("Native events reward options include their relic previews", Previews),
         ("Native events native leave options finish without changing the deck", Leave),
         ("Native events text shows actual upgrades, fixed Designant and specified effects", Text),
         ("Native events Lantern Key reward heals only in the knight victory reward context", Lantern),
@@ -48,7 +50,7 @@ internal static class NativeEventTests
 #if STS2_PUBLIC
         await model.BeginEvent(player, false);
 #else
-        await model.BeginEvent(player, null, false);
+        await model.BeginEvent(player, new MegaCrit.Sts2.Core.Multiplayer.Game.EventCombatSynchronizer(player.RunState, player.RunState), false);
 #endif
         return model;
     }
@@ -61,6 +63,7 @@ internal static class NativeEventTests
         var model = await Begin<Bugslayer>(player);
         var option = model.CurrentOptions.SingleOrDefault(o => o.TextKey.EndsWith(".AM_REST"));
         Check(option != null, "Bugslayer must offer rest alongside both original cards.");
+        Check(option!.Description.GetFormattedText().Contains("20") && !option.Description.GetFormattedText().Contains("25%"), "Rest displays the calculated integer HP.");
         await option!.Chosen();
         Check(model.IsFinished && player.Creature.CurrentHp == 30, "Rest must heal floor(83 * .25) and finish.");
         await option.Chosen();
@@ -83,6 +86,8 @@ internal static class NativeEventTests
             var (p, combat) = Combat();
             var card = combat.CreateCard<ToricToughness>(p);
             if (upgraded) { card.UpgradeInternal(); card.FinalizeUpgradeInternal(); }
+            string description = card.GetDescriptionForPile(PileType.Deck);
+            Check(description.Split("Exhaust").Length - 1 == (upgraded ? 0 : 1), "Keyword renderer shows Exhaust exactly once before upgrade and zero after.");
             Check(card.Keywords.Contains(CardKeyword.Exhaust) != upgraded, "Only ordinary Toric Toughness exhausts.");
             await card.OnPlayWrapper(new ThrowingPlayerChoiceContext(), null, true, default, skipCardPileVisuals: true);
             Check(p.Creature.Block == 15, "The current turn receives 15 block at either upgrade level.");
@@ -134,7 +139,11 @@ internal static class NativeEventTests
         var p = Player();
         int hp = p.Creature.CurrentHp;
         var selected = p.Deck.Cards.Take(2).ToArray();
-        using (CardSelectCmd.UseSelector(new Select(selected))) await RelicCmd.Obtain<FragrantMushroom>(p);
+        var e = await Begin<HungryForMushrooms>(p);
+        Check(e.CurrentOptions[1].Description.GetFormattedText().Contains("choose", StringComparison.OrdinalIgnoreCase)
+            && !e.CurrentOptions[1].Description.GetFormattedText().Contains("random", StringComparison.OrdinalIgnoreCase), "Event describes chosen upgrades rather than random upgrades.");
+        using (CardSelectCmd.UseSelector(new Select(selected))) await e.CurrentOptions[1].Chosen();
+        Check(p.Relics.OfType<FragrantMushroom>().Count() == 1, "Event obtains the native relic that owns the pickup effect.");
         Check(p.Creature.CurrentHp == hp - 15, "Fragrant mushroom pays 15 HP.");
         Check(selected.All(c => c.IsUpgraded) && p.Deck.Cards.Except(selected).All(c => !c.IsUpgraded), "Upgrade only the two chosen cards.");
     }
@@ -155,6 +164,31 @@ internal static class NativeEventTests
             Check(p.Deck.Cards.Where(c => c is Greed).Distinct().Count() == count && e.IsFinished, "Two curses must be separate instances and the event finishes.");
         }
         Check(seen.SetEquals([1, 2]), "Exercise both treasury branches.");
+    }
+
+    private static async Task PunchEscape()
+    {
+        var e = await Begin<PunchOff>(Player());
+        using var cts = new CancellationTokenSource();
+        HarmonyLib.AccessTools.Field(typeof(PunchOff), "_punchCts").SetValue(e, cts);
+        await e.CurrentOptions.Single(o => o.TextKey.EndsWith(".AM_LEAVE")).Chosen();
+        Check(e.IsFinished && cts.IsCancellationRequested, "Escape cancels the native animation loop before opening the map.");
+    }
+
+    private static async Task Previews()
+    {
+        var e = await Begin<HungryForMushrooms>(Player());
+        foreach (var option in e.CurrentOptions.Where(o => o.Relic != null))
+            Check(option.HoverTips.OfType<MegaCrit.Sts2.Core.HoverTips.HoverTip>()
+                .Any(t => t.CanonicalModel?.Id == option.Relic!.Id), "Relic options include the awarded relic itself, not only keyword tips.");
+        var teas = await Begin<TeaMaster>(Player());
+        Type[] types = [typeof(BoneTea), typeof(EmberTea), typeof(TeaOfDiscourtesy)];
+        for (int i = 0; i < types.Length; i++)
+            Check(teas.CurrentOptions[i].HoverTips.OfType<MegaCrit.Sts2.Core.HoverTips.HoverTip>()
+                .Any(t => t.CanonicalModel?.GetType() == types[i]), "Every known tea reward includes its relic preview.");
+        var mirror = await Begin<Reflections>(Player());
+        Check(mirror.CurrentOptions.Single(o => o.TextKey.EndsWith(".AM_MOVE")).HoverTips
+            .OfType<MegaCrit.Sts2.Core.HoverTips.HoverTip>().Any(t => t.CanonicalModel is DollysMirror), "Possible mirror reward has a relic preview.");
     }
 
     private static async Task Leave()

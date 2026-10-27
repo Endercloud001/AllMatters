@@ -4,6 +4,7 @@ using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Events;
 using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Models.Events;
+using MegaCrit.Sts2.Core.HoverTips;
 
 namespace AllMatters.Events;
 
@@ -18,7 +19,7 @@ internal static class NativeWellspring
         {
             await PotionCmd.TryToProcure<Ambrosia>(model.Owner!);
             NativeEventActions.Finish(model, "WELLSPRING.pages.BOTTLE.description");
-        });
+        }, HoverTipFactory.FromPotion<Ambrosia>());
         options.Add(NativeEventActions.Option(model, "WELLSPRING.pages.INITIAL.options.AM_LEAVE",
             () => { NativeEventActions.Finish(model, "WELLSPRING.pages.AM_LEAVE.description"); return Task.CompletedTask; }));
         __result = options;

@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Relics;
@@ -27,11 +27,14 @@ internal static class NativeLightOptions
         switch (model)
         {
             case Bugslayer:
-                options.Add(NativeEventActions.Option(model, "BUGSLAYER.pages.INITIAL.options.AM_REST", async () =>
+                decimal heal = decimal.Floor(model.Owner!.Creature.MaxHp * .25m);
+                var rest = NativeEventActions.Option(model, "BUGSLAYER.pages.INITIAL.options.AM_REST", async () =>
                 {
-                    await CreatureCmd.Heal(model.Owner!.Creature, model.Owner!.Creature.MaxHp * .25m);
+                    await CreatureCmd.Heal(model.Owner!.Creature, heal);
                     NativeEventActions.Finish(model, "BUGSLAYER.pages.AM_REST.description");
-                }));
+                });
+                rest.Description.Add("AmHeal", heal);
+                options.Add(rest);
                 break;
             case CrystalSphere or InfestedAutomaton or PunchOff:
                 options.Add(NativeEventActions.Option(model, model.Id.Entry + ".pages.INITIAL.options.AM_LEAVE", () => NativeEventActions.Leave(model)));
@@ -50,7 +53,7 @@ internal static class NativeLightOptions
                     await NativeEventActions.LoseHp(model, 10);
                     if (!model.Owner!.Creature.IsDead && mirror) await RelicCmd.Obtain<DollysMirror>(model.Owner!);
                     NativeEventActions.Finish(model, "REFLECTIONS.pages.AM_MOVE.description");
-                }).ThatDoesDamage(10));
+                }, HoverTipFactory.FromRelic<DollysMirror>().ToArray()).ThatDoesDamage(10));
                 break;
             case SpiralingWhirlpool:
                 options.Add(NativeEventActions.Option(model, "SPIRALING_WHIRLPOOL.pages.INITIAL.options.AM_REACH", async () =>
@@ -58,7 +61,7 @@ internal static class NativeLightOptions
                     await RelicCmd.Obtain(RelicFactory.PullNextRelicFromFront(model.Owner!).ToMutable(), model.Owner!);
                     await CardPileCmd.AddCurseToDeck<Writhe>(model.Owner!);
                     NativeEventActions.Finish(model, "SPIRALING_WHIRLPOOL.pages.AM_REACH.description");
-                }));
+                }, HoverTipFactory.FromCardWithCardHoverTips<Writhe>().ToArray()));
                 break;
             case TheLegendsWereTrue:
                 options.Add(NativeEventActions.Option(model, "THE_LEGENDS_WERE_TRUE.pages.INITIAL.options.AM_EXIT", async () =>

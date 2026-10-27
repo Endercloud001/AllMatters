@@ -3,6 +3,7 @@ using HarmonyLib;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Events;
 using MegaCrit.Sts2.Core.Models.Events;
+using MegaCrit.Sts2.Core.HoverTips;
 
 namespace AllMatters.Events;
 
@@ -28,6 +29,6 @@ internal static class ThisOrThatIdentity
             if (roll is >= 78 and < 98) await RelicCmd.Obtain<NlothsHungryFace>(__instance.Owner!);
             else if (roll >= 98) await RelicCmd.Obtain<NlothsGift>(__instance.Owner!);
             NativeEventActions.Finish(__instance, "THIS_OR_THAT.pages.AM_REVEAL_" + (roll < 78 ? "NONE" : roll < 98 ? "FACE" : "GIFT") + ".description");
-        })).ToArray();
+        }, HoverTipFactory.FromRelic<NlothsHungryFace>().Concat(HoverTipFactory.FromRelic<NlothsGift>()).ToArray())).ToArray();
     }
 }

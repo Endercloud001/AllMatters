@@ -1,4 +1,4 @@
-using AllMatters.Relics;
+﻿using AllMatters.Relics;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Events;
@@ -29,13 +29,18 @@ internal static class NativeTeaChoice
         var model = __instance;
         int roll = NativeCounterVariant.Roll(model);
         int effect = roll < 33 ? 0 : roll < 66 ? 1 : 2;
+        var preview = ModelDb.Relic<TeaOfDiscourtesy>().ToMutable();
+        preview.Owner = model.Owner!;
+        DiscourtesyVariant.Effect[preview] = effect;
         var options = __result.ToList();
+        options[0].HoverTips = HoverTipFactory.FromRelic<BoneTea>().ToArray();
+        options[1].HoverTips = HoverTipFactory.FromRelic<EmberTea>().ToArray();
         options[^1] = NativeEventActions.Option(model, "TEA_MASTER.pages.INITIAL.options.AM_DISCOURTESY_" + effect, async () =>
         {
             var tea = await RelicCmd.Obtain<TeaOfDiscourtesy>(model.Owner!);
             DiscourtesyVariant.Effect[tea] = effect;
             NativeEventActions.Finish(model, "TEA_MASTER.pages.TEA_OF_DISCOURTESY.description");
-        });
+        }, HoverTipFactory.FromRelic(preview).ToArray());
         __result = options;
     }
 }

@@ -11,6 +11,7 @@ using MegaCrit.Sts2.Core.Models.Encounters;
 using MegaCrit.Sts2.Core.Models.Potions;
 using MegaCrit.Sts2.Core.Rewards;
 using MegaCrit.Sts2.Core.Rooms;
+using MegaCrit.Sts2.Core.HoverTips;
 
 namespace AllMatters.Events;
 
@@ -75,7 +76,7 @@ internal static class WoodSnakeOption
         {
             await PotionCmd.TryToProcure<SneckoOil>(__instance.Owner!);
             NativeEventActions.Finish(__instance, "WOOD_CARVINGS.pages.SNAKE.description");
-        });
+        }, HoverTipFactory.FromPotion<SneckoOil>());
         __result = list;
     }
 }

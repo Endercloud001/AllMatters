@@ -22,6 +22,12 @@ internal static class NativeEventActions
 
     internal static async Task Leave(EventModel model)
     {
+        if (model is MegaCrit.Sts2.Core.Models.Events.PunchOff)
+        {
+            // Opening the map does not exit the room or raise RoomExited.
+            AccessTools.Method(model.GetType(), "OnRoomExited").Invoke(model, null);
+            NEventRoom.Instance?.EmbeddedCombatRoom?.Hide();
+        }
         Finish(model, "ALL_MATTERS_NATIVE_EMPTY");
         if (NEventRoom.Instance != null) await NEventRoom.Proceed();
     }
@@ -32,4 +38,16 @@ internal static class NativeEventActions
     internal static Task LoseHp(EventModel model, decimal amount)
         => CreatureCmd.Damage(new ThrowingPlayerChoiceContext(), model.Owner!.Creature, amount,
             ValueProp.Unblockable | ValueProp.Unpowered, null, null);
+}
+
+// Native RelicOption uses only the relic's keyword tips. Include the relic
+// itself as well, so ordinary event rewards can be inspected before choosing.
+[HarmonyPatch(typeof(EventOption), nameof(EventOption.FromRelic))]
+internal static class NativeRelicOptionPreview
+{
+    private static void Postfix(RelicModel relic, EventModel eventModel, EventOption __result)
+    {
+        if (eventModel is not AncientEventModel)
+            __result.HoverTips = HoverTipFactory.FromRelic(relic).ToArray();
+    }
 }

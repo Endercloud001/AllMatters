@@ -26,7 +26,7 @@ internal static class NativeEventLocalization
                 ["WELCOME_TO_WONGOS.pages.INITIAL.options.LEAVE.description"] = zh ? "失去[red]8[/red]点生命值。" : "Lose [red]8[/red] HP.",
                 ["WELCOME_TO_WONGOS.pages.AM_LEAVE.description"] = zh ? "你付出了生命的代价，离开了百货。" : "You leave the store at a cost to your health.",
                 ["BUGSLAYER.pages.INITIAL.options.AM_REST.title"] = zh ? "学习休息的技巧" : "Learn to Rest",
-                ["BUGSLAYER.pages.INITIAL.options.AM_REST.description"] = zh ? "回复最大生命值的[green]25%[/green]。" : "Heal [green]25%[/green] of your Max HP.",
+                ["BUGSLAYER.pages.INITIAL.options.AM_REST.description"] = zh ? "回复[green]{AmHeal}[/green]点生命。" : "Heal [green]{AmHeal}[/green] HP.",
                 ["BUGSLAYER.pages.AM_REST.description"] = zh ? "“原来如此……你想学习战斗之外的技巧。很好…”\n\n他短暂地停顿了一下，思考着能传授给你什么…\n\n“休息也是很重要的一部分。”他铺开一张草席就这么躺下了。" : "“I see… You wish to learn a skill beyond battle. Very well…”\n\nHe pauses, pondering what he could teach you.\n\n“Rest is important, too.” He spreads out a straw mat and lies down.",
                 ["COLORFUL_PHILOSOPHERS.pages.INITIAL.options.AM_GEM.title"] = zh ? "棱彩" : "Prismatic",
                 ["COLORFUL_PHILOSOPHERS.pages.INITIAL.options.AM_GEM.description"] = zh ? "获得[gold]棱彩宝石[/gold]。" : "Obtain [gold]Prismatic Gem[/gold].",
@@ -48,7 +48,7 @@ internal static class NativeEventLocalization
             __result.MergeWith(new Dictionary<string, string>
             {
                 ["PECK.description"] = zh ? "先去除目标至多[blue]15[/blue]点[gold]格挡[/gold]，再造成{Damage:diff()}点伤害{Repeat:diff()}次。" : "Remove up to [blue]15[/blue] [gold]Block[/gold] from the target, then deal {Damage:diff()} damage {Repeat:diff()} times.",
-                ["TORIC_TOUGHNESS.description"] = zh ? "获得{Block:diff()}点[gold]格挡[/gold]。下回合获得[blue]7[/blue]点[gold]格挡[/gold]。{IfUpgraded:show:|[gold]消耗[/gold]。}" : "Gain {Block:diff()} [gold]Block[/gold]. Next turn gain [blue]7[/blue] [gold]Block[/gold].{IfUpgraded:show:| [gold]Exhaust[/gold].}",
+                ["TORIC_TOUGHNESS.description"] = zh ? "获得{Block:diff()}点[gold]格挡[/gold]。下回合获得[blue]7[/blue]点[gold]格挡[/gold]。" : "Gain {Block:diff()} [gold]Block[/gold]. Next turn gain [blue]7[/blue] [gold]Block[/gold].",
             });
         }
         else if (name == "relics")
@@ -57,6 +57,8 @@ internal static class NativeEventLocalization
             {
                 ["BIG_MUSHROOM.description"] = zh ? "拾起时，将你的最大生命值提升[green]{MaxHp}[/green]。在每场战斗开始时，少抽[red]{Cards}[/red]张牌。" : "Upon pickup, gain [green]{MaxHp}[/green] Max HP. Draw [red]{Cards}[/red] fewer cards at the start of each combat.",
                 ["FRAGRANT_MUSHROOM.description"] = zh ? "拾起时，失去[red]{HpLoss}[/red]点生命，然后选择至多[green]{Cards}[/green]张牌[gold]升级[/gold]。" : "Upon pickup, lose [red]{HpLoss}[/red] HP, then choose up to [green]{Cards}[/green] cards to [gold]Upgrade[/gold].",
+                ["FRAGRANT_MUSHROOM.eventDescription"] = zh ? "获得[gold]芳香蘑菇[/gold]。拾起时，失去[red]{HpLoss}[/red]点生命，然后选择至多[green]{Cards}[/green]张牌[gold]升级[/gold]。" : "Obtain [gold]Fragrant Mushroom[/gold]. Upon pickup, lose [red]{HpLoss}[/red] HP, then choose up to [green]{Cards}[/green] cards to [gold]Upgrade[/gold].",
+                ["BIG_MUSHROOM.eventDescription"] = zh ? "获得[gold]大蘑菇[/gold]。拾起时，最大生命值提升[green]{MaxHp}[/green]。每场战斗的初始手牌少抽[red]{Cards}[/red]张牌。" : "Obtain [gold]Big Mushroom[/gold]. Upon pickup, gain [green]{MaxHp}[/green] Max HP. Draw [red]{Cards}[/red] fewer cards in your opening hand each combat.",
             });
         }
     }
