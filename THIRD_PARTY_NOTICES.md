@@ -74,6 +74,8 @@ The v0.1.1 Brilliance portrait is copied unchanged from the locally owned Slay t
 
 N'loth's Hungry Face and N'loth's Gift use the unchanged `images/relics/{nloth,nlothsGift}.png` and corresponding `images/relics/outline/` images from the same owned STS1 archive. The images retain Mega Crit/original artists' ownership and are not relicensed by this repository.
 
+Blue Candle likewise uses unchanged `images/relics/blueCandle.png` and `images/relics/outline/blueCandle.png` from the owned STS1 archive, with the same original artwork ownership.
+
 Slay the Spire 2 and its game resources remain the property of Mega Crit and their respective owners. Game DLLs, native libraries, PCK files and decompiled game code are development inputs only and are not distributed with this mod.
 
 ## Mind Bloom, Lagavulin and Mark of the Bloom
