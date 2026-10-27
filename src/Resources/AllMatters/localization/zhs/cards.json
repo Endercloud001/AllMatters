@@ -28,13 +28,13 @@
   "ALL_MATTERS_FASTING.title": "斋戒",
   "ALL_MATTERS_FASTING.description": "获得{Stats:diff()}点力量和敏捷。每回合开始时少获得1点能量。",
   "ALL_MATTERS_ALPHA.title": "阿尔法",
-  "ALL_MATTERS_ALPHA.description": "{IfUpgraded:show:固有。|}将一张贝塔放入抽牌堆。消耗。",
+  "ALL_MATTERS_ALPHA.description": "将一张贝塔放入抽牌堆。",
   "ALL_MATTERS_BETA.title": "贝塔",
-  "ALL_MATTERS_BETA.description": "将一张欧米伽放入抽牌堆。消耗。",
+  "ALL_MATTERS_BETA.description": "将一张欧米伽放入抽牌堆。",
   "ALL_MATTERS_OMEGA.title": "欧米伽",
   "ALL_MATTERS_OMEGA.description": "在你的回合结束时，对所有敌人造成{EndDamage:diff()}点伤害。",
   "ALL_MATTERS_FOREIGN_INFLUENCE.title": "他山之石",
   "ALL_MATTERS_FOREIGN_INFLUENCE.description": "从3张其他角色的{IfUpgraded:show:升级过的|}技能牌中选择1张加入手牌。本回合其耗能为0。",
   "ALL_MATTERS_OMNISCIENCE.title": "通晓万物",
-  "ALL_MATTERS_OMNISCIENCE.description": "选择抽牌堆中的一张牌。将其打出两次，然后消耗。本牌消耗。"
+  "ALL_MATTERS_OMNISCIENCE.description": "选择抽牌堆中的一张牌。将其打出两次，然后消耗。"
 }

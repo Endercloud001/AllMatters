@@ -49,7 +49,9 @@ public sealed class PreservedInsect : ModRelicTemplate
         IconPath: "res://AllMatters/images/relics/preserved_insect.png",
         IconOutlinePath: "res://AllMatters/images/relics/outlines/preserved_insect.png",
         BigIconPath: "res://AllMatters/images/relics/preserved_insect.png");
-    protected override IEnumerable<IHoverTip> AdditionalHoverTips => [HoverTipFactory.FromPower<ShrinkPower>()];
+    // The native generic Shrink tooltip hardcodes three turns, regardless of amount.
+    protected override IEnumerable<IHoverTip> AdditionalHoverTips =>
+        [new HoverTip(ModelDb.Power<ShrinkPower>(), new MegaCrit.Sts2.Core.Localization.LocString("relics", Id.Entry + ".shrinkDescription").GetFormattedText(), isSmart: false)];
     public override async Task BeforeCombatStart()
     {
         foreach (var enemy in Owner.Creature.CombatState!.Enemies.Where(c => EnemyIdentity.Kind(c) == RoomType.Elite).ToArray())

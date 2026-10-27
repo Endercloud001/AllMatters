@@ -28,13 +28,13 @@
   "ALL_MATTERS_FASTING.title": "Fasting",
   "ALL_MATTERS_FASTING.description": "Gain {Stats:diff()} Strength and Dexterity. Gain 1 less Energy at the start of each turn.",
   "ALL_MATTERS_ALPHA.title": "Alpha",
-  "ALL_MATTERS_ALPHA.description": "{IfUpgraded:show:Innate. |}Shuffle a Beta into your draw pile. Exhaust.",
+  "ALL_MATTERS_ALPHA.description": "Shuffle a Beta into your draw pile.",
   "ALL_MATTERS_BETA.title": "Beta",
-  "ALL_MATTERS_BETA.description": "Shuffle an Omega into your draw pile. Exhaust.",
+  "ALL_MATTERS_BETA.description": "Shuffle an Omega into your draw pile.",
   "ALL_MATTERS_OMEGA.title": "Omega",
   "ALL_MATTERS_OMEGA.description": "At the end of your turn, deal {EndDamage:diff()} damage to ALL enemies.",
   "ALL_MATTERS_FOREIGN_INFLUENCE.title": "Foreign Influence",
   "ALL_MATTERS_FOREIGN_INFLUENCE.description": "Choose 1 of 3 {IfUpgraded:show:upgraded |}Skills from other characters to add to your hand. It costs 0 this turn.",
   "ALL_MATTERS_OMNISCIENCE.title": "Omniscience",
-  "ALL_MATTERS_OMNISCIENCE.description": "Choose a card in your draw pile. Play it twice, then Exhaust it. Exhaust."
+  "ALL_MATTERS_OMNISCIENCE.description": "Choose a card in your draw pile. Play it twice, then Exhaust it."
 }

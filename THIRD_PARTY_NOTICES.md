@@ -115,3 +115,5 @@ The six colorless portraits (#42) are unchanged owned STS1 entries `images/1024P
 Omniscience (#43) uses the unchanged owned STS1 portrait `images/1024Portraits/purple/skill/omniscience.png`; Mega Crit/original artists retain ownership.
 
 - #44: Omamori, Preserved Insect and Inserter icons and outlines are extracted from the locally owned Slay the Spire `desktop-1.0.jar` (`images/relics/` and `images/relics/outline/`); original assets belong to Mega Crit.
+
+The #44 feedback correction crops excess transparent padding from the owned `images/largeRelics/{omamori,insect,inserter}.png` sources and scales them to 128px canvases with a small margin; aligned outlines are derived from their alpha masks. Original artwork ownership is unchanged.
