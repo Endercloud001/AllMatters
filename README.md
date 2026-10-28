@@ -13,10 +13,17 @@
 
 ## 安装与更新
 
-需要游戏本体，以及独立安装的 **RitsuLib 0.6.7 完整 variant-pack**。依赖来源见 [参考与依赖记录](docs/references.md)。
+从 [GitHub Releases](https://github.com/Endercloud001/AllMatters/releases/tag/v0.1.1-preview.1) 下载 **v0.1.1 预览版**。普通玩家无需下载源码或安装开发工具；GitHub 自动生成的 “Source code” 压缩包不是可安装模组。
 
-1. 退出游戏，选择与游戏分支对应的 AllMatters 包；自行构建时，输出为 `dist/<branch>/AllMatters/`。
-2. 将整个 `AllMatters` 目录复制到游戏的 `mods/` 目录。更新时替换旧版对应文件，并保留 DLL、JSON、PCK、许可证及来源声明。
+| 游戏分支 / 已验证的目标版本 | 安装包 |
+| --- | --- |
+| public / 0.107.1 | [AllMatters-v0.1.1-public.zip](https://github.com/Endercloud001/AllMatters/releases/download/v0.1.1-preview.1/AllMatters-v0.1.1-public.zip) |
+| public-beta / 0.111.0 | [AllMatters-v0.1.1-public-beta.zip](https://github.com/Endercloud001/AllMatters/releases/download/v0.1.1-preview.1/AllMatters-v0.1.1-public-beta.zip) |
+
+上表是构建与自动化测试的目标版本，游戏更新后请先核对兼容性。需要游戏本体，以及独立安装的 [RitsuLib 0.6.7 完整 variant-pack](https://github.com/BAKAOLC/STS2-RitsuLib/releases/download/v0.6.7/STS2-RitsuLib.0.6.7.variant-pack.zip)。不要下载 NuGet 包或单个 compat DLL 代替完整依赖。来源见 [参考与依赖记录](docs/references.md)。
+
+1. 退出游戏，下载与游戏分支对应的 AllMatters 包并解压。解压后应直接得到 `AllMatters/` 文件夹；自行构建时，输出为 `dist/<branch>/AllMatters/`。
+2. 从 Steam 的游戏“管理 → 浏览本地文件”找到安装目录；若没有 `mods/`，先创建它。将整个 `AllMatters` 目录复制到 `mods/`，确保路径为 `mods/AllMatters/AllMatters.json`，避免多套一层文件夹。更新时替换旧版对应文件，并保留 DLL、JSON、PCK、许可证及来源声明。
 3. 将完整 RitsuLib 包安装到 `mods/STS2-RitsuLib/`，保留 `compat`、`shared`、`assets.zip` 等内容，不要仅复制单个 DLL。
 4. 通过 Steam 启动游戏，在模组列表中启用 RitsuLib 与 AllMatters。
 
