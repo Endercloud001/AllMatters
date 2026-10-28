@@ -30,6 +30,6 @@ Balance MOD 的自定义 Relics 目录不包括原生 RedMask；事件直接引�
 - [Steam 分支元数据查询](https://api.steamcmd.net/v1/info/2868840)，供参考；游戏本地 release_info.json 与 appmanifest 是实际安装版本的依据。
 - [公开版 v0.107.1 官方公告](https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1835871199305790)，上游文档保存在 docs/official-news/2026-06-19-major-update-2-v0-107-1/original.md。
 
-默认公开分支已补齐 GitHub 来源的实际程序集和双版本引用包；来源核对、API 差异及编译证据见 [双分支 API 调查](research/dual-branch-api.md)。仍未准备完整 public 游戏环境，也未进行游戏内兼容验证。
+默认公开分支已补齐 GitHub 来源的实际程序集和双版本引用包；来源核对、API 差异及编译证据见 双分支 API 调查（本地记录：`docs/research/dual-branch-api.md`，不随仓库分发）。仍未准备完整 public 游戏环境，也未进行游戏内兼容验证。
 
 当前本机资料已迁至仓库根目录的 `.local/`，旧 `docs/local/` 与 `docs/references/` 仅保留兼容入口。后续下载和工具配置使用新路径，使资料不随文档 junction 的切换而失联。

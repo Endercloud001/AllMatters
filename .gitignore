@@ -9,3 +9,18 @@ docs/references/
 docs/local/
 .scratch/
 .local/
+
+# Local planning, research and manual acceptance evidence (not needed to build).
+/docs/specs/
+/docs/tickets/
+/docs/research/
+/docs/testing/
+
+# Editor caches and machine-specific credentials.
+/.idea/
+Thumbs.db
+.DS_Store
+.env
+.env.*
+!.env.example
+!.env.sample

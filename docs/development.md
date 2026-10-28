@@ -10,7 +10,7 @@
 - [Steam 分支查询](https://api.steamcmd.net/v1/info/2868840)：public Build ID 23811903；public-beta Build ID 24724944。公开版 v0.107.1 的实际 DLL 已从 GitHub 开发仓库获取，并用其 ProductVersion 的构建提交号与同仓库 release_info.json 交叉核对。文件位于 `.local/api/public-github-0.107.1/`，仅作本地开发参考；尚无完整 public 游戏安装。另已准备两版 NuGet API 引用包。
 - RitsuLib：0.6.7；完整 variant-pack 位于 `.local/dependencies/RitsuLib-0.6.7/`，牧师实现已加入对应目标引用和 manifest 依赖。`RitsuLibDir` 可覆盖此默认路径；编译引用 compat/0.107.1 或 compat/0.111.0，运行时安装完整包。
 
-分支信息会变化。每次准备发布时重查，记录实际测试版本。两目标骨架均已构建通过；这不能证明玩法兼容或游戏内加载通过。详见 [API 调查与证据](research/dual-branch-api.md)。
+分支信息会变化。每次准备发布时重查，记录实际测试版本。两目标骨架均已构建通过；这不能证明玩法兼容或游戏内加载通过。详见 API 调查与证据（本地记录：`docs/research/dual-branch-api.md`，不随仓库分发）。
 
 ## 构建
 
@@ -26,11 +26,11 @@ Paths.local.props 不提交 Git；PublicGameDataDir 与 BetaGameDataDir 分别�
 
 输出按分支隔离到 `dist/<branch>/AllMatters/`；构建不会自动写游戏目录。现在包含 DLL、manifest、PCK、GPLv3 LICENSE 和来源声明。构建脚本先导入 `src/Resources/`，再用 `src/Tooling/PackResources.gd` 的原生 `PCKPacker` 打包纹理导入文件及原样场景/Spine 资源，不依赖 Windows 导出模板。`tools/ExportResources.ps1` 可单独运行；`tools/Test.ps1` 也会先导出最新 PCK。
 
-需要本机验证时，由用户将开发包复制到游戏 `mods/AllMatters/`，将完整 RitsuLib variant-pack 另装到 `mods/STS2-RitsuLib/`，再通过 Steam 启动游戏。不要只复制 compat 下的单个 DLL。Agent 的安装与实测边界见根目录 `AGENTS.md`。独立测试项目不参与 Mod 打包。牧师的手动验收及环境准备见 [牧师验证记录](testing/cleric.md)；你好世界既有用户验收见 [原验证记录](testing/hello-world.md)。
+需要本机验证时，由用户将开发包复制到游戏 `mods/AllMatters/`，将完整 RitsuLib variant-pack 另装到 `mods/STS2-RitsuLib/`，再通过 Steam 启动游戏。不要只复制 compat 下的单个 DLL。Agent 的安装与实测边界见根目录 `AGENTS.md`。独立测试项目不参与 Mod 打包。牧师的手动验收及环境准备见 牧师验证记录（本地记录：`docs/testing/cleric.md`，不随仓库分发）；你好世界既有用户验收见 原验证记录（本地记录：`docs/testing/hello-world.md`，不随仓库分发）。
 
 默认公开版完整运行环境的准备：可通过 Steam 切换至默认分支，退出游戏后准备独立开发副本，再切回 public-beta。GitHub 下载的 DLL 足以进行本轮方法体检查和编译，但没有 PCK、原生库等完整环境，不能用于启动游戏验收。本次未切换 Steam 分支或修改存档；已更新 mods 中的 AllMatters 并安装 RitsuLib，原 AllMatters 已备份。
 
-你好世界的无界面测试使用目标分支真实游戏程序集、Godot 原生运行环境及本机 beta 资源包，测试命令和替代的宿主边界见 [验证记录](testing/hello-world.md)。两个分支测试按顺序运行，不能并行使用同一测试输出目录。
+你好世界的无界面测试使用目标分支真实游戏程序集、Godot 原生运行环境及本机 beta 资源包，测试命令和替代的宿主边界见 验证记录（本地记录：`docs/testing/hello-world.md`，不随仓库分发）。两个分支测试按顺序运行，不能并行使用同一测试输出目录。
 
 ## 测试
 
@@ -80,7 +80,7 @@ Agent 完成适当的自动化测试和两目标构建后，向用户提供 `dis
 
 用户反馈写回对应功能验证记录，分别标明自动化、资源加载和用户实测的证据；本票完成条件按 issue 验收范围判断，完整 public、真实联机或回放等集成工作仅在其确为本票要求时阻塞完成。历史记录中的 Agent 部署只描述当时行为，不作为后续操作流程。
 
-测试宿主接入 RitsuLib 时，沿用 `src/Tests/HelloWorldTests.cs` 的已验证初始化顺序；变更宿主后先复验受影响的既有行为。牧师接入中曾因宿主生命周期替代安装晚于框架预备方法而导致 public 回归失败，证据见 [牧师验证记录](testing/cleric.md)。
+测试宿主接入 RitsuLib 时，沿用 `src/Tests/HelloWorldTests.cs` 的已验证初始化顺序；变更宿主后先复验受影响的既有行为。牧师接入中曾因宿主生命周期替代安装晚于框架预备方法而导致 public 回归失败，证据见 牧师验证记录（本地记录：`docs/testing/cleric.md`，不随仓库分发）。
 
 ## API 查询
 
@@ -121,3 +121,11 @@ Agent 完成适当的自动化测试和两目标构建后，向用户提供 `dis
 `.local/` 保存依赖、API 资料、运行工具与日志，路径不经过 `docs/`。本机旧 `docs/local/`、`docs/references/` 保留兼容入口，新的默认值和 Paths.local.props 均使用 `.local/`。历史测试日志中的旧路径不重写。切换分支后若 docs junction 被 Git 替换为普通目录，先保留文档改动再恢复 junction；本机依赖仍可直接从 `.local/` 使用。
 
 不运行上游项目，避免其自动部署、更新 API stub 等构建副作用。升级 RitsuLib 时需先验证版本与两分支 API，再调整引用及对应 manifest，不直接照搬上游的浮动包版本和自动部署脚本。
+
+## Git 同步范围
+
+仓库保留源码、自动化测试、资源及其 Godot 导入配置、构建工具、使用与构建文档、玩法范围、许可证和 Agent 安全约定。`src/Tests/` 与 `tools/Tests/` 是可执行测试，继续纳入版本控制；`.import` 与 `.uid` 是资源配置和身份信息，继续保留。
+
+`docs/specs/`、`docs/tickets/`、`docs/research/`、`docs/testing/` 保存本地规格、工单草稿、调查和手动验收材料，不随仓库分发。共享任务以 GitHub Issues 为入口。新 clone 不包含这些本地材料，构建和自动化测试不依赖它们；Agent 查不到本地规格时从对应 Issue 和玩法范围获取需求。已有验收结论不因取消跟踪而扩大，README 中尚待验证的范围仍然有效。
+
+`.local/`、`.scratch/`、本机路径配置、构建产物、缓存和环境密钥文件由 `.gitignore` 排除。已经跟踪的文件仅添加忽略规则不会停止同步，需使用 `git rm --cached` 取消跟踪并提交；本地文件继续保留。这类调整仅改变后续提交，不清理历史提交、其他分支或既有发布附件。

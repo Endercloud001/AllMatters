@@ -23,8 +23,8 @@
 | 该升级哪个对象，满手牌时如何处理 | `CombatState.CreateCard`；`CardCmd.Upgrade`；`CardPileCmd.AddGeneratedCardsToCombat`、`Add` | public 源码及两版测试确认本调整升级生成实例后交给原版命令，模板未改变；满手牌由原命令处理溢出。直接改模板、手工塞入牌堆会绕过原流程。 |
 | 单卡查看升级为何与牌组列表颜色不同 | `CardModel.GetDescriptionForPile`、`GetDescriptionForUpgradePreview`；`IfUpgradedVar`；`ShowIfUpgradedFormatter` | beta 格式化器在 UpgradePreview 中给整个选中分支加绿色标签；应把实际变化的词语放在需要高亮的范围内。两分支中英文回归测试已覆盖你好世界的普通、升级和预览输出。 |
 | 新模型需要怎样注册 | `ModManager` 加载程序集；`ReflectionHelper.GetSubtypesInMods`；`ModelDb.AllAbstractModelSubtypes`、`Init`、`InitIds` | public 方法体包含 Mod 子类型发现；beta 实机已加载本 Mod 两类能力。你好世界调整使用原生发现即可；事件注册及 Godot 脚本注册仍按具体功能查证，不据此默认添加框架依赖。 |
-| 事件战斗后如何恢复原事件 | `EventRoom`、`CombatRoom`、`EventModel`、`RunManager`、事件同步器、回放写入器 | 两分支存在实际内部流程差异。直接阅读 [连续事件战斗调查](research/dual-branch-api.md#连续事件战斗的具体风险)，不要将相同方法名视为相同时序。 |
-| 垃圾堆追加内容或将事件实体迁入正常池 | `src/Events/TrashHeapCandidates.cs`；`src/Cards/TrashHeapPoolMigration.cs`；原生 `CardPoolModel`、`RelicPoolModel` | #40–#44 通过 `RegisterCards/RegisterRelics` 各注册一次候选提供者，按模型 ID 合并。提供者只枚举候选，角色过滤由分组完成，RNG 在选择结算时消费。迁池同时检查实际池、稀有度与解锁/人数/生成限制；原生卡图路径依赖 Pool，迁移牌仍需指向原 event 素材。见 [#39 记录](testing/trash-heap.md)。 |
+| 事件战斗后如何恢复原事件 | `EventRoom`、`CombatRoom`、`EventModel`、`RunManager`、事件同步器、回放写入器 | 两分支存在实际内部流程差异。直接阅读 连续事件战斗调查（本地记录：`docs/research/dual-branch-api.md`，不随仓库分发），不要将相同方法名视为相同时序。 |
+| 垃圾堆追加内容或将事件实体迁入正常池 | `src/Events/TrashHeapCandidates.cs`；`src/Cards/TrashHeapPoolMigration.cs`；原生 `CardPoolModel`、`RelicPoolModel` | #40–#44 通过 `RegisterCards/RegisterRelics` 各注册一次候选提供者，按模型 ID 合并。提供者只枚举候选，角色过滤由分组完成，RNG 在选择结算时消费。迁池同时检查实际池、稀有度与解锁/人数/生成限制；原生卡图路径依赖 Pool，迁移牌仍需指向原 event 素材。见 #39 记录（本地记录：`docs/testing/trash-heap.md`，不随仓库分发）。 |
 | 无界面测试如何加载原生卡图和遗物图 | `HeadlessTestSetup.LoadAtlases`；原生 `AtlasManager`、`AtlasResourceLoader` | 复用 `src/Tests/HeadlessCombatHost.cs` 的资源作用域，离开后撤销加载器。原版贴图可能来自图集或 beta PNG，仅以独立 PNG 缺失不能判定无图；确认具体贴图可加载。准备入口与双目标命令见 [开发环境](development.md#测试)。 |
 
 ## 读取顺序
@@ -35,4 +35,4 @@
 4. 复用现有 Godot 测试宿主验证一个最小例子；全局生命周期替代、资源来源和未执行的真实游戏步骤写入验证记录。
 5. 代码可回答的事实由 Agent 查证；只将玩法取舍交给用户。验收收尾时约定可观察接口、测试场景、版本及审查起点，后续实现沿用。
 
-本轮具体测试宿主、限制与实机结果见 [你好世界验证记录](testing/hello-world.md)；分支差异总览见 [双分支调查](research/dual-branch-api.md)，框架接入候选见 [RitsuLib 调查](research/ritsulib-compatibility.md)。历史调查的“本轮未验证”只描述该调查当时的状态，后续功能结果以对应验证记录为准。
+本轮具体测试宿主、限制与实机结果见 你好世界验证记录（本地记录：`docs/testing/hello-world.md`，不随仓库分发）；分支差异总览见 双分支调查（本地记录：`docs/research/dual-branch-api.md`，不随仓库分发），框架接入候选见 RitsuLib 调查（本地记录：`docs/research/ritsulib-compatibility.md`，不随仓库分发）。历史调查的“本轮未验证”只描述该调查当时的状态，后续功能结果以对应验证记录为准。
