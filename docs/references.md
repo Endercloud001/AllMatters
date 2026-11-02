@@ -33,3 +33,9 @@ Balance MOD 的自定义 Relics 目录不包括原生 RedMask；事件直接引�
 默认公开分支已补齐 GitHub 来源的实际程序集和双版本引用包；来源核对、API 差异及编译证据见 双分支 API 调查（本地记录：`docs/research/dual-branch-api.md`，不随仓库分发）。仍未准备完整 public 游戏环境，也未进行游戏内兼容验证。
 
 当前本机资料已迁至仓库根目录的 `.local/`，旧 `docs/local/` 与 `docs/references/` 仅保留兼容入口。后续下载和工具配置使用新路径，使资料不随文档 junction 的切换而失联。
+
+## 自动拼图算法研究（2026-11-03）
+
+决策与证明：[docs/research/v0.1.2-jigsaw-generation.md](research/v0.1.2-jigsaw-generation.md)，独立 `research/jigsaw-generation` 分支。来源逐项版本/许可证/路径/可复用范围/依赖与证据见 [算法来源比较](research/v0.1.2-jigsaw-algorithm-sources.md)；[构造证明](research/v0.1.2-jigsaw-constructive.md)；[Mysterious Map审计](research/v0.1.2-jigsaw-reference-audit.md)。
+
+第三方源码仍只读保存在 `.local/references/`，不执行其构建脚本。用户本次明确授权参考 Mysterious Map 源码；这不是上游补发通用开源许可证，不将早期未发现 LICENSE 改记为 MIT/GPL。其他实现各自遵循其许可证。研究只输出技术决策与必要最小验证，不提供正式生成器。
