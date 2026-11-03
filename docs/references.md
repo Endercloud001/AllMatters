@@ -36,6 +36,8 @@ Balance MOD 的自定义 Relics 目录不包括原生 RedMask；事件直接引�
 
 ## 自动拼图算法研究（2026-11-03）
 
+后续用户增补：自动必须用上所有含休息处的碎块；Boss 碎块若直连先古之民，须同时直连至少两个不同其他碎块。研究与可视页面已按此修订，旧四块全在先古另一侧的构造不再可作新规则回退。新增最小实验 [休息处与 Boss 邻块约束](research/jigsaw_rest_constraints_experiment.py) 与旧满额度实验分开记录。
+
 同日用户修订：自动结果须提供满额度探索走法（先 B−1 个不同非 Boss 碎块节点，再第 B 步进入单／第一 Boss），允许捷径、手动不变。相关研究笔记已同步；旧单块见证仅用于原规则/手动合法性说明，不再作为自动成功回退。新增验证为项目规则推导与最小实验，无第三方依赖或正式生成器。
 
 决策与证明：[docs/research/v0.1.2-jigsaw-generation.md](research/v0.1.2-jigsaw-generation.md)，独立 `research/jigsaw-generation` 分支。来源逐项版本/许可证/路径/可复用范围/依赖与证据见 [算法来源比较](research/v0.1.2-jigsaw-algorithm-sources.md)；[构造证明](research/v0.1.2-jigsaw-constructive.md)；[Mysterious Map审计](research/v0.1.2-jigsaw-reference-audit.md)。
