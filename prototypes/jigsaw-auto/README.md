@@ -54,3 +54,5 @@ python -X utf8 prototypes/jigsaw-auto/build-review.py
 - 用户尚未参与本原型体验。完整负例、搜索完备边界及体验仍是开放工作；当前不能发布resolution或关闭本票。
 
 机器：Windows / AMD Ryzen 9 7945HX；Node v24.11.1、Python3.10.8。实验不执行第三方构建、不启动游戏/Steam、不复制mods、不新增hash/contract/baseline/gate。
+
+补充计时边界：P50/P95是Node候选搜索时间，不含离线Python独立验收，亦非完整交互等待。浏览器72项选择切换无JS错误，桌面与390px手机无横向溢出；截图及browser-results.json仅证明页面运行情况，不替代用户体验。
