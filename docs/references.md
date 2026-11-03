@@ -33,3 +33,11 @@ Balance MOD 的自定义 Relics 目录不包括原生 RedMask；事件直接引�
 默认公开分支已补齐 GitHub 来源的实际程序集和双版本引用包；来源核对、API 差异及编译证据见 双分支 API 调查（本地记录：`docs/research/dual-branch-api.md`，不随仓库分发）。仍未准备完整 public 游戏环境，也未进行游戏内兼容验证。
 
 当前本机资料已迁至仓库根目录的 `.local/`，旧 `docs/local/` 与 `docs/references/` 仅保留兼容入口。后续下载和工具配置使用新路径，使资料不随文档 junction 的切换而失联。
+
+## 拼图更新：追猎入口调查（2026-11-03）
+
+- 调查总表：[追猎惩罚与计步显示](research/v0.1.2-hunting-entrypoints.md)；[前两幕逐敌](research/v0.1.2-hunting-enemies-acts12.md)、[第三幕及战斗语义](research/v0.1.2-hunting-act3-combat.md)、[商店/休息/宝箱](research/v0.1.2-hunting-services.md)。只阅读/做最小探针，不作正式功能开发。
+- 规则一手来源：[追猎完整resolution](https://github.com/Endercloud001/AllMatters/issues/63#issuecomment-6584771226)、[研究交接](https://github.com/Endercloud001/AllMatters/issues/66#issuecomment-6584801536)、[探索修订](https://github.com/Endercloud001/AllMatters/issues/60#issuecomment-6561590367)、[多人resolution](https://github.com/Endercloud001/AllMatters/issues/62#issuecomment-6562130914)。本地未提交原稿仅作辅助。
+- 真实方法体：public v0.107.1/59260271 与 public-beta v0.111.0/41cef1ea，主工作区 `.local/api/queries/{public-v0.107.1,public-beta-v0.111.0}/` 和既有 v012-coop 导出。游戏专有接口仅本地分析，不分发反编译源码；准确方法及版本差异见笔记。
+- 本Mod `src/Relics/NlothsHungryFace.cs`、`NlothTreasure.cs` 和现有敌人代码为GPL-3.0复用候选，仍需修正非奖励任务路径；不能把现有空箱直接视为完整满足新规则。
+- ActsFromThePast为第三方移植归档，根LICENSE未明，不是STS1原始源码；无独立.git，不能把git向父目录找到的AllMatters提交号写作上游版本。RitsuLib为MIT归档，当前包API须另核。用户PNG仍位于主工作区 `docs/research/assets/hunting/`，本轮不把游戏或第三方素材复制为新正式资源。

@@ -1,0 +1,3 @@
+public-v0.107.1 PASS source-order: save < resolve < enter; victory-hook < prefinished < CombatWon; Obtain delegates AddRelicInternal
+public-beta-v0.111.0 PASS source-order: save < resolve < enter; victory-hook < prefinished < CombatWon; Obtain delegates AddRelicInternal
+Static source checks only: no compile, gameplay, multiplayer or restore claim.

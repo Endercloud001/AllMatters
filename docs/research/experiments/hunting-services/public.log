@@ -1,0 +1,11 @@
+  正在确定要还原的项目…
+  已还原 E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_research66\docs\research\experiments\hunting-services\Probe.csproj (用时 58 毫秒)。
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_research66\docs\research\experiments\hunting-services\Probe.cs(11,14): error CS1061: “RestSiteSynchronizer”未包含“AfterAllRestSitesCompleted”的定义，并且找不到可接受第一个“RestSiteSynchronizer”类型参数的可访问扩展方法“AfterAllRestSitesCompleted”(是否缺少 using 指令或程序集引用?) [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_research66\docs\research\experiments\hunting-services\Probe.csproj]
+
+生成失败。
+
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_research66\docs\research\experiments\hunting-services\Probe.cs(11,14): error CS1061: “RestSiteSynchronizer”未包含“AfterAllRestSitesCompleted”的定义，并且找不到可接受第一个“RestSiteSynchronizer”类型参数的可访问扩展方法“AfterAllRestSitesCompleted”(是否缺少 using 指令或程序集引用?) [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_research66\docs\research\experiments\hunting-services\Probe.csproj]
+    0 个警告
+    1 个错误
+
+已用时间 00:00:03.03

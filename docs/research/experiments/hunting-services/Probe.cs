@@ -1,0 +1,17 @@
+using System.Threading.Tasks;
+using MegaCrit.Sts2.Core.Entities.Merchant;
+using MegaCrit.Sts2.Core.Entities.RestSite;
+using MegaCrit.Sts2.Core.Rewards;
+using MegaCrit.Sts2.Core.Rooms;
+using MegaCrit.Sts2.Core.Multiplayer.Game;
+public static class Probe {
+ public static async Task Check(MerchantEntry entry, MerchantInventory inventory, MerchantCardRemovalEntry removal, RestSiteOption option, RestSiteSynchronizer rest, TreasureRoomRelicSynchronizer treasure, RewardsSet rewards, TreasureRoom room) {
+  _ = entry.Cost; _ = inventory.Player; _ = removal.Used; removal.CalcCost();
+  _ = option.IsEnabled; _ = option.OptionId;
+  #if BETA
+  await rest.AfterAllRestSitesCompleted();
+#endif
+  treasure.SkipRelicLocally();
+  await rewards.GenerateWithoutOffering(); rewards.Rewards.Clear(); _ = room.RoomType;
+ }
+}
