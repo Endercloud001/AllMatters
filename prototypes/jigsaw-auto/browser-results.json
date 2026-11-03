@@ -1,0 +1,12 @@
+{
+  "cases": 72,
+  "errors": [],
+  "desktop": {
+    "nodes": 57,
+    "overflow": false,
+    "evidence": "种子 1 · SAT · 14块 / 54非Boss节点 · 最短Boss距离3 · 扩展212 · 85.24ms · 房型 {\"neow\":1,\"monster\":18,\"boss\":1,\"boss2\":1,\"rest\":6,\"shop\":4,\"unknown\":16,\"chest\":4,\"elite\":6}。记录回放，不是原生过场或实时求解。"
+  },
+  "mobile": {
+    "overflow": false
+  }
+}

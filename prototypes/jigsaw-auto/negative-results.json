@@ -1,0 +1,364 @@
+[
+  {
+    "name": "controlled 0 B15",
+    "auto": true,
+    "B": 15,
+    "expected": true,
+    "actual": true,
+    "reason": "accepted"
+  },
+  {
+    "name": "controlled 0 B14",
+    "auto": true,
+    "B": 14,
+    "expected": true,
+    "actual": true,
+    "reason": "accepted"
+  },
+  {
+    "name": "controlled 0 B13",
+    "auto": true,
+    "B": 13,
+    "expected": true,
+    "actual": true,
+    "reason": "accepted"
+  },
+  {
+    "name": "single fragment manual 0",
+    "auto": false,
+    "B": 15,
+    "expected": true,
+    "actual": true,
+    "reason": "accepted"
+  },
+  {
+    "name": "single fragment automatic 0",
+    "auto": true,
+    "B": 15,
+    "expected": false,
+    "actual": false,
+    "reason": "missing rest fragment"
+  },
+  {
+    "name": "missing rest fragment 0",
+    "auto": true,
+    "B": 15,
+    "expected": false,
+    "actual": false,
+    "reason": "missing rest fragment"
+  },
+  {
+    "name": "capacity upper boundary 0",
+    "auto": true,
+    "B": 17,
+    "expected": false,
+    "actual": false,
+    "reason": "full budget capacity"
+  },
+  {
+    "name": "capacity exact boundary 0",
+    "auto": true,
+    "B": 16,
+    "expected": true,
+    "actual": true,
+    "reason": "accepted"
+  },
+  {
+    "name": "shortest-distance violation 0",
+    "auto": false,
+    "B": 2,
+    "expected": false,
+    "actual": false,
+    "reason": "step limit"
+  },
+  {
+    "name": "duplicate edge 0",
+    "auto": true,
+    "B": 15,
+    "expected": false,
+    "actual": false,
+    "reason": "duplicate/invalid edge"
+  },
+  {
+    "name": "isolated ordinary nodes 0",
+    "auto": true,
+    "B": 15,
+    "expected": false,
+    "actual": false,
+    "reason": "connectivity"
+  },
+  {
+    "name": "changed room 0",
+    "auto": true,
+    "B": 15,
+    "expected": false,
+    "actual": false,
+    "reason": "room mutation"
+  },
+  {
+    "name": "changed shape spacing 0",
+    "auto": true,
+    "B": 15,
+    "expected": false,
+    "actual": false,
+    "reason": "rotation/spacing"
+  },
+  {
+    "name": "deleted fixed edge 0",
+    "auto": true,
+    "B": 15,
+    "expected": false,
+    "actual": false,
+    "reason": "missing internal/pair cap"
+  },
+  {
+    "name": "external Boss edge 0",
+    "auto": true,
+    "B": 15,
+    "expected": false,
+    "actual": false,
+    "reason": "external boss/owner"
+  },
+  {
+    "name": "partial fragment 0",
+    "auto": true,
+    "B": 15,
+    "expected": false,
+    "actual": false,
+    "reason": "whole fragments"
+  },
+  {
+    "name": "duplicate fragment 0",
+    "auto": true,
+    "B": 15,
+    "expected": false,
+    "actual": false,
+    "reason": "duplicate/unknown ID"
+  },
+  {
+    "name": "tampered pool quota 0",
+    "auto": true,
+    "B": 15,
+    "expected": false,
+    "actual": false,
+    "reason": "pool quota"
+  },
+  {
+    "name": "old four-piece manual 0",
+    "auto": false,
+    "B": 15,
+    "expected": true,
+    "actual": true,
+    "reason": "accepted"
+  },
+  {
+    "name": "old four-piece automatic missing Boss neighbors 0",
+    "auto": true,
+    "B": 15,
+    "expected": false,
+    "actual": false,
+    "reason": "boss neighbors"
+  },
+  {
+    "name": "controlled 1 B15",
+    "auto": true,
+    "B": 15,
+    "expected": true,
+    "actual": true,
+    "reason": "accepted"
+  },
+  {
+    "name": "controlled 1 B14",
+    "auto": true,
+    "B": 14,
+    "expected": true,
+    "actual": true,
+    "reason": "accepted"
+  },
+  {
+    "name": "controlled 1 B13",
+    "auto": true,
+    "B": 13,
+    "expected": true,
+    "actual": true,
+    "reason": "accepted"
+  },
+  {
+    "name": "single fragment manual 1",
+    "auto": false,
+    "B": 15,
+    "expected": true,
+    "actual": true,
+    "reason": "accepted"
+  },
+  {
+    "name": "single fragment automatic 1",
+    "auto": true,
+    "B": 15,
+    "expected": false,
+    "actual": false,
+    "reason": "missing rest fragment"
+  },
+  {
+    "name": "missing rest fragment 1",
+    "auto": true,
+    "B": 15,
+    "expected": false,
+    "actual": false,
+    "reason": "missing rest fragment"
+  },
+  {
+    "name": "capacity upper boundary 1",
+    "auto": true,
+    "B": 16,
+    "expected": false,
+    "actual": false,
+    "reason": "full budget capacity"
+  },
+  {
+    "name": "capacity exact boundary 1",
+    "auto": true,
+    "B": 15,
+    "expected": true,
+    "actual": true,
+    "reason": "accepted"
+  },
+  {
+    "name": "shortest-distance violation 1",
+    "auto": false,
+    "B": 2,
+    "expected": false,
+    "actual": false,
+    "reason": "step limit"
+  },
+  {
+    "name": "duplicate edge 1",
+    "auto": true,
+    "B": 15,
+    "expected": false,
+    "actual": false,
+    "reason": "duplicate/invalid edge"
+  },
+  {
+    "name": "isolated ordinary nodes 1",
+    "auto": true,
+    "B": 15,
+    "expected": false,
+    "actual": false,
+    "reason": "connectivity"
+  },
+  {
+    "name": "changed room 1",
+    "auto": true,
+    "B": 15,
+    "expected": false,
+    "actual": false,
+    "reason": "room mutation"
+  },
+  {
+    "name": "changed shape spacing 1",
+    "auto": true,
+    "B": 15,
+    "expected": false,
+    "actual": false,
+    "reason": "rotation/spacing"
+  },
+  {
+    "name": "deleted fixed edge 1",
+    "auto": true,
+    "B": 15,
+    "expected": false,
+    "actual": false,
+    "reason": "missing internal/pair cap"
+  },
+  {
+    "name": "external Boss edge 1",
+    "auto": true,
+    "B": 15,
+    "expected": false,
+    "actual": false,
+    "reason": "external boss/owner"
+  },
+  {
+    "name": "partial fragment 1",
+    "auto": true,
+    "B": 15,
+    "expected": false,
+    "actual": false,
+    "reason": "whole fragments"
+  },
+  {
+    "name": "duplicate fragment 1",
+    "auto": true,
+    "B": 15,
+    "expected": false,
+    "actual": false,
+    "reason": "duplicate/unknown ID"
+  },
+  {
+    "name": "tampered pool quota 1",
+    "auto": true,
+    "B": 15,
+    "expected": false,
+    "actual": false,
+    "reason": "pool quota"
+  },
+  {
+    "name": "old four-piece manual 1",
+    "auto": false,
+    "B": 15,
+    "expected": true,
+    "actual": true,
+    "reason": "accepted"
+  },
+  {
+    "name": "old four-piece automatic missing Boss neighbors 1",
+    "auto": true,
+    "B": 15,
+    "expected": false,
+    "actual": false,
+    "reason": "boss neighbors"
+  },
+  {
+    "name": "clearance monster/monster 1/0",
+    "expected": false,
+    "actual": false,
+    "reason": "independent pair predicate"
+  },
+  {
+    "name": "clearance monster/monster 1/1",
+    "expected": false,
+    "actual": false,
+    "reason": "independent pair predicate"
+  },
+  {
+    "name": "clearance monster/monster 2/0",
+    "expected": true,
+    "actual": true,
+    "reason": "independent pair predicate"
+  },
+  {
+    "name": "clearance boss/monster 2/2",
+    "expected": false,
+    "actual": false,
+    "reason": "independent pair predicate"
+  },
+  {
+    "name": "clearance boss/monster 3/0",
+    "expected": true,
+    "actual": true,
+    "reason": "independent pair predicate"
+  },
+  {
+    "name": "clearance boss/boss 3/3",
+    "expected": false,
+    "actual": false,
+    "reason": "independent pair predicate"
+  },
+  {
+    "name": "clearance boss/boss 4/0",
+    "expected": true,
+    "actual": true,
+    "reason": "independent pair predicate"
+  }
+]
