@@ -1,0 +1,30 @@
+Testing public-beta : 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32 [E:\SteamLibrary\steamapps\common\Slay the Spire 2\data_sts2_windows_x86_64\sts2.dll]
+  正在确定要还原的项目…
+  所有项目均是最新的，无法还原。
+  AllMatters -> E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\bin\public-beta\Debug\net9.0\AllMatters.dll
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\PrototypeHuntingTests.cs(30,113): error CS1061: “MonsterModel”未包含“IsAwake”的定义，并且找不到可接受第一个“MonsterModel”类型参数的可访问扩展方法“IsAwake”(是否缺少 using 指令或程序集引用?) [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\PrototypeHuntingTests.cs(30,135): error CS1061: “MonsterModel”未包含“IsShellAwake”的定义，并且找不到可接受第一个“MonsterModel”类型参数的可访问扩展方法“IsShellAwake”(是否缺少 using 指令或程序集引用?) [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\PrototypeHuntingTests.cs(32,143): error CS1061: “MonsterModel”未包含“IsAwake”的定义，并且找不到可接受第一个“MonsterModel”类型参数的可访问扩展方法“IsAwake”(是否缺少 using 指令或程序集引用?) [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\PrototypeHuntingTests.cs(32,169): error CS1061: “MonsterModel”未包含“IsShellAwake”的定义，并且找不到可接受第一个“MonsterModel”类型参数的可访问扩展方法“IsShellAwake”(是否缺少 using 指令或程序集引用?) [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\TrashHeapColorlessTests.cs(36,66): warning CS8625: 无法将 null 字面量转换为非 null 的引用类型。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\MaskedBanditsTests.cs(155,9): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\AllMatters.Tests.csproj]
+
+生成失败。
+
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\TrashHeapColorlessTests.cs(36,66): warning CS8625: 无法将 null 字面量转换为非 null 的引用类型。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\MaskedBanditsTests.cs(155,9): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\PrototypeHuntingTests.cs(30,113): error CS1061: “MonsterModel”未包含“IsAwake”的定义，并且找不到可接受第一个“MonsterModel”类型参数的可访问扩展方法“IsAwake”(是否缺少 using 指令或程序集引用?) [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\PrototypeHuntingTests.cs(30,135): error CS1061: “MonsterModel”未包含“IsShellAwake”的定义，并且找不到可接受第一个“MonsterModel”类型参数的可访问扩展方法“IsShellAwake”(是否缺少 using 指令或程序集引用?) [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\PrototypeHuntingTests.cs(32,143): error CS1061: “MonsterModel”未包含“IsAwake”的定义，并且找不到可接受第一个“MonsterModel”类型参数的可访问扩展方法“IsAwake”(是否缺少 using 指令或程序集引用?) [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\PrototypeHuntingTests.cs(32,169): error CS1061: “MonsterModel”未包含“IsShellAwake”的定义，并且找不到可接受第一个“MonsterModel”类型参数的可访问扩展方法“IsShellAwake”(是否缺少 using 指令或程序集引用?) [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\AllMatters.Tests.csproj]
+    2 个警告
+    4 个错误
+
+已用时间 00:00:04.02
+Exception: E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\tools\Test.ps1:36
+Line |
+  36 |  … DE -ne 0) { throw "Test build failed for $targetBranch (exit $LASTEXI …
+     |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | Test build failed for public-beta (exit 1).
+
+

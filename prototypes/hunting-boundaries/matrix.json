@@ -1,0 +1,304 @@
+{
+  "issue": "https://github.com/Endercloud001/AllMatters/issues/70",
+  "groups": [
+    {
+      "id": 1,
+      "rule": "1. 所有普通/事件专用战斗追加真菌兽/海洋混混/神秘术士；异蛙第五扭动虫、墨影两墨宝、族母左乐加维林、灵魂异鱼两随从、女王左两火炬头。逐场景记录Marker名字、布局宽度、意图/点击遮挡、资源可加载和确切容量限制；不可因槽位不足取消追加。",
+      "source": "https://github.com/Endercloud001/AllMatters/issues/63#issuecomment-6584771226",
+      "targets": [
+        "public v0.107.1",
+        "public-beta v0.111.0"
+      ],
+      "players": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "layer": "Godot真实API/行为；UI另需用户",
+      "input": "按rule逐子场景展开",
+      "expected": "满足引用规则全部边界",
+      "actual": "未运行",
+      "exitStatus": null,
+      "logs": [],
+      "status": "todo",
+      "gap": "全部子场景待运行；不由已有通用测试推定通过"
+    },
+    {
+      "id": 2,
+      "rule": "2. 真菌兽首手、两噬咬必生长、40/60分支、死亡被阻止/最后敌人死亡易伤；神秘术士独立六选一/空受伤集合/同伴和自身随机。",
+      "source": "https://github.com/Endercloud001/AllMatters/issues/63#issuecomment-6584771226",
+      "targets": [
+        "public v0.107.1",
+        "public-beta v0.111.0"
+      ],
+      "players": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "layer": "Godot真实API/行为；UI另需用户",
+      "input": "按rule逐子场景展开",
+      "expected": "满足引用规则全部边界",
+      "actual": "未运行",
+      "exitStatus": null,
+      "logs": [],
+      "status": "todo",
+      "gap": "全部子场景待运行；不由已有通用测试推定通过"
+    },
+    {
+      "id": 3,
+      "rule": "3. 逐敌执行第一/二幕研究表：再生、苏醒、五虫奇偶首次实际行动、墨宝原起手、咆哮全体状态、神官2层、胆小9、硬化20+覆甲6、骇鳗99虚弱、族母缩放后满血减半不唤醒、爪牙随从、瀑布保留正面和隐藏状态/清负力量敏捷/人工制品。",
+      "source": "https://github.com/Endercloud001/AllMatters/issues/63#issuecomment-6584771226",
+      "targets": [
+        "public v0.107.1",
+        "public-beta v0.111.0"
+      ],
+      "players": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "layer": "Godot真实API/行为；UI另需用户",
+      "input": "按rule逐子场景展开",
+      "expected": "满足引用规则全部边界",
+      "actual": "未运行",
+      "exitStatus": null,
+      "logs": [],
+      "status": "todo",
+      "gap": "全部子场景待运行；不由已有通用测试推定通过"
+    },
+    {
+      "id": 4,
+      "rule": "4. 无厌首手沙坑5及两个牌堆各4卡；知识恶魔三次每存活玩家选择、柔嫩/劫难展示适配（Calamity原卡无IChoosable）、伤害意图及治疗20；展示牌不得进入牌组。",
+      "source": "https://github.com/Endercloud001/AllMatters/issues/63#issuecomment-6584771226",
+      "targets": [
+        "public v0.107.1",
+        "public-beta v0.111.0"
+      ],
+      "players": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "layer": "Godot真实API/行为；UI另需用户",
+      "input": "按rule逐子场景展开",
+      "expected": "满足引用规则全部边界",
+      "actual": "未运行",
+      "exitStatus": null,
+      "logs": [],
+      "status": "todo",
+      "gap": "全部子场景待运行；不由已有通用测试推定通过"
+    },
+    {
+      "id": 5,
+      "rule": "5. 第三幕逐敌：机甲首喷火器无冲锋且保留两版本原生喷火器差异；领地意识；连枷全体缠结及新生成攻击牌；实验体二阶段3+N与9/10意图、胆小吮吸在三阶段完成后清除；半回合转阶段不计完整回合，3/6/9细看只限额外抽牌。",
+      "source": "https://github.com/Endercloud001/AllMatters/issues/63#issuecomment-6584771226",
+      "targets": [
+        "public v0.107.1",
+        "public-beta v0.111.0"
+      ],
+      "players": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "layer": "Godot真实API/行为；UI另需用户",
+      "input": "按rule逐子场景展开",
+      "expected": "满足引用规则全部边界",
+      "actual": "未运行",
+      "exitStatus": null,
+      "logs": [],
+      "status": "todo",
+      "gap": "全部子场景待运行；不由已有通用测试推定通过"
+    },
+    {
+      "id": 6,
+      "rule": "6. 女王任意当前意图下聚合体实际死亡都覆盖重燃，整场仅一次；敌方快照当次不行动，下个敌方回合直接攻；激怒存活火炬头加力量，不补召。",
+      "source": "https://github.com/Endercloud001/AllMatters/issues/63#issuecomment-6584771226",
+      "targets": [
+        "public v0.107.1",
+        "public-beta v0.111.0"
+      ],
+      "players": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "layer": "Godot真实API/行为；UI另需用户",
+      "input": "按rule逐子场景展开",
+      "expected": "满足引用规则全部边界",
+      "actual": "未运行",
+      "exitStatus": null,
+      "logs": [],
+      "status": "todo",
+      "gap": "全部子场景待运行；不由已有通用测试推定通过"
+    },
+    {
+      "id": 7,
+      "rule": "7. 永世沙漏每玩家12张初值/展示/重置、五状态满手溢出、凋萎强化链；保留原生双版未修改攻击值差异。",
+      "source": "https://github.com/Endercloud001/AllMatters/issues/63#issuecomment-6584771226",
+      "targets": [
+        "public v0.107.1",
+        "public-beta v0.111.0"
+      ],
+      "players": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "layer": "Godot真实API/行为；UI另需用户",
+      "input": "按rule逐子场景展开",
+      "expected": "满足引用规则全部边界",
+      "actual": "未运行",
+      "exitStatus": null,
+      "logs": [],
+      "status": "todo",
+      "gap": "全部子场景待运行；不由已有通用测试推定通过"
+    },
+    {
+      "id": 8,
+      "rule": "8. 1/2/3/4人新增敌人HP只缩放一次；人工制品固定1/3/5及其他力量伤害不随人数长；普通追加必须击败，指定Minion跟随主敌结束，Fatal/击杀遗物语义分别验证。",
+      "source": "https://github.com/Endercloud001/AllMatters/issues/63#issuecomment-6584771226",
+      "targets": [
+        "public v0.107.1",
+        "public-beta v0.111.0"
+      ],
+      "players": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "layer": "Godot真实API/行为；UI另需用户",
+      "input": "按rule逐子场景展开",
+      "expected": "满足引用规则全部边界",
+      "actual": "未运行",
+      "exitStatus": null,
+      "logs": [],
+      "status": "todo",
+      "gap": "全部子场景待运行；不由已有通用测试推定通过"
+    },
+    {
+      "id": 9,
+      "rule": "9. 商店卡/遗物/药水含免费商品与删牌：鼠标/键盘/手柄/程序购买均禁止；重开UI仍隐藏，库存/RNG/钱/补货/删牌使用次数不变。跨店删牌费用、动态折扣、Courier补货与重访保存不刷新。普通事件服务不禁。",
+      "source": "https://github.com/Endercloud001/AllMatters/issues/63#issuecomment-6584771226",
+      "targets": [
+        "public v0.107.1",
+        "public-beta v0.111.0"
+      ],
+      "players": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "layer": "Godot真实API/行为；UI另需用户",
+      "input": "按rule逐子场景展开",
+      "expected": "满足引用规则全部边界",
+      "actual": "未运行",
+      "exitStatus": null,
+      "logs": [],
+      "status": "todo",
+      "gap": "全部子场景待运行；不由已有通用测试推定通过"
+    },
+    {
+      "id": 10,
+      "rule": "10. 休息保留原禁用条件与Heal/Mend附加效果，其他含新增选项有图标灰化；执行端拒绝不记历史；额外次数每轮过滤。public无beta全员完成事件需单独验证。",
+      "source": "https://github.com/Endercloud001/AllMatters/issues/63#issuecomment-6584771226",
+      "targets": [
+        "public v0.107.1",
+        "public-beta v0.111.0"
+      ],
+      "players": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "layer": "Godot真实API/行为；UI另需用户",
+      "input": "按rule逐子场景展开",
+      "expected": "满足引用规则全部边界",
+      "actual": "未运行",
+      "exitStatus": null,
+      "logs": [],
+      "status": "todo",
+      "gap": "全部子场景待运行；不由已有通用测试推定通过"
+    },
+    {
+      "id": 11,
+      "rule": "11. 空箱保留动画/非奖励钩子/Face消耗，金币遗物异步奖励全部取消，投票不挂起。SpoilsMap不发600金币但仍完成任务、移牌与移地图标记；不能照搬ShouldGenerateTreasure提前return。",
+      "source": "https://github.com/Endercloud001/AllMatters/issues/63#issuecomment-6584771226",
+      "targets": [
+        "public v0.107.1",
+        "public-beta v0.111.0"
+      ],
+      "players": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "layer": "Godot真实API/行为；UI另需用户",
+      "input": "按rule逐子场景展开",
+      "expected": "满足引用规则全部边界",
+      "actual": "未运行",
+      "exitStatus": null,
+      "logs": [],
+      "status": "todo",
+      "gap": "全部子场景待运行；不由已有通用测试推定通过"
+    },
+    {
+      "id": 12,
+      "rule": "12. 最后一步事件及内部连续战斗均安全，全队必要流程结束才发面具；商店到实际离开才发。双Boss都受已有追猎，最后Boss胜利确定后奖励前移除；事件同名Boss不解除；唯一且不交换。",
+      "source": "https://github.com/Endercloud001/AllMatters/issues/63#issuecomment-6584771226",
+      "targets": [
+        "public v0.107.1",
+        "public-beta v0.111.0"
+      ],
+      "players": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "layer": "Godot真实API/行为；UI另需用户",
+      "input": "按rule逐子场景展开",
+      "expected": "满足引用规则全部边界",
+      "actual": "未运行",
+      "exitStatus": null,
+      "logs": [],
+      "status": "todo",
+      "gap": "全部子场景待运行；不由已有通用测试推定通过"
+    },
+    {
+      "id": 13,
+      "rule": "13. HUD最后一步/本房安全额度耗尽/面具生效/按时Boss四态；分辨率、输入焦点及遮挡。",
+      "source": "https://github.com/Endercloud001/AllMatters/issues/63#issuecomment-6584771226",
+      "targets": [
+        "public v0.107.1",
+        "public-beta v0.111.0"
+      ],
+      "players": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "layer": "Godot真实API/行为；UI另需用户",
+      "input": "按rule逐子场景展开",
+      "expected": "满足引用规则全部边界",
+      "actual": "未运行",
+      "exitStatus": null,
+      "logs": [],
+      "status": "todo",
+      "gap": "全部子场景待运行；不由已有通用测试推定通过"
+    }
+  ]
+}

@@ -1,0 +1,2702 @@
+[
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE HP players=1 raw=17 once=17 twice=17; second call is NOT safe initialization",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Artifact players=1 input=1 native=1 adjusted=1; adjustment is experimental, not architecture decision",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Artifact players=1 input=3 native=3 adjusted=3; adjustment is experimental, not architecture decision",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Artifact players=1 input=5 native=5 adjusted=5; adjustment is experimental, not architecture decision",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Minion players=1 primary=False secondary=True; actual victory and kill relics NOT exercised",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE HP players=2 raw=17 once=37 twice=81; second call is NOT safe initialization",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Artifact players=2 input=1 native=2 adjusted=1; adjustment is experimental, not architecture decision",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Artifact players=2 input=3 native=4 adjusted=3; adjustment is experimental, not architecture decision",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Artifact players=2 input=5 native=6 adjusted=5; adjustment is experimental, not architecture decision",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Minion players=2 primary=False secondary=True; actual victory and kill relics NOT exercised",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE HP players=3 raw=17 once=56 twice=184; second call is NOT safe initialization",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Artifact players=3 input=1 native=3 adjusted=1; adjustment is experimental, not architecture decision",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Artifact players=3 input=3 native=5 adjusted=3; adjustment is experimental, not architecture decision",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Artifact players=3 input=5 native=7 adjusted=5; adjustment is experimental, not architecture decision",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Minion players=3 primary=False secondary=True; actual victory and kill relics NOT exercised",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE HP players=4 raw=17 once=74 twice=325; second call is NOT safe initialization",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Artifact players=4 input=1 native=4 adjusted=1; adjustment is experimental, not architecture decision",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Artifact players=4 input=3 native=6 adjusted=3; adjustment is experimental, not architecture decision",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Artifact players=4 input=5 native=8 adjusted=5; adjustment is experimental, not architecture decision",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Minion players=4 primary=False secondary=True; actual victory and kill relics NOT exercised",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "PASS: PrototypeHunting native HP and fixed Artifact boundary 1-4 players",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE matriarch players=1 scaled=222 max=111 current=111 awake=False shell=False",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE dynamic cleanse players=1 removed=2; native monster NoDraw allows all player draws; Waterfall hidden state and full draw pipeline NOT exercised",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE matriarch players=2 scaled=488 max=244 current=244 awake=False shell=False",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE dynamic cleanse players=2 removed=2; native monster NoDraw allows all player draws; Waterfall hidden state and full draw pipeline NOT exercised",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE matriarch players=3 scaled=732 max=366 current=366 awake=False shell=False",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE dynamic cleanse players=3 removed=2; native monster NoDraw allows all player draws; Waterfall hidden state and full draw pipeline NOT exercised",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE matriarch players=4 scaled=976 max=488 current=488 awake=False shell=False",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE dynamic cleanse players=4 removed=2; native monster NoDraw allows all player draws; Waterfall hidden state and full draw pipeline NOT exercised",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "PASS: PrototypeHunting matriarch full HP halving and dynamic debuff classification",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE AeonglassBoss auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE AxebotsNormal path=res://scenes/encounters/axebots_normal.tscn declared=front markers=./front:front@(1505.0, 715.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE BattlewornDummyEventV1Encounter auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE BattlewornDummyEventV2Encounter auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE BattlewornDummyEventV3Encounter auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE BowlbugsNormal path=res://scenes/encounters/bowlbugs_normal.tscn declared= markers=./first:first@(1099.0, 673.0);./middle:middle@(1368.0, 712.0);./last:last@(1666.0, 675.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE BowlbugsWeak path=res://scenes/encounters/bowlbugs_weak.tscn declared= markers=./odd:odd@(1225.0, 686.0);./even:even@(1540.0, 713.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE BygoneEffigyElite auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE ByrdonisElite auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE CeremonialBeastBoss auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE ChompersNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE ConstructMenagerieNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE CorpseSlugsNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE CorpseSlugsWeak auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE CubexConstructNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE CultistsNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE DecimillipedeElite path=res://scenes/encounters/decimillipede_elite.tscn declared=segment1,segment2,segment3 markers=./segment1:segment1@(1103.0, 740.0);./segment2:segment2@(1451.0, 740.0);./segment3:segment3@(1797.0, 740.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE DenseVegetationEventEncounter path=res://scenes/encounters/dense_vegetation_event_encounter.tscn declared=wriggler1,wriggler2,wriggler3,wriggler4 markers=./wriggler1:wriggler1@(1078.0, 682.0);./wriggler2:wriggler2@(1315.0, 706.0);./wriggler3:wriggler3@(1556.0, 714.0);./wriggler4:wriggler4@(1781.0, 690.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE DeprecatedEncounter auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE DevotedSculptorWeak auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE EntomancerElite auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE ExoskeletonsNormal path=res://scenes/encounters/exoskeletons_normal.tscn declared=first,second,third,fourth markers=./first:first@(1105.0, 705.0);./second:second@(1312.0, 737.0);./third:third@(1519.0, 724.0);./fourth:fourth@(1716.0, 699.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE ExoskeletonsWeak path=res://scenes/encounters/exoskeletons_weak.tscn declared=first,second,third markers=./first:first@(1165.0, 691.0);./second:second@(1401.0, 756.0);./third:third@(1643.0, 712.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE FabricatorNormal path=res://scenes/encounters/fabricator_normal.tscn declared=bot1,bot2,fabricator,bot3,bot4 markers=./bot1:bot1@(1085.0, 575.0);./fabricator:fabricator@(1483.0, 713.0);./bot2:bot2@(1285.0, 261.0);./bot3:bot3@(1645.0, 256.0);./bot4:bot4@(1875.0, 581.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE FakeMerchantEventEncounter path=res://scenes/encounters/fake_merchant_event_encounter.tscn declared=merchant markers=./merchant:merchant@(1200.0, 700.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE FlyconidNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE FogmogNormal path=res://scenes/encounters/fogmog_normal.tscn declared=illusion,fogmog markers=./illusion:illusion@(1225.0, 686.0);./fogmog:fogmog@(1538.0, 713.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE FossilStalkerNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE FrogKnightNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE FuzzyWurmCrawlerWeak auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE GlobeHeadNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE GremlinMercNormal path=res://scenes/encounters/gremlin_merc_normal.tscn declared= markers=./merc:merc@(1298.0, 694.0);./sneaky:sneaky@(1298.0, 695.0);./fat:fat@(1563.0, 659.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE HauntedShipNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE HunterKillerNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE InfestedPrismsElite auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE InkletsNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE KaiserCrabBoss path=res://scenes/encounters/kaiser_crab_boss.tscn declared=crusher,rocket markers=./crusher:crusher@(136.0, 736.0);./rocket:rocket@(1856.0, 712.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE KnightsElite path=res://scenes/encounters/knights_elite.tscn declared= markers=./first:first@(1027.0, 697.0);./second:second@(1432.0, 754.0);./third:third@(1830.0, 722.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE KnowledgeDemonBoss auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE LagavulinMatriarchBoss auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE LivingFogNormal path=res://scenes/encounters/living_fog_normal.tscn declared=bomb1,bomb2,bomb3,bomb4,bomb5,livingFog markers=./bomb1:bomb1@(1085.0, 575.0);./bomb2:bomb2@(1262.0, 361.0);./bomb3:bomb3@(1491.0, 285.0);./bomb4:bomb4@(1723.0, 372.0);./livingFog:livingFog@(1481.0, 729.0);./bomb5:bomb5@(1875.0, 581.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE LouseProgenitorNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE MawlerNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE MechaKnightElite auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE MysteriousKnightEventEncounter auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE MytesNormal path=res://scenes/encounters/mytes_normal.tscn declared=first,second markers=./first:first@(1245.0, 711.0);./second:second@(1736.0, 737.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE NibbitsNormal path=res://scenes/encounters/nibbits_normal.tscn declared=front,back markers=./front:front@(1225.0, 686.0);./back:back@(1538.0, 713.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE NibbitsWeak auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE OvergrowthCrawlers auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE OvicopterNormal path=res://scenes/encounters/ovicopter_normal.tscn declared=egg1,egg2,egg3,egg4,egg5,ovicopter markers=./egg1:egg1@(961.0, 678.0);./egg2:egg2@(1140.0, 697.0);./egg3:egg3@(1323.0, 654.0);./egg4:egg4@(1498.0, 705.0);./egg5:egg5@(1651.0, 665.0);./ovicopter:ovicopter@(1971.0, 699.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE OwlMagistrateNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE PhantasmalGardenersElite path=res://scenes/encounters/phantasmal_gardeners_elite.tscn declared=first,second,third,fourth markers=./first:first@(1025.0, 705.0);./second:second@(1300.0, 737.0);./third:third@(1600.0, 724.0);./fourth:fourth@(1900.0, 724.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE PhrogParasiteElite path=res://scenes/encounters/phrog_parasite_elite.tscn declared=phrog,wriggler1,wriggler2,wriggler3,wriggler4 markers=./phrog:phrog@(1366.0, 694.0);./wriggler1:wriggler1@(1049.0, 684.0);./wriggler2:wriggler2@(1270.0, 705.0);./wriggler3:wriggler3@(1511.0, 713.0);./wriggler4:wriggler4@(1736.0, 689.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE PunchConstructNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE PunchOffEventEncounter auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE QueenBoss path=res://scenes/encounters/queen_boss.tscn declared=amalgam,queen markers=./amalgam:amalgam@(1207.0, 709.0);./queen:queen@(1606.0, 695.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE RubyRaidersNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE ScrollsOfBitingNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE ScrollsOfBitingWeak auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE SeapunkNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE SeapunkWeak auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE SewerClamNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE ShrinkerBeetleWeak auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE SkulkingColonyElite auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE SlimedBerserkerNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE SlimesNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE SlimesWeak auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE SlitheringStranglerNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE SludgeSpinnerWeak auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE SlumberingBeetleNormal path=res://scenes/encounters/slumbering_beetle_normal.tscn declared= markers=./first:first@(957.0, 692.0);./second:second@(1180.0, 741.0);./third:third@(1708.0, 717.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE SnappingJaxfruitNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE SoulFyshBoss auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE SoulNexusElite auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE SpinyToadNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE TerrorEelElite auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE TestSubjectBoss auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE TheArchitectEventEncounter auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE TheInsatiableBoss auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE TheKinBoss path=res://scenes/encounters/the_kin_boss.tscn declared=slot1,slot2,leaderSlot markers=./slot1:slot1@(1100.0, 711.0);./slot2:slot2@(1497.0, 736.0);./leaderSlot:leaderSlot@(1905.0, 686.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE TheLostAndForgottenNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE TheObscuraNormal path=res://scenes/encounters/the_obscura_normal.tscn declared=illusion,obscura markers=./illusion:illusion@(1225.0, 686.0);./obscura:obscura@(1602.0, 713.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE ThievingHopperWeak auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE ToadpolesWeak auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE TunnelerNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE TunnelerWeak auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE TurretOperatorWeak auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE TwoTailedRatsNormal path=res://scenes/encounters/two_tailed_rats_normal.tscn declared=first,second,third,fourth,fifth markers=./first:first@(1025.0, 705.0);./second:second@(1252.0, 749.0);./third:third@(1471.0, 680.0);./fourth:fourth@(1709.0, 753.0);./fifth:fifth@(1920.0, 664.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE VantomBoss auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE VineShamblerNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE WaterfallGiantBoss auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE MockArtifactEncounter auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE MockAttackAndSummonEncounter auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE MockBossEncounter auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE MockEliteEncounter auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE MockMonsterEncounter auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE MockNoRewardsEncounter auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE MockPlatingEncounter auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE MockTwoMonsterEncounter auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "PASS: PrototypeHunting packed encounter marker audit",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Wriggler slot=1 spawn performed then intent=NASTY_BITE_MOVE",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Wriggler slot=2 spawn performed then intent=WRIGGLE_MOVE",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Wriggler slot=3 spawn performed then intent=NASTY_BITE_MOVE",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Wriggler slot=4 spawn performed then intent=WRIGGLE_MOVE",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Wriggler slot=5 negative control failure=InvalidOperationException: No valid next state found.; adapted fifth action NOT implemented or passed",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Wriggler fifth local state adaptation intent=NASTY_BITE_MOVE; attack damage and actual fifth scene position NOT exercised",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public-beta 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "PASS: PrototypeHunting native Wriggler four slots and fifth negative control",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE HP players=1 raw=17 once=17 twice=17; second call is NOT safe initialization",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Artifact players=1 input=1 native=1 adjusted=1; adjustment is experimental, not architecture decision",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Artifact players=1 input=3 native=3 adjusted=3; adjustment is experimental, not architecture decision",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Artifact players=1 input=5 native=5 adjusted=5; adjustment is experimental, not architecture decision",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Minion players=1 primary=False secondary=True; actual victory and kill relics NOT exercised",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE HP players=2 raw=17 once=37 twice=81; second call is NOT safe initialization",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Artifact players=2 input=1 native=2 adjusted=1; adjustment is experimental, not architecture decision",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Artifact players=2 input=3 native=4 adjusted=3; adjustment is experimental, not architecture decision",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Artifact players=2 input=5 native=6 adjusted=5; adjustment is experimental, not architecture decision",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Minion players=2 primary=False secondary=True; actual victory and kill relics NOT exercised",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE HP players=3 raw=17 once=56 twice=184; second call is NOT safe initialization",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Artifact players=3 input=1 native=3 adjusted=1; adjustment is experimental, not architecture decision",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Artifact players=3 input=3 native=5 adjusted=3; adjustment is experimental, not architecture decision",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Artifact players=3 input=5 native=7 adjusted=5; adjustment is experimental, not architecture decision",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Minion players=3 primary=False secondary=True; actual victory and kill relics NOT exercised",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE HP players=4 raw=17 once=74 twice=325; second call is NOT safe initialization",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Artifact players=4 input=1 native=4 adjusted=1; adjustment is experimental, not architecture decision",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Artifact players=4 input=3 native=6 adjusted=3; adjustment is experimental, not architecture decision",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Artifact players=4 input=5 native=8 adjusted=5; adjustment is experimental, not architecture decision",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Minion players=4 primary=False secondary=True; actual victory and kill relics NOT exercised",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "PASS: PrototypeHunting native HP and fixed Artifact boundary 1-4 players",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE matriarch players=1 scaled=222 max=111 current=111 awake=False shell=False",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE dynamic cleanse players=1 removed=2; native monster NoDraw allows all player draws; Waterfall hidden state and full draw pipeline NOT exercised",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE matriarch players=2 scaled=488 max=244 current=244 awake=False shell=False",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE dynamic cleanse players=2 removed=2; native monster NoDraw allows all player draws; Waterfall hidden state and full draw pipeline NOT exercised",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE matriarch players=3 scaled=732 max=366 current=366 awake=False shell=False",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE dynamic cleanse players=3 removed=2; native monster NoDraw allows all player draws; Waterfall hidden state and full draw pipeline NOT exercised",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE matriarch players=4 scaled=976 max=488 current=488 awake=False shell=False",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE dynamic cleanse players=4 removed=2; native monster NoDraw allows all player draws; Waterfall hidden state and full draw pipeline NOT exercised",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "PASS: PrototypeHunting matriarch full HP halving and dynamic debuff classification",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE AeonglassBoss auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE AxebotsNormal path=res://scenes/encounters/axebots_normal.tscn declared=front markers=./front:front@(1505.0, 715.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE BattlewornDummyEventEncounter auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE BowlbugsNormal path=res://scenes/encounters/bowlbugs_normal.tscn declared= markers=./first:first@(1099.0, 673.0);./middle:middle@(1368.0, 712.0);./last:last@(1666.0, 675.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE BowlbugsWeak path=res://scenes/encounters/bowlbugs_weak.tscn declared= markers=./odd:odd@(1225.0, 686.0);./even:even@(1540.0, 713.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE BygoneEffigyElite auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE ByrdonisElite auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE CeremonialBeastBoss auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE ChompersNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE ConstructMenagerieNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE CorpseSlugsNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE CorpseSlugsWeak auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE CubexConstructNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE CultistsNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE DecimillipedeElite path=res://scenes/encounters/decimillipede_elite.tscn declared=segment1,segment2,segment3 markers=./segment1:segment1@(1103.0, 740.0);./segment2:segment2@(1451.0, 740.0);./segment3:segment3@(1797.0, 740.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE DenseVegetationEventEncounter path=res://scenes/encounters/dense_vegetation_event_encounter.tscn declared=wriggler1,wriggler2,wriggler3,wriggler4 markers=./wriggler1:wriggler1@(1078.0, 682.0);./wriggler2:wriggler2@(1315.0, 706.0);./wriggler3:wriggler3@(1556.0, 714.0);./wriggler4:wriggler4@(1781.0, 690.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE DeprecatedEncounter auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE DevotedSculptorWeak auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE EntomancerElite auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE ExoskeletonsNormal path=res://scenes/encounters/exoskeletons_normal.tscn declared=first,second,third,fourth markers=./first:first@(1105.0, 705.0);./second:second@(1312.0, 737.0);./third:third@(1519.0, 724.0);./fourth:fourth@(1716.0, 699.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE ExoskeletonsWeak path=res://scenes/encounters/exoskeletons_weak.tscn declared=first,second,third markers=./first:first@(1165.0, 691.0);./second:second@(1401.0, 756.0);./third:third@(1643.0, 712.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE FabricatorNormal path=res://scenes/encounters/fabricator_normal.tscn declared=bot1,bot2,fabricator,bot3,bot4 markers=./bot1:bot1@(1085.0, 575.0);./fabricator:fabricator@(1483.0, 713.0);./bot2:bot2@(1285.0, 261.0);./bot3:bot3@(1645.0, 256.0);./bot4:bot4@(1875.0, 581.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE FakeMerchantEventEncounter path=res://scenes/encounters/fake_merchant_event_encounter.tscn declared=merchant markers=./merchant:merchant@(1200.0, 700.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE FlyconidNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE FogmogNormal path=res://scenes/encounters/fogmog_normal.tscn declared=illusion,fogmog markers=./illusion:illusion@(1225.0, 686.0);./fogmog:fogmog@(1538.0, 713.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE FossilStalkerNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE FrogKnightNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE FuzzyWurmCrawlerWeak auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE GlobeHeadNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE GremlinMercNormal path=res://scenes/encounters/gremlin_merc_normal.tscn declared= markers=./merc:merc@(1298.0, 694.0);./sneaky:sneaky@(1298.0, 695.0);./fat:fat@(1563.0, 659.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE HauntedShipNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE HunterKillerNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE InfestedPrismsElite auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE InkletsNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE KaiserCrabBoss path=res://scenes/encounters/kaiser_crab_boss.tscn declared=crusher,rocket markers=./crusher:crusher@(136.0, 736.0);./rocket:rocket@(1856.0, 712.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE KnightsElite path=res://scenes/encounters/knights_elite.tscn declared= markers=./first:first@(1027.0, 697.0);./second:second@(1432.0, 754.0);./third:third@(1830.0, 722.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE KnowledgeDemonBoss auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE LagavulinMatriarchBoss auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE LivingFogNormal path=res://scenes/encounters/living_fog_normal.tscn declared=bomb1,bomb2,bomb3,bomb4,bomb5,livingFog markers=./bomb1:bomb1@(1085.0, 575.0);./bomb2:bomb2@(1262.0, 361.0);./bomb3:bomb3@(1491.0, 285.0);./bomb4:bomb4@(1723.0, 372.0);./livingFog:livingFog@(1481.0, 729.0);./bomb5:bomb5@(1875.0, 581.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE LouseProgenitorNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE MawlerNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE MechaKnightElite auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE MysteriousKnightEventEncounter auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE MytesNormal path=res://scenes/encounters/mytes_normal.tscn declared=first,second markers=./first:first@(1245.0, 711.0);./second:second@(1736.0, 737.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE NibbitsNormal path=res://scenes/encounters/nibbits_normal.tscn declared=front,back markers=./front:front@(1225.0, 686.0);./back:back@(1538.0, 713.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE NibbitsWeak auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE OvergrowthCrawlers auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE OvicopterNormal path=res://scenes/encounters/ovicopter_normal.tscn declared=egg1,egg2,egg3,egg4,egg5,ovicopter markers=./egg1:egg1@(961.0, 678.0);./egg2:egg2@(1140.0, 697.0);./egg3:egg3@(1323.0, 654.0);./egg4:egg4@(1498.0, 705.0);./egg5:egg5@(1651.0, 665.0);./ovicopter:ovicopter@(1971.0, 699.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE OwlMagistrateNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE PhantasmalGardenersElite path=res://scenes/encounters/phantasmal_gardeners_elite.tscn declared=first,second,third,fourth markers=./first:first@(1025.0, 705.0);./second:second@(1300.0, 737.0);./third:third@(1600.0, 724.0);./fourth:fourth@(1900.0, 724.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE PhrogParasiteElite path=res://scenes/encounters/phrog_parasite_elite.tscn declared=phrog,wriggler1,wriggler2,wriggler3,wriggler4 markers=./phrog:phrog@(1366.0, 694.0);./wriggler1:wriggler1@(1049.0, 684.0);./wriggler2:wriggler2@(1270.0, 705.0);./wriggler3:wriggler3@(1511.0, 713.0);./wriggler4:wriggler4@(1736.0, 689.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE PunchConstructNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE PunchOffEventEncounter auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE QueenBoss path=res://scenes/encounters/queen_boss.tscn declared=amalgam,queen markers=./amalgam:amalgam@(1207.0, 709.0);./queen:queen@(1606.0, 695.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE RubyRaidersNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE ScrollsOfBitingNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE ScrollsOfBitingWeak auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE SeapunkNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE SeapunkWeak auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE SewerClamNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE ShrinkerBeetleWeak auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE SkulkingColonyElite auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE SlimedBerserkerNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE SlimesNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE SlimesWeak auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE SlitheringStranglerNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE SludgeSpinnerWeak auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE SlumberingBeetleNormal path=res://scenes/encounters/slumbering_beetle_normal.tscn declared= markers=./first:first@(957.0, 692.0);./second:second@(1180.0, 741.0);./third:third@(1708.0, 717.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE SnappingJaxfruitNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE SoulFyshBoss auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE SoulNexusElite auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE SpinyToadNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE TerrorEelElite auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE TestSubjectBoss auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE TheArchitectEventEncounter auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE TheInsatiableBoss auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE TheKinBoss path=res://scenes/encounters/the_kin_boss.tscn declared=slot1,slot2,leaderSlot markers=./slot1:slot1@(1100.0, 711.0);./slot2:slot2@(1497.0, 736.0);./leaderSlot:leaderSlot@(1905.0, 686.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE TheLostAndForgottenNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE TheObscuraNormal path=res://scenes/encounters/the_obscura_normal.tscn declared=illusion,obscura markers=./illusion:illusion@(1225.0, 686.0);./obscura:obscura@(1602.0, 713.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE ThievingHopperWeak auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE ToadpolesWeak auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE TunnelerNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE TunnelerWeak auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE TurretOperatorWeak auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE TwoTailedRatsNormal path=res://scenes/encounters/two_tailed_rats_normal.tscn declared=first,second,third,fourth,fifth markers=./first:first@(1025.0, 705.0);./second:second@(1252.0, 749.0);./third:third@(1471.0, 680.0);./fourth:fourth@(1709.0, 753.0);./fifth:fifth@(1920.0, 664.0); no added markers and no visual capacity claim",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE VantomBoss auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE VineShamblerNormal auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE WaterfallGiantBoss auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE MockArtifactEncounter auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE MockAttackAndSummonEncounter auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE MockBossEncounter auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE MockEliteEncounter auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE MockMonsterEncounter auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE MockNoRewardsEncounter auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE MockPlatingEncounter auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "SCENE MockTwoMonsterEncounter auto-position slots=; actual widths NOT measured",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "PASS: PrototypeHunting packed encounter marker audit",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Wriggler slot=1 spawn performed then intent=NASTY_BITE_MOVE",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Wriggler slot=2 spawn performed then intent=WRIGGLE_MOVE",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Wriggler slot=3 spawn performed then intent=NASTY_BITE_MOVE",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Wriggler slot=4 spawn performed then intent=WRIGGLE_MOVE",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Wriggler slot=5 negative control failure=InvalidOperationException: No valid next state found.; adapted fifth action NOT implemented or passed",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "EVIDENCE Wriggler fifth local state adaptation intent=NASTY_BITE_MOVE; attack damage and actual fifth scene position NOT exercised",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  },
+  {
+    "version": "public 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314",
+    "layer": "Godot真实API/状态机/资源读取（不是游戏实机）",
+    "actual": "PASS: PrototypeHunting native Wriggler four slots and fifth negative control",
+    "command": "./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport",
+    "exitStatus": 0,
+    "log": "evidence/batch5.log",
+    "resourcePack": "本机beta PCK，两目标共用",
+    "remaining": "见README及cases.json；不推导整组passed"
+  }
+]
