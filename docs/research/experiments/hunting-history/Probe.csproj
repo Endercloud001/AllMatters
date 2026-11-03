@@ -1,0 +1,1 @@
+<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net9.0</TargetFramework><Nullable>enable</Nullable></PropertyGroup><ItemGroup><Reference Include="sts2"><HintPath>$(GameDir)/sts2.dll</HintPath><Private>false</Private></Reference><Reference Include="GodotSharp"><HintPath>$(GameDir)/GodotSharp.dll</HintPath><Private>false</Private></Reference></ItemGroup></Project>

@@ -41,3 +41,10 @@ Balance MOD 的自定义 Relics 目录不包括原生 RedMask；事件直接引�
 - 真实方法体：public v0.107.1/59260271 与 public-beta v0.111.0/41cef1ea，主工作区 `.local/api/queries/{public-v0.107.1,public-beta-v0.111.0}/` 和既有 v012-coop 导出。游戏专有接口仅本地分析，不分发反编译源码；准确方法及版本差异见笔记。
 - 本Mod `src/Relics/NlothsHungryFace.cs`、`NlothTreasure.cs` 和现有敌人代码为GPL-3.0复用候选，仍需修正非奖励任务路径；不能把现有空箱直接视为完整满足新规则。
 - ActsFromThePast为第三方移植归档，根LICENSE未明，不是STS1原始源码；无独立.git，不能把git向父目录找到的AllMatters提交号写作上游版本。RitsuLib为MIT归档，当前包API须另核。用户PNG仍位于主工作区 `docs/research/assets/hunting/`，本轮不把游戏或第三方素材复制为新正式资源。
+
+## 追猎历史实现补查（2026-11-03）
+
+- [STS1原生神秘术士与火炬头](research/v0.1.2-sts1-mystic-torchhead.md)：本机desktop-1.0.jar，V2.3.4 (12-18-2022)/Steam build10180494，JDK javap只读方法体和ZIP资源元数据；专有代码及资源不复制分发。
+- [门扉缔造者与细看](research/v0.1.2-doormaker-history.md)：旧反编译镜像与作者恢复Mod交叉阅读；每个来源固定到Git提交并分别标明版本可信度、许可和适配范围，不能把镜像提交日期当游戏版本。
+- [ActsFromThePast上游94155c1](https://github.com/Cany0udance/ActsFromThePast/tree/94155c101cbed62e5b485ede29f2a872163e69b2)远端树已核：Mystic/TorchHead/火焰实现存在，树无对应tscn/纹理及LICENSE；release0.13.0另有PCK但本轮未下载。此前本机归档无revision，不再妨碍固定远端代码来源；不据公开仓库推断资产复制授权。
+- [最小探针输入/命令/结果](research/experiments/hunting-history/README.md)：STS1身份/资源元数据及两版ShouldDraw接口纯编译；不等于运行兼容。

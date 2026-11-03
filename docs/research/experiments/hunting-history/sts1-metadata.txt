@@ -1,0 +1,6 @@
+identity: 神秘术士 / 火炬头
+healer spine= 3.4.02 animations= ['Attack', 'Hit', 'Idle']
+entries= ['images/monsters/theCity/healer/', 'images/monsters/theCity/healer/healer.png', 'images/monsters/theCity/healer/skeleton.atlas', 'images/monsters/theCity/healer/skeleton.json']
+torchHead spine= 3.4.02 animations= ['halberd_slam', 'idle']
+entries= ['images/monsters/theCity/torchHead/', 'images/monsters/theCity/torchHead/skeleton.atlas', 'images/monsters/theCity/torchHead/skeleton.json', 'images/monsters/theCity/torchHead/skeleton.png']
+version constants= ['[V2.3.4] (12-18-2022)']
