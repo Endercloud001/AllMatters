@@ -61,6 +61,8 @@ def fixture(double):
                             for b in range(y-radius,y+radius+1)}
     for a,b in combinations(points,2):
         assert not footprints[a] & footprints[b]
+        ra, rb = int(a in bosses | {'N'}), int(b in bosses | {'N'})
+        assert max(abs(points[a][0]-points[b][0]), abs(points[a][1]-points[b][1])) >= ra + rb + 2, ('clearance', a, b)
     graph = {name: set() for name in points}
     occupied_paths = set()
     used_directions = {name: set() for name in points}

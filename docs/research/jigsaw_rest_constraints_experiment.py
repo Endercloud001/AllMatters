@@ -24,7 +24,7 @@ def run(double, turns):
         'E': [(3+i*spacing, 0) for i in range(4)],
         'I': [(3, 2+2*i) for i in range(4)],
         'A': [(3,-2),(5,-2),(3,-4),(5,-4)],
-        'C': [(7,-2),(9,-2),(7,-4),(9,-4)],
+        'C': [(5,-6),(7,-6),(5,-8),(7,-8)],
     }
     pool_shape = {'E':'I', 'I':'I', 'A':'O', 'C':'O'}
     skeletons = {
@@ -75,7 +75,7 @@ def run(double, turns):
     points.update({f'{name}{i}':rotate(point,turns) for name,cells in pieces.items() for i,point in enumerate(cells)})
     owner = {node:name for name in pieces for node in (f'{name}{i}' for i in range(4))}
     owner['N'] = 'N'
-    external = [('N','E0'),('E0','I0'),('E0','A0'),('A1','C0')]
+    external = [('N','E0'),('E0','I0'),('E0','A0'),('A3','C0')]
     edges = external + [(f'{name}{i}',f'{name}{j}') for name in pieces for i,j in internal[name]]
     footprints = {}
     for node,(x,y) in points.items():
@@ -83,6 +83,8 @@ def run(double, turns):
         footprints[node] = {(u,v) for u in range(x-radius,x+radius+1) for v in range(y-radius,y+radius+1)}
     for a,b in combinations(points,2):
         assert not footprints[a] & footprints[b]
+        ra, rb = int(a in bosses | {'N'}), int(b in bosses | {'N'})
+        assert max(abs(points[a][0]-points[b][0]), abs(points[a][1]-points[b][1])) >= ra + rb + 2, ('clearance', a, b)
     graph = {node:set() for node in points}
     path_cells = set()
     ports = {node:set() for node in points}
