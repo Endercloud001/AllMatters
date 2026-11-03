@@ -1,7 +1,7 @@
 {
   "command": "node experiment.cjs",
   "node": "v24.11.1",
-  "scratch": "C:\\Users\\ENDERC~1\\AppData\\Local\\Temp\\PROTOTYPE-coop-wipe-me-WLtyP2",
+  "scratch": "C:\\Users\\ENDERC~1\\AppData\\Local\\Temp\\PROTOTYPE-coop-wipe-me-a34BeX",
   "failures": 0,
   "records": [
     {
@@ -1516,7 +1516,8 @@
             "masks": [],
             "safe": true,
             "combat": {},
-            "seq": 2
+            "seq": 2,
+            "epoch": 1
           }
         },
         {
@@ -1556,7 +1557,8 @@
             "masks": [],
             "safe": true,
             "combat": {},
-            "seq": 3
+            "seq": 3,
+            "epoch": 1
           }
         },
         {
@@ -1598,7 +1600,8 @@
             "masks": [],
             "safe": true,
             "combat": {},
-            "seq": 4
+            "seq": 4,
+            "epoch": 1
           }
         }
       ]
@@ -1720,7 +1723,8 @@
             "masks": [],
             "safe": true,
             "combat": {},
-            "seq": 3
+            "seq": 3,
+            "epoch": 1
           }
         }
       ]
@@ -1803,7 +1807,8 @@
             "masks": [],
             "safe": true,
             "combat": {},
-            "seq": 2
+            "seq": 2,
+            "epoch": 1
           }
         }
       ]
@@ -1952,7 +1957,8 @@
             "masks": [],
             "safe": true,
             "combat": {},
-            "seq": 3
+            "seq": 3,
+            "nextEntry": 1
           }
         },
         {
@@ -2003,7 +2009,8 @@
             "masks": [],
             "safe": true,
             "combat": {},
-            "seq": 4
+            "seq": 4,
+            "nextEntry": 1
           }
         },
         {
@@ -2045,6 +2052,7 @@
             "safe": true,
             "combat": {},
             "seq": 5,
+            "nextEntry": 1,
             "current": {
               "id": 1,
               "dest": "店",
@@ -2095,6 +2103,7 @@
             "safe": true,
             "combat": {},
             "seq": 6,
+            "nextEntry": 1,
             "current": {
               "id": 1,
               "dest": "店",
@@ -2156,6 +2165,7 @@
               }
             },
             "seq": 7,
+            "nextEntry": 1,
             "current": {
               "id": 1,
               "dest": "店",
@@ -2227,6 +2237,7 @@
               }
             },
             "seq": 8,
+            "nextEntry": 1,
             "current": {
               "id": 1,
               "dest": "店",
@@ -2383,7 +2394,8 @@
             "masks": [],
             "safe": true,
             "combat": {},
-            "seq": 3
+            "seq": 3,
+            "nextEntry": 1
           }
         },
         {
@@ -2425,6 +2437,7 @@
             "safe": true,
             "combat": {},
             "seq": 4,
+            "nextEntry": 1,
             "current": {
               "id": 1,
               "dest": "店",
@@ -2477,6 +2490,7 @@
             "safe": true,
             "combat": {},
             "seq": 5,
+            "nextEntry": 1,
             "current": {
               "id": 1,
               "dest": "店",
@@ -2485,7 +2499,8 @@
                 "店",
                 "店"
               ]
-            }
+            },
+            "huntingIssued": true
           }
         },
         {
@@ -2529,6 +2544,7 @@
             "safe": true,
             "combat": {},
             "seq": 6,
+            "nextEntry": 1,
             "current": {
               "id": 1,
               "dest": "店",
@@ -2537,7 +2553,8 @@
                 "店",
                 "店"
               ]
-            }
+            },
+            "huntingIssued": true
           }
         },
         {
@@ -2585,6 +2602,7 @@
             "safe": true,
             "combat": {},
             "seq": 7,
+            "nextEntry": 1,
             "current": {
               "id": 1,
               "dest": "店",
@@ -2593,7 +2611,8 @@
                 "店",
                 "店"
               ]
-            }
+            },
+            "huntingIssued": true
           }
         },
         {
@@ -2642,6 +2661,7 @@
             "safe": true,
             "combat": {},
             "seq": 8,
+            "nextEntry": 1,
             "current": {
               "id": 1,
               "dest": "店",
@@ -2650,7 +2670,8 @@
                 "店",
                 "店"
               ]
-            }
+            },
+            "huntingIssued": true
           }
         },
         {
@@ -2708,6 +2729,7 @@
             "safe": true,
             "combat": {},
             "seq": 9,
+            "nextEntry": 2,
             "current": {
               "id": 1,
               "dest": "店",
@@ -2716,7 +2738,8 @@
                 "店",
                 "店"
               ]
-            }
+            },
+            "huntingIssued": true
           }
         },
         {
@@ -2762,6 +2785,7 @@
             "safe": false,
             "combat": {},
             "seq": 10,
+            "nextEntry": 2,
             "current": {
               "id": 2,
               "dest": "店",
@@ -2770,7 +2794,8 @@
                 "店",
                 "店"
               ]
-            }
+            },
+            "huntingIssued": true
           }
         },
         {
@@ -2827,6 +2852,7 @@
               }
             },
             "seq": 11,
+            "nextEntry": 2,
             "current": {
               "id": 2,
               "dest": "店",
@@ -2835,7 +2861,8 @@
                 "店",
                 "店"
               ]
-            }
+            },
+            "huntingIssued": true
           }
         },
         {
@@ -2892,6 +2919,7 @@
               }
             },
             "seq": 12,
+            "nextEntry": 2,
             "current": {
               "id": 2,
               "dest": "店",
@@ -2900,7 +2928,8 @@
                 "店",
                 "店"
               ]
-            }
+            },
+            "huntingIssued": true
           }
         }
       ]
@@ -3023,7 +3052,8 @@
             }
           }
         },
-        "seq": 0
+        "seq": 0,
+        "epoch": 1
       }
     },
     {
@@ -3146,7 +3176,8 @@
             }
           }
         },
-        "seq": 0
+        "seq": 0,
+        "epoch": 1
       }
     },
     {
@@ -3269,7 +3300,8 @@
             }
           }
         },
-        "seq": 0
+        "seq": 0,
+        "epoch": 1
       }
     },
     {
@@ -3388,7 +3420,8 @@
             }
           }
         },
-        "seq": 0
+        "seq": 0,
+        "epoch": 1
       }
     },
     {
@@ -3513,7 +3546,8 @@
             }
           }
         },
-        "seq": 0
+        "seq": 0,
+        "epoch": 1
       }
     },
     {
@@ -3636,7 +3670,8 @@
             }
           }
         },
-        "seq": 0
+        "seq": 0,
+        "epoch": 1
       }
     },
     {
@@ -3710,7 +3745,8 @@
         "safe": true,
         "combat": {},
         "seq": 1,
-        "finalWon": true
+        "finalWon": true,
+        "epoch": 1
       }
     }
   ]

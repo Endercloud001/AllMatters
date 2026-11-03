@@ -2,6 +2,7 @@
 const clone=x=>JSON.parse(JSON.stringify(x));
 function initial(n=3){return {active:['甲','乙','丙'].slice(0,n),roster:['甲','乙','丙'].slice(0,n),phase:'编辑',blocks:{A:0,B:2,C:4},edges:['A-B'],held:{},votes:{},starts:0,map:'原图',rewards:[],continued:[],steps:1,entries:0,pending:null,masks:[],safe:true,combat:{},seq:0};}
 function apply(s,a){s=clone(s);s.seq++;let [op,p,x,y]=a;
+ if(y?.request){s.requests??=[];if(y.epoch!==(s.epoch??0)||s.requests.includes(y.request))return s;s.requests.push(y.request);}
  const locked=b=>Object.values(s.held).some(h=>h.block===b||s.edges.some(e=>e.split('-').includes(h.block)&&e.split('-').includes(b)));
  const editable=()=>s.phase==='编辑'&&!s.votes[p]&&s.active.includes(p);
  const decide=()=>{if(s.phase==='编辑'&&s.active.length&&s.active.every(p=>s.votes[p]&&s.votes[p]===s.votes[s.active[0]])){s.phase=s.votes[s.active[0]];s.starts++;}};
@@ -12,17 +13,20 @@ function apply(s,a){s=clone(s);s.seq++;let [op,p,x,y]=a;
  if(op==='票'&&s.phase==='编辑'&&s.active.includes(p)&&!s.held[p]){s.votes[p]=s.votes[p]===x?null:x;decide();}
  if(op==='断线'){delete s.held[p];delete s.votes[p];s.active=s.active.filter(q=>q!==p);decide();}
  if(op==='动画结束'&&s.phase==='自动')s.subtitle='先古之民的意志正在影响高塔';
- if(op==='结果'&&['自动','检查'].includes(s.phase)){if(x==='成功'){s.map='确定图';s.phase='先古';}else {if(s.phase==='检查')delete s.blocks.C;s.phase='编辑';s.votes={};}delete s.subtitle;}
+ if(['任务取消','任务超时'].includes(op)&&s.phase==='自动'){s.phase='编辑';s.votes={};s.epoch=(s.epoch??0)+1;delete s.subtitle;}
+ if(op==='结果'&&['自动','检查'].includes(s.phase)){if(x==='成功'){s.map='确定图';s.phase='先古';}else {if(s.phase==='检查')delete s.blocks.C;s.phase='编辑';s.votes={};}s.epoch=(s.epoch??0)+1;delete s.subtitle;}
  if(op==='奖励'&&s.phase==='先古'&&s.active.includes(p)&&!s.rewards.includes(p)){s.rewards.push(p);if(s.active.every(q=>s.rewards.includes(q)))s.phase='继续';}
  if(op==='继续'&&s.phase==='继续'&&s.active.includes(p)){if(!s.continued.includes(p))s.continued.push(p);if(s.active.every(q=>s.continued.includes(q)))s.phase='探索';}
- if(op==='目的地'&&s.phase==='探索'&&!s.pending){s.votes[p]=x;if(s.active.every(q=>s.votes[q])){const tickets=s.active.map(q=>s.votes[q]);s.pending={id:s.entries+1,dest:tickets[y??0],tickets};}}
+ if(op==='目的地'&&s.phase==='探索'&&s.active.includes(p)&&!s.pending){s.votes[p]=x;if(s.active.every(q=>s.votes[q])){const tickets=s.active.map(q=>s.votes[q]);s.nextEntry=(s.nextEntry??0)+1;s.pending={id:s.nextEntry,dest:tickets[typeof y==='number'?y:0],tickets};}}
  if(op==='确认'&&s.pending&&s.pending.id===x){s.entries++;s.steps=Math.max(0,s.steps-1);s.safe=s.masks.length===0;s.current=clone(s.pending);s.pending=null;s.votes={};}
- if(op==='完成'&&s.steps===0&&s.current?.dest!=='Boss')s.masks=[...s.active];
+ if(op==='放弃进入'&&s.pending){s.pending=null;s.votes={};s.epoch=(s.epoch??0)+1;}
+ if(op==='必要流程完成'&&s.active.includes(p)){s.finished??=[];if(!s.finished.includes(p))s.finished.push(p);}
+ if((op==='完成'||(op==='必要流程完成'&&s.active.every(q=>s.finished.includes(q))))&&s.steps===0&&s.current&&!['Boss','第一Boss'].includes(s.current.dest)&&!s.finalWon){s.masks=[...s.active];s.huntingIssued=true;}
  if(op==='战斗'&&!s.combat[x])s.combat[x]={added:s.safe?0:1,opening:s.safe?0:1,round:3,counts:{甲:7,乙:2,丙:11}};
  if(op==='末Boss胜利'){s.masks=[];s.finalWon=true;}
  return s;
 }
-function restore(s){s=clone(s);s.held={};s.continued=[];if(['编辑','继续','先古'].includes(s.phase))s.votes={};if(s.phase==='先古')s.rewards=[];return s;}
+function restore(s){s=clone(s);s.epoch=(s.epoch??0)+1;s.held={};s.continued=[];if(['编辑','继续','先古'].includes(s.phase))s.votes={};if(s.phase==='先古')s.rewards=[];return s;}
 const scenarios=[
  ['关联保护',initial(),[['拿','甲','A'],['拿','乙','A'],['拿','丙','A'],['拿','乙','B'],['取消','甲']],s=>!Object.keys(s.held).length&&s.edges[0]==='A-B'],
  ['同落点',initial(),[['拿','甲','A'],['拿','乙','C'],['落','甲',9],['落','乙',9]],s=>s.blocks.A===9&&s.held.乙.block==='C'],

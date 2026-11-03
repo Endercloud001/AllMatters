@@ -1,0 +1,8 @@
+SentryGodotInitializer: Sentry GDExtension not loaded in this process; skipping. If you see this in a running game (not during project export or IDE script analysis), check Godot's log for extension load failures.
+runtime=9.0.21
+ritsu=E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters\.local\dependencies\RitsuLib-0.6.7\compat\0.111.0\STS2-RitsuLib.Runtime.dll
+game=E:\SteamLibrary\steamapps\common\Slay the Spire 2\data_sts2_windows_x86_64\sts2.dll; product=0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32
+native message API=SendMessage,SendMessage,RegisterMessageHandler,UnregisterMessageHandler,SetBufferMessages
+native AfterAllRestSitesCompleted=True
+PASS actual RitsuLib slot payload disk roundtrip; scratch=C:\Users\Endercloud\AppData\Local\Temp\PROTOTYPE-ritsu-wipe-me-66ddb940-981a-4744-85e6-59be0a55df1f
+PASS actual message codec; transport not invoked

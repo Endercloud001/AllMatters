@@ -1,0 +1,3280 @@
+{
+  "runtime": "v24.11.1",
+  "scratch": "C:\\Users\\ENDERC~1\\AppData\\Local\\Temp\\PROTOTYPE-coop-batch2-wipe-me-cudHY1",
+  "failures": 0,
+  "records": [
+    {
+      "name": "重复选择请求不解释为撤票",
+      "expected": "自动",
+      "actual": "自动",
+      "ok": true,
+      "trace": [
+        {
+          "action": [
+            "票",
+            "甲",
+            "自动",
+            {
+              "epoch": 0,
+              "request": "vote-1"
+            }
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "编辑",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "自动"
+            },
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 1,
+            "requests": [
+              "vote-1"
+            ]
+          }
+        },
+        {
+          "action": [
+            "票",
+            "甲",
+            "自动",
+            {
+              "epoch": 0,
+              "request": "vote-1"
+            }
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "编辑",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "自动"
+            },
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 2,
+            "requests": [
+              "vote-1"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "失败回编辑后旧请求拒绝",
+      "expected": {},
+      "actual": {},
+      "ok": true,
+      "trace": [
+        {
+          "action": [
+            "票",
+            "乙",
+            "自动"
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "编辑",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "自动",
+              "乙": "自动"
+            },
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 3,
+            "requests": [
+              "vote-1"
+            ]
+          }
+        },
+        {
+          "action": [
+            "票",
+            "丙",
+            "自动"
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "自动",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "自动",
+              "乙": "自动",
+              "丙": "自动"
+            },
+            "starts": 1,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 4,
+            "requests": [
+              "vote-1"
+            ]
+          }
+        },
+        {
+          "action": [
+            "结果",
+            null,
+            "失败"
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "编辑",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {},
+            "starts": 1,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 5,
+            "requests": [
+              "vote-1"
+            ],
+            "epoch": 1
+          }
+        },
+        {
+          "action": [
+            "拿",
+            "甲",
+            "C",
+            {
+              "epoch": 0,
+              "request": "old-grab"
+            }
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "编辑",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {},
+            "starts": 1,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 6,
+            "requests": [
+              "vote-1"
+            ],
+            "epoch": 1
+          }
+        }
+      ]
+    },
+    {
+      "name": "任务取消受控任务恢复出口",
+      "expected": [
+        "编辑",
+        "原图",
+        {},
+        null
+      ],
+      "actual": [
+        "编辑",
+        "原图",
+        {},
+        null
+      ],
+      "ok": true,
+      "trace": [
+        {
+          "action": [
+            "票",
+            "甲",
+            "自动"
+          ],
+          "state": {
+            "active": [
+              "甲"
+            ],
+            "roster": [
+              "甲"
+            ],
+            "phase": "自动",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "自动"
+            },
+            "starts": 1,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 1
+          }
+        },
+        {
+          "action": [
+            "动画结束"
+          ],
+          "state": {
+            "active": [
+              "甲"
+            ],
+            "roster": [
+              "甲"
+            ],
+            "phase": "自动",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "自动"
+            },
+            "starts": 1,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 2,
+            "subtitle": "先古之民的意志正在影响高塔"
+          }
+        },
+        {
+          "action": [
+            "任务取消"
+          ],
+          "state": {
+            "active": [
+              "甲"
+            ],
+            "roster": [
+              "甲"
+            ],
+            "phase": "编辑",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {},
+            "starts": 1,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 3,
+            "epoch": 2
+          }
+        }
+      ]
+    },
+    {
+      "name": "任务超时受控任务恢复出口",
+      "expected": [
+        "编辑",
+        "原图",
+        {},
+        null
+      ],
+      "actual": [
+        "编辑",
+        "原图",
+        {},
+        null
+      ],
+      "ok": true,
+      "trace": [
+        {
+          "action": [
+            "票",
+            "甲",
+            "自动"
+          ],
+          "state": {
+            "active": [
+              "甲"
+            ],
+            "roster": [
+              "甲"
+            ],
+            "phase": "自动",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "自动"
+            },
+            "starts": 1,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 1
+          }
+        },
+        {
+          "action": [
+            "动画结束"
+          ],
+          "state": {
+            "active": [
+              "甲"
+            ],
+            "roster": [
+              "甲"
+            ],
+            "phase": "自动",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "自动"
+            },
+            "starts": 1,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 2,
+            "subtitle": "先古之民的意志正在影响高塔"
+          }
+        },
+        {
+          "action": [
+            "任务超时"
+          ],
+          "state": {
+            "active": [
+              "甲"
+            ],
+            "roster": [
+              "甲"
+            ],
+            "phase": "编辑",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {},
+            "starts": 1,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 3,
+            "epoch": 2
+          }
+        }
+      ]
+    },
+    {
+      "name": "已授权执行恢复不重投票",
+      "expected": [
+        1,
+        "先古",
+        "确定图"
+      ],
+      "actual": [
+        1,
+        "先古",
+        "确定图"
+      ],
+      "ok": true,
+      "trace": [
+        {
+          "action": [
+            "票",
+            "甲",
+            "自动"
+          ],
+          "state": {
+            "active": [
+              "甲"
+            ],
+            "roster": [
+              "甲"
+            ],
+            "phase": "自动",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "自动"
+            },
+            "starts": 1,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 1
+          }
+        },
+        {
+          "action": [
+            "动画结束"
+          ],
+          "state": {
+            "active": [
+              "甲"
+            ],
+            "roster": [
+              "甲"
+            ],
+            "phase": "自动",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "自动"
+            },
+            "starts": 1,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 2,
+            "epoch": 1,
+            "subtitle": "先古之民的意志正在影响高塔"
+          }
+        },
+        {
+          "action": [
+            "结果",
+            null,
+            "成功"
+          ],
+          "state": {
+            "active": [
+              "甲"
+            ],
+            "roster": [
+              "甲"
+            ],
+            "phase": "先古",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "自动"
+            },
+            "starts": 1,
+            "map": "确定图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 3,
+            "epoch": 2
+          }
+        }
+      ]
+    },
+    {
+      "name": "加载失败恢复固定目的地且成功只扣一次",
+      "expected": [
+        "事件",
+        "事件",
+        1,
+        0
+      ],
+      "actual": [
+        "事件",
+        "事件",
+        1,
+        0
+      ],
+      "ok": true,
+      "trace": [
+        {
+          "action": [
+            "目的地",
+            "甲",
+            "店",
+            2
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "店"
+            },
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 1
+          }
+        },
+        {
+          "action": [
+            "目的地",
+            "乙",
+            "店",
+            2
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "店",
+              "乙": "店"
+            },
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 2
+          }
+        },
+        {
+          "action": [
+            "目的地",
+            "丙",
+            "事件",
+            2
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "店",
+              "乙": "店",
+              "丙": "事件"
+            },
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": {
+              "id": 1,
+              "dest": "事件",
+              "tickets": [
+                "店",
+                "店",
+                "事件"
+              ]
+            },
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 3,
+            "nextEntry": 1
+          }
+        },
+        {
+          "action": [
+            "加载失败"
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "店",
+              "乙": "店",
+              "丙": "事件"
+            },
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": {
+              "id": 1,
+              "dest": "事件",
+              "tickets": [
+                "店",
+                "店",
+                "事件"
+              ]
+            },
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 4,
+            "nextEntry": 1
+          }
+        },
+        {
+          "action": [
+            "确认",
+            null,
+            1
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {},
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 0,
+            "entries": 1,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 5,
+            "nextEntry": 1,
+            "epoch": 1,
+            "current": {
+              "id": 1,
+              "dest": "事件",
+              "tickets": [
+                "店",
+                "店",
+                "事件"
+              ]
+            }
+          }
+        },
+        {
+          "action": [
+            "确认",
+            null,
+            1
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {},
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 0,
+            "entries": 1,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 6,
+            "nextEntry": 1,
+            "epoch": 1,
+            "current": {
+              "id": 1,
+              "dest": "事件",
+              "tickets": [
+                "店",
+                "店",
+                "事件"
+              ]
+            }
+          }
+        },
+        {
+          "action": [
+            "客户端加载失败"
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {},
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 0,
+            "entries": 1,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 7,
+            "nextEntry": 1,
+            "epoch": 1,
+            "current": {
+              "id": 1,
+              "dest": "事件",
+              "tickets": [
+                "店",
+                "店",
+                "事件"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "按玩家票列表索引0",
+      "expected": "店",
+      "actual": "店",
+      "ok": true,
+      "trace": [
+        {
+          "action": [
+            "目的地",
+            "甲",
+            "店",
+            0
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "店"
+            },
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 1
+          }
+        },
+        {
+          "action": [
+            "目的地",
+            "乙",
+            "店",
+            0
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "店",
+              "乙": "店"
+            },
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 2
+          }
+        },
+        {
+          "action": [
+            "目的地",
+            "丙",
+            "事件",
+            0
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "店",
+              "乙": "店",
+              "丙": "事件"
+            },
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": {
+              "id": 1,
+              "dest": "店",
+              "tickets": [
+                "店",
+                "店",
+                "事件"
+              ]
+            },
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 3,
+            "nextEntry": 1
+          }
+        }
+      ]
+    },
+    {
+      "name": "按玩家票列表索引1",
+      "expected": "店",
+      "actual": "店",
+      "ok": true,
+      "trace": [
+        {
+          "action": [
+            "目的地",
+            "甲",
+            "店",
+            1
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "店"
+            },
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 1
+          }
+        },
+        {
+          "action": [
+            "目的地",
+            "乙",
+            "店",
+            1
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "店",
+              "乙": "店"
+            },
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 2
+          }
+        },
+        {
+          "action": [
+            "目的地",
+            "丙",
+            "事件",
+            1
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "店",
+              "乙": "店",
+              "丙": "事件"
+            },
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": {
+              "id": 1,
+              "dest": "店",
+              "tickets": [
+                "店",
+                "店",
+                "事件"
+              ]
+            },
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 3,
+            "nextEntry": 1
+          }
+        }
+      ]
+    },
+    {
+      "name": "按玩家票列表索引2",
+      "expected": "事件",
+      "actual": "事件",
+      "ok": true,
+      "trace": [
+        {
+          "action": [
+            "目的地",
+            "甲",
+            "店",
+            2
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "店"
+            },
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 1
+          }
+        },
+        {
+          "action": [
+            "目的地",
+            "乙",
+            "店",
+            2
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "店",
+              "乙": "店"
+            },
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 2
+          }
+        },
+        {
+          "action": [
+            "目的地",
+            "丙",
+            "事件",
+            2
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "店",
+              "乙": "店",
+              "丙": "事件"
+            },
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": {
+              "id": 1,
+              "dest": "事件",
+              "tickets": [
+                "店",
+                "店",
+                "事件"
+              ]
+            },
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 3,
+            "nextEntry": 1
+          }
+        }
+      ]
+    },
+    {
+      "name": "部分奖励整点回退并保留地图",
+      "expected": {
+        "map": "确定图",
+        "gold": 10,
+        "relics": [],
+        "deck": [
+          "Strike"
+        ],
+        "active": 2,
+        "roster": 3
+      },
+      "actual": {
+        "map": "确定图",
+        "gold": 10,
+        "relics": [],
+        "deck": [
+          "Strike"
+        ],
+        "active": 2,
+        "roster": 3
+      },
+      "ok": true,
+      "trace": []
+    },
+    {
+      "name": "完成奖励不重发且缺人共同继续",
+      "expected": [
+        110,
+        1,
+        "探索",
+        3
+      ],
+      "actual": [
+        110,
+        1,
+        "探索",
+        3
+      ],
+      "ok": true,
+      "trace": [
+        {
+          "action": [
+            "奖励",
+            "甲"
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "继续",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {},
+            "starts": 0,
+            "map": "确定图",
+            "rewards": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 1,
+            "players": {
+              "甲": {
+                "gold": 110,
+                "relics": [
+                  "reward"
+                ],
+                "deck": [
+                  "Strike",
+                  "reward-card"
+                ]
+              },
+              "乙": {
+                "gold": 20,
+                "relics": [],
+                "deck": [
+                  "Defend"
+                ]
+              },
+              "丙": {
+                "gold": 30,
+                "relics": [],
+                "deck": []
+              }
+            },
+            "epoch": 1
+          }
+        },
+        {
+          "action": [
+            "继续",
+            "甲"
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "继续",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {},
+            "starts": 0,
+            "map": "确定图",
+            "rewards": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "continued": [
+              "甲"
+            ],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 2,
+            "players": {
+              "甲": {
+                "gold": 110,
+                "relics": [
+                  "reward"
+                ],
+                "deck": [
+                  "Strike",
+                  "reward-card"
+                ]
+              },
+              "乙": {
+                "gold": 20,
+                "relics": [],
+                "deck": [
+                  "Defend"
+                ]
+              },
+              "丙": {
+                "gold": 30,
+                "relics": [],
+                "deck": []
+              }
+            },
+            "epoch": 1
+          }
+        },
+        {
+          "action": [
+            "继续",
+            "乙"
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {},
+            "starts": 0,
+            "map": "确定图",
+            "rewards": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "continued": [
+              "甲",
+              "乙"
+            ],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 3,
+            "players": {
+              "甲": {
+                "gold": 110,
+                "relics": [
+                  "reward"
+                ],
+                "deck": [
+                  "Strike",
+                  "reward-card"
+                ]
+              },
+              "乙": {
+                "gold": 20,
+                "relics": [],
+                "deck": [
+                  "Defend"
+                ]
+              },
+              "丙": {
+                "gold": 30,
+                "relics": [],
+                "deck": []
+              }
+            },
+            "epoch": 1
+          }
+        }
+      ]
+    },
+    {
+      "name": "注入写失败不混用候选文件",
+      "expected": [
+        "injected before replacement",
+        {
+          "active": [
+            "甲",
+            "乙",
+            "丙"
+          ],
+          "roster": [
+            "甲",
+            "乙",
+            "丙"
+          ],
+          "phase": "先古",
+          "blocks": {
+            "A": 0,
+            "B": 2,
+            "C": 4
+          },
+          "edges": [
+            "A-B"
+          ],
+          "held": {},
+          "votes": {},
+          "starts": 0,
+          "map": "确定图",
+          "rewards": [],
+          "continued": [],
+          "steps": 1,
+          "entries": 0,
+          "pending": null,
+          "masks": [],
+          "safe": true,
+          "combat": {},
+          "seq": 0,
+          "players": {
+            "甲": {
+              "gold": 10,
+              "relics": [],
+              "deck": [
+                "Strike"
+              ]
+            },
+            "乙": {
+              "gold": 20,
+              "relics": [],
+              "deck": [
+                "Defend"
+              ]
+            },
+            "丙": {
+              "gold": 30,
+              "relics": [],
+              "deck": []
+            }
+          }
+        }
+      ],
+      "actual": [
+        "injected before replacement",
+        {
+          "active": [
+            "甲",
+            "乙",
+            "丙"
+          ],
+          "roster": [
+            "甲",
+            "乙",
+            "丙"
+          ],
+          "phase": "先古",
+          "blocks": {
+            "A": 0,
+            "B": 2,
+            "C": 4
+          },
+          "edges": [
+            "A-B"
+          ],
+          "held": {},
+          "votes": {},
+          "starts": 0,
+          "map": "确定图",
+          "rewards": [],
+          "continued": [],
+          "steps": 1,
+          "entries": 0,
+          "pending": null,
+          "masks": [],
+          "safe": true,
+          "combat": {},
+          "seq": 0,
+          "players": {
+            "甲": {
+              "gold": 10,
+              "relics": [],
+              "deck": [
+                "Strike"
+              ]
+            },
+            "乙": {
+              "gold": 20,
+              "relics": [],
+              "deck": [
+                "Defend"
+              ]
+            },
+            "丙": {
+              "gold": 30,
+              "relics": [],
+              "deck": []
+            }
+          }
+        }
+      ],
+      "ok": true,
+      "trace": []
+    },
+    {
+      "name": "追猎完整计数占位恢复不重复开场",
+      "expected": {
+        "added": 1,
+        "opening": 1,
+        "stage": 3,
+        "round": 6,
+        "scrutiny": true,
+        "counts": {
+          "甲": 11,
+          "乙": 3,
+          "丙": 8
+        }
+      },
+      "actual": {
+        "added": 1,
+        "opening": 1,
+        "stage": 3,
+        "round": 6,
+        "scrutiny": true,
+        "counts": {
+          "甲": 11,
+          "乙": 3,
+          "丙": 8
+        }
+      },
+      "ok": true,
+      "trace": [
+        {
+          "action": [
+            "战斗",
+            null,
+            "battle"
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {},
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "safe": false,
+            "combat": {
+              "battle": {
+                "added": 1,
+                "opening": 1,
+                "stage": 3,
+                "round": 6,
+                "scrutiny": true,
+                "counts": {
+                  "甲": 11,
+                  "乙": 3,
+                  "丙": 8
+                }
+              }
+            },
+            "seq": 1,
+            "epoch": 1
+          }
+        }
+      ]
+    },
+    {
+      "name": "末Boss完整点不返还面具",
+      "expected": [
+        true,
+        []
+      ],
+      "actual": [
+        true,
+        []
+      ],
+      "ok": true,
+      "trace": [
+        {
+          "action": [
+            "末Boss胜利"
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {},
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": false,
+            "combat": {
+              "battle": {
+                "added": 1,
+                "opening": 1,
+                "stage": 3,
+                "round": 6,
+                "scrutiny": true,
+                "counts": {
+                  "甲": 11,
+                  "乙": 3,
+                  "丙": 8
+                }
+              }
+            },
+            "seq": 2,
+            "epoch": 1,
+            "finalWon": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "0步本房安全且未全员完成不发面具",
+      "expected": [
+        0,
+        true,
+        []
+      ],
+      "actual": [
+        0,
+        true,
+        []
+      ],
+      "ok": true,
+      "trace": [
+        {
+          "action": [
+            "目的地",
+            "甲",
+            "事件"
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "事件"
+            },
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 1
+          }
+        },
+        {
+          "action": [
+            "目的地",
+            "乙",
+            "事件"
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "事件",
+              "乙": "事件"
+            },
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 2
+          }
+        },
+        {
+          "action": [
+            "目的地",
+            "丙",
+            "事件"
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "事件",
+              "乙": "事件",
+              "丙": "事件"
+            },
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": {
+              "id": 1,
+              "dest": "事件",
+              "tickets": [
+                "事件",
+                "事件",
+                "事件"
+              ]
+            },
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 3,
+            "nextEntry": 1
+          }
+        },
+        {
+          "action": [
+            "确认",
+            null,
+            1
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {},
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 0,
+            "entries": 1,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 4,
+            "nextEntry": 1,
+            "current": {
+              "id": 1,
+              "dest": "事件",
+              "tickets": [
+                "事件",
+                "事件",
+                "事件"
+              ]
+            }
+          }
+        },
+        {
+          "action": [
+            "必要流程完成",
+            "甲"
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {},
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 0,
+            "entries": 1,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 5,
+            "nextEntry": 1,
+            "current": {
+              "id": 1,
+              "dest": "事件",
+              "tickets": [
+                "事件",
+                "事件",
+                "事件"
+              ]
+            },
+            "finished": [
+              "甲"
+            ]
+          }
+        },
+        {
+          "action": [
+            "必要流程完成",
+            "乙"
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {},
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 0,
+            "entries": 1,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 6,
+            "nextEntry": 1,
+            "current": {
+              "id": 1,
+              "dest": "事件",
+              "tickets": [
+                "事件",
+                "事件",
+                "事件"
+              ]
+            },
+            "finished": [
+              "甲",
+              "乙"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "全员完成各一份重复完成不叠加",
+      "expected": [
+        "甲",
+        "乙",
+        "丙"
+      ],
+      "actual": [
+        "甲",
+        "乙",
+        "丙"
+      ],
+      "ok": true,
+      "trace": [
+        {
+          "action": [
+            "必要流程完成",
+            "丙"
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {},
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 0,
+            "entries": 1,
+            "pending": null,
+            "masks": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "safe": true,
+            "combat": {},
+            "seq": 7,
+            "nextEntry": 1,
+            "current": {
+              "id": 1,
+              "dest": "事件",
+              "tickets": [
+                "事件",
+                "事件",
+                "事件"
+              ]
+            },
+            "finished": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "huntingIssued": true
+          }
+        },
+        {
+          "action": [
+            "必要流程完成",
+            "丙"
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {},
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 0,
+            "entries": 1,
+            "pending": null,
+            "masks": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "safe": true,
+            "combat": {},
+            "seq": 8,
+            "nextEntry": 1,
+            "current": {
+              "id": 1,
+              "dest": "事件",
+              "tickets": [
+                "事件",
+                "事件",
+                "事件"
+              ]
+            },
+            "finished": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "huntingIssued": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "最后一步第一Boss不发面具",
+      "expected": [
+        0,
+        []
+      ],
+      "actual": [
+        0,
+        []
+      ],
+      "ok": true,
+      "trace": [
+        {
+          "action": [
+            "目的地",
+            "甲",
+            "第一Boss"
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "第一Boss"
+            },
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 1
+          }
+        },
+        {
+          "action": [
+            "目的地",
+            "乙",
+            "第一Boss"
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "第一Boss",
+              "乙": "第一Boss"
+            },
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 2
+          }
+        },
+        {
+          "action": [
+            "目的地",
+            "丙",
+            "第一Boss"
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "第一Boss",
+              "乙": "第一Boss",
+              "丙": "第一Boss"
+            },
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": {
+              "id": 1,
+              "dest": "第一Boss",
+              "tickets": [
+                "第一Boss",
+                "第一Boss",
+                "第一Boss"
+              ]
+            },
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 3,
+            "nextEntry": 1
+          }
+        },
+        {
+          "action": [
+            "确认",
+            null,
+            1
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {},
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 0,
+            "entries": 1,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 4,
+            "nextEntry": 1,
+            "current": {
+              "id": 1,
+              "dest": "第一Boss",
+              "tickets": [
+                "第一Boss",
+                "第一Boss",
+                "第一Boss"
+              ]
+            }
+          }
+        },
+        {
+          "action": [
+            "完成"
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {},
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 0,
+            "entries": 1,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 5,
+            "nextEntry": 1,
+            "current": {
+              "id": 1,
+              "dest": "第一Boss",
+              "tickets": [
+                "第一Boss",
+                "第一Boss",
+                "第一Boss"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "放弃后新进入拒绝旧确认",
+      "expected": [
+        0,
+        2
+      ],
+      "actual": [
+        0,
+        2
+      ],
+      "ok": true,
+      "trace": [
+        {
+          "action": [
+            "目的地",
+            "甲",
+            "店"
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "店"
+            },
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 1
+          }
+        },
+        {
+          "action": [
+            "目的地",
+            "乙",
+            "店"
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "店",
+              "乙": "店"
+            },
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 2
+          }
+        },
+        {
+          "action": [
+            "目的地",
+            "丙",
+            "店"
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "店",
+              "乙": "店",
+              "丙": "店"
+            },
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": {
+              "id": 1,
+              "dest": "店",
+              "tickets": [
+                "店",
+                "店",
+                "店"
+              ]
+            },
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 3,
+            "nextEntry": 1
+          }
+        },
+        {
+          "action": [
+            "放弃进入"
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {},
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 4,
+            "nextEntry": 1,
+            "epoch": 1
+          }
+        },
+        {
+          "action": [
+            "目的地",
+            "甲",
+            "店"
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "店"
+            },
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 5,
+            "nextEntry": 1,
+            "epoch": 1
+          }
+        },
+        {
+          "action": [
+            "目的地",
+            "乙",
+            "店"
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "店",
+              "乙": "店"
+            },
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 6,
+            "nextEntry": 1,
+            "epoch": 1
+          }
+        },
+        {
+          "action": [
+            "目的地",
+            "丙",
+            "店"
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "店",
+              "乙": "店",
+              "丙": "店"
+            },
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": {
+              "id": 2,
+              "dest": "店",
+              "tickets": [
+                "店",
+                "店",
+                "店"
+              ]
+            },
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 7,
+            "nextEntry": 2,
+            "epoch": 1
+          }
+        },
+        {
+          "action": [
+            "确认",
+            null,
+            1
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {
+              "甲": "店",
+              "乙": "店",
+              "丙": "店"
+            },
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": {
+              "id": 2,
+              "dest": "店",
+              "tickets": [
+                "店",
+                "店",
+                "店"
+              ]
+            },
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 8,
+            "nextEntry": 2,
+            "epoch": 1
+          }
+        }
+      ]
+    },
+    {
+      "name": "新进入确认仅一次",
+      "expected": 1,
+      "actual": 1,
+      "ok": true,
+      "trace": [
+        {
+          "action": [
+            "确认",
+            null,
+            2
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "探索",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {},
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 0,
+            "entries": 1,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 9,
+            "nextEntry": 2,
+            "epoch": 1,
+            "current": {
+              "id": 2,
+              "dest": "店",
+              "tickets": [
+                "店",
+                "店",
+                "店"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "恢复隔离前会话旧请求",
+      "expected": {},
+      "actual": {},
+      "ok": true,
+      "trace": [
+        {
+          "action": [
+            "拿",
+            "甲",
+            "A",
+            {
+              "epoch": 0,
+              "request": "before-reload"
+            }
+          ],
+          "state": {
+            "active": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "roster": [
+              "甲",
+              "乙",
+              "丙"
+            ],
+            "phase": "编辑",
+            "blocks": {
+              "A": 0,
+              "B": 2,
+              "C": 4
+            },
+            "edges": [
+              "A-B"
+            ],
+            "held": {},
+            "votes": {},
+            "starts": 0,
+            "map": "原图",
+            "rewards": [],
+            "continued": [],
+            "steps": 1,
+            "entries": 0,
+            "pending": null,
+            "masks": [],
+            "safe": true,
+            "combat": {},
+            "seq": 1,
+            "epoch": 1,
+            "requests": []
+          }
+        }
+      ]
+    }
+  ]
+}

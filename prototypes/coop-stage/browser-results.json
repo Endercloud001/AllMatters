@@ -1,0 +1,81 @@
+{
+  "browser": "156.0.8078.80",
+  "records": [
+    {
+      "name": "关联保护",
+      "ok": true,
+      "phase": "编辑",
+      "steps": 5
+    },
+    {
+      "name": "同落点",
+      "ok": true,
+      "phase": "编辑",
+      "steps": 4
+    },
+    {
+      "name": "重复建删",
+      "ok": true,
+      "phase": "编辑",
+      "steps": 4
+    },
+    {
+      "name": "切换取消混票",
+      "ok": true,
+      "phase": "编辑",
+      "steps": 5
+    },
+    {
+      "name": "最后票先",
+      "ok": true,
+      "phase": "自动",
+      "steps": 5
+    },
+    {
+      "name": "撤票先",
+      "ok": true,
+      "phase": "编辑",
+      "steps": 4
+    },
+    {
+      "name": "断线先恢复",
+      "ok": true,
+      "phase": "自动",
+      "steps": 4
+    },
+    {
+      "name": "单人",
+      "ok": true,
+      "phase": "探索",
+      "steps": 4
+    },
+    {
+      "name": "受控失败",
+      "ok": true,
+      "phase": "编辑",
+      "steps": 3
+    },
+    {
+      "name": "检查失败撤回",
+      "ok": true,
+      "phase": "编辑",
+      "steps": 2
+    },
+    {
+      "name": "探索重复和事件连续战斗",
+      "ok": true,
+      "phase": "探索",
+      "steps": 8
+    },
+    {
+      "name": "同店重访",
+      "ok": true,
+      "phase": "探索",
+      "steps": 12
+    }
+  ],
+  "errors": [],
+  "held": "A",
+  "cleared": true,
+  "compactOverflow": false
+}

@@ -1,0 +1,166 @@
+{
+  "runtime": "v24.11.1",
+  "failures": 0,
+  "records": [
+    {
+      "outcome": "success",
+      "waiting": true,
+      "staleIgnored": true,
+      "ok": true,
+      "state": {
+        "active": [
+          "甲"
+        ],
+        "roster": [
+          "甲"
+        ],
+        "phase": "先古",
+        "blocks": {
+          "A": 0,
+          "B": 2,
+          "C": 4
+        },
+        "edges": [
+          "A-B"
+        ],
+        "held": {},
+        "votes": {
+          "甲": "自动"
+        },
+        "starts": 1,
+        "map": "确定图",
+        "rewards": [],
+        "continued": [],
+        "steps": 1,
+        "entries": 0,
+        "pending": null,
+        "masks": [],
+        "safe": true,
+        "combat": {},
+        "seq": 3,
+        "requests": [
+          "controlled-job"
+        ],
+        "epoch": 1
+      }
+    },
+    {
+      "outcome": "cancel",
+      "waiting": true,
+      "staleIgnored": true,
+      "ok": true,
+      "state": {
+        "active": [
+          "甲"
+        ],
+        "roster": [
+          "甲"
+        ],
+        "phase": "编辑",
+        "blocks": {
+          "A": 0,
+          "B": 2,
+          "C": 4
+        },
+        "edges": [
+          "A-B"
+        ],
+        "held": {},
+        "votes": {},
+        "starts": 1,
+        "map": "原图",
+        "rewards": [],
+        "continued": [],
+        "steps": 1,
+        "entries": 0,
+        "pending": null,
+        "masks": [],
+        "safe": true,
+        "combat": {},
+        "seq": 4,
+        "epoch": 1,
+        "requests": []
+      }
+    },
+    {
+      "outcome": "timeout",
+      "waiting": true,
+      "staleIgnored": true,
+      "ok": true,
+      "state": {
+        "active": [
+          "甲"
+        ],
+        "roster": [
+          "甲"
+        ],
+        "phase": "编辑",
+        "blocks": {
+          "A": 0,
+          "B": 2,
+          "C": 4
+        },
+        "edges": [
+          "A-B"
+        ],
+        "held": {},
+        "votes": {},
+        "starts": 1,
+        "map": "原图",
+        "rewards": [],
+        "continued": [],
+        "steps": 1,
+        "entries": 0,
+        "pending": null,
+        "masks": [],
+        "safe": true,
+        "combat": {},
+        "seq": 4,
+        "epoch": 1,
+        "requests": []
+      }
+    },
+    {
+      "outcome": "reload",
+      "waiting": true,
+      "staleIgnored": true,
+      "ok": true,
+      "state": {
+        "active": [
+          "甲"
+        ],
+        "roster": [
+          "甲"
+        ],
+        "phase": "先古",
+        "blocks": {
+          "A": 0,
+          "B": 2,
+          "C": 4
+        },
+        "edges": [
+          "A-B"
+        ],
+        "held": {},
+        "votes": {
+          "甲": "自动"
+        },
+        "starts": 1,
+        "map": "确定图",
+        "rewards": [],
+        "continued": [],
+        "steps": 1,
+        "entries": 0,
+        "pending": null,
+        "masks": [],
+        "safe": true,
+        "combat": {},
+        "seq": 4,
+        "epoch": 2,
+        "requests": [
+          "restarted-job"
+        ]
+      }
+    }
+  ]
+}

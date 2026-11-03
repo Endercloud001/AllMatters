@@ -1,0 +1,24 @@
+runtime=9.0.21
+ritsu=E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters\.local\dependencies\RitsuLib-0.6.7\compat\0.107.1\STS2-RitsuLib.Runtime.dll
+PASS actual RitsuLib slot payload disk roundtrip; scratch=C:\Users\Endercloud\AppData\Local\Temp\PROTOTYPE-ritsu-wipe-me-8a2045d9-87d9-47fe-9a5e-2c77aa4964bc
+Fatal error. 0xC0000005
+   at Godot.NativeInterop.NativeFuncs.godotsharp_string_new_with_utf16_chars(Godot.NativeInterop.godot_string ByRef, Char*)
+   at Godot.NativeInterop.Marshaling.ConvertStringToNative(System.String)
+   at Godot.NativeInterop.NativeFuncs.godotsharp_string_name_new_from_string(System.String)
+   at Godot.StringName..ctor(System.String)
+   at Godot.StringName.op_Implicit(System.String)
+   at Godot.OS..cctor()
+   at Godot.OS.GetCmdlineArgs()
+   at MegaCrit.Sts2.Core.Logging.Logger.GetIsRunningFromGodotEditor()
+   at MegaCrit.Sts2.Core.Logging.Logger..cctor()
+   at MegaCrit.Sts2.Core.Logging.Logger..ctor(System.String, MegaCrit.Sts2.Core.Logging.LogType)
+   at STS2RitsuLib.RitsuModuleRuntime.CreateLogger(System.String, MegaCrit.Sts2.Core.Logging.LogType)
+   at STS2RitsuLib.RitsuModuleRuntime..cctor()
+   at STS2RitsuLib.RitsuModuleRuntime.Attach(STS2RitsuLib.IRitsuModuleHost)
+   at STS2RitsuLib.RitsuLibFramework..cctor()
+   at STS2RitsuLib.RitsuLibFramework.SubscribeLifecycle[[STS2RitsuLib.GameReadyEvent, STS2-RitsuLib.Shared, Version=0.6.7.0, Culture=neutral, PublicKeyToken=null]](System.Action`1<STS2RitsuLib.GameReadyEvent>, Boolean)
+   at STS2RitsuLib.Networking.Sidecar.RitsuLibSidecarNetworkingLifecycle.EnsureHooksInstalled()
+   at STS2RitsuLib.Networking.Sidecar.RitsuLibSidecarProtocol.EnsureDefaultHandlers()
+   at STS2RitsuLib.Networking.Sidecar.RitsuLibSidecarTypedMessageRegistry.Register[[System.__Canon, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]](STS2RitsuLib.Networking.Sidecar.RitsuLibSidecarMessageDescriptor`1<System.__Canon>)
+   at Program.Run()
+   at Program.Main(System.String[])

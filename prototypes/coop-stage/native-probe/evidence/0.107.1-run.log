@@ -1,0 +1,7 @@
+runtime=9.0.21
+ritsu=E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters\.local\dependencies\RitsuLib-0.6.7\compat\0.107.1\STS2-RitsuLib.Runtime.dll
+game=E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters\.local\api\public-github-0.107.1\sts2.dll; product=0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314
+native message API=SendMessage,SendMessage,RegisterMessageHandler,UnregisterMessageHandler,SetBufferMessages
+native AfterAllRestSitesCompleted=False
+PASS actual RitsuLib slot payload disk roundtrip; scratch=C:\Users\Endercloud\AppData\Local\Temp\PROTOTYPE-ritsu-wipe-me-3158d1d9-590e-479f-b8a9-761413b07868
+PASS actual message codec; transport not invoked
