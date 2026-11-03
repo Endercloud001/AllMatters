@@ -1,5 +1,7 @@
 # Agent 自动部分收口记录
 
+后续：[Godot宿主补验](GODOT-RESULTS.md)已解除缺GodotPath与独立宿主注册失败的阻塞：资源、双版既有测试/构建通过，新增注册/载荷探针双版各2项通过。下文保留此前独立.NET实验的历史结果，运行限制以补验为准。
+
 2026-11-03；只在prototype/coop-stage-recovery工作树继续，未修改主工作区、游戏安装、Steam或真实存档。此文件更新第一批EXPERIMENT.md中的历史待办；不是整票resolution或双版支持承诺。
 
 ## 本轮实际结果

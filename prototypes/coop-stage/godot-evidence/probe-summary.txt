@@ -1,0 +1,12 @@
+1:Testing public-beta : 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32 [E:\SteamLibrary\steamapps\common\Slay the Spire 2\data_sts2_windows_x86_64\sts2.dll]
+2472:PrototypeCoop: descriptor registered/subscribed; codec roundtrip; NO native transport invoked
+2473:PASS: PrototypeCoop descriptor registration and codec under Godot
+2474:PrototypeCoop: initialized run slot payload roundtrip; scratch=C:\Users\Endercloud\AppData\Local\Temp\PROTOTYPE68-Godot-wipe-me-6cc16967-bba3-43cd-9900-3537bcac2533
+2475:PASS: PrototypeCoop saved slot payload with initialized test run
+2476:Passed 2 tests against 0.1.0.0.
+2477:Testing public : 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters\.local\api\public-github-0.107.1\sts2.dll]
+2625:PrototypeCoop: descriptor registered/subscribed; codec roundtrip; NO native transport invoked
+2626:PASS: PrototypeCoop descriptor registration and codec under Godot
+2627:PrototypeCoop: initialized run slot payload roundtrip; scratch=C:\Users\Endercloud\AppData\Local\Temp\PROTOTYPE68-Godot-wipe-me-15e15dbc-9c91-4a00-a778-de82d40d97c7
+2628:PASS: PrototypeCoop saved slot payload with initialized test run
+2629:Passed 2 tests against 0.1.0.0.

@@ -1,0 +1,14 @@
+362:Testing public-beta : 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32 [E:\SteamLibrary\steamapps\common\Slay the Spire 2\data_sts2_windows_x86_64\sts2.dll]
+5040:Passed 216 tests against 0.1.0.0.
+5049:Testing public : 0.1.0+59260271157f76a2896f0eab5bc6ea1245d8b314 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters\.local\api\public-github-0.107.1\sts2.dll]
+6094:Passed 216 tests against 0.1.0.0.
+6124:Check             Status Detail
+6126:PowerShell syntax PASS   
+6127:Workflow scripts  PASS   
+6128:Git whitespace    PASS   
+6129:Resources         PASS   
+6130:Tests public-beta PASS   
+6131:Tests public      PASS   
+6132:Build public-beta PASS   
+6133:Build public      PASS   
+6135:AllMatters checks PASSED.
