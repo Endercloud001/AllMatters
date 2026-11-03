@@ -1,0 +1,426 @@
+[
+  {
+    "family": "controlled",
+    "double": false,
+    "case": "zero no witness",
+    "status": "UNKNOWN",
+    "passed": true,
+    "rejection": null,
+    "witness_error": null
+  },
+  {
+    "family": "controlled",
+    "double": false,
+    "case": "exhausted no witness",
+    "status": "UNKNOWN",
+    "passed": true,
+    "rejection": null,
+    "witness_error": null
+  },
+  {
+    "family": "controlled",
+    "double": false,
+    "case": "exception no witness",
+    "status": "UNKNOWN",
+    "passed": true,
+    "rejection": null,
+    "witness_error": null
+  },
+  {
+    "family": "controlled",
+    "double": false,
+    "case": "invalid output no witness",
+    "status": "UNKNOWN",
+    "passed": true,
+    "rejection": "room mutation",
+    "witness_error": null
+  },
+  {
+    "family": "controlled",
+    "double": false,
+    "case": "zero valid witness",
+    "status": "SAT",
+    "passed": true,
+    "rejection": null,
+    "witness_error": null
+  },
+  {
+    "family": "controlled",
+    "double": false,
+    "case": "exception valid witness",
+    "status": "SAT",
+    "passed": true,
+    "rejection": null,
+    "witness_error": null
+  },
+  {
+    "family": "controlled",
+    "double": false,
+    "case": "invalid output valid witness",
+    "status": "SAT",
+    "passed": true,
+    "rejection": "room mutation",
+    "witness_error": null
+  },
+  {
+    "family": "controlled",
+    "double": false,
+    "case": "reject old manual-only fallback",
+    "status": "UNKNOWN",
+    "passed": true,
+    "witness_error": "missing rest fragment"
+  },
+  {
+    "family": "controlled",
+    "double": false,
+    "case": "old manual-only witness on exception",
+    "status": "UNKNOWN",
+    "passed": true,
+    "witness_error": "missing rest fragment"
+  },
+  {
+    "family": "controlled",
+    "double": false,
+    "case": "old manual-only witness on invalid-output",
+    "status": "UNKNOWN",
+    "passed": true,
+    "witness_error": "missing rest fragment"
+  },
+  {
+    "family": "controlled",
+    "double": false,
+    "case": "old four-piece fallback None",
+    "status": "UNKNOWN",
+    "passed": true,
+    "witness_error": "boss neighbors"
+  },
+  {
+    "family": "controlled",
+    "double": false,
+    "case": "old four-piece fallback exception",
+    "status": "UNKNOWN",
+    "passed": true,
+    "witness_error": "boss neighbors"
+  },
+  {
+    "family": "controlled",
+    "double": false,
+    "case": "old four-piece fallback invalid-output",
+    "status": "UNKNOWN",
+    "passed": true,
+    "witness_error": "boss neighbors"
+  },
+  {
+    "family": "controlled",
+    "double": false,
+    "case": "restart same approved input",
+    "passed": true,
+    "status": "SAT"
+  },
+  {
+    "family": "controlled",
+    "double": true,
+    "case": "zero no witness",
+    "status": "UNKNOWN",
+    "passed": true,
+    "rejection": null,
+    "witness_error": null
+  },
+  {
+    "family": "controlled",
+    "double": true,
+    "case": "exhausted no witness",
+    "status": "UNKNOWN",
+    "passed": true,
+    "rejection": null,
+    "witness_error": null
+  },
+  {
+    "family": "controlled",
+    "double": true,
+    "case": "exception no witness",
+    "status": "UNKNOWN",
+    "passed": true,
+    "rejection": null,
+    "witness_error": null
+  },
+  {
+    "family": "controlled",
+    "double": true,
+    "case": "invalid output no witness",
+    "status": "UNKNOWN",
+    "passed": true,
+    "rejection": "room mutation",
+    "witness_error": null
+  },
+  {
+    "family": "controlled",
+    "double": true,
+    "case": "zero valid witness",
+    "status": "SAT",
+    "passed": true,
+    "rejection": null,
+    "witness_error": null
+  },
+  {
+    "family": "controlled",
+    "double": true,
+    "case": "exception valid witness",
+    "status": "SAT",
+    "passed": true,
+    "rejection": null,
+    "witness_error": null
+  },
+  {
+    "family": "controlled",
+    "double": true,
+    "case": "invalid output valid witness",
+    "status": "SAT",
+    "passed": true,
+    "rejection": "room mutation",
+    "witness_error": null
+  },
+  {
+    "family": "controlled",
+    "double": true,
+    "case": "reject old manual-only fallback",
+    "status": "UNKNOWN",
+    "passed": true,
+    "witness_error": "missing rest fragment"
+  },
+  {
+    "family": "controlled",
+    "double": true,
+    "case": "old manual-only witness on exception",
+    "status": "UNKNOWN",
+    "passed": true,
+    "witness_error": "missing rest fragment"
+  },
+  {
+    "family": "controlled",
+    "double": true,
+    "case": "old manual-only witness on invalid-output",
+    "status": "UNKNOWN",
+    "passed": true,
+    "witness_error": "missing rest fragment"
+  },
+  {
+    "family": "controlled",
+    "double": true,
+    "case": "old four-piece fallback None",
+    "status": "UNKNOWN",
+    "passed": true,
+    "witness_error": "boss neighbors"
+  },
+  {
+    "family": "controlled",
+    "double": true,
+    "case": "old four-piece fallback exception",
+    "status": "UNKNOWN",
+    "passed": true,
+    "witness_error": "boss neighbors"
+  },
+  {
+    "family": "controlled",
+    "double": true,
+    "case": "old four-piece fallback invalid-output",
+    "status": "UNKNOWN",
+    "passed": true,
+    "witness_error": "boss neighbors"
+  },
+  {
+    "family": "controlled",
+    "double": true,
+    "case": "restart same approved input",
+    "passed": true,
+    "status": "SAT"
+  },
+  {
+    "family": "existing-demo",
+    "double": false,
+    "case": "zero no witness",
+    "status": "UNKNOWN",
+    "passed": true,
+    "rejection": null,
+    "witness_error": null
+  },
+  {
+    "family": "existing-demo",
+    "double": false,
+    "case": "exhausted no witness",
+    "status": "UNKNOWN",
+    "passed": true,
+    "rejection": null,
+    "witness_error": null
+  },
+  {
+    "family": "existing-demo",
+    "double": false,
+    "case": "exception no witness",
+    "status": "UNKNOWN",
+    "passed": true,
+    "rejection": null,
+    "witness_error": null
+  },
+  {
+    "family": "existing-demo",
+    "double": false,
+    "case": "invalid output no witness",
+    "status": "UNKNOWN",
+    "passed": true,
+    "rejection": "room mutation",
+    "witness_error": null
+  },
+  {
+    "family": "existing-demo",
+    "double": false,
+    "case": "zero valid witness",
+    "status": "SAT",
+    "passed": true,
+    "rejection": null,
+    "witness_error": null
+  },
+  {
+    "family": "existing-demo",
+    "double": false,
+    "case": "exception valid witness",
+    "status": "SAT",
+    "passed": true,
+    "rejection": null,
+    "witness_error": null
+  },
+  {
+    "family": "existing-demo",
+    "double": false,
+    "case": "invalid output valid witness",
+    "status": "SAT",
+    "passed": true,
+    "rejection": "room mutation",
+    "witness_error": null
+  },
+  {
+    "family": "existing-demo",
+    "double": false,
+    "case": "reject old manual-only fallback",
+    "status": "UNKNOWN",
+    "passed": true,
+    "witness_error": "missing rest fragment"
+  },
+  {
+    "family": "existing-demo",
+    "double": false,
+    "case": "old manual-only witness on exception",
+    "status": "UNKNOWN",
+    "passed": true,
+    "witness_error": "missing rest fragment"
+  },
+  {
+    "family": "existing-demo",
+    "double": false,
+    "case": "old manual-only witness on invalid-output",
+    "status": "UNKNOWN",
+    "passed": true,
+    "witness_error": "missing rest fragment"
+  },
+  {
+    "family": "existing-demo",
+    "double": false,
+    "case": "restart same approved input",
+    "passed": true,
+    "status": "SAT"
+  },
+  {
+    "family": "existing-demo",
+    "double": true,
+    "case": "zero no witness",
+    "status": "UNKNOWN",
+    "passed": true,
+    "rejection": null,
+    "witness_error": null
+  },
+  {
+    "family": "existing-demo",
+    "double": true,
+    "case": "exhausted no witness",
+    "status": "UNKNOWN",
+    "passed": true,
+    "rejection": null,
+    "witness_error": null
+  },
+  {
+    "family": "existing-demo",
+    "double": true,
+    "case": "exception no witness",
+    "status": "UNKNOWN",
+    "passed": true,
+    "rejection": null,
+    "witness_error": null
+  },
+  {
+    "family": "existing-demo",
+    "double": true,
+    "case": "invalid output no witness",
+    "status": "UNKNOWN",
+    "passed": true,
+    "rejection": "room mutation",
+    "witness_error": null
+  },
+  {
+    "family": "existing-demo",
+    "double": true,
+    "case": "zero valid witness",
+    "status": "SAT",
+    "passed": true,
+    "rejection": null,
+    "witness_error": null
+  },
+  {
+    "family": "existing-demo",
+    "double": true,
+    "case": "exception valid witness",
+    "status": "SAT",
+    "passed": true,
+    "rejection": null,
+    "witness_error": null
+  },
+  {
+    "family": "existing-demo",
+    "double": true,
+    "case": "invalid output valid witness",
+    "status": "SAT",
+    "passed": true,
+    "rejection": "room mutation",
+    "witness_error": null
+  },
+  {
+    "family": "existing-demo",
+    "double": true,
+    "case": "reject old manual-only fallback",
+    "status": "UNKNOWN",
+    "passed": true,
+    "witness_error": "missing rest fragment"
+  },
+  {
+    "family": "existing-demo",
+    "double": true,
+    "case": "old manual-only witness on exception",
+    "status": "UNKNOWN",
+    "passed": true,
+    "witness_error": "missing rest fragment"
+  },
+  {
+    "family": "existing-demo",
+    "double": true,
+    "case": "old manual-only witness on invalid-output",
+    "status": "UNKNOWN",
+    "passed": true,
+    "witness_error": "missing rest fragment"
+  },
+  {
+    "family": "existing-demo",
+    "double": true,
+    "case": "restart same approved input",
+    "passed": true,
+    "status": "SAT"
+  }
+]

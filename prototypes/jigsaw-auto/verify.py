@@ -29,6 +29,24 @@ def check_walk(s, walk, budget):
         done.add(n)
 
 
+def auto_requirements(pool, s, budget, reachable_normal, distance):
+    """Auto-only stage. Geometry and graph validity are prerequisites, not bypasses."""
+    used=set(s['used']);by={n['id']:n for n in s['nodes']}
+    required={p['id'] for p in pool if 'rest' in p['types']}
+    boss_piece=next(n['piece'] for n in s['nodes'] if n['type']=='boss')
+    direct=False;neighbors=set()
+    for e in s['edges']:
+        if e['internal']:continue
+        owners={by[e['a']]['piece'],by[e['b']]['piece']}
+        direct |= owners=={-1,boss_piece}
+        if boss_piece in owners:neighbors |= owners-{-1,boss_piece}
+    need(required<=used,'missing rest fragment')
+    need(not direct or len(neighbors)>=2,'boss neighbors')
+    need(len(reachable_normal)>=budget-1,'full budget capacity')
+    need(distance<=budget,'step limit')
+    return direct,neighbors
+
+
 def verify(pool, s, budget, auto=True):
     p = {x['id']: x for x in pool}
     need(len(p) == 14 and Counter(x['shape'] for x in pool) == Counter({k: 2 for k in 'IOTSZJL'}), 'pool shapes')
@@ -75,16 +93,38 @@ def verify(pool, s, budget, auto=True):
             if t.startswith('boss'):
                 need(p[i]['types'][j] in {'monster', 'elite', 'unknown'}, 'boss replacement')
         expected_edges |= {tuple(sorted((f'{i}:{a}', f'{i}:{b}'))) for a, b in p[i]['edges']}
+    need(sum(n['type'] in {'boss','boss2'} for n in nodes) == (2 if double else 1), 'boss count')
+    g,boss,neighbors,direct=geometry_stage(nodes,s['edges'],expected_edges)
+    target,routes=topology_stage(by,g,boss,double,budget)
+    required = {x['id'] for x in pool if 'rest' in x['types']}
+    walk = []
+    normal = by.keys()-boss-{'N'}
+    if auto:
+        auto_requirements(pool,s,budget,normal,len(routes[target]))
+        walk = routes[target][:-1]; done = {'N', *walk}
+        while len(walk) < budget-1:
+            options = sorted(n for n in normal-done if g[n] & done)
+            need(bool(options), 'exploration stuck'); walk.append(options[0]); done.add(options[0])
+        walk.append(target); done = {'N'}
+        for n in walk:
+            need(n not in done and bool(g[n] & done), 'invalid exploration'); done.add(n)
+        check_walk(s,walk,budget)
+    return dict(blocks=len(used), normal=len(normal), distance=len(routes[target]), walk=walk,
+                rooms=dict(Counter(n['type'] for n in nodes)), walk_rooms=dict(Counter(by[n]['type'] for n in walk)),
+                rest=sum(n['type'] == 'rest' for n in nodes), required=sorted(required), covered=sorted(required & used),
+                boss_neighbors=len(neighbors), direct=direct)
+
+def geometry_stage(nodes,scene_edges,expected_edges):
+    by={n['id']:n for n in nodes}
     big = lambda n: n['type'] in {'neow', 'boss', 'boss2'}
     boss = {n['id'] for n in nodes if n['type'] in {'boss', 'boss2'}}
-    need(len(boss) == (2 if double else 1), 'boss count')
     for a, b in combinations(nodes, 2):
         need(clearance(a,b), 'global clearance')
     boxes = {n['id']: {(n['x']+dx, n['y']+dy) for dx in range(-int(big(n)), int(big(n))+1) for dy in range(-int(big(n)), int(big(n))+1)} for n in nodes}
     need(all(type(n[k]) is int for n in nodes for k in ('x', 'y')), 'integer coordinates')
     occupied = set().union(*boxes.values()); paths = set(); ports = set(); edges = set(); internal = set(); pairs = Counter()
     g = {n: set() for n in by}; neighbors = set(); direct = False
-    for e in s['edges']:
+    for e in scene_edges:
         a, b = e['a'], e['b']; pair = tuple(sorted((a, b)))
         need(a in by and b in by and a != b and pair not in edges, 'duplicate/invalid edge')
         edges.add(pair); na, nb = by[a], by[b]
@@ -110,6 +150,10 @@ def verify(pool, s, budget, auto=True):
         need(not line & (paths | occupied), 'path collision'); paths |= line
         g[a].add(b); g[b].add(a)
     need(internal == expected_edges and all(n <= 2 for n in pairs.values()), 'missing internal/pair cap')
+    return g,boss,neighbors,direct
+
+
+def topology_stage(by,g,boss,double,budget):
     target = next(n for n in boss if by[n]['type'] == 'boss')
     need(len(g[target]) == (2 if double else 1) and len(g[target]-boss) == 1, 'first boss terminal')
     need(all(by[v]['piece'] == by[target]['piece'] for v in g[target]), 'boss bridge')
@@ -121,28 +165,10 @@ def verify(pool, s, budget, auto=True):
         a = q.popleft()
         for b in sorted(g[a]):
             if b not in routes: routes[b] = routes[a]+[b]; q.append(b)
-    need(len(routes) == len(nodes), 'connectivity')
+    need(len(routes) == len(by), 'connectivity')
     reach = {'N'}
-    for _ in nodes:
+    for _ in by:
         reach |= set().union(*(g[n]-boss for n in reach))
     need(reach == by.keys()-boss, 'ordinary behind boss')
     need(len(routes[target]) <= budget, 'step limit')
-    required = {x['id'] for x in pool if 'rest' in x['types']}
-    walk = []
-    normal = by.keys()-boss-{'N'}
-    if auto:
-        need(required <= used, 'missing rest fragment')
-        need(not direct or len(neighbors) >= 2, 'boss neighbors')
-        need(len(normal) >= budget-1, 'full budget capacity')
-        walk = routes[target][:-1]; done = {'N', *walk}
-        while len(walk) < budget-1:
-            options = sorted(n for n in normal-done if g[n] & done)
-            need(bool(options), 'exploration stuck'); walk.append(options[0]); done.add(options[0])
-        walk.append(target); done = {'N'}
-        for n in walk:
-            need(n not in done and bool(g[n] & done), 'invalid exploration'); done.add(n)
-        check_walk(s,walk,budget)
-    return dict(blocks=len(used), normal=len(normal), distance=len(routes[target]), walk=walk,
-                rooms=dict(Counter(n['type'] for n in nodes)), walk_rooms=dict(Counter(by[n]['type'] for n in walk)),
-                rest=sum(n['type'] == 'rest' for n in nodes), required=sorted(required), covered=sorted(required & used),
-                boss_neighbors=len(neighbors), direct=direct)
+    return target,routes
