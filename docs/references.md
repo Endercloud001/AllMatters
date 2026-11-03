@@ -36,6 +36,8 @@ Balance MOD 的自定义 Relics 目录不包括原生 RedMask；事件直接引�
 
 ## 自动拼图算法研究（2026-11-03）
 
+同日用户修订：自动结果须提供满额度探索走法（先 B−1 个不同非 Boss 碎块节点，再第 B 步进入单／第一 Boss），允许捷径、手动不变。相关研究笔记已同步；旧单块见证仅用于原规则/手动合法性说明，不再作为自动成功回退。新增验证为项目规则推导与最小实验，无第三方依赖或正式生成器。
+
 决策与证明：[docs/research/v0.1.2-jigsaw-generation.md](research/v0.1.2-jigsaw-generation.md)，独立 `research/jigsaw-generation` 分支。来源逐项版本/许可证/路径/可复用范围/依赖与证据见 [算法来源比较](research/v0.1.2-jigsaw-algorithm-sources.md)；[构造证明](research/v0.1.2-jigsaw-constructive.md)；[Mysterious Map审计](research/v0.1.2-jigsaw-reference-audit.md)。
 
 第三方源码仍只读保存在 `.local/references/`，不执行其构建脚本。用户本次明确授权参考 Mysterious Map 源码；这不是上游补发通用开源许可证，不将早期未发现 LICENSE 改记为 MIT/GPL。其他实现各自遵循其许可证。研究只输出技术决策与必要最小验证，不提供正式生成器。
