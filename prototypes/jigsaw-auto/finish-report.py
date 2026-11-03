@@ -51,7 +51,7 @@ for double,B in [(False,15),(False,14),(False,13),(True,13)]:
 lines += ['', '## 额外给定池', '', '100个固定种子先准备合法房型分配（配额/骨架/内部边不变），随后每池×四配置×预算0/1000从零搜索。原池在搜索开始后不再改动；这是100个额外输入池，不代表所有任意池。', '', '|配置|预算|样本|有效|UNKNOWN|UNSAT|原池/失败布局受损|','|---|---|---|---|---|---|---|']
 for r in json.loads((ROOT/'stress-summary.json').read_text(encoding='utf8')):
     lines.append('|%s|%s|%s|%s|%s|0|0|'%(r['config'],r['budget'],r['samples'],r['valid'],r['UNKNOWN']))
-lines += ['', '## 当前规则及用户反馈','', '- 三项均在Boss替换前检查：每块≤1休息处；不许四节点房型相同；固定内部通路不能直接连接两个精英。仅骨架共边但无内部通路不因此禁止。手动与自动共用整池约束。', '- 6个休息处分属6块；受控六块见证已独立验证。旧三休息块/四块见证及旧固定池不合格，legacy-room-inputs.json仅作拒绝对照；新给定测试池在输入准备时创建，运行时从不修复或重抽给定池。', '- 用户对第2、3组（失败保留、等待/恢复）的通过反馈保留；修改后的地图布局和房型分布仍待用户观察。', '', '## 验证与边界','',
+lines += ['', '## 当前规则及用户反馈','', '- 三项均在Boss替换前检查：每块≤1休息处；不许四节点房型相同；固定内部通路不能直接连接两个精英。仅骨架共边但无内部通路不因此禁止。手动与自动共用整池约束。', '- 6个休息处分属6块；受控六块见证已独立验证。旧三休息块/四块见证及旧固定池不合格，legacy-room-inputs.json仅作拒绝对照；新给定测试池在输入准备时创建，运行时从不修复或重抽给定池。', '- 用户对第2、3组（失败保留、等待/恢复）的通过反馈保留；修改后的地图布局和房型分布已于2026-11-04由用户确认通过。', '', '## 验证与边界','',
           f'- negative-results.json {len(json.loads((ROOT/"negative-results.json").read_text(encoding="utf8")))}项；coverage-results.json {len(json.loads((ROOT/"coverage-results.json").read_text(encoding="utf8")))}项。后者明确区分完整布局、几何、拓扑、自动条件和探索阶段；阶段负例只证明该验收阶段，不能替代完整合法性。',
           '- pipeline-check-results.json 60项事务检查；worker-recovery-results.json 两项真实worker中断后JSON重做；recovery-results.json 12项状态出口模拟。原生多人存档由相应验证票承担。',
           '- live-browser-results.json 32项：24组配置/方案、预算零、异常、错误输出、实际活动进程中断恢复、请求失败、非法种子、旧给定池及旧页面缺失原池。编辑布局逐字段保持、输入控件锁定、实际等待幕、手机/桌面无溢出，无JS错误；不是用户体验认可。',
