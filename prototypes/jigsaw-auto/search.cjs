@@ -21,7 +21,7 @@ function* candidates(s,pool,seed){
   }
  }
 }
-function solve(pool,double,B,seed,budget,witness=null){
+function solve(pool,double,B,seed,budget,witness=null,onExpand=null){
  const start=performance.now();let expanded=0,best=null,exhausted=false;
  // Old JS validator is only a generator filter. Python is the acceptance authority.
  const previous=data.pool;data.pool=pool;
@@ -30,7 +30,7 @@ function solve(pool,double,B,seed,budget,witness=null){
  function visit(s,depth){
   if(valid(s)){best=clone(s);if(!witness||s.used.length===14)return true;}
   for(const next of candidates(s,pool,seed+depth*104729)){
-   if(expanded>=budget){exhausted=true;return true}expanded++;
+   if(expanded>=budget){exhausted=true;return true}expanded++;if(onExpand)onExpand(expanded);
    try{api.geometry(next.nodes,next.edges)}catch{continue}
    if(visit(next,depth+1))return true;
   }return false;

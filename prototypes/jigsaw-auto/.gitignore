@@ -1,2 +1,3 @@
 __pycache__/
 *.jsonl
+PROTOTYPE-worker-checkpoint.json

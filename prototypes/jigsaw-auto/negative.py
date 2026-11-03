@@ -1,7 +1,7 @@
 """Decision evidence fixtures, not production tests. Records exact rejection stage."""
 import json, copy
 from pathlib import Path
-from verify import verify, clearance
+from verify import verify, clearance, check_walk
 root=Path(__file__).parent
 d=json.loads((root/'controlled.json').read_text(encoding='utf8'))
 results=[]
@@ -45,6 +45,12 @@ for double,base in enumerate(d['witnesses']):
 for ta,tb,dx,dy,expected in [('monster','monster',1,0,False),('monster','monster',1,1,False),('monster','monster',2,0,True),('boss','monster',2,2,False),('boss','monster',3,0,True),('boss','boss',3,3,False),('boss','boss',4,0,True)]:
     actual=clearance(dict(x=0,y=0,type=ta),dict(x=dx,y=dy,type=tb))
     results.append(dict(name=f'clearance {ta}/{tb} {dx}/{dy}',expected=expected,actual=actual,reason='independent pair predicate'))
+for double,base in enumerate(d['witnesses']):
+    walk=verify(d['pool'],base,13)['walk']
+    for name,mutated in [('repeat visit instead of distinct node',walk[:2]+[walk[0]]+walk[3:]),('unplaced pool node',walk[:2]+['4:0']+walk[3:]),('early Boss', [walk[-1]]+walk[1:]),('second Boss counts as first',walk[:-1]+['0:3'] if double else walk[:-1]+['N']),('unexplored branch jump',['3:3']+walk[1:])]:
+        try:check_walk(base,mutated,13);actual=True;reason='accepted'
+        except ValueError as e:actual=False;reason=str(e)
+        results.append(dict(name=f'{name} {double}',expected=False,actual=actual,reason=reason))
 (root/'negative-results.json').write_text(json.dumps(results,ensure_ascii=False,indent=2),encoding='utf8')
 bad=[r for r in results if r['expected']!=r['actual']]
 print(json.dumps(dict(cases=len(results),mismatches=bad)))

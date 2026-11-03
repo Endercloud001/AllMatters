@@ -360,5 +360,65 @@
     "expected": true,
     "actual": true,
     "reason": "independent pair predicate"
+  },
+  {
+    "name": "repeat visit instead of distinct node 0",
+    "expected": false,
+    "actual": false,
+    "reason": "walk repeated/unplaced node"
+  },
+  {
+    "name": "unplaced pool node 0",
+    "expected": false,
+    "actual": false,
+    "reason": "walk repeated/unplaced node"
+  },
+  {
+    "name": "early Boss 0",
+    "expected": false,
+    "actual": false,
+    "reason": "walk Boss timing"
+  },
+  {
+    "name": "second Boss counts as first 0",
+    "expected": false,
+    "actual": false,
+    "reason": "walk repeated/unplaced node"
+  },
+  {
+    "name": "unexplored branch jump 0",
+    "expected": false,
+    "actual": false,
+    "reason": "walk crosses unexplored region"
+  },
+  {
+    "name": "repeat visit instead of distinct node 1",
+    "expected": false,
+    "actual": false,
+    "reason": "walk repeated/unplaced node"
+  },
+  {
+    "name": "unplaced pool node 1",
+    "expected": false,
+    "actual": false,
+    "reason": "walk repeated/unplaced node"
+  },
+  {
+    "name": "early Boss 1",
+    "expected": false,
+    "actual": false,
+    "reason": "walk Boss timing"
+  },
+  {
+    "name": "second Boss counts as first 1",
+    "expected": false,
+    "actual": false,
+    "reason": "walk excluded target"
+  },
+  {
+    "name": "unexplored branch jump 1",
+    "expected": false,
+    "actual": false,
+    "reason": "walk crosses unexplored region"
   }
 ]

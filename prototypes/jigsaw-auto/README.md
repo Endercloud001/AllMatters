@@ -56,3 +56,11 @@ python -X utf8 prototypes/jigsaw-auto/build-review.py
 机器：Windows / AMD Ryzen 9 7945HX；Node v24.11.1、Python3.10.8。实验不执行第三方构建、不启动游戏/Steam、不复制mods、不新增hash/contract/baseline/gate。
 
 补充计时边界：P50/P95是Node候选搜索时间，不含离线Python独立验收，亦非完整交互等待。浏览器72项选择切换无JS错误，桌面与390px手机无横向溢出；截图及browser-results.json仅证明页面运行情况，不替代用户体验。
+
+## 2026-11-03 Godot补验及实际worker恢复
+
+本机GodotPath已配置为 E:/Godot_v4.5.1-stable_mono_win64/Godot_v4.5.1-stable_mono_win64_console.exe（仅Git忽略的Paths.local.props）。运行 ./tools/Check.ps1 -Branch All：8项检查全部PASS，public-beta/public各216项测试通过，双版构建及资源导出通过。日志含测试宿主的Mod类型注册警告；命令退出0，不能据此宣称原生联机已验证。构建引起的本工作树资源导入元数据变化已恢复，未影响原工作区。
+
+新增 node prototypes/jigsaw-auto/worker-recovery.cjs：单/双Boss搜索均在收到第10次扩展通知后终止真实worker，从标记为PROTOTYPE的临时JSON完整输入重新执行；scene与扩展数和不中断执行一致，两个候选再经Python独立验证通过。通知与实际终止之间可能继续扩展，不声称精确在第10次扩展停住。此为独立Node线程与临时文件实验，不是Godot后台任务或原生多人保存。
+
+正负对照增至57项；新增独立探索顺序验收，覆盖重复目的地、未摆出池节点、提前Boss、第二Boss误计及跨未探索区域。原9600条记录已按加强验证器重验，零拒绝。仍未补齐完整清单的全部几何/端口/Boss邻块针对性案例，票保持开放，用户体验尚未进行。

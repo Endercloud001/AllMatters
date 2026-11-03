@@ -16,6 +16,19 @@ def clearance(a, b):
     return max(abs(a['x']-b['x']),abs(a['y']-b['y'])) >= radius(a)+radius(b)+2
 
 
+def check_walk(s, walk, budget):
+    by={n['id']:n for n in s['nodes']};done={'N'}
+    g={n:set() for n in by}
+    for e in s['edges']:g[e['a']].add(e['b']);g[e['b']].add(e['a'])
+    need(len(walk)==budget, 'walk length')
+    for index,n in enumerate(walk):
+        need(n in by and n not in done, 'walk repeated/unplaced node')
+        need(by[n]['type'] not in {'neow','boss2'}, 'walk excluded target')
+        need((by[n]['type']=='boss') == (index==budget-1), 'walk Boss timing')
+        need(bool(g[n]&done), 'walk crosses unexplored region')
+        done.add(n)
+
+
 def verify(pool, s, budget, auto=True):
     p = {x['id']: x for x in pool}
     need(len(p) == 14 and Counter(x['shape'] for x in pool) == Counter({k: 2 for k in 'IOTSZJL'}), 'pool shapes')
@@ -128,6 +141,7 @@ def verify(pool, s, budget, auto=True):
         walk.append(target); done = {'N'}
         for n in walk:
             need(n not in done and bool(g[n] & done), 'invalid exploration'); done.add(n)
+        check_walk(s,walk,budget)
     return dict(blocks=len(used), normal=len(normal), distance=len(routes[target]), walk=walk,
                 rooms=dict(Counter(n['type'] for n in nodes)), walk_rooms=dict(Counter(by[n]['type'] for n in walk)),
                 rest=sum(n['type'] == 'rest' for n in nodes), required=sorted(required), covered=sorted(required & used),
