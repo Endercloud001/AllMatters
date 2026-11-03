@@ -1,1 +1,593 @@
-{"cases":36,"passed":36,"fields":["scene","status","expanded"],"excluded":["wall time","RSS"]}
+{
+  "algorithm": "tree-search-v2",
+  "room_rules": "pre-Boss-three-rules",
+  "cases": 72,
+  "passed": 72,
+  "fields": [
+    "scene",
+    "status",
+    "expanded"
+  ],
+  "excluded": [
+    "wall time",
+    "RSS"
+  ],
+  "rows": [
+    {
+      "family": "controlled",
+      "double": false,
+      "seed": 1,
+      "budget": 0,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "controlled",
+      "double": false,
+      "seed": 1,
+      "budget": 0,
+      "withWitness": true,
+      "passed": true
+    },
+    {
+      "family": "controlled",
+      "double": false,
+      "seed": 1,
+      "budget": 100,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "controlled",
+      "double": false,
+      "seed": 1,
+      "budget": 100,
+      "withWitness": true,
+      "passed": true
+    },
+    {
+      "family": "controlled",
+      "double": false,
+      "seed": 1,
+      "budget": 1000,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "controlled",
+      "double": false,
+      "seed": 1,
+      "budget": 1000,
+      "withWitness": true,
+      "passed": true
+    },
+    {
+      "family": "controlled",
+      "double": false,
+      "seed": 2,
+      "budget": 0,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "controlled",
+      "double": false,
+      "seed": 2,
+      "budget": 0,
+      "withWitness": true,
+      "passed": true
+    },
+    {
+      "family": "controlled",
+      "double": false,
+      "seed": 2,
+      "budget": 100,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "controlled",
+      "double": false,
+      "seed": 2,
+      "budget": 100,
+      "withWitness": true,
+      "passed": true
+    },
+    {
+      "family": "controlled",
+      "double": false,
+      "seed": 2,
+      "budget": 1000,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "controlled",
+      "double": false,
+      "seed": 2,
+      "budget": 1000,
+      "withWitness": true,
+      "passed": true
+    },
+    {
+      "family": "controlled",
+      "double": false,
+      "seed": 27,
+      "budget": 0,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "controlled",
+      "double": false,
+      "seed": 27,
+      "budget": 0,
+      "withWitness": true,
+      "passed": true
+    },
+    {
+      "family": "controlled",
+      "double": false,
+      "seed": 27,
+      "budget": 100,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "controlled",
+      "double": false,
+      "seed": 27,
+      "budget": 100,
+      "withWitness": true,
+      "passed": true
+    },
+    {
+      "family": "controlled",
+      "double": false,
+      "seed": 27,
+      "budget": 1000,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "controlled",
+      "double": false,
+      "seed": 27,
+      "budget": 1000,
+      "withWitness": true,
+      "passed": true
+    },
+    {
+      "family": "controlled",
+      "double": true,
+      "seed": 1,
+      "budget": 0,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "controlled",
+      "double": true,
+      "seed": 1,
+      "budget": 0,
+      "withWitness": true,
+      "passed": true
+    },
+    {
+      "family": "controlled",
+      "double": true,
+      "seed": 1,
+      "budget": 100,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "controlled",
+      "double": true,
+      "seed": 1,
+      "budget": 100,
+      "withWitness": true,
+      "passed": true
+    },
+    {
+      "family": "controlled",
+      "double": true,
+      "seed": 1,
+      "budget": 1000,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "controlled",
+      "double": true,
+      "seed": 1,
+      "budget": 1000,
+      "withWitness": true,
+      "passed": true
+    },
+    {
+      "family": "controlled",
+      "double": true,
+      "seed": 2,
+      "budget": 0,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "controlled",
+      "double": true,
+      "seed": 2,
+      "budget": 0,
+      "withWitness": true,
+      "passed": true
+    },
+    {
+      "family": "controlled",
+      "double": true,
+      "seed": 2,
+      "budget": 100,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "controlled",
+      "double": true,
+      "seed": 2,
+      "budget": 100,
+      "withWitness": true,
+      "passed": true
+    },
+    {
+      "family": "controlled",
+      "double": true,
+      "seed": 2,
+      "budget": 1000,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "controlled",
+      "double": true,
+      "seed": 2,
+      "budget": 1000,
+      "withWitness": true,
+      "passed": true
+    },
+    {
+      "family": "controlled",
+      "double": true,
+      "seed": 27,
+      "budget": 0,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "controlled",
+      "double": true,
+      "seed": 27,
+      "budget": 0,
+      "withWitness": true,
+      "passed": true
+    },
+    {
+      "family": "controlled",
+      "double": true,
+      "seed": 27,
+      "budget": 100,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "controlled",
+      "double": true,
+      "seed": 27,
+      "budget": 100,
+      "withWitness": true,
+      "passed": true
+    },
+    {
+      "family": "controlled",
+      "double": true,
+      "seed": 27,
+      "budget": 1000,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "controlled",
+      "double": true,
+      "seed": 27,
+      "budget": 1000,
+      "withWitness": true,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": false,
+      "seed": 1,
+      "budget": 0,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": false,
+      "seed": 1,
+      "budget": 0,
+      "withWitness": true,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": false,
+      "seed": 1,
+      "budget": 100,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": false,
+      "seed": 1,
+      "budget": 100,
+      "withWitness": true,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": false,
+      "seed": 1,
+      "budget": 1000,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": false,
+      "seed": 1,
+      "budget": 1000,
+      "withWitness": true,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": false,
+      "seed": 2,
+      "budget": 0,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": false,
+      "seed": 2,
+      "budget": 0,
+      "withWitness": true,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": false,
+      "seed": 2,
+      "budget": 100,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": false,
+      "seed": 2,
+      "budget": 100,
+      "withWitness": true,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": false,
+      "seed": 2,
+      "budget": 1000,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": false,
+      "seed": 2,
+      "budget": 1000,
+      "withWitness": true,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": false,
+      "seed": 27,
+      "budget": 0,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": false,
+      "seed": 27,
+      "budget": 0,
+      "withWitness": true,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": false,
+      "seed": 27,
+      "budget": 100,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": false,
+      "seed": 27,
+      "budget": 100,
+      "withWitness": true,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": false,
+      "seed": 27,
+      "budget": 1000,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": false,
+      "seed": 27,
+      "budget": 1000,
+      "withWitness": true,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": true,
+      "seed": 1,
+      "budget": 0,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": true,
+      "seed": 1,
+      "budget": 0,
+      "withWitness": true,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": true,
+      "seed": 1,
+      "budget": 100,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": true,
+      "seed": 1,
+      "budget": 100,
+      "withWitness": true,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": true,
+      "seed": 1,
+      "budget": 1000,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": true,
+      "seed": 1,
+      "budget": 1000,
+      "withWitness": true,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": true,
+      "seed": 2,
+      "budget": 0,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": true,
+      "seed": 2,
+      "budget": 0,
+      "withWitness": true,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": true,
+      "seed": 2,
+      "budget": 100,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": true,
+      "seed": 2,
+      "budget": 100,
+      "withWitness": true,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": true,
+      "seed": 2,
+      "budget": 1000,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": true,
+      "seed": 2,
+      "budget": 1000,
+      "withWitness": true,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": true,
+      "seed": 27,
+      "budget": 0,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": true,
+      "seed": 27,
+      "budget": 0,
+      "withWitness": true,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": true,
+      "seed": 27,
+      "budget": 100,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": true,
+      "seed": 27,
+      "budget": 100,
+      "withWitness": true,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": true,
+      "seed": 27,
+      "budget": 1000,
+      "withWitness": false,
+      "passed": true
+    },
+    {
+      "family": "existing-demo",
+      "double": true,
+      "seed": 27,
+      "budget": 1000,
+      "withWitness": true,
+      "passed": true
+    }
+  ]
+}

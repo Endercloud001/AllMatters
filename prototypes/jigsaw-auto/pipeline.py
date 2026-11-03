@@ -7,15 +7,11 @@ from verify import verify
 ROOT=Path(__file__).parent
 
 def fixtures():
-    controlled=json.loads((ROOT/'controlled.json').read_text(encoding='utf8'))
-    existing=json.loads((ROOT/'input.json').read_text(encoding='utf8'))
-    witnesses={}
-    with gzip.open(ROOT/'checked.jsonl.gz','rt',encoding='utf8') as f:
-        for line in f:
-            r=json.loads(line)
-            if r['seed']==1 and r['method']=='witness':witnesses[r['double']]=r['scene']
-    return {'controlled':dict(pool=controlled['pool'],witnesses=dict(enumerate(controlled['witnesses']))),
-            'existing-demo':dict(pool=existing['pool'],witnesses=witnesses)}
+    data=json.loads((ROOT/'room-fixtures.json').read_text(encoding='utf8'))
+    for d in data.values():
+        d['witnesses']=dict(enumerate(d['witnesses']))
+        for s in d['witnesses'].values():verify(d['pool'],s,15)
+    return data
 
 class Pipeline:
     def __init__(self):

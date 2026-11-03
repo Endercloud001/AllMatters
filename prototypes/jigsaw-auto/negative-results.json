@@ -1,424 +1,709 @@
 [
   {
-    "name": "controlled 0 B15",
-    "auto": true,
-    "B": 15,
-    "expected": true,
-    "actual": true,
-    "reason": "accepted"
+    "name": "controlled/0/B15/rotate0",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "controlled 0 B14",
-    "auto": true,
-    "B": 14,
-    "expected": true,
-    "actual": true,
-    "reason": "accepted"
+    "name": "controlled/0/B15/rotate1",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "controlled 0 B13",
-    "auto": true,
-    "B": 13,
-    "expected": true,
-    "actual": true,
-    "reason": "accepted"
+    "name": "controlled/0/B15/rotate2",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "single fragment manual 0",
-    "auto": false,
-    "B": 15,
-    "expected": true,
-    "actual": true,
-    "reason": "accepted"
+    "name": "controlled/0/B15/rotate3",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "single fragment automatic 0",
-    "auto": true,
-    "B": 15,
-    "expected": false,
-    "actual": false,
-    "reason": "missing rest fragment"
+    "name": "controlled/0/B14/rotate0",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "missing rest fragment 0",
-    "auto": true,
-    "B": 15,
-    "expected": false,
-    "actual": false,
-    "reason": "missing rest fragment"
+    "name": "controlled/0/B14/rotate1",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "capacity upper boundary 0",
-    "auto": true,
-    "B": 17,
-    "expected": false,
-    "actual": false,
-    "reason": "full budget capacity"
+    "name": "controlled/0/B14/rotate2",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "capacity exact boundary 0",
-    "auto": true,
-    "B": 16,
-    "expected": true,
-    "actual": true,
-    "reason": "accepted"
+    "name": "controlled/0/B14/rotate3",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "shortest-distance violation 0",
-    "auto": false,
-    "B": 2,
-    "expected": false,
-    "actual": false,
-    "reason": "step limit"
+    "name": "controlled/0/B13/rotate0",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "duplicate edge 0",
-    "auto": true,
-    "B": 15,
-    "expected": false,
-    "actual": false,
-    "reason": "duplicate/invalid edge"
+    "name": "controlled/0/B13/rotate1",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "isolated ordinary nodes 0",
-    "auto": true,
-    "B": 15,
-    "expected": false,
-    "actual": false,
-    "reason": "connectivity"
+    "name": "controlled/0/B13/rotate2",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "changed room 0",
-    "auto": true,
-    "B": 15,
-    "expected": false,
-    "actual": false,
-    "reason": "room mutation"
+    "name": "controlled/0/B13/rotate3",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "changed shape spacing 0",
-    "auto": true,
-    "B": 15,
-    "expected": false,
-    "actual": false,
-    "reason": "rotation/spacing"
+    "name": "controlled/0 Boss only manual",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "deleted fixed edge 0",
-    "auto": true,
-    "B": 15,
-    "expected": false,
-    "actual": false,
-    "reason": "missing internal/pair cap"
+    "name": "controlled/0 Boss only auto",
+    "stage": "full layout",
+    "expected": "rejection",
+    "actual": "missing rest fragment",
+    "passed": true
   },
   {
-    "name": "external Boss edge 0",
-    "auto": true,
-    "B": 15,
-    "expected": false,
-    "actual": false,
-    "reason": "external boss/owner"
+    "name": "controlled/0 limit exceeded",
+    "stage": "full layout",
+    "expected": "step limit",
+    "actual": "step limit",
+    "passed": true
   },
   {
-    "name": "partial fragment 0",
-    "auto": true,
-    "B": 15,
-    "expected": false,
-    "actual": false,
-    "reason": "whole fragments"
+    "name": "controlled/0 mirrored S pool",
+    "stage": "full layout",
+    "expected": "pool shape/mirror",
+    "actual": "pool shape/mirror",
+    "passed": true
   },
   {
-    "name": "duplicate fragment 0",
-    "auto": true,
-    "B": 15,
-    "expected": false,
-    "actual": false,
-    "reason": "duplicate/unknown ID"
+    "name": "controlled/0 duplicate edge",
+    "stage": "full layout",
+    "expected": "duplicate/invalid edge",
+    "actual": "duplicate/invalid edge",
+    "passed": true
   },
   {
-    "name": "tampered pool quota 0",
-    "auto": true,
-    "B": 15,
-    "expected": false,
-    "actual": false,
-    "reason": "pool quota"
+    "name": "controlled/0 partial fragment",
+    "stage": "full layout",
+    "expected": "whole fragments",
+    "actual": "whole fragments",
+    "passed": true
   },
   {
-    "name": "old four-piece manual 0",
-    "auto": false,
-    "B": 15,
-    "expected": true,
-    "actual": true,
-    "reason": "accepted"
+    "name": "controlled/0 Boss external",
+    "stage": "full layout",
+    "expected": "external boss/owner",
+    "actual": "external boss/owner",
+    "passed": true
   },
   {
-    "name": "old four-piece automatic missing Boss neighbors 0",
-    "auto": true,
-    "B": 15,
-    "expected": false,
-    "actual": false,
-    "reason": "boss neighbors"
+    "name": "controlled/0 repeat",
+    "stage": "exploration stage",
+    "expected": "rejection",
+    "actual": "walk repeated/unplaced node",
+    "passed": true
   },
   {
-    "name": "controlled 1 B15",
-    "auto": true,
-    "B": 15,
-    "expected": true,
-    "actual": true,
-    "reason": "accepted"
+    "name": "controlled/0 unplaced",
+    "stage": "exploration stage",
+    "expected": "rejection",
+    "actual": "walk repeated/unplaced node",
+    "passed": true
   },
   {
-    "name": "controlled 1 B14",
-    "auto": true,
-    "B": 14,
-    "expected": true,
-    "actual": true,
-    "reason": "accepted"
+    "name": "controlled/0 early Boss",
+    "stage": "exploration stage",
+    "expected": "rejection",
+    "actual": "walk Boss timing",
+    "passed": true
   },
   {
-    "name": "controlled 1 B13",
-    "auto": true,
-    "B": 13,
-    "expected": true,
-    "actual": true,
-    "reason": "accepted"
+    "name": "controlled/0 second Boss",
+    "stage": "exploration stage",
+    "expected": "rejection",
+    "actual": "walk repeated/unplaced node",
+    "passed": true
   },
   {
-    "name": "single fragment manual 1",
-    "auto": false,
-    "B": 15,
-    "expected": true,
-    "actual": true,
-    "reason": "accepted"
+    "name": "controlled/1/B15/rotate0",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "single fragment automatic 1",
-    "auto": true,
-    "B": 15,
-    "expected": false,
-    "actual": false,
-    "reason": "missing rest fragment"
+    "name": "controlled/1/B15/rotate1",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "missing rest fragment 1",
-    "auto": true,
-    "B": 15,
-    "expected": false,
-    "actual": false,
-    "reason": "missing rest fragment"
+    "name": "controlled/1/B15/rotate2",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "capacity upper boundary 1",
-    "auto": true,
-    "B": 16,
-    "expected": false,
-    "actual": false,
-    "reason": "full budget capacity"
+    "name": "controlled/1/B15/rotate3",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "capacity exact boundary 1",
-    "auto": true,
-    "B": 15,
-    "expected": true,
-    "actual": true,
-    "reason": "accepted"
+    "name": "controlled/1/B14/rotate0",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "shortest-distance violation 1",
-    "auto": false,
-    "B": 2,
-    "expected": false,
-    "actual": false,
-    "reason": "step limit"
+    "name": "controlled/1/B14/rotate1",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "duplicate edge 1",
-    "auto": true,
-    "B": 15,
-    "expected": false,
-    "actual": false,
-    "reason": "duplicate/invalid edge"
+    "name": "controlled/1/B14/rotate2",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "isolated ordinary nodes 1",
-    "auto": true,
-    "B": 15,
-    "expected": false,
-    "actual": false,
-    "reason": "connectivity"
+    "name": "controlled/1/B14/rotate3",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "changed room 1",
-    "auto": true,
-    "B": 15,
-    "expected": false,
-    "actual": false,
-    "reason": "room mutation"
+    "name": "controlled/1/B13/rotate0",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "changed shape spacing 1",
-    "auto": true,
-    "B": 15,
-    "expected": false,
-    "actual": false,
-    "reason": "rotation/spacing"
+    "name": "controlled/1/B13/rotate1",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "deleted fixed edge 1",
-    "auto": true,
-    "B": 15,
-    "expected": false,
-    "actual": false,
-    "reason": "missing internal/pair cap"
+    "name": "controlled/1/B13/rotate2",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "external Boss edge 1",
-    "auto": true,
-    "B": 15,
-    "expected": false,
-    "actual": false,
-    "reason": "external boss/owner"
+    "name": "controlled/1/B13/rotate3",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "partial fragment 1",
-    "auto": true,
-    "B": 15,
-    "expected": false,
-    "actual": false,
-    "reason": "whole fragments"
+    "name": "controlled/1 Boss only manual",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "duplicate fragment 1",
-    "auto": true,
-    "B": 15,
-    "expected": false,
-    "actual": false,
-    "reason": "duplicate/unknown ID"
+    "name": "controlled/1 Boss only auto",
+    "stage": "full layout",
+    "expected": "rejection",
+    "actual": "missing rest fragment",
+    "passed": true
   },
   {
-    "name": "tampered pool quota 1",
-    "auto": true,
-    "B": 15,
-    "expected": false,
-    "actual": false,
-    "reason": "pool quota"
+    "name": "controlled/1 limit exceeded",
+    "stage": "full layout",
+    "expected": "step limit",
+    "actual": "step limit",
+    "passed": true
   },
   {
-    "name": "old four-piece manual 1",
-    "auto": false,
-    "B": 15,
-    "expected": true,
-    "actual": true,
-    "reason": "accepted"
+    "name": "controlled/1 mirrored S pool",
+    "stage": "full layout",
+    "expected": "pool shape/mirror",
+    "actual": "pool shape/mirror",
+    "passed": true
   },
   {
-    "name": "old four-piece automatic missing Boss neighbors 1",
-    "auto": true,
-    "B": 15,
-    "expected": false,
-    "actual": false,
-    "reason": "boss neighbors"
+    "name": "controlled/1 duplicate edge",
+    "stage": "full layout",
+    "expected": "duplicate/invalid edge",
+    "actual": "duplicate/invalid edge",
+    "passed": true
   },
   {
-    "name": "clearance monster/monster 1/0",
-    "expected": false,
-    "actual": false,
-    "reason": "independent pair predicate"
+    "name": "controlled/1 partial fragment",
+    "stage": "full layout",
+    "expected": "whole fragments",
+    "actual": "whole fragments",
+    "passed": true
   },
   {
-    "name": "clearance monster/monster 1/1",
-    "expected": false,
-    "actual": false,
-    "reason": "independent pair predicate"
+    "name": "controlled/1 Boss external",
+    "stage": "full layout",
+    "expected": "external boss/owner",
+    "actual": "external boss/owner",
+    "passed": true
   },
   {
-    "name": "clearance monster/monster 2/0",
-    "expected": true,
-    "actual": true,
-    "reason": "independent pair predicate"
+    "name": "controlled/1 repeat",
+    "stage": "exploration stage",
+    "expected": "rejection",
+    "actual": "walk repeated/unplaced node",
+    "passed": true
   },
   {
-    "name": "clearance boss/monster 2/2",
-    "expected": false,
-    "actual": false,
-    "reason": "independent pair predicate"
+    "name": "controlled/1 unplaced",
+    "stage": "exploration stage",
+    "expected": "rejection",
+    "actual": "walk repeated/unplaced node",
+    "passed": true
   },
   {
-    "name": "clearance boss/monster 3/0",
-    "expected": true,
-    "actual": true,
-    "reason": "independent pair predicate"
+    "name": "controlled/1 early Boss",
+    "stage": "exploration stage",
+    "expected": "rejection",
+    "actual": "walk Boss timing",
+    "passed": true
   },
   {
-    "name": "clearance boss/boss 3/3",
-    "expected": false,
-    "actual": false,
-    "reason": "independent pair predicate"
+    "name": "controlled/1 second Boss",
+    "stage": "exploration stage",
+    "expected": "rejection",
+    "actual": "walk excluded target",
+    "passed": true
   },
   {
-    "name": "clearance boss/boss 4/0",
-    "expected": true,
-    "actual": true,
-    "reason": "independent pair predicate"
+    "name": "existing-demo/0/B15/rotate0",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "repeat visit instead of distinct node 0",
-    "expected": false,
-    "actual": false,
-    "reason": "walk repeated/unplaced node"
+    "name": "existing-demo/0/B15/rotate1",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "unplaced pool node 0",
-    "expected": false,
-    "actual": false,
-    "reason": "walk repeated/unplaced node"
+    "name": "existing-demo/0/B15/rotate2",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "early Boss 0",
-    "expected": false,
-    "actual": false,
-    "reason": "walk Boss timing"
+    "name": "existing-demo/0/B15/rotate3",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "second Boss counts as first 0",
-    "expected": false,
-    "actual": false,
-    "reason": "walk repeated/unplaced node"
+    "name": "existing-demo/0/B14/rotate0",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "unexplored branch jump 0",
-    "expected": false,
-    "actual": false,
-    "reason": "walk crosses unexplored region"
+    "name": "existing-demo/0/B14/rotate1",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "repeat visit instead of distinct node 1",
-    "expected": false,
-    "actual": false,
-    "reason": "walk repeated/unplaced node"
+    "name": "existing-demo/0/B14/rotate2",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "unplaced pool node 1",
-    "expected": false,
-    "actual": false,
-    "reason": "walk repeated/unplaced node"
+    "name": "existing-demo/0/B14/rotate3",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "early Boss 1",
-    "expected": false,
-    "actual": false,
-    "reason": "walk Boss timing"
+    "name": "existing-demo/0/B13/rotate0",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "second Boss counts as first 1",
-    "expected": false,
-    "actual": false,
-    "reason": "walk excluded target"
+    "name": "existing-demo/0/B13/rotate1",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
   },
   {
-    "name": "unexplored branch jump 1",
-    "expected": false,
-    "actual": false,
-    "reason": "walk crosses unexplored region"
+    "name": "existing-demo/0/B13/rotate2",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
+  },
+  {
+    "name": "existing-demo/0/B13/rotate3",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
+  },
+  {
+    "name": "existing-demo/0 Boss only manual",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
+  },
+  {
+    "name": "existing-demo/0 Boss only auto",
+    "stage": "full layout",
+    "expected": "rejection",
+    "actual": "missing rest fragment",
+    "passed": true
+  },
+  {
+    "name": "existing-demo/0 limit exceeded",
+    "stage": "full layout",
+    "expected": "step limit",
+    "actual": "step limit",
+    "passed": true
+  },
+  {
+    "name": "existing-demo/0 mirrored S pool",
+    "stage": "full layout",
+    "expected": "pool shape/mirror",
+    "actual": "pool shape/mirror",
+    "passed": true
+  },
+  {
+    "name": "existing-demo/0 duplicate edge",
+    "stage": "full layout",
+    "expected": "duplicate/invalid edge",
+    "actual": "duplicate/invalid edge",
+    "passed": true
+  },
+  {
+    "name": "existing-demo/0 partial fragment",
+    "stage": "full layout",
+    "expected": "whole fragments",
+    "actual": "whole fragments",
+    "passed": true
+  },
+  {
+    "name": "existing-demo/0 Boss external",
+    "stage": "full layout",
+    "expected": "external boss/owner",
+    "actual": "external boss/owner",
+    "passed": true
+  },
+  {
+    "name": "existing-demo/0 repeat",
+    "stage": "exploration stage",
+    "expected": "rejection",
+    "actual": "walk repeated/unplaced node",
+    "passed": true
+  },
+  {
+    "name": "existing-demo/0 unplaced",
+    "stage": "exploration stage",
+    "expected": "rejection",
+    "actual": "walk repeated/unplaced node",
+    "passed": true
+  },
+  {
+    "name": "existing-demo/0 early Boss",
+    "stage": "exploration stage",
+    "expected": "rejection",
+    "actual": "walk Boss timing",
+    "passed": true
+  },
+  {
+    "name": "existing-demo/0 second Boss",
+    "stage": "exploration stage",
+    "expected": "rejection",
+    "actual": "walk repeated/unplaced node",
+    "passed": true
+  },
+  {
+    "name": "existing-demo/1/B15/rotate0",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
+  },
+  {
+    "name": "existing-demo/1/B15/rotate1",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
+  },
+  {
+    "name": "existing-demo/1/B15/rotate2",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
+  },
+  {
+    "name": "existing-demo/1/B15/rotate3",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
+  },
+  {
+    "name": "existing-demo/1/B14/rotate0",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
+  },
+  {
+    "name": "existing-demo/1/B14/rotate1",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
+  },
+  {
+    "name": "existing-demo/1/B14/rotate2",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
+  },
+  {
+    "name": "existing-demo/1/B14/rotate3",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
+  },
+  {
+    "name": "existing-demo/1/B13/rotate0",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
+  },
+  {
+    "name": "existing-demo/1/B13/rotate1",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
+  },
+  {
+    "name": "existing-demo/1/B13/rotate2",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
+  },
+  {
+    "name": "existing-demo/1/B13/rotate3",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
+  },
+  {
+    "name": "existing-demo/1 Boss only manual",
+    "stage": "full layout",
+    "expected": null,
+    "actual": null,
+    "passed": true
+  },
+  {
+    "name": "existing-demo/1 Boss only auto",
+    "stage": "full layout",
+    "expected": "rejection",
+    "actual": "missing rest fragment",
+    "passed": true
+  },
+  {
+    "name": "existing-demo/1 limit exceeded",
+    "stage": "full layout",
+    "expected": "step limit",
+    "actual": "step limit",
+    "passed": true
+  },
+  {
+    "name": "existing-demo/1 mirrored S pool",
+    "stage": "full layout",
+    "expected": "pool shape/mirror",
+    "actual": "pool shape/mirror",
+    "passed": true
+  },
+  {
+    "name": "existing-demo/1 duplicate edge",
+    "stage": "full layout",
+    "expected": "duplicate/invalid edge",
+    "actual": "duplicate/invalid edge",
+    "passed": true
+  },
+  {
+    "name": "existing-demo/1 partial fragment",
+    "stage": "full layout",
+    "expected": "whole fragments",
+    "actual": "whole fragments",
+    "passed": true
+  },
+  {
+    "name": "existing-demo/1 Boss external",
+    "stage": "full layout",
+    "expected": "external boss/owner",
+    "actual": "external boss/owner",
+    "passed": true
+  },
+  {
+    "name": "existing-demo/1 repeat",
+    "stage": "exploration stage",
+    "expected": "rejection",
+    "actual": "walk repeated/unplaced node",
+    "passed": true
+  },
+  {
+    "name": "existing-demo/1 unplaced",
+    "stage": "exploration stage",
+    "expected": "rejection",
+    "actual": "walk repeated/unplaced node",
+    "passed": true
+  },
+  {
+    "name": "existing-demo/1 early Boss",
+    "stage": "exploration stage",
+    "expected": "rejection",
+    "actual": "walk Boss timing",
+    "passed": true
+  },
+  {
+    "name": "existing-demo/1 second Boss",
+    "stage": "exploration stage",
+    "expected": "rejection",
+    "actual": "walk excluded target",
+    "passed": true
+  },
+  {
+    "name": "legacy multi-rest witness 0",
+    "stage": "full layout",
+    "expected": "rejection",
+    "actual": "four identical pre-Boss rooms",
+    "passed": true
+  },
+  {
+    "name": "legacy multi-rest witness 1",
+    "stage": "full layout",
+    "expected": "rejection",
+    "actual": "four identical pre-Boss rooms",
+    "passed": true
+  },
+  {
+    "name": "four combats before Boss double0",
+    "stage": "full layout with quota-preserving input mutation",
+    "expected": "four identical pre-Boss rooms",
+    "actual": "four identical pre-Boss rooms",
+    "passed": true
+  },
+  {
+    "name": "four combats before Boss double1",
+    "stage": "full layout with quota-preserving input mutation",
+    "expected": "four identical pre-Boss rooms",
+    "actual": "four identical pre-Boss rooms",
+    "passed": true
+  },
+  {
+    "name": "adjacent elites become Boss(es) double0",
+    "stage": "full layout with quota-preserving input mutation",
+    "expected": "adjacent pre-Boss elites",
+    "actual": "adjacent pre-Boss elites",
+    "passed": true
+  },
+  {
+    "name": "adjacent elites become Boss(es) double1",
+    "stage": "full layout with quota-preserving input mutation",
+    "expected": "adjacent pre-Boss elites",
+    "actual": "adjacent pre-Boss elites",
+    "passed": true
+  },
+  {
+    "name": "second rest in same fragment double0",
+    "stage": "full layout with quota-preserving input mutation",
+    "expected": "at most one rest per fragment",
+    "actual": "at most one rest per fragment",
+    "passed": true
+  },
+  {
+    "name": "second rest in same fragment double1",
+    "stage": "full layout with quota-preserving input mutation",
+    "expected": "at most one rest per fragment",
+    "actual": "at most one rest per fragment",
+    "passed": true
+  },
+  {
+    "name": "changed quota",
+    "stage": "full pool",
+    "expected": "pool quota",
+    "actual": "pool quota",
+    "passed": true
   }
 ]

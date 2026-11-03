@@ -37,10 +37,10 @@
         ]
       ],
       "types": [
+        "rest",
         "monster",
         "monster",
-        "monster",
-        "monster"
+        "unknown"
       ],
       "color": "#d49a47"
     },
@@ -81,10 +81,10 @@
         ]
       ],
       "types": [
+        "chest",
+        "unknown",
         "rest",
-        "monster",
-        "rest",
-        "monster"
+        "chest"
       ],
       "color": "#78a8ad"
     },
@@ -127,8 +127,8 @@
       "types": [
         "rest",
         "monster",
-        "monster",
-        "rest"
+        "elite",
+        "monster"
       ],
       "color": "#ad7a9b"
     },
@@ -147,11 +147,11 @@
         ],
         [
           0,
-          -1
+          1
         ],
         [
           1,
-          -1
+          1
         ]
       ],
       "edges": [
@@ -172,7 +172,7 @@
         "rest",
         "monster",
         "monster",
-        "rest"
+        "unknown"
       ],
       "color": "#a5a65a"
     },
@@ -213,10 +213,10 @@
         ]
       ],
       "types": [
+        "monster",
+        "rest",
         "shop",
-        "unknown",
-        "shop",
-        "shop"
+        "chest"
       ],
       "color": "#a67556"
     },
@@ -257,10 +257,10 @@
         ]
       ],
       "types": [
-        "shop",
-        "unknown",
-        "chest",
-        "chest"
+        "elite",
+        "monster",
+        "monster",
+        "rest"
       ],
       "color": "#728eae"
     },
@@ -301,10 +301,10 @@
         ]
       ],
       "types": [
-        "chest",
-        "unknown",
-        "chest",
-        "unknown"
+        "elite",
+        "monster",
+        "shop",
+        "monster"
       ],
       "color": "#9c967d"
     },
@@ -345,10 +345,10 @@
         ]
       ],
       "types": [
-        "unknown",
-        "unknown",
-        "unknown",
-        "unknown"
+        "chest",
+        "monster",
+        "monster",
+        "elite"
       ],
       "color": "#aa7268"
     },
@@ -392,7 +392,7 @@
         "unknown",
         "unknown",
         "unknown",
-        "unknown"
+        "monster"
       ],
       "color": "#7f9b76"
     },
@@ -436,7 +436,7 @@
         "unknown",
         "unknown",
         "unknown",
-        "unknown"
+        "shop"
       ],
       "color": "#af8b4f"
     },
@@ -477,10 +477,10 @@
         ]
       ],
       "types": [
-        "elite",
-        "elite",
-        "elite",
-        "elite"
+        "monster",
+        "unknown",
+        "unknown",
+        "unknown"
       ],
       "color": "#8781ad"
     },
@@ -521,9 +521,9 @@
         ]
       ],
       "types": [
+        "unknown",
         "elite",
-        "elite",
-        "monster",
+        "shop",
         "monster"
       ],
       "color": "#ba8e78"
@@ -565,8 +565,8 @@
         ]
       ],
       "types": [
-        "monster",
-        "monster",
+        "elite",
+        "unknown",
         "monster",
         "monster"
       ],
@@ -610,9 +610,9 @@
       ],
       "types": [
         "monster",
+        "unknown",
         "monster",
-        "monster",
-        "monster"
+        "unknown"
       ],
       "color": "#b39d79"
     }
@@ -624,120 +624,176 @@
           "id": "N",
           "x": 0,
           "y": 0,
-          "piece": -1,
-          "type": "neow"
+          "type": "neow",
+          "piece": -1
         },
         {
           "id": "0:0",
           "x": 3,
           "y": 0,
-          "piece": 0,
-          "type": "monster"
+          "type": "rest",
+          "piece": 0
         },
         {
           "id": "0:1",
           "x": 6,
           "y": 0,
-          "piece": 0,
-          "type": "monster"
+          "type": "monster",
+          "piece": 0
         },
         {
           "id": "0:2",
           "x": 9,
           "y": 0,
-          "piece": 0,
-          "type": "monster"
+          "type": "monster",
+          "piece": 0
         },
         {
           "id": "0:3",
           "x": 12,
           "y": 0,
-          "piece": 0,
-          "type": "boss"
+          "type": "boss",
+          "piece": 0
         },
         {
           "id": "1:0",
-          "x": 3,
-          "y": 2,
-          "piece": 1,
-          "type": "rest"
+          "x": -3,
+          "y": 0,
+          "type": "chest",
+          "piece": 1
         },
         {
           "id": "1:1",
-          "x": 3,
-          "y": 4,
-          "piece": 1,
-          "type": "monster"
+          "x": -5,
+          "y": 0,
+          "type": "unknown",
+          "piece": 1
         },
         {
           "id": "1:2",
-          "x": 3,
-          "y": 6,
-          "piece": 1,
-          "type": "rest"
+          "x": -7,
+          "y": 0,
+          "type": "rest",
+          "piece": 1
         },
         {
           "id": "1:3",
-          "x": 3,
-          "y": 8,
-          "piece": 1,
-          "type": "monster"
+          "x": -9,
+          "y": 0,
+          "type": "chest",
+          "piece": 1
         },
         {
           "id": "2:0",
-          "x": 3,
-          "y": -2,
-          "piece": 2,
-          "type": "rest"
+          "x": -11,
+          "y": 0,
+          "type": "rest",
+          "piece": 2
         },
         {
           "id": "2:1",
-          "x": 5,
-          "y": -2,
-          "piece": 2,
-          "type": "monster"
+          "x": -13,
+          "y": 0,
+          "type": "monster",
+          "piece": 2
         },
         {
           "id": "2:2",
-          "x": 3,
-          "y": -4,
-          "piece": 2,
-          "type": "monster"
+          "x": -11,
+          "y": 2,
+          "type": "elite",
+          "piece": 2
         },
         {
           "id": "2:3",
-          "x": 5,
-          "y": -4,
-          "piece": 2,
-          "type": "rest"
+          "x": -13,
+          "y": 2,
+          "type": "monster",
+          "piece": 2
         },
         {
           "id": "3:0",
-          "x": 5,
-          "y": -6,
-          "piece": 3,
-          "type": "rest"
+          "x": -15,
+          "y": 0,
+          "type": "rest",
+          "piece": 3
         },
         {
           "id": "3:1",
-          "x": 7,
-          "y": -6,
-          "piece": 3,
-          "type": "monster"
+          "x": -17,
+          "y": 0,
+          "type": "monster",
+          "piece": 3
         },
         {
           "id": "3:2",
-          "x": 5,
-          "y": -8,
-          "piece": 3,
-          "type": "monster"
+          "x": -15,
+          "y": -2,
+          "type": "monster",
+          "piece": 3
         },
         {
           "id": "3:3",
-          "x": 7,
-          "y": -8,
-          "piece": 3,
-          "type": "rest"
+          "x": -17,
+          "y": -2,
+          "type": "unknown",
+          "piece": 3
+        },
+        {
+          "id": "5:0",
+          "x": 8,
+          "y": -2,
+          "type": "elite",
+          "piece": 5
+        },
+        {
+          "id": "5:1",
+          "x": 6,
+          "y": -2,
+          "type": "monster",
+          "piece": 5
+        },
+        {
+          "id": "5:2",
+          "x": 4,
+          "y": -2,
+          "type": "monster",
+          "piece": 5
+        },
+        {
+          "id": "5:3",
+          "x": 6,
+          "y": -4,
+          "type": "rest",
+          "piece": 5
+        },
+        {
+          "id": "4:0",
+          "x": 3,
+          "y": 6,
+          "type": "monster",
+          "piece": 4
+        },
+        {
+          "id": "4:1",
+          "x": 3,
+          "y": 4,
+          "type": "rest",
+          "piece": 4
+        },
+        {
+          "id": "4:2",
+          "x": 3,
+          "y": 2,
+          "type": "shop",
+          "piece": 4
+        },
+        {
+          "id": "4:3",
+          "x": 5,
+          "y": 4,
+          "type": "chest",
+          "piece": 4
         }
       ],
       "edges": [
@@ -807,18 +863,58 @@
           "internal": false
         },
         {
-          "a": "0:0",
+          "a": "N",
           "b": "1:0",
           "internal": false
         },
         {
-          "a": "0:0",
+          "a": "1:3",
           "b": "2:0",
           "internal": false
         },
         {
-          "a": "2:3",
+          "a": "2:1",
           "b": "3:0",
+          "internal": false
+        },
+        {
+          "a": "5:0",
+          "b": "5:1",
+          "internal": true
+        },
+        {
+          "a": "5:1",
+          "b": "5:2",
+          "internal": true
+        },
+        {
+          "a": "5:1",
+          "b": "5:3",
+          "internal": true
+        },
+        {
+          "a": "0:1",
+          "b": "5:1",
+          "internal": false
+        },
+        {
+          "a": "4:0",
+          "b": "4:1",
+          "internal": true
+        },
+        {
+          "a": "4:1",
+          "b": "4:2",
+          "internal": true
+        },
+        {
+          "a": "4:1",
+          "b": "4:3",
+          "internal": true
+        },
+        {
+          "a": "0:0",
+          "b": "4:2",
           "internal": false
         }
       ],
@@ -826,9 +922,25 @@
         0,
         1,
         2,
-        3
+        3,
+        5,
+        4
       ],
-      "double": false
+      "double": false,
+      "metrics": {
+        "normal": 23,
+        "distance": 4,
+        "rest": 6,
+        "total": 6,
+        "required": 6,
+        "direct": true,
+        "neighbors": 2
+      },
+      "seed": 1,
+      "title": "近 Boss · 充足支路",
+      "subtitle": "允许提前挑战，也能先发育再回来",
+      "normal": 23,
+      "distance": 4
     },
     {
       "nodes": [
@@ -836,120 +948,176 @@
           "id": "N",
           "x": 0,
           "y": 0,
-          "piece": -1,
-          "type": "neow"
+          "type": "neow",
+          "piece": -1
         },
         {
           "id": "0:0",
           "x": 3,
           "y": 0,
-          "piece": 0,
-          "type": "monster"
+          "type": "rest",
+          "piece": 0
         },
         {
           "id": "0:1",
           "x": 7,
           "y": 0,
-          "piece": 0,
-          "type": "monster"
+          "type": "monster",
+          "piece": 0
         },
         {
           "id": "0:2",
           "x": 11,
           "y": 0,
-          "piece": 0,
-          "type": "boss"
+          "type": "boss",
+          "piece": 0
         },
         {
           "id": "0:3",
           "x": 15,
           "y": 0,
-          "piece": 0,
-          "type": "boss2"
+          "type": "boss2",
+          "piece": 0
         },
         {
           "id": "1:0",
-          "x": 3,
-          "y": 2,
-          "piece": 1,
-          "type": "rest"
+          "x": -3,
+          "y": 0,
+          "type": "chest",
+          "piece": 1
         },
         {
           "id": "1:1",
-          "x": 3,
-          "y": 4,
-          "piece": 1,
-          "type": "monster"
+          "x": -5,
+          "y": 0,
+          "type": "unknown",
+          "piece": 1
         },
         {
           "id": "1:2",
-          "x": 3,
-          "y": 6,
-          "piece": 1,
-          "type": "rest"
+          "x": -7,
+          "y": 0,
+          "type": "rest",
+          "piece": 1
         },
         {
           "id": "1:3",
-          "x": 3,
-          "y": 8,
-          "piece": 1,
-          "type": "monster"
+          "x": -9,
+          "y": 0,
+          "type": "chest",
+          "piece": 1
         },
         {
           "id": "2:0",
-          "x": 3,
-          "y": -2,
-          "piece": 2,
-          "type": "rest"
+          "x": -11,
+          "y": 0,
+          "type": "rest",
+          "piece": 2
         },
         {
           "id": "2:1",
-          "x": 5,
-          "y": -2,
-          "piece": 2,
-          "type": "monster"
+          "x": -13,
+          "y": 0,
+          "type": "monster",
+          "piece": 2
         },
         {
           "id": "2:2",
-          "x": 3,
-          "y": -4,
-          "piece": 2,
-          "type": "monster"
+          "x": -11,
+          "y": 2,
+          "type": "elite",
+          "piece": 2
         },
         {
           "id": "2:3",
-          "x": 5,
-          "y": -4,
-          "piece": 2,
-          "type": "rest"
+          "x": -13,
+          "y": 2,
+          "type": "monster",
+          "piece": 2
         },
         {
           "id": "3:0",
-          "x": 5,
-          "y": -6,
-          "piece": 3,
-          "type": "rest"
+          "x": -15,
+          "y": 0,
+          "type": "rest",
+          "piece": 3
         },
         {
           "id": "3:1",
-          "x": 7,
-          "y": -6,
-          "piece": 3,
-          "type": "monster"
+          "x": -17,
+          "y": 0,
+          "type": "monster",
+          "piece": 3
         },
         {
           "id": "3:2",
-          "x": 5,
-          "y": -8,
-          "piece": 3,
-          "type": "monster"
+          "x": -15,
+          "y": -2,
+          "type": "monster",
+          "piece": 3
         },
         {
           "id": "3:3",
+          "x": -17,
+          "y": -2,
+          "type": "unknown",
+          "piece": 3
+        },
+        {
+          "id": "5:0",
+          "x": 3,
+          "y": -2,
+          "type": "elite",
+          "piece": 5
+        },
+        {
+          "id": "5:1",
+          "x": 3,
+          "y": -4,
+          "type": "monster",
+          "piece": 5
+        },
+        {
+          "id": "5:2",
+          "x": 3,
+          "y": -6,
+          "type": "monster",
+          "piece": 5
+        },
+        {
+          "id": "5:3",
+          "x": 5,
+          "y": -4,
+          "type": "rest",
+          "piece": 5
+        },
+        {
+          "id": "4:0",
           "x": 7,
-          "y": -8,
-          "piece": 3,
-          "type": "rest"
+          "y": 2,
+          "type": "monster",
+          "piece": 4
+        },
+        {
+          "id": "4:1",
+          "x": 7,
+          "y": 4,
+          "type": "rest",
+          "piece": 4
+        },
+        {
+          "id": "4:2",
+          "x": 7,
+          "y": 6,
+          "type": "shop",
+          "piece": 4
+        },
+        {
+          "id": "4:3",
+          "x": 5,
+          "y": 4,
+          "type": "chest",
+          "piece": 4
         }
       ],
       "edges": [
@@ -1019,18 +1187,58 @@
           "internal": false
         },
         {
-          "a": "0:0",
+          "a": "N",
           "b": "1:0",
           "internal": false
         },
         {
-          "a": "0:0",
+          "a": "1:3",
           "b": "2:0",
           "internal": false
         },
         {
-          "a": "2:3",
+          "a": "2:1",
           "b": "3:0",
+          "internal": false
+        },
+        {
+          "a": "5:0",
+          "b": "5:1",
+          "internal": true
+        },
+        {
+          "a": "5:1",
+          "b": "5:2",
+          "internal": true
+        },
+        {
+          "a": "5:1",
+          "b": "5:3",
+          "internal": true
+        },
+        {
+          "a": "0:0",
+          "b": "5:0",
+          "internal": false
+        },
+        {
+          "a": "4:0",
+          "b": "4:1",
+          "internal": true
+        },
+        {
+          "a": "4:1",
+          "b": "4:2",
+          "internal": true
+        },
+        {
+          "a": "4:1",
+          "b": "4:3",
+          "internal": true
+        },
+        {
+          "a": "0:1",
+          "b": "4:0",
           "internal": false
         }
       ],
@@ -1038,9 +1246,25 @@
         0,
         1,
         2,
-        3
+        3,
+        5,
+        4
       ],
-      "double": true
+      "double": true,
+      "metrics": {
+        "normal": 30,
+        "distance": 3,
+        "rest": 6,
+        "total": 6,
+        "required": 6,
+        "direct": true,
+        "neighbors": 2
+      },
+      "seed": 1,
+      "title": "双 Boss · 终端相连",
+      "subtitle": "第一 Boss 为限步终点",
+      "normal": 30,
+      "distance": 3
     }
   ]
 }

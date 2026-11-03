@@ -1,401 +1,345 @@
 [
   {
-    "name": "crossing without nodes at intersection",
-    "stage": "geometry",
+    "name": "three Elite leaves separated by ordinary center allowed",
+    "stage": "pre-Boss room stage",
+    "expected": null,
+    "actual": null,
+    "passed": true
+  },
+  {
+    "name": "two rests even without direct edge",
+    "stage": "pre-Boss room stage",
+    "expected": "at most one rest per fragment",
+    "actual": "at most one rest per fragment",
+    "passed": true
+  },
+  {
+    "name": "four combats before Boss replacement",
+    "stage": "pre-Boss room stage",
+    "expected": "four identical pre-Boss rooms",
+    "actual": "four identical pre-Boss rooms",
+    "passed": true
+  },
+  {
+    "name": "four questions",
+    "stage": "pre-Boss room stage",
+    "expected": "four identical pre-Boss rooms",
+    "actual": "four identical pre-Boss rooms",
+    "passed": true
+  },
+  {
+    "name": "both future Boss slots elite",
+    "stage": "pre-Boss room stage",
+    "expected": "adjacent pre-Boss elites",
+    "actual": "adjacent pre-Boss elites",
+    "passed": true
+  },
+  {
+    "name": "skeleton neighbors without internal edge allowed",
+    "stage": "pre-Boss room stage",
+    "expected": null,
+    "actual": null,
+    "passed": true
+  },
+  {
+    "name": "separated elites allowed",
+    "stage": "pre-Boss room stage",
+    "expected": null,
+    "actual": null,
+    "passed": true
+  },
+  {
+    "name": "capacity 0/B15/N13",
+    "stage": "auto stage",
+    "expected": "full budget capacity",
+    "actual": "full budget capacity",
+    "passed": true
+  },
+  {
+    "name": "capacity 0/B15/N14",
+    "stage": "auto stage",
+    "expected": null,
+    "actual": null,
+    "passed": true
+  },
+  {
+    "name": "capacity 0/B14/N12",
+    "stage": "auto stage",
+    "expected": "full budget capacity",
+    "actual": "full budget capacity",
+    "passed": true
+  },
+  {
+    "name": "capacity 0/B14/N13",
+    "stage": "auto stage",
+    "expected": null,
+    "actual": null,
+    "passed": true
+  },
+  {
+    "name": "capacity 0/B13/N11",
+    "stage": "auto stage",
+    "expected": "full budget capacity",
+    "actual": "full budget capacity",
+    "passed": true
+  },
+  {
+    "name": "capacity 0/B13/N12",
+    "stage": "auto stage",
+    "expected": null,
+    "actual": null,
+    "passed": true
+  },
+  {
+    "name": "same neighbor two edges 0",
+    "stage": "auto stage",
+    "expected": "boss neighbors",
+    "actual": "boss neighbors",
+    "passed": true
+  },
+  {
+    "name": "duplicate edge 0",
+    "stage": "auto stage",
+    "expected": "boss neighbors",
+    "actual": "boss neighbors",
+    "passed": true
+  },
+  {
+    "name": "indirect/undeclared second neighbor 0",
+    "stage": "auto stage",
+    "expected": "boss neighbors",
+    "actual": "boss neighbors",
+    "passed": true
+  },
+  {
+    "name": "not direct ancient 0",
+    "stage": "auto stage",
+    "expected": null,
+    "actual": null,
+    "passed": true
+  },
+  {
+    "name": "missing rest fragment 0",
+    "stage": "auto stage",
+    "expected": "missing rest fragment",
+    "actual": "missing rest fragment",
+    "passed": true
+  },
+  {
+    "name": "Boss bridge 0",
+    "stage": "topology stage",
+    "expected": "first boss terminal",
+    "actual": "first boss terminal",
+    "passed": true
+  },
+  {
+    "name": "isolated ordinary region 0",
+    "stage": "topology stage",
+    "expected": "connectivity",
+    "actual": "connectivity",
+    "passed": true
+  },
+  {
+    "name": "capacity 1/B15/N13",
+    "stage": "auto stage",
+    "expected": "full budget capacity",
+    "actual": "full budget capacity",
+    "passed": true
+  },
+  {
+    "name": "capacity 1/B15/N14",
+    "stage": "auto stage",
+    "expected": null,
+    "actual": null,
+    "passed": true
+  },
+  {
+    "name": "capacity 1/B14/N12",
+    "stage": "auto stage",
+    "expected": "full budget capacity",
+    "actual": "full budget capacity",
+    "passed": true
+  },
+  {
+    "name": "capacity 1/B14/N13",
+    "stage": "auto stage",
+    "expected": null,
+    "actual": null,
+    "passed": true
+  },
+  {
+    "name": "capacity 1/B13/N11",
+    "stage": "auto stage",
+    "expected": "full budget capacity",
+    "actual": "full budget capacity",
+    "passed": true
+  },
+  {
+    "name": "capacity 1/B13/N12",
+    "stage": "auto stage",
+    "expected": null,
+    "actual": null,
+    "passed": true
+  },
+  {
+    "name": "same neighbor two edges 1",
+    "stage": "auto stage",
+    "expected": "boss neighbors",
+    "actual": "boss neighbors",
+    "passed": true
+  },
+  {
+    "name": "duplicate edge 1",
+    "stage": "auto stage",
+    "expected": "boss neighbors",
+    "actual": "boss neighbors",
+    "passed": true
+  },
+  {
+    "name": "indirect/undeclared second neighbor 1",
+    "stage": "auto stage",
+    "expected": "boss neighbors",
+    "actual": "boss neighbors",
+    "passed": true
+  },
+  {
+    "name": "not direct ancient 1",
+    "stage": "auto stage",
+    "expected": null,
+    "actual": null,
+    "passed": true
+  },
+  {
+    "name": "missing rest fragment 1",
+    "stage": "auto stage",
+    "expected": "missing rest fragment",
+    "actual": "missing rest fragment",
+    "passed": true
+  },
+  {
+    "name": "Boss bridge 1",
+    "stage": "topology stage",
+    "expected": "first boss terminal",
+    "actual": "first boss terminal",
+    "passed": true
+  },
+  {
+    "name": "isolated ordinary region 1",
+    "stage": "topology stage",
+    "expected": "connectivity",
+    "actual": "connectivity",
+    "passed": true
+  },
+  {
+    "name": "second Boss extra exit",
+    "stage": "topology stage",
+    "expected": "second boss terminal",
+    "actual": "second boss terminal",
+    "passed": true
+  },
+  {
+    "name": "cross",
+    "stage": "geometry stage",
     "expected": "path collision",
     "actual": "path collision",
     "passed": true
   },
   {
-    "name": "edge through nonendpoint",
-    "stage": "geometry",
+    "name": "through node",
+    "stage": "geometry stage",
     "expected": "edge through node",
     "actual": "edge through node",
     "passed": true
   },
   {
-    "name": "overlap/shared direction",
-    "stage": "geometry",
+    "name": "overlap/port",
+    "stage": "geometry stage",
     "expected": "port conflict",
     "actual": "port conflict",
     "passed": true
   },
   {
-    "name": "3x3 corner is not a port",
-    "stage": "geometry",
+    "name": "corner port",
+    "stage": "geometry stage",
     "expected": "axis",
     "actual": "axis",
     "passed": true
   },
   {
-    "name": "3x3 midpoint port accepted",
-    "stage": "geometry",
+    "name": "midpoint port",
+    "stage": "geometry stage",
     "expected": null,
     "actual": null,
     "passed": true
   },
   {
-    "name": "2 external edges between same pieces",
-    "stage": "geometry",
+    "name": "pair cap 2",
+    "stage": "geometry stage",
     "expected": null,
     "actual": null,
     "passed": true
   },
   {
-    "name": "3 external edges between same pieces",
-    "stage": "geometry",
+    "name": "pair cap 3",
+    "stage": "geometry stage",
     "expected": "missing internal/pair cap",
     "actual": "missing internal/pair cap",
     "passed": true
   },
   {
-    "name": "full rigid rotation 0/0",
-    "stage": "full layout",
+    "name": "cross-fragment Elite edge allowed",
+    "stage": "geometry stage",
     "expected": null,
     "actual": null,
     "passed": true
   },
   {
-    "name": "full rigid rotation 0/1",
-    "stage": "full layout",
-    "expected": null,
-    "actual": null,
+    "name": "clearance monster/monster/1/0",
+    "stage": "geometry predicate",
+    "expected": false,
+    "actual": false,
     "passed": true
   },
   {
-    "name": "full rigid rotation 0/2",
-    "stage": "full layout",
-    "expected": null,
-    "actual": null,
+    "name": "clearance monster/monster/1/1",
+    "stage": "geometry predicate",
+    "expected": false,
+    "actual": false,
     "passed": true
   },
   {
-    "name": "full rigid rotation 0/3",
-    "stage": "full layout",
-    "expected": null,
-    "actual": null,
+    "name": "clearance monster/monster/2/0",
+    "stage": "geometry predicate",
+    "expected": true,
+    "actual": true,
     "passed": true
   },
   {
-    "name": "capacity threshold B15 N13 double0",
-    "stage": "auto-only stage",
-    "expected": "full budget capacity",
-    "actual": "full budget capacity",
+    "name": "clearance boss/monster/2/2",
+    "stage": "geometry predicate",
+    "expected": false,
+    "actual": false,
     "passed": true
   },
   {
-    "name": "capacity threshold B15 N14 double0",
-    "stage": "auto-only stage",
-    "expected": null,
-    "actual": null,
+    "name": "clearance boss/monster/3/0",
+    "stage": "geometry predicate",
+    "expected": true,
+    "actual": true,
     "passed": true
   },
   {
-    "name": "capacity threshold B14 N12 double0",
-    "stage": "auto-only stage",
-    "expected": "full budget capacity",
-    "actual": "full budget capacity",
+    "name": "clearance boss/boss/3/3",
+    "stage": "geometry predicate",
+    "expected": false,
+    "actual": false,
     "passed": true
   },
   {
-    "name": "capacity threshold B14 N13 double0",
-    "stage": "auto-only stage",
-    "expected": null,
-    "actual": null,
-    "passed": true
-  },
-  {
-    "name": "capacity threshold B13 N11 double0",
-    "stage": "auto-only stage",
-    "expected": "full budget capacity",
-    "actual": "full budget capacity",
-    "passed": true
-  },
-  {
-    "name": "capacity threshold B13 N12 double0",
-    "stage": "auto-only stage",
-    "expected": null,
-    "actual": null,
-    "passed": true
-  },
-  {
-    "name": "only ancient and one other fragment 0",
-    "stage": "auto-only stage",
-    "expected": "boss neighbors",
-    "actual": "boss neighbors",
-    "passed": true
-  },
-  {
-    "name": "two distinct edges to same neighbor 0",
-    "stage": "auto-only stage",
-    "expected": "boss neighbors",
-    "actual": "boss neighbors",
-    "passed": true
-  },
-  {
-    "name": "duplicate edge cannot create second neighbor 0",
-    "stage": "auto-only stage",
-    "expected": "boss neighbors",
-    "actual": "boss neighbors",
-    "passed": true
-  },
-  {
-    "name": "indirect neighbor insufficient 0",
-    "stage": "auto-only stage",
-    "expected": "boss neighbors",
-    "actual": "boss neighbors",
-    "passed": true
-  },
-  {
-    "name": "spatially adjacent undeclared neighbor insufficient 0",
-    "stage": "auto-only stage",
-    "expected": "boss neighbors",
-    "actual": "boss neighbors",
-    "passed": true
-  },
-  {
-    "name": "not direct ancient: no two-neighbor requirement 0",
-    "stage": "auto-only stage",
-    "expected": null,
-    "actual": null,
-    "passed": true
-  },
-  {
-    "name": "not direct ancient full-layout positive 0",
-    "stage": "full layout",
-    "expected": null,
-    "actual": null,
-    "passed": true
-  },
-  {
-    "name": "missing whole block containing two rests 0",
-    "stage": "full layout",
-    "expected": "missing rest fragment",
-    "actual": "missing rest fragment",
-    "passed": true
-  },
-  {
-    "name": "only rest node removed cannot use partial block 0",
-    "stage": "full layout",
-    "expected": "whole fragments",
-    "actual": "whole fragments",
-    "passed": true
-  },
-  {
-    "name": "shop revisit cannot fill distinct capacity 0",
-    "stage": "exploration stage",
-    "expected": "walk repeated/unplaced node",
-    "actual": "walk repeated/unplaced node",
-    "passed": true
-  },
-  {
-    "name": "unreachable/behind Boss nodes excluded from capacity 0",
-    "stage": "auto-only stage",
-    "expected": "full budget capacity",
-    "actual": "full budget capacity",
-    "passed": true
-  },
-  {
-    "name": "full rigid rotation 1/0",
-    "stage": "full layout",
-    "expected": null,
-    "actual": null,
-    "passed": true
-  },
-  {
-    "name": "full rigid rotation 1/1",
-    "stage": "full layout",
-    "expected": null,
-    "actual": null,
-    "passed": true
-  },
-  {
-    "name": "full rigid rotation 1/2",
-    "stage": "full layout",
-    "expected": null,
-    "actual": null,
-    "passed": true
-  },
-  {
-    "name": "full rigid rotation 1/3",
-    "stage": "full layout",
-    "expected": null,
-    "actual": null,
-    "passed": true
-  },
-  {
-    "name": "capacity threshold B15 N13 double1",
-    "stage": "auto-only stage",
-    "expected": "full budget capacity",
-    "actual": "full budget capacity",
-    "passed": true
-  },
-  {
-    "name": "capacity threshold B15 N14 double1",
-    "stage": "auto-only stage",
-    "expected": null,
-    "actual": null,
-    "passed": true
-  },
-  {
-    "name": "capacity threshold B14 N12 double1",
-    "stage": "auto-only stage",
-    "expected": "full budget capacity",
-    "actual": "full budget capacity",
-    "passed": true
-  },
-  {
-    "name": "capacity threshold B14 N13 double1",
-    "stage": "auto-only stage",
-    "expected": null,
-    "actual": null,
-    "passed": true
-  },
-  {
-    "name": "capacity threshold B13 N11 double1",
-    "stage": "auto-only stage",
-    "expected": "full budget capacity",
-    "actual": "full budget capacity",
-    "passed": true
-  },
-  {
-    "name": "capacity threshold B13 N12 double1",
-    "stage": "auto-only stage",
-    "expected": null,
-    "actual": null,
-    "passed": true
-  },
-  {
-    "name": "only ancient and one other fragment 1",
-    "stage": "auto-only stage",
-    "expected": "boss neighbors",
-    "actual": "boss neighbors",
-    "passed": true
-  },
-  {
-    "name": "two distinct edges to same neighbor 1",
-    "stage": "auto-only stage",
-    "expected": "boss neighbors",
-    "actual": "boss neighbors",
-    "passed": true
-  },
-  {
-    "name": "duplicate edge cannot create second neighbor 1",
-    "stage": "auto-only stage",
-    "expected": "boss neighbors",
-    "actual": "boss neighbors",
-    "passed": true
-  },
-  {
-    "name": "indirect neighbor insufficient 1",
-    "stage": "auto-only stage",
-    "expected": "boss neighbors",
-    "actual": "boss neighbors",
-    "passed": true
-  },
-  {
-    "name": "spatially adjacent undeclared neighbor insufficient 1",
-    "stage": "auto-only stage",
-    "expected": "boss neighbors",
-    "actual": "boss neighbors",
-    "passed": true
-  },
-  {
-    "name": "not direct ancient: no two-neighbor requirement 1",
-    "stage": "auto-only stage",
-    "expected": null,
-    "actual": null,
-    "passed": true
-  },
-  {
-    "name": "not direct ancient full-layout positive 1",
-    "stage": "full layout",
-    "expected": null,
-    "actual": null,
-    "passed": true
-  },
-  {
-    "name": "missing whole block containing two rests 1",
-    "stage": "full layout",
-    "expected": "missing rest fragment",
-    "actual": "missing rest fragment",
-    "passed": true
-  },
-  {
-    "name": "only rest node removed cannot use partial block 1",
-    "stage": "full layout",
-    "expected": "whole fragments",
-    "actual": "whole fragments",
-    "passed": true
-  },
-  {
-    "name": "shop revisit cannot fill distinct capacity 1",
-    "stage": "exploration stage",
-    "expected": "walk repeated/unplaced node",
-    "actual": "walk repeated/unplaced node",
-    "passed": true
-  },
-  {
-    "name": "unreachable/behind Boss nodes excluded from capacity 1",
-    "stage": "auto-only stage",
-    "expected": "full budget capacity",
-    "actual": "full budget capacity",
-    "passed": true
-  },
-  {
-    "name": "same-type internal rest adjacency",
-    "stage": "pool/full layout",
-    "expected": "special internal edge",
-    "actual": "special internal edge",
-    "passed": true
-  },
-  {
-    "name": "same-type internal shop adjacency",
-    "stage": "pool/full layout",
-    "expected": "special internal edge",
-    "actual": "special internal edge",
-    "passed": true
-  },
-  {
-    "name": "same-type internal chest adjacency",
-    "stage": "pool/full layout",
-    "expected": "special internal edge",
-    "actual": "special internal edge",
-    "passed": true
-  },
-  {
-    "name": "S mirror cannot substitute Z",
-    "stage": "pool/full layout",
-    "expected": "pool shape/mirror",
-    "actual": "pool shape/mirror",
-    "passed": true
-  },
-  {
-    "name": "placed chiral fragment mirror rejected",
-    "stage": "full layout",
-    "expected": "rotation/spacing",
-    "actual": "rotation/spacing",
-    "passed": true
-  },
-  {
-    "name": "Boss bridge to ordinary region 0",
-    "stage": "topology",
-    "expected": "first boss terminal",
-    "actual": "first boss terminal",
-    "passed": true
-  },
-  {
-    "name": "Boss bridge to ordinary region 1",
-    "stage": "topology",
-    "expected": "first boss terminal",
-    "actual": "first boss terminal",
-    "passed": true
-  },
-  {
-    "name": "second Boss cannot have ordinary exit",
-    "stage": "topology",
-    "expected": "second boss terminal",
-    "actual": "second boss terminal",
+    "name": "clearance boss/boss/4/0",
+    "stage": "geometry predicate",
+    "expected": true,
+    "actual": true,
     "passed": true
   }
 ]

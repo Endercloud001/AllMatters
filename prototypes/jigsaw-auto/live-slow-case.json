@@ -1,0 +1,9 @@
+{
+  "seed": 1,
+  "family": "existing-demo",
+  "config": "act3-double",
+  "method": "scratch",
+  "budget": 10000,
+  "status": "SAT",
+  "ms": 18.9546
+}

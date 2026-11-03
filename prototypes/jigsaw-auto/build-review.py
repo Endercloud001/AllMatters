@@ -7,8 +7,9 @@ for prefix in ['', 'controlled-']:
     for line in (root/(prefix+'checked.jsonl')).open(encoding='utf8'):
         r=json.loads(line)
         if r['seed']<=5: records.append(r)
-pool=json.loads((root/'input.json').read_text(encoding='utf8'))['pool']
-controlled=json.loads((root/'controlled.json').read_text(encoding='utf8'))['pool']
+legacy=json.loads((root/'legacy-room-inputs.json').read_text(encoding='utf8'))
+pool=legacy['existing']['pool']
+controlled=legacy['controlled']['pool']
 s=(root/'prototype.html').read_text(encoding='utf8')
 s=s.replace('<div class="header-note">','<div class="header-note">一次性体验原型 · 已验证实验记录回放<br>')
 panel='''<div style="padding:12px;display:flex;gap:8px;flex-wrap:wrap;background:#242521">
@@ -39,5 +40,6 @@ for(const id of ['family','config','method','budget'])$(id).onchange=()=>{record
 $('nextRecord').onclick=()=>{recordSeed=recordSeed%5+1;recorded()};$('waitRecord').onclick=()=>recorded(true);recorded();
 '''.replace('RECORDS',json.dumps(records,ensure_ascii=False)).replace('POOLS',json.dumps({'existing-demo':pool,'controlled':controlled},ensure_ascii=False))
 s=s.replace('regenerate(1203);window.demo=',script+'\nwindow.demo=')
+s=s.replace('<body>','<body><div style="padding:12px;background:#542820;color:white">历史房型规则档案：旧结果不满足新规则。请使用实时原型。</div>')
 (root/'review.html').write_text(s,encoding='utf8')
 print('review.html: '+str(len(records))+' records embedded')

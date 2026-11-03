@@ -8,7 +8,7 @@ if(!isMainThread){
 }else (async()=>{
  const d=require('./controlled.json'),results=[];
  for(const double of [false,true]){
-  const input={pool:d.pool,double,B:13,seed:27,budget:10000,witness:d.witnesses[Number(double)],algorithm:'prototype-tree-v1',phase:'generating',oldLayout:{nodes:[],edges:[],used:[]}};
+  const input={pool:d.pool,double,B:13,seed:27,budget:10000,witness:d.witnesses[Number(double)],algorithm:'prototype-tree-v2',phase:'generating',oldLayout:{nodes:[],edges:[],used:[]}};
   const checkpoint=__dirname+'/PROTOTYPE-worker-checkpoint.json';fs.writeFileSync(checkpoint,JSON.stringify(input));
   const worker=new Worker(__filename,{workerData:input});
   const expanded=await new Promise((resolve,reject)=>{worker.once('message',m=>resolve(m.expanded));worker.once('error',reject)});

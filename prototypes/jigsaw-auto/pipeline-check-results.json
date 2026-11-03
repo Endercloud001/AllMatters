@@ -89,26 +89,26 @@
   {
     "family": "controlled",
     "double": false,
-    "case": "old four-piece fallback None",
+    "case": "legacy pre-revision witness None",
     "status": "UNKNOWN",
     "passed": true,
-    "witness_error": "boss neighbors"
+    "witness_error": "room mutation"
   },
   {
     "family": "controlled",
     "double": false,
-    "case": "old four-piece fallback exception",
+    "case": "legacy pre-revision witness exception",
     "status": "UNKNOWN",
     "passed": true,
-    "witness_error": "boss neighbors"
+    "witness_error": "room mutation"
   },
   {
     "family": "controlled",
     "double": false,
-    "case": "old four-piece fallback invalid-output",
+    "case": "legacy pre-revision witness invalid-output",
     "status": "UNKNOWN",
     "passed": true,
-    "witness_error": "boss neighbors"
+    "witness_error": "room mutation"
   },
   {
     "family": "controlled",
@@ -207,26 +207,26 @@
   {
     "family": "controlled",
     "double": true,
-    "case": "old four-piece fallback None",
+    "case": "legacy pre-revision witness None",
     "status": "UNKNOWN",
     "passed": true,
-    "witness_error": "boss neighbors"
+    "witness_error": "room mutation"
   },
   {
     "family": "controlled",
     "double": true,
-    "case": "old four-piece fallback exception",
+    "case": "legacy pre-revision witness exception",
     "status": "UNKNOWN",
     "passed": true,
-    "witness_error": "boss neighbors"
+    "witness_error": "room mutation"
   },
   {
     "family": "controlled",
     "double": true,
-    "case": "old four-piece fallback invalid-output",
+    "case": "legacy pre-revision witness invalid-output",
     "status": "UNKNOWN",
     "passed": true,
-    "witness_error": "boss neighbors"
+    "witness_error": "room mutation"
   },
   {
     "family": "controlled",
@@ -325,6 +325,30 @@
   {
     "family": "existing-demo",
     "double": false,
+    "case": "legacy pre-revision witness None",
+    "status": "UNKNOWN",
+    "passed": true,
+    "witness_error": "room mutation"
+  },
+  {
+    "family": "existing-demo",
+    "double": false,
+    "case": "legacy pre-revision witness exception",
+    "status": "UNKNOWN",
+    "passed": true,
+    "witness_error": "room mutation"
+  },
+  {
+    "family": "existing-demo",
+    "double": false,
+    "case": "legacy pre-revision witness invalid-output",
+    "status": "UNKNOWN",
+    "passed": true,
+    "witness_error": "room mutation"
+  },
+  {
+    "family": "existing-demo",
+    "double": false,
     "case": "restart same approved input",
     "passed": true,
     "status": "SAT"
@@ -419,8 +443,68 @@
   {
     "family": "existing-demo",
     "double": true,
+    "case": "legacy pre-revision witness None",
+    "status": "UNKNOWN",
+    "passed": true,
+    "witness_error": "room mutation"
+  },
+  {
+    "family": "existing-demo",
+    "double": true,
+    "case": "legacy pre-revision witness exception",
+    "status": "UNKNOWN",
+    "passed": true,
+    "witness_error": "room mutation"
+  },
+  {
+    "family": "existing-demo",
+    "double": true,
+    "case": "legacy pre-revision witness invalid-output",
+    "status": "UNKNOWN",
+    "passed": true,
+    "witness_error": "room mutation"
+  },
+  {
+    "family": "existing-demo",
+    "double": true,
     "case": "restart same approved input",
     "passed": true,
     "status": "SAT"
+  },
+  {
+    "family": "legacy invalid given pool",
+    "double": false,
+    "case": "reject without repairing or resampling",
+    "budget": 0,
+    "status": "UNKNOWN",
+    "passed": true,
+    "witness_error": "four identical pre-Boss rooms"
+  },
+  {
+    "family": "legacy invalid given pool",
+    "double": false,
+    "case": "reject without repairing or resampling",
+    "budget": 1000,
+    "status": "UNKNOWN",
+    "passed": true,
+    "witness_error": "four identical pre-Boss rooms"
+  },
+  {
+    "family": "legacy invalid given pool",
+    "double": true,
+    "case": "reject without repairing or resampling",
+    "budget": 0,
+    "status": "UNKNOWN",
+    "passed": true,
+    "witness_error": "four identical pre-Boss rooms"
+  },
+  {
+    "family": "legacy invalid given pool",
+    "double": true,
+    "case": "reject without repairing or resampling",
+    "budget": 1000,
+    "status": "UNKNOWN",
+    "passed": true,
+    "witness_error": "four identical pre-Boss rooms"
   }
 ]

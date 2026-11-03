@@ -5,17 +5,11 @@ import copy,gzip,json,random
 from collections import Counter
 from pipeline import Pipeline,fixtures,ROOT
 from verify import verify
+from room_pool import make_pool
 d=fixtures()['existing-demo'];p=Pipeline();rows=[]
 try:
     for seed in range(1,101):
-        rng=random.Random(seed);pool=copy.deepcopy(d['pool']);rooms=[t for x in pool for t in x['types']]
-        for attempt in range(10000):
-            rng.shuffle(rooms)
-            for index,x in enumerate(pool):x['types']=rooms[index*4:index*4+4]
-            if any(pool[0]['types'][j] not in {'monster','elite','unknown'} for j in [2,3]):continue
-            if any(x['types'][a]==x['types'][b] and x['types'][a] in {'rest','shop','chest'} for x in pool for a,b in x['edges']):continue
-            break
-        else:raise RuntimeError('could not prepare input pool')
+        pool=make_pool(d['pool'],seed)
         assert Counter(t for x in pool for t in x['types'])==Counter(t for x in d['pool'] for t in x['types'])
         for config,double,B in [('act1',False,15),('act2',False,14),('act3',False,13),('act3-double',True,13)]:
             original=dict(pool=pool,double=double,B=B,layout={'edited':'must survive UNKNOWN'},votes=['auto'])

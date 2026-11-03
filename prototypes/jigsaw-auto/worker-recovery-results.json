@@ -3,407 +3,407 @@
     "double": false,
     "interrupted_after_notification": 10,
     "status": "SAT",
-    "expanded": 84,
+    "expanded": 118,
     "candidate": {
       "nodes": [
         {
           "id": "N",
           "x": 0,
           "y": 0,
-          "piece": -1,
-          "type": "neow"
+          "type": "neow",
+          "piece": -1
         },
         {
           "id": "0:0",
           "x": 3,
           "y": 0,
-          "piece": 0,
-          "type": "monster"
+          "type": "rest",
+          "piece": 0
         },
         {
           "id": "0:1",
           "x": 6,
           "y": 0,
-          "piece": 0,
-          "type": "monster"
+          "type": "monster",
+          "piece": 0
         },
         {
           "id": "0:2",
           "x": 9,
           "y": 0,
-          "piece": 0,
-          "type": "monster"
+          "type": "monster",
+          "piece": 0
         },
         {
           "id": "0:3",
           "x": 12,
           "y": 0,
-          "piece": 0,
-          "type": "boss"
+          "type": "boss",
+          "piece": 0
         },
         {
           "id": "1:0",
-          "x": 3,
-          "y": 2,
-          "piece": 1,
-          "type": "rest"
+          "x": -3,
+          "y": 0,
+          "type": "chest",
+          "piece": 1
         },
         {
           "id": "1:1",
-          "x": 3,
-          "y": 4,
-          "piece": 1,
-          "type": "monster"
+          "x": -5,
+          "y": 0,
+          "type": "unknown",
+          "piece": 1
         },
         {
           "id": "1:2",
-          "x": 3,
-          "y": 6,
-          "piece": 1,
-          "type": "rest"
+          "x": -7,
+          "y": 0,
+          "type": "rest",
+          "piece": 1
         },
         {
           "id": "1:3",
-          "x": 3,
-          "y": 8,
-          "piece": 1,
-          "type": "monster"
+          "x": -9,
+          "y": 0,
+          "type": "chest",
+          "piece": 1
         },
         {
           "id": "2:0",
-          "x": 3,
-          "y": -2,
-          "piece": 2,
-          "type": "rest"
+          "x": -11,
+          "y": 0,
+          "type": "rest",
+          "piece": 2
         },
         {
           "id": "2:1",
-          "x": 5,
-          "y": -2,
-          "piece": 2,
-          "type": "monster"
+          "x": -13,
+          "y": 0,
+          "type": "monster",
+          "piece": 2
         },
         {
           "id": "2:2",
-          "x": 3,
-          "y": -4,
-          "piece": 2,
-          "type": "monster"
+          "x": -11,
+          "y": 2,
+          "type": "elite",
+          "piece": 2
         },
         {
           "id": "2:3",
-          "x": 5,
-          "y": -4,
-          "piece": 2,
-          "type": "rest"
+          "x": -13,
+          "y": 2,
+          "type": "monster",
+          "piece": 2
         },
         {
           "id": "3:0",
-          "x": 5,
-          "y": -6,
-          "piece": 3,
-          "type": "rest"
+          "x": -15,
+          "y": 0,
+          "type": "rest",
+          "piece": 3
         },
         {
           "id": "3:1",
-          "x": 7,
-          "y": -6,
-          "piece": 3,
-          "type": "monster"
+          "x": -17,
+          "y": 0,
+          "type": "monster",
+          "piece": 3
         },
         {
           "id": "3:2",
-          "x": 5,
-          "y": -8,
-          "piece": 3,
-          "type": "monster"
+          "x": -15,
+          "y": -2,
+          "type": "monster",
+          "piece": 3
         },
         {
           "id": "3:3",
-          "x": 7,
-          "y": -8,
-          "piece": 3,
-          "type": "rest"
+          "x": -17,
+          "y": -2,
+          "type": "unknown",
+          "piece": 3
         },
         {
-          "id": "9:0",
-          "x": -1,
-          "y": 8,
-          "piece": 9,
-          "type": "unknown"
+          "id": "5:0",
+          "x": 8,
+          "y": -2,
+          "type": "elite",
+          "piece": 5
         },
         {
-          "id": "9:1",
-          "x": -1,
-          "y": 6,
-          "piece": 9,
-          "type": "unknown"
+          "id": "5:1",
+          "x": 6,
+          "y": -2,
+          "type": "monster",
+          "piece": 5
         },
         {
-          "id": "9:2",
-          "x": 1,
-          "y": 6,
-          "piece": 9,
-          "type": "unknown"
+          "id": "5:2",
+          "x": 4,
+          "y": -2,
+          "type": "monster",
+          "piece": 5
         },
         {
-          "id": "9:3",
-          "x": 1,
-          "y": 4,
-          "piece": 9,
-          "type": "unknown"
-        },
-        {
-          "id": "6:0",
-          "x": 3,
-          "y": -8,
-          "piece": 6,
-          "type": "chest"
-        },
-        {
-          "id": "6:1",
-          "x": 3,
-          "y": -6,
-          "piece": 6,
-          "type": "unknown"
-        },
-        {
-          "id": "6:2",
-          "x": 1,
-          "y": -10,
-          "piece": 6,
-          "type": "chest"
-        },
-        {
-          "id": "6:3",
-          "x": 1,
-          "y": -8,
-          "piece": 6,
-          "type": "unknown"
-        },
-        {
-          "id": "7:0",
-          "x": -5,
-          "y": 2,
-          "piece": 7,
-          "type": "unknown"
-        },
-        {
-          "id": "7:1",
-          "x": -7,
-          "y": 2,
-          "piece": 7,
-          "type": "unknown"
-        },
-        {
-          "id": "7:2",
-          "x": -3,
-          "y": 0,
-          "piece": 7,
-          "type": "unknown"
-        },
-        {
-          "id": "7:3",
-          "x": -5,
-          "y": 0,
-          "piece": 7,
-          "type": "unknown"
-        },
-        {
-          "id": "13:0",
-          "x": 5,
-          "y": 6,
-          "piece": 13,
-          "type": "monster"
-        },
-        {
-          "id": "13:1",
-          "x": 9,
-          "y": 4,
-          "piece": 13,
-          "type": "monster"
-        },
-        {
-          "id": "13:2",
-          "x": 7,
-          "y": 4,
-          "piece": 13,
-          "type": "monster"
-        },
-        {
-          "id": "13:3",
-          "x": 5,
-          "y": 4,
-          "piece": 13,
-          "type": "monster"
+          "id": "5:3",
+          "x": 6,
+          "y": -4,
+          "type": "rest",
+          "piece": 5
         },
         {
           "id": "4:0",
-          "x": 9,
-          "y": -8,
-          "piece": 4,
-          "type": "shop"
+          "x": 3,
+          "y": 6,
+          "type": "monster",
+          "piece": 4
         },
         {
           "id": "4:1",
-          "x": 11,
-          "y": -8,
-          "piece": 4,
-          "type": "unknown"
+          "x": 3,
+          "y": 4,
+          "type": "rest",
+          "piece": 4
         },
         {
           "id": "4:2",
-          "x": 13,
-          "y": -8,
-          "piece": 4,
-          "type": "shop"
+          "x": 3,
+          "y": 2,
+          "type": "shop",
+          "piece": 4
         },
         {
           "id": "4:3",
-          "x": 11,
-          "y": -6,
-          "piece": 4,
-          "type": "shop"
+          "x": 5,
+          "y": 4,
+          "type": "chest",
+          "piece": 4
         },
         {
           "id": "12:0",
-          "x": -9,
-          "y": -4,
+          "x": 5,
+          "y": 2,
           "piece": 12,
-          "type": "monster"
+          "type": "elite"
         },
         {
           "id": "12:1",
-          "x": -7,
-          "y": 0,
+          "x": 7,
+          "y": 6,
           "piece": 12,
-          "type": "monster"
+          "type": "unknown"
         },
         {
           "id": "12:2",
-          "x": -7,
-          "y": -2,
+          "x": 7,
+          "y": 4,
           "piece": 12,
           "type": "monster"
         },
         {
           "id": "12:3",
-          "x": -7,
-          "y": -4,
+          "x": 7,
+          "y": 2,
           "piece": 12,
           "type": "monster"
         },
         {
-          "id": "10:0",
+          "id": "7:0",
+          "x": -11,
+          "y": 4,
+          "piece": 7,
+          "type": "chest"
+        },
+        {
+          "id": "7:1",
+          "x": -9,
+          "y": 4,
+          "piece": 7,
+          "type": "monster"
+        },
+        {
+          "id": "7:2",
+          "x": -13,
+          "y": 6,
+          "piece": 7,
+          "type": "monster"
+        },
+        {
+          "id": "7:3",
+          "x": -11,
+          "y": 6,
+          "piece": 7,
+          "type": "elite"
+        },
+        {
+          "id": "6:0",
           "x": -1,
-          "y": 12,
-          "piece": 10,
+          "y": 4,
+          "piece": 6,
           "type": "elite"
         },
         {
-          "id": "10:1",
-          "x": 1,
-          "y": 12,
-          "piece": 10,
-          "type": "elite"
+          "id": "6:1",
+          "x": -1,
+          "y": 6,
+          "piece": 6,
+          "type": "monster"
         },
         {
-          "id": "10:2",
-          "x": 1,
-          "y": 10,
-          "piece": 10,
-          "type": "elite"
+          "id": "6:2",
+          "x": -3,
+          "y": 2,
+          "piece": 6,
+          "type": "shop"
         },
         {
-          "id": "10:3",
-          "x": 1,
-          "y": 8,
-          "piece": 10,
-          "type": "elite"
+          "id": "6:3",
+          "x": -3,
+          "y": 4,
+          "piece": 6,
+          "type": "monster"
         },
         {
           "id": "8:0",
-          "x": -5,
-          "y": 8,
+          "x": -17,
+          "y": 2,
           "piece": 8,
           "type": "unknown"
         },
         {
           "id": "8:1",
-          "x": -3,
-          "y": 8,
+          "x": -15,
+          "y": 2,
           "piece": 8,
           "type": "unknown"
         },
         {
           "id": "8:2",
-          "x": -3,
-          "y": 10,
+          "x": -15,
+          "y": 4,
           "piece": 8,
           "type": "unknown"
         },
         {
           "id": "8:3",
-          "x": -1,
-          "y": 10,
+          "x": -13,
+          "y": 4,
           "piece": 8,
+          "type": "monster"
+        },
+        {
+          "id": "9:0",
+          "x": 0,
+          "y": -6,
+          "piece": 9,
           "type": "unknown"
         },
         {
-          "id": "5:0",
-          "x": -3,
-          "y": 2,
-          "piece": 5,
+          "id": "9:1",
+          "x": 2,
+          "y": -6,
+          "piece": 9,
+          "type": "unknown"
+        },
+        {
+          "id": "9:2",
+          "x": 2,
+          "y": -4,
+          "piece": 9,
+          "type": "unknown"
+        },
+        {
+          "id": "9:3",
+          "x": 4,
+          "y": -4,
+          "piece": 9,
           "type": "shop"
         },
         {
-          "id": "5:1",
-          "x": -3,
-          "y": 4,
-          "piece": 5,
+          "id": "13:0",
+          "x": 0,
+          "y": -4,
+          "piece": 13,
+          "type": "monster"
+        },
+        {
+          "id": "13:1",
+          "x": -2,
+          "y": -8,
+          "piece": 13,
           "type": "unknown"
         },
         {
-          "id": "5:2",
-          "x": -3,
-          "y": 6,
-          "piece": 5,
-          "type": "chest"
+          "id": "13:2",
+          "x": -2,
+          "y": -6,
+          "piece": 13,
+          "type": "monster"
         },
         {
-          "id": "5:3",
-          "x": -5,
-          "y": 4,
-          "piece": 5,
-          "type": "chest"
+          "id": "13:3",
+          "x": -2,
+          "y": -4,
+          "piece": 13,
+          "type": "unknown"
         },
         {
           "id": "11:0",
           "x": -9,
-          "y": 4,
+          "y": -2,
           "piece": 11,
-          "type": "elite"
+          "type": "unknown"
         },
         {
           "id": "11:1",
-          "x": -9,
-          "y": 6,
+          "x": -7,
+          "y": -2,
           "piece": 11,
           "type": "elite"
         },
         {
           "id": "11:2",
           "x": -7,
-          "y": 6,
+          "y": -4,
+          "piece": 11,
+          "type": "shop"
+        },
+        {
+          "id": "11:3",
+          "x": -7,
+          "y": -6,
           "piece": 11,
           "type": "monster"
         },
         {
-          "id": "11:3",
-          "x": -5,
-          "y": 6,
-          "piece": 11,
+          "id": "10:0",
+          "x": 3,
+          "y": 10,
+          "piece": 10,
           "type": "monster"
+        },
+        {
+          "id": "10:1",
+          "x": 3,
+          "y": 8,
+          "piece": 10,
+          "type": "unknown"
+        },
+        {
+          "id": "10:2",
+          "x": 1,
+          "y": 8,
+          "piece": 10,
+          "type": "unknown"
+        },
+        {
+          "id": "10:3",
+          "x": -1,
+          "y": 8,
+          "piece": 10,
+          "type": "unknown"
         }
       ],
       "edges": [
@@ -473,98 +473,38 @@
           "internal": false
         },
         {
-          "a": "0:0",
+          "a": "N",
           "b": "1:0",
           "internal": false
         },
         {
-          "a": "0:0",
+          "a": "1:3",
           "b": "2:0",
           "internal": false
         },
         {
-          "a": "2:3",
+          "a": "2:1",
           "b": "3:0",
           "internal": false
         },
         {
-          "a": "9:0",
-          "b": "9:1",
+          "a": "5:0",
+          "b": "5:1",
           "internal": true
         },
         {
-          "a": "9:1",
-          "b": "9:2",
+          "a": "5:1",
+          "b": "5:2",
           "internal": true
         },
         {
-          "a": "9:2",
-          "b": "9:3",
+          "a": "5:1",
+          "b": "5:3",
           "internal": true
         },
         {
-          "a": "1:2",
-          "b": "9:2",
-          "internal": false
-        },
-        {
-          "a": "6:0",
-          "b": "6:1",
-          "internal": true
-        },
-        {
-          "a": "6:0",
-          "b": "6:3",
-          "internal": true
-        },
-        {
-          "a": "6:2",
-          "b": "6:3",
-          "internal": true
-        },
-        {
-          "a": "3:0",
-          "b": "6:1",
-          "internal": false
-        },
-        {
-          "a": "7:0",
-          "b": "7:1",
-          "internal": true
-        },
-        {
-          "a": "7:0",
-          "b": "7:3",
-          "internal": true
-        },
-        {
-          "a": "7:2",
-          "b": "7:3",
-          "internal": true
-        },
-        {
-          "a": "N",
-          "b": "7:2",
-          "internal": false
-        },
-        {
-          "a": "13:0",
-          "b": "13:3",
-          "internal": true
-        },
-        {
-          "a": "13:1",
-          "b": "13:2",
-          "internal": true
-        },
-        {
-          "a": "13:2",
-          "b": "13:3",
-          "internal": true
-        },
-        {
-          "a": "1:2",
-          "b": "13:0",
+          "a": "0:1",
+          "b": "5:1",
           "internal": false
         },
         {
@@ -583,7 +523,717 @@
           "internal": true
         },
         {
+          "a": "0:0",
+          "b": "4:2",
+          "internal": false
+        },
+        {
+          "a": "12:0",
+          "b": "12:3",
+          "internal": true
+        },
+        {
+          "a": "12:1",
+          "b": "12:2",
+          "internal": true
+        },
+        {
+          "a": "12:2",
+          "b": "12:3",
+          "internal": true
+        },
+        {
+          "a": "4:2",
+          "b": "12:0",
+          "internal": false
+        },
+        {
+          "a": "7:0",
+          "b": "7:1",
+          "internal": true
+        },
+        {
+          "a": "7:0",
+          "b": "7:3",
+          "internal": true
+        },
+        {
+          "a": "7:2",
+          "b": "7:3",
+          "internal": true
+        },
+        {
+          "a": "2:2",
+          "b": "7:0",
+          "internal": false
+        },
+        {
+          "a": "6:0",
+          "b": "6:1",
+          "internal": true
+        },
+        {
+          "a": "6:0",
+          "b": "6:3",
+          "internal": true
+        },
+        {
+          "a": "6:2",
+          "b": "6:3",
+          "internal": true
+        },
+        {
+          "a": "1:0",
+          "b": "6:2",
+          "internal": false
+        },
+        {
+          "a": "8:0",
+          "b": "8:1",
+          "internal": true
+        },
+        {
+          "a": "8:1",
+          "b": "8:2",
+          "internal": true
+        },
+        {
+          "a": "8:2",
+          "b": "8:3",
+          "internal": true
+        },
+        {
+          "a": "7:0",
+          "b": "8:3",
+          "internal": false
+        },
+        {
+          "a": "9:0",
+          "b": "9:1",
+          "internal": true
+        },
+        {
+          "a": "9:1",
+          "b": "9:2",
+          "internal": true
+        },
+        {
+          "a": "9:2",
+          "b": "9:3",
+          "internal": true
+        },
+        {
+          "a": "5:2",
+          "b": "9:3",
+          "internal": false
+        },
+        {
+          "a": "13:0",
+          "b": "13:3",
+          "internal": true
+        },
+        {
+          "a": "13:1",
+          "b": "13:2",
+          "internal": true
+        },
+        {
+          "a": "13:2",
+          "b": "13:3",
+          "internal": true
+        },
+        {
+          "a": "9:2",
+          "b": "13:0",
+          "internal": false
+        },
+        {
+          "a": "11:0",
+          "b": "11:1",
+          "internal": true
+        },
+        {
+          "a": "11:1",
+          "b": "11:2",
+          "internal": true
+        },
+        {
+          "a": "11:2",
+          "b": "11:3",
+          "internal": true
+        },
+        {
+          "a": "1:3",
+          "b": "11:0",
+          "internal": false
+        },
+        {
+          "a": "10:0",
+          "b": "10:1",
+          "internal": true
+        },
+        {
+          "a": "10:1",
+          "b": "10:2",
+          "internal": true
+        },
+        {
+          "a": "10:2",
+          "b": "10:3",
+          "internal": true
+        },
+        {
+          "a": "6:1",
+          "b": "10:3",
+          "internal": false
+        }
+      ],
+      "used": [
+        0,
+        1,
+        2,
+        3,
+        5,
+        4,
+        12,
+        7,
+        6,
+        8,
+        9,
+        13,
+        11,
+        10
+      ],
+      "double": false
+    },
+    "pool_unchanged": true,
+    "layout_unchanged_until_success": true
+  },
+  {
+    "double": true,
+    "interrupted_after_notification": 10,
+    "status": "SAT",
+    "expanded": 36,
+    "candidate": {
+      "nodes": [
+        {
+          "id": "N",
+          "x": 0,
+          "y": 0,
+          "type": "neow",
+          "piece": -1
+        },
+        {
+          "id": "0:0",
+          "x": 3,
+          "y": 0,
+          "type": "rest",
+          "piece": 0
+        },
+        {
+          "id": "0:1",
+          "x": 7,
+          "y": 0,
+          "type": "monster",
+          "piece": 0
+        },
+        {
+          "id": "0:2",
+          "x": 11,
+          "y": 0,
+          "type": "boss",
+          "piece": 0
+        },
+        {
+          "id": "0:3",
+          "x": 15,
+          "y": 0,
+          "type": "boss2",
+          "piece": 0
+        },
+        {
+          "id": "1:0",
+          "x": -3,
+          "y": 0,
+          "type": "chest",
+          "piece": 1
+        },
+        {
+          "id": "1:1",
+          "x": -5,
+          "y": 0,
+          "type": "unknown",
+          "piece": 1
+        },
+        {
+          "id": "1:2",
+          "x": -7,
+          "y": 0,
+          "type": "rest",
+          "piece": 1
+        },
+        {
+          "id": "1:3",
+          "x": -9,
+          "y": 0,
+          "type": "chest",
+          "piece": 1
+        },
+        {
+          "id": "2:0",
+          "x": -11,
+          "y": 0,
+          "type": "rest",
+          "piece": 2
+        },
+        {
+          "id": "2:1",
+          "x": -13,
+          "y": 0,
+          "type": "monster",
+          "piece": 2
+        },
+        {
+          "id": "2:2",
+          "x": -11,
+          "y": 2,
+          "type": "elite",
+          "piece": 2
+        },
+        {
+          "id": "2:3",
+          "x": -13,
+          "y": 2,
+          "type": "monster",
+          "piece": 2
+        },
+        {
+          "id": "3:0",
+          "x": -15,
+          "y": 0,
+          "type": "rest",
+          "piece": 3
+        },
+        {
+          "id": "3:1",
+          "x": -17,
+          "y": 0,
+          "type": "monster",
+          "piece": 3
+        },
+        {
+          "id": "3:2",
+          "x": -15,
+          "y": -2,
+          "type": "monster",
+          "piece": 3
+        },
+        {
+          "id": "3:3",
+          "x": -17,
+          "y": -2,
+          "type": "unknown",
+          "piece": 3
+        },
+        {
+          "id": "5:0",
+          "x": 3,
+          "y": -2,
+          "type": "elite",
+          "piece": 5
+        },
+        {
+          "id": "5:1",
+          "x": 3,
+          "y": -4,
+          "type": "monster",
+          "piece": 5
+        },
+        {
+          "id": "5:2",
+          "x": 3,
+          "y": -6,
+          "type": "monster",
+          "piece": 5
+        },
+        {
+          "id": "5:3",
+          "x": 5,
+          "y": -4,
+          "type": "rest",
+          "piece": 5
+        },
+        {
+          "id": "4:0",
+          "x": 7,
+          "y": 2,
+          "type": "monster",
+          "piece": 4
+        },
+        {
+          "id": "4:1",
+          "x": 7,
+          "y": 4,
+          "type": "rest",
+          "piece": 4
+        },
+        {
+          "id": "4:2",
+          "x": 7,
+          "y": 6,
+          "type": "shop",
+          "piece": 4
+        },
+        {
+          "id": "4:3",
+          "x": 5,
+          "y": 4,
+          "type": "chest",
+          "piece": 4
+        },
+        {
+          "id": "12:0",
+          "x": 5,
+          "y": -6,
+          "piece": 12,
+          "type": "elite"
+        },
+        {
+          "id": "12:1",
+          "x": 7,
+          "y": -2,
+          "piece": 12,
+          "type": "unknown"
+        },
+        {
+          "id": "12:2",
+          "x": 7,
+          "y": -4,
+          "piece": 12,
+          "type": "monster"
+        },
+        {
+          "id": "12:3",
+          "x": 7,
+          "y": -6,
+          "piece": 12,
+          "type": "monster"
+        },
+        {
+          "id": "7:0",
+          "x": -17,
+          "y": 2,
+          "piece": 7,
+          "type": "chest"
+        },
+        {
+          "id": "7:1",
+          "x": -15,
+          "y": 2,
+          "piece": 7,
+          "type": "monster"
+        },
+        {
+          "id": "7:2",
+          "x": -19,
+          "y": 4,
+          "piece": 7,
+          "type": "monster"
+        },
+        {
+          "id": "7:3",
+          "x": -17,
+          "y": 4,
+          "piece": 7,
+          "type": "elite"
+        },
+        {
+          "id": "6:0",
+          "x": -19,
+          "y": 0,
+          "piece": 6,
+          "type": "elite"
+        },
+        {
+          "id": "6:1",
+          "x": -19,
+          "y": 2,
+          "piece": 6,
+          "type": "monster"
+        },
+        {
+          "id": "6:2",
+          "x": -21,
+          "y": -2,
+          "piece": 6,
+          "type": "shop"
+        },
+        {
+          "id": "6:3",
+          "x": -21,
+          "y": 0,
+          "piece": 6,
+          "type": "monster"
+        },
+        {
+          "id": "8:0",
+          "x": -19,
+          "y": 6,
+          "piece": 8,
+          "type": "unknown"
+        },
+        {
+          "id": "8:1",
+          "x": -17,
+          "y": 6,
+          "piece": 8,
+          "type": "unknown"
+        },
+        {
+          "id": "8:2",
+          "x": -17,
+          "y": 8,
+          "piece": 8,
+          "type": "unknown"
+        },
+        {
+          "id": "8:3",
+          "x": -15,
+          "y": 8,
+          "piece": 8,
+          "type": "monster"
+        },
+        {
+          "id": "9:0",
+          "x": -15,
+          "y": -4,
+          "piece": 9,
+          "type": "unknown"
+        },
+        {
+          "id": "9:1",
+          "x": -13,
+          "y": -4,
+          "piece": 9,
+          "type": "unknown"
+        },
+        {
+          "id": "9:2",
+          "x": -13,
+          "y": -2,
+          "piece": 9,
+          "type": "unknown"
+        },
+        {
+          "id": "9:3",
+          "x": -11,
+          "y": -2,
+          "piece": 9,
+          "type": "shop"
+        },
+        {
+          "id": "13:0",
+          "x": -21,
+          "y": 2,
+          "piece": 13,
+          "type": "monster"
+        },
+        {
+          "id": "13:1",
+          "x": -23,
+          "y": -2,
+          "piece": 13,
+          "type": "unknown"
+        },
+        {
+          "id": "13:2",
+          "x": -23,
+          "y": 0,
+          "piece": 13,
+          "type": "monster"
+        },
+        {
+          "id": "13:3",
+          "x": -23,
+          "y": 2,
+          "piece": 13,
+          "type": "unknown"
+        },
+        {
+          "id": "11:0",
+          "x": -9,
+          "y": -2,
+          "piece": 11,
+          "type": "unknown"
+        },
+        {
+          "id": "11:1",
+          "x": -7,
+          "y": -2,
+          "piece": 11,
+          "type": "elite"
+        },
+        {
+          "id": "11:2",
+          "x": -7,
+          "y": -4,
+          "piece": 11,
+          "type": "shop"
+        },
+        {
+          "id": "11:3",
+          "x": -7,
+          "y": -6,
+          "piece": 11,
+          "type": "monster"
+        },
+        {
+          "id": "10:0",
+          "x": -25,
+          "y": 4,
+          "piece": 10,
+          "type": "monster"
+        },
+        {
+          "id": "10:1",
+          "x": -25,
+          "y": 2,
+          "piece": 10,
+          "type": "unknown"
+        },
+        {
+          "id": "10:2",
+          "x": -27,
+          "y": 2,
+          "piece": 10,
+          "type": "unknown"
+        },
+        {
+          "id": "10:3",
+          "x": -29,
+          "y": 2,
+          "piece": 10,
+          "type": "unknown"
+        }
+      ],
+      "edges": [
+        {
+          "a": "0:0",
+          "b": "0:1",
+          "internal": true
+        },
+        {
+          "a": "0:1",
+          "b": "0:2",
+          "internal": true
+        },
+        {
+          "a": "0:2",
+          "b": "0:3",
+          "internal": true
+        },
+        {
+          "a": "1:0",
+          "b": "1:1",
+          "internal": true
+        },
+        {
+          "a": "1:1",
+          "b": "1:2",
+          "internal": true
+        },
+        {
+          "a": "1:2",
+          "b": "1:3",
+          "internal": true
+        },
+        {
+          "a": "2:0",
+          "b": "2:2",
+          "internal": true
+        },
+        {
+          "a": "2:2",
+          "b": "2:3",
+          "internal": true
+        },
+        {
+          "a": "2:3",
+          "b": "2:1",
+          "internal": true
+        },
+        {
+          "a": "3:0",
+          "b": "3:2",
+          "internal": true
+        },
+        {
+          "a": "3:2",
+          "b": "3:3",
+          "internal": true
+        },
+        {
           "a": "3:3",
+          "b": "3:1",
+          "internal": true
+        },
+        {
+          "a": "N",
+          "b": "0:0",
+          "internal": false
+        },
+        {
+          "a": "N",
+          "b": "1:0",
+          "internal": false
+        },
+        {
+          "a": "1:3",
+          "b": "2:0",
+          "internal": false
+        },
+        {
+          "a": "2:1",
+          "b": "3:0",
+          "internal": false
+        },
+        {
+          "a": "5:0",
+          "b": "5:1",
+          "internal": true
+        },
+        {
+          "a": "5:1",
+          "b": "5:2",
+          "internal": true
+        },
+        {
+          "a": "5:1",
+          "b": "5:3",
+          "internal": true
+        },
+        {
+          "a": "0:0",
+          "b": "5:0",
+          "internal": false
+        },
+        {
+          "a": "4:0",
+          "b": "4:1",
+          "internal": true
+        },
+        {
+          "a": "4:1",
+          "b": "4:2",
+          "internal": true
+        },
+        {
+          "a": "4:1",
+          "b": "4:3",
+          "internal": true
+        },
+        {
+          "a": "0:1",
           "b": "4:0",
           "internal": false
         },
@@ -603,638 +1253,8 @@
           "internal": true
         },
         {
-          "a": "7:3",
-          "b": "12:1",
-          "internal": false
-        },
-        {
-          "a": "10:0",
-          "b": "10:1",
-          "internal": true
-        },
-        {
-          "a": "10:1",
-          "b": "10:2",
-          "internal": true
-        },
-        {
-          "a": "10:2",
-          "b": "10:3",
-          "internal": true
-        },
-        {
-          "a": "1:3",
-          "b": "10:3",
-          "internal": false
-        },
-        {
-          "a": "8:0",
-          "b": "8:1",
-          "internal": true
-        },
-        {
-          "a": "8:1",
-          "b": "8:2",
-          "internal": true
-        },
-        {
-          "a": "8:2",
-          "b": "8:3",
-          "internal": true
-        },
-        {
-          "a": "9:0",
-          "b": "8:3",
-          "internal": false
-        },
-        {
-          "a": "5:0",
-          "b": "5:1",
-          "internal": true
-        },
-        {
-          "a": "5:1",
-          "b": "5:2",
-          "internal": true
-        },
-        {
-          "a": "5:1",
-          "b": "5:3",
-          "internal": true
-        },
-        {
-          "a": "9:1",
-          "b": "5:2",
-          "internal": false
-        },
-        {
-          "a": "11:0",
-          "b": "11:1",
-          "internal": true
-        },
-        {
-          "a": "11:1",
-          "b": "11:2",
-          "internal": true
-        },
-        {
-          "a": "11:2",
-          "b": "11:3",
-          "internal": true
-        },
-        {
-          "a": "5:2",
-          "b": "11:3",
-          "internal": false
-        }
-      ],
-      "used": [
-        0,
-        1,
-        2,
-        3,
-        9,
-        6,
-        7,
-        13,
-        4,
-        12,
-        10,
-        8,
-        5,
-        11
-      ],
-      "double": false
-    },
-    "pool_unchanged": true,
-    "layout_unchanged_until_success": true
-  },
-  {
-    "double": true,
-    "interrupted_after_notification": 10,
-    "status": "SAT",
-    "expanded": 185,
-    "candidate": {
-      "nodes": [
-        {
-          "id": "N",
-          "x": 0,
-          "y": 0,
-          "piece": -1,
-          "type": "neow"
-        },
-        {
-          "id": "0:0",
-          "x": 3,
-          "y": 0,
-          "piece": 0,
-          "type": "monster"
-        },
-        {
-          "id": "0:1",
-          "x": 7,
-          "y": 0,
-          "piece": 0,
-          "type": "monster"
-        },
-        {
-          "id": "0:2",
-          "x": 11,
-          "y": 0,
-          "piece": 0,
-          "type": "boss"
-        },
-        {
-          "id": "0:3",
-          "x": 15,
-          "y": 0,
-          "piece": 0,
-          "type": "boss2"
-        },
-        {
-          "id": "1:0",
-          "x": 3,
-          "y": 2,
-          "piece": 1,
-          "type": "rest"
-        },
-        {
-          "id": "1:1",
-          "x": 3,
-          "y": 4,
-          "piece": 1,
-          "type": "monster"
-        },
-        {
-          "id": "1:2",
-          "x": 3,
-          "y": 6,
-          "piece": 1,
-          "type": "rest"
-        },
-        {
-          "id": "1:3",
-          "x": 3,
-          "y": 8,
-          "piece": 1,
-          "type": "monster"
-        },
-        {
-          "id": "2:0",
-          "x": 3,
-          "y": -2,
-          "piece": 2,
-          "type": "rest"
-        },
-        {
-          "id": "2:1",
-          "x": 5,
-          "y": -2,
-          "piece": 2,
-          "type": "monster"
-        },
-        {
-          "id": "2:2",
-          "x": 3,
-          "y": -4,
-          "piece": 2,
-          "type": "monster"
-        },
-        {
-          "id": "2:3",
-          "x": 5,
-          "y": -4,
-          "piece": 2,
-          "type": "rest"
-        },
-        {
-          "id": "3:0",
-          "x": 5,
-          "y": -6,
-          "piece": 3,
-          "type": "rest"
-        },
-        {
-          "id": "3:1",
-          "x": 7,
-          "y": -6,
-          "piece": 3,
-          "type": "monster"
-        },
-        {
-          "id": "3:2",
-          "x": 5,
-          "y": -8,
-          "piece": 3,
-          "type": "monster"
-        },
-        {
-          "id": "3:3",
-          "x": 7,
-          "y": -8,
-          "piece": 3,
-          "type": "rest"
-        },
-        {
-          "id": "9:0",
-          "x": -5,
-          "y": 2,
-          "piece": 9,
-          "type": "unknown"
-        },
-        {
-          "id": "9:1",
-          "x": -5,
-          "y": 0,
-          "piece": 9,
-          "type": "unknown"
-        },
-        {
-          "id": "9:2",
-          "x": -3,
-          "y": 0,
-          "piece": 9,
-          "type": "unknown"
-        },
-        {
-          "id": "9:3",
-          "x": -3,
-          "y": -2,
-          "piece": 9,
-          "type": "unknown"
-        },
-        {
-          "id": "6:0",
-          "x": 3,
-          "y": -8,
-          "piece": 6,
-          "type": "chest"
-        },
-        {
-          "id": "6:1",
-          "x": 3,
-          "y": -6,
-          "piece": 6,
-          "type": "unknown"
-        },
-        {
-          "id": "6:2",
-          "x": 1,
-          "y": -10,
-          "piece": 6,
-          "type": "chest"
-        },
-        {
-          "id": "6:3",
-          "x": 1,
-          "y": -8,
-          "piece": 6,
-          "type": "unknown"
-        },
-        {
-          "id": "7:0",
-          "x": -2,
-          "y": 5,
-          "piece": 7,
-          "type": "unknown"
-        },
-        {
-          "id": "7:1",
-          "x": -4,
-          "y": 5,
-          "piece": 7,
-          "type": "unknown"
-        },
-        {
-          "id": "7:2",
-          "x": 0,
-          "y": 3,
-          "piece": 7,
-          "type": "unknown"
-        },
-        {
-          "id": "7:3",
-          "x": -2,
-          "y": 3,
-          "piece": 7,
-          "type": "unknown"
-        },
-        {
-          "id": "13:0",
-          "x": 5,
-          "y": 8,
-          "piece": 13,
-          "type": "monster"
-        },
-        {
-          "id": "13:1",
-          "x": 9,
-          "y": 6,
-          "piece": 13,
-          "type": "monster"
-        },
-        {
-          "id": "13:2",
-          "x": 7,
-          "y": 6,
-          "piece": 13,
-          "type": "monster"
-        },
-        {
-          "id": "13:3",
-          "x": 5,
-          "y": 6,
-          "piece": 13,
-          "type": "monster"
-        },
-        {
-          "id": "4:0",
-          "x": 7,
-          "y": -10,
-          "piece": 4,
-          "type": "shop"
-        },
-        {
-          "id": "4:1",
-          "x": 9,
-          "y": -10,
-          "piece": 4,
-          "type": "unknown"
-        },
-        {
-          "id": "4:2",
-          "x": 11,
-          "y": -10,
-          "piece": 4,
-          "type": "shop"
-        },
-        {
-          "id": "4:3",
-          "x": 9,
-          "y": -8,
-          "piece": 4,
-          "type": "shop"
-        },
-        {
-          "id": "12:0",
-          "x": 3,
-          "y": -14,
-          "piece": 12,
-          "type": "monster"
-        },
-        {
-          "id": "12:1",
-          "x": 5,
-          "y": -10,
-          "piece": 12,
-          "type": "monster"
-        },
-        {
-          "id": "12:2",
-          "x": 5,
-          "y": -12,
-          "piece": 12,
-          "type": "monster"
-        },
-        {
-          "id": "12:3",
-          "x": 5,
-          "y": -14,
-          "piece": 12,
-          "type": "monster"
-        },
-        {
-          "id": "10:0",
-          "x": -1,
-          "y": 10,
-          "piece": 10,
-          "type": "elite"
-        },
-        {
-          "id": "10:1",
-          "x": 1,
-          "y": 10,
-          "piece": 10,
-          "type": "elite"
-        },
-        {
-          "id": "10:2",
-          "x": 1,
-          "y": 8,
-          "piece": 10,
-          "type": "elite"
-        },
-        {
-          "id": "10:3",
-          "x": 1,
-          "y": 6,
-          "piece": 10,
-          "type": "elite"
-        },
-        {
-          "id": "8:0",
-          "x": 5,
-          "y": 2,
-          "piece": 8,
-          "type": "unknown"
-        },
-        {
-          "id": "8:1",
-          "x": 7,
-          "y": 2,
-          "piece": 8,
-          "type": "unknown"
-        },
-        {
-          "id": "8:2",
-          "x": 7,
-          "y": 4,
-          "piece": 8,
-          "type": "unknown"
-        },
-        {
-          "id": "8:3",
-          "x": 9,
-          "y": 4,
-          "piece": 8,
-          "type": "unknown"
-        },
-        {
-          "id": "5:0",
-          "x": 3,
-          "y": -20,
-          "piece": 5,
-          "type": "shop"
-        },
-        {
-          "id": "5:1",
-          "x": 3,
-          "y": -18,
-          "piece": 5,
-          "type": "unknown"
-        },
-        {
-          "id": "5:2",
-          "x": 3,
-          "y": -16,
-          "piece": 5,
-          "type": "chest"
-        },
-        {
-          "id": "5:3",
-          "x": 1,
-          "y": -18,
-          "piece": 5,
-          "type": "chest"
-        },
-        {
-          "id": "11:0",
-          "x": 7,
-          "y": -14,
-          "piece": 11,
-          "type": "elite"
-        },
-        {
-          "id": "11:1",
-          "x": 7,
-          "y": -12,
-          "piece": 11,
-          "type": "elite"
-        },
-        {
-          "id": "11:2",
-          "x": 9,
-          "y": -12,
-          "piece": 11,
-          "type": "monster"
-        },
-        {
-          "id": "11:3",
-          "x": 11,
-          "y": -12,
-          "piece": 11,
-          "type": "monster"
-        }
-      ],
-      "edges": [
-        {
-          "a": "0:0",
-          "b": "0:1",
-          "internal": true
-        },
-        {
-          "a": "0:1",
-          "b": "0:2",
-          "internal": true
-        },
-        {
-          "a": "0:2",
-          "b": "0:3",
-          "internal": true
-        },
-        {
-          "a": "1:0",
-          "b": "1:1",
-          "internal": true
-        },
-        {
-          "a": "1:1",
-          "b": "1:2",
-          "internal": true
-        },
-        {
-          "a": "1:2",
-          "b": "1:3",
-          "internal": true
-        },
-        {
-          "a": "2:0",
-          "b": "2:2",
-          "internal": true
-        },
-        {
-          "a": "2:2",
-          "b": "2:3",
-          "internal": true
-        },
-        {
-          "a": "2:3",
-          "b": "2:1",
-          "internal": true
-        },
-        {
-          "a": "3:0",
-          "b": "3:2",
-          "internal": true
-        },
-        {
-          "a": "3:2",
-          "b": "3:3",
-          "internal": true
-        },
-        {
-          "a": "3:3",
-          "b": "3:1",
-          "internal": true
-        },
-        {
-          "a": "N",
-          "b": "0:0",
-          "internal": false
-        },
-        {
-          "a": "0:0",
-          "b": "1:0",
-          "internal": false
-        },
-        {
-          "a": "0:0",
-          "b": "2:0",
-          "internal": false
-        },
-        {
-          "a": "2:3",
-          "b": "3:0",
-          "internal": false
-        },
-        {
-          "a": "9:0",
-          "b": "9:1",
-          "internal": true
-        },
-        {
-          "a": "9:1",
-          "b": "9:2",
-          "internal": true
-        },
-        {
-          "a": "9:2",
-          "b": "9:3",
-          "internal": true
-        },
-        {
-          "a": "N",
-          "b": "9:2",
-          "internal": false
-        },
-        {
-          "a": "6:0",
-          "b": "6:1",
-          "internal": true
-        },
-        {
-          "a": "6:0",
-          "b": "6:3",
-          "internal": true
-        },
-        {
-          "a": "6:2",
-          "b": "6:3",
-          "internal": true
-        },
-        {
-          "a": "3:0",
-          "b": "6:1",
+          "a": "5:3",
+          "b": "12:2",
           "internal": false
         },
         {
@@ -1253,88 +1273,28 @@
           "internal": true
         },
         {
-          "a": "N",
-          "b": "7:2",
+          "a": "3:1",
+          "b": "7:0",
           "internal": false
         },
         {
-          "a": "13:0",
-          "b": "13:3",
+          "a": "6:0",
+          "b": "6:1",
           "internal": true
         },
         {
-          "a": "13:1",
-          "b": "13:2",
+          "a": "6:0",
+          "b": "6:3",
           "internal": true
         },
         {
-          "a": "13:2",
-          "b": "13:3",
+          "a": "6:2",
+          "b": "6:3",
           "internal": true
         },
         {
-          "a": "1:2",
-          "b": "13:3",
-          "internal": false
-        },
-        {
-          "a": "4:0",
-          "b": "4:1",
-          "internal": true
-        },
-        {
-          "a": "4:1",
-          "b": "4:2",
-          "internal": true
-        },
-        {
-          "a": "4:1",
-          "b": "4:3",
-          "internal": true
-        },
-        {
-          "a": "3:3",
-          "b": "4:3",
-          "internal": false
-        },
-        {
-          "a": "12:0",
-          "b": "12:3",
-          "internal": true
-        },
-        {
-          "a": "12:1",
-          "b": "12:2",
-          "internal": true
-        },
-        {
-          "a": "12:2",
-          "b": "12:3",
-          "internal": true
-        },
-        {
-          "a": "4:0",
-          "b": "12:1",
-          "internal": false
-        },
-        {
-          "a": "10:0",
-          "b": "10:1",
-          "internal": true
-        },
-        {
-          "a": "10:1",
-          "b": "10:2",
-          "internal": true
-        },
-        {
-          "a": "10:2",
-          "b": "10:3",
-          "internal": true
-        },
-        {
-          "a": "1:2",
-          "b": "10:3",
+          "a": "7:2",
+          "b": "6:1",
           "internal": false
         },
         {
@@ -1353,28 +1313,48 @@
           "internal": true
         },
         {
-          "a": "13:1",
-          "b": "8:3",
+          "a": "7:3",
+          "b": "8:1",
           "internal": false
         },
         {
-          "a": "5:0",
-          "b": "5:1",
+          "a": "9:0",
+          "b": "9:1",
           "internal": true
         },
         {
-          "a": "5:1",
-          "b": "5:2",
+          "a": "9:1",
+          "b": "9:2",
           "internal": true
         },
         {
-          "a": "5:1",
-          "b": "5:3",
+          "a": "9:2",
+          "b": "9:3",
           "internal": true
         },
         {
-          "a": "12:0",
-          "b": "5:2",
+          "a": "3:2",
+          "b": "9:0",
+          "internal": false
+        },
+        {
+          "a": "13:0",
+          "b": "13:3",
+          "internal": true
+        },
+        {
+          "a": "13:1",
+          "b": "13:2",
+          "internal": true
+        },
+        {
+          "a": "13:2",
+          "b": "13:3",
+          "internal": true
+        },
+        {
+          "a": "6:3",
+          "b": "13:2",
           "internal": false
         },
         {
@@ -1393,8 +1373,28 @@
           "internal": true
         },
         {
-          "a": "4:0",
-          "b": "11:1",
+          "a": "9:3",
+          "b": "11:0",
+          "internal": false
+        },
+        {
+          "a": "10:0",
+          "b": "10:1",
+          "internal": true
+        },
+        {
+          "a": "10:1",
+          "b": "10:2",
+          "internal": true
+        },
+        {
+          "a": "10:2",
+          "b": "10:3",
+          "internal": true
+        },
+        {
+          "a": "13:3",
+          "b": "10:1",
           "internal": false
         }
       ],
@@ -1403,16 +1403,16 @@
         1,
         2,
         3,
-        9,
-        6,
-        7,
-        13,
+        5,
         4,
         12,
-        10,
+        7,
+        6,
         8,
-        5,
-        11
+        9,
+        13,
+        11,
+        10
       ],
       "double": true
     },

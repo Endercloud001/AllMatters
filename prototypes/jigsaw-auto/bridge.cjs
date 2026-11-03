@@ -8,7 +8,7 @@ readline.createInterface({input:process.stdin}).on('line',line=>{
  try{const q=JSON.parse(line);if(q.fault==='exception')throw Error('injected generation exception');
  const t=performance.now();
  const r=q.method==='bootstrap'?{status:'SAT',scene:context.build(q.seed,q.double?2:1,q.B),expanded:null,ms:performance.now()-t,rss:process.memoryUsage().rss}:solve(q.pool,q.double,q.B,q.seed,q.method==='witness'?0:q.budget,q.method==='scratch'?null:q.witness);
- if(q.fault==='invalid-output'&&r.scene)r.scene.nodes[1].type='shop';
+ if(q.fault==='invalid-output'&&r.scene)r.scene.nodes[1].type=r.scene.nodes[1].type==='shop'?'rest':'shop';
  console.log(JSON.stringify({ok:true,...r}));
  }catch(e){console.log(JSON.stringify({ok:false,error:e.message}));}
 });

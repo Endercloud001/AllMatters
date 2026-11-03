@@ -10,7 +10,7 @@ function finish(saved,candidate){
 }
 for(const double of [false,true]){
  const witness=d.witnesses[Number(double)];
- const saved={pool:copy(d.pool),layout:copy(witness),phase:'generating',votes:['auto'],seed:27,budget:100,algorithm:'prototype-tree-v1'};
+ const saved={pool:copy(d.pool),layout:copy(witness),phase:'generating',votes:['auto'],seed:27,budget:100,algorithm:'prototype-tree-v2'};
  // An existing edited layout is preserved exactly on failure, including its edges.
  saved.layout.used=[];saved.layout.nodes=[{id:'N',x:0,y:0,piece:-1,type:'neow'}];saved.layout.edges=[];
  for(const label of ['exception','budget-zero-no-witness','budget-exhausted-no-witness']){

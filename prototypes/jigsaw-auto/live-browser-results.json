@@ -4,145 +4,145 @@
       "family": "controlled",
       "config": "act1",
       "method": "witness",
-      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展0 · 153.6ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"monster\":9,\"boss\":1,\"rest\":6} · 不代表原生联机或过场 · 页面等待200.1ms"
+      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展0 · 257.1ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"rest\":6,\"monster\":9,\"boss\":1,\"chest\":3,\"unknown\":2,\"elite\":2,\"shop\":1} · 不代表原生联机或过场 · 页面等待337.2ms"
     },
     {
       "family": "controlled",
       "config": "act1",
       "method": "extend",
-      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展268 · 214.7ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"monster\":19,\"boss\":1,\"rest\":6,\"elite\":6,\"chest\":4,\"unknown\":16,\"shop\":4} · 不代表原生联机或过场 · 页面等待239.5ms"
+      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展101 · 340.8ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"rest\":6,\"monster\":20,\"boss\":1,\"chest\":4,\"unknown\":15,\"elite\":6,\"shop\":4} · 不代表原生联机或过场 · 页面等待422.2ms"
     },
     {
       "family": "controlled",
       "config": "act1",
       "method": "scratch",
-      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展25 · 116.8ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"monster\":9,\"boss\":1,\"rest\":6} · 不代表原生联机或过场 · 页面等待145.8ms"
+      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展60 · 307.1ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"rest\":6,\"monster\":9,\"boss\":1,\"elite\":2,\"chest\":3,\"unknown\":2,\"shop\":1} · 不代表原生联机或过场 · 页面等待400.6ms"
     },
     {
       "family": "controlled",
       "config": "act2",
       "method": "witness",
-      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展0 · 133.3ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"monster\":9,\"boss\":1,\"rest\":6} · 不代表原生联机或过场 · 页面等待150.7ms"
+      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展0 · 298.0ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"rest\":6,\"monster\":9,\"boss\":1,\"chest\":3,\"unknown\":2,\"elite\":2,\"shop\":1} · 不代表原生联机或过场 · 页面等待397.6ms"
     },
     {
       "family": "controlled",
       "config": "act2",
       "method": "extend",
-      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展213 · 338.4ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"monster\":19,\"boss\":1,\"rest\":6,\"chest\":4,\"unknown\":16,\"shop\":4,\"elite\":6} · 不代表原生联机或过场 · 页面等待410.5ms"
+      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展51 · 315.5ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"rest\":6,\"monster\":20,\"boss\":1,\"chest\":4,\"unknown\":15,\"elite\":6,\"shop\":4} · 不代表原生联机或过场 · 页面等待398.6ms"
     },
     {
       "family": "controlled",
       "config": "act2",
       "method": "scratch",
-      "text": "UNKNOWN · 阶段 拼图编辑 · 保留原布局和原池 · 扩展100 · 166.8ms服务端完整耗时（含任务启动、独立验收） · budget exhausted · 不代表原生联机或过场 · 页面等待201.9ms"
+      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展69 · 273.6ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"rest\":6,\"monster\":9,\"boss\":1,\"shop\":1,\"chest\":3,\"unknown\":2,\"elite\":2} · 不代表原生联机或过场 · 页面等待356.6ms"
     },
     {
       "family": "controlled",
       "config": "act3",
       "method": "witness",
-      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展0 · 166.8ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"monster\":9,\"boss\":1,\"rest\":6} · 不代表原生联机或过场 · 页面等待202.1ms"
+      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展0 · 291.0ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"rest\":6,\"monster\":9,\"boss\":1,\"chest\":3,\"unknown\":2,\"elite\":2,\"shop\":1} · 不代表原生联机或过场 · 页面等待336.6ms"
     },
     {
       "family": "controlled",
       "config": "act3",
       "method": "extend",
-      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展146 · 271.6ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"monster\":19,\"boss\":1,\"rest\":6,\"elite\":6,\"unknown\":16,\"shop\":4,\"chest\":4} · 不代表原生联机或过场 · 页面等待341.5ms"
+      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展94 · 235.5ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"rest\":6,\"monster\":20,\"boss\":1,\"chest\":4,\"unknown\":15,\"elite\":6,\"shop\":4} · 不代表原生联机或过场 · 页面等待275.3ms"
     },
     {
       "family": "controlled",
       "config": "act3",
       "method": "scratch",
-      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展26 · 173.4ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"monster\":9,\"boss\":1,\"rest\":6} · 不代表原生联机或过场 · 页面等待215.4ms"
+      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展50 · 309.0ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"rest\":6,\"monster\":9,\"boss\":1,\"elite\":2,\"unknown\":2,\"shop\":1,\"chest\":3} · 不代表原生联机或过场 · 页面等待400.7ms"
     },
     {
       "family": "controlled",
       "config": "act3-double",
       "method": "witness",
-      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展0 · 138.2ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"monster\":8,\"boss\":1,\"boss2\":1,\"rest\":6} · 不代表原生联机或过场 · 页面等待201.3ms"
+      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展0 · 268.6ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"rest\":6,\"monster\":8,\"boss\":1,\"boss2\":1,\"chest\":3,\"unknown\":2,\"elite\":2,\"shop\":1} · 不代表原生联机或过场 · 页面等待342.1ms"
     },
     {
       "family": "controlled",
       "config": "act3-double",
       "method": "extend",
-      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展148 · 360.1ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"monster\":18,\"boss\":1,\"boss2\":1,\"rest\":6,\"unknown\":16,\"shop\":4,\"chest\":4,\"elite\":6} · 不代表原生联机或过场 · 页面等待442.3ms"
+      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展122 · 315.8ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"rest\":6,\"monster\":19,\"boss\":1,\"boss2\":1,\"chest\":4,\"unknown\":15,\"elite\":6,\"shop\":4} · 不代表原生联机或过场 · 页面等待403.1ms"
     },
     {
       "family": "controlled",
       "config": "act3-double",
       "method": "scratch",
-      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展16 · 217.9ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"monster\":8,\"boss\":1,\"boss2\":1,\"rest\":6} · 不代表原生联机或过场 · 页面等待270.6ms"
+      "text": "UNKNOWN · 阶段 拼图编辑 · 保留原布局和原池 · 扩展100 · 324.4ms服务端完整耗时（含任务启动、独立验收） · budget exhausted · 不代表原生联机或过场 · 页面等待390.1ms"
     },
     {
       "family": "existing-demo",
       "config": "act1",
       "method": "witness",
-      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展0 · 173.0ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"monster\":14,\"boss\":1,\"elite\":5,\"unknown\":6,\"chest\":1,\"shop\":3,\"rest\":6} · 不代表原生联机或过场 · 页面等待209.1ms"
+      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展0 · 315.7ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"unknown\":9,\"shop\":3,\"boss\":1,\"monster\":15,\"elite\":4,\"rest\":6,\"chest\":2} · 不代表原生联机或过场 · 页面等待407.8ms"
     },
     {
       "family": "existing-demo",
       "config": "act1",
       "method": "extend",
-      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展59 · 236.6ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"monster\":19,\"boss\":1,\"elite\":6,\"unknown\":16,\"chest\":4,\"shop\":4,\"rest\":6} · 不代表原生联机或过场 · 页面等待306.5ms"
+      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展60 · 323.0ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"unknown\":16,\"shop\":4,\"boss\":1,\"monster\":20,\"elite\":5,\"rest\":6,\"chest\":4} · 不代表原生联机或过场 · 页面等待414.3ms"
     },
     {
       "family": "existing-demo",
       "config": "act1",
       "method": "scratch",
-      "text": "UNKNOWN · 阶段 拼图编辑 · 保留原布局和原池 · 扩展100 · 118.4ms服务端完整耗时（含任务启动、独立验收） · budget exhausted · 不代表原生联机或过场 · 页面等待148.0ms"
+      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展57 · 318.1ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"unknown\":7,\"shop\":1,\"boss\":1,\"elite\":2,\"rest\":6,\"monster\":9,\"chest\":2} · 不代表原生联机或过场 · 页面等待419.5ms"
     },
     {
       "family": "existing-demo",
       "config": "act2",
       "method": "witness",
-      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展0 · 103.9ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"monster\":14,\"boss\":1,\"elite\":5,\"unknown\":6,\"chest\":1,\"shop\":3,\"rest\":6} · 不代表原生联机或过场 · 页面等待146.9ms"
+      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展0 · 247.0ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"unknown\":9,\"shop\":3,\"boss\":1,\"monster\":15,\"elite\":4,\"rest\":6,\"chest\":2} · 不代表原生联机或过场 · 页面等待343.6ms"
     },
     {
       "family": "existing-demo",
       "config": "act2",
       "method": "extend",
-      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展81 · 175.7ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"monster\":19,\"boss\":1,\"elite\":6,\"unknown\":16,\"chest\":4,\"shop\":4,\"rest\":6} · 不代表原生联机或过场 · 页面等待207.7ms"
+      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展74 · 240.8ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"unknown\":16,\"shop\":4,\"boss\":1,\"monster\":20,\"elite\":5,\"rest\":6,\"chest\":4} · 不代表原生联机或过场 · 页面等待339.9ms"
     },
     {
       "family": "existing-demo",
       "config": "act2",
       "method": "scratch",
-      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展76 · 247.1ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"monster\":10,\"boss\":1,\"rest\":6,\"unknown\":5,\"shop\":1,\"elite\":1} · 不代表原生联机或过场 · 页面等待322.3ms"
+      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展48 · 292.4ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"unknown\":7,\"shop\":1,\"boss\":1,\"rest\":6,\"monster\":9,\"chest\":2,\"elite\":2} · 不代表原生联机或过场 · 页面等待353.7ms"
     },
     {
       "family": "existing-demo",
       "config": "act3",
       "method": "witness",
-      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展0 · 178.5ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"monster\":14,\"boss\":1,\"elite\":5,\"unknown\":6,\"chest\":1,\"shop\":3,\"rest\":6} · 不代表原生联机或过场 · 页面等待215.6ms"
+      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展0 · 276.3ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"unknown\":9,\"shop\":3,\"boss\":1,\"monster\":15,\"elite\":4,\"rest\":6,\"chest\":2} · 不代表原生联机或过场 · 页面等待333.7ms"
     },
     {
       "family": "existing-demo",
       "config": "act3",
       "method": "extend",
-      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展66 · 303.5ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"monster\":19,\"boss\":1,\"elite\":6,\"unknown\":16,\"chest\":4,\"shop\":4,\"rest\":6} · 不代表原生联机或过场 · 页面等待374.7ms"
+      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展17 · 332.7ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"unknown\":16,\"shop\":4,\"boss\":1,\"monster\":20,\"elite\":5,\"rest\":6,\"chest\":4} · 不代表原生联机或过场 · 页面等待434.9ms"
     },
     {
       "family": "existing-demo",
       "config": "act3",
       "method": "scratch",
-      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展49 · 191.1ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"monster\":10,\"boss\":1,\"rest\":6,\"unknown\":5,\"elite\":1,\"shop\":1} · 不代表原生联机或过场 · 页面等待256.4ms"
+      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展68 · 306.6ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"unknown\":7,\"shop\":1,\"boss\":1,\"rest\":6,\"monster\":9,\"elite\":2,\"chest\":2} · 不代表原生联机或过场 · 页面等待374.6ms"
     },
     {
       "family": "existing-demo",
       "config": "act3-double",
       "method": "witness",
-      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展0 · 106.0ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"monster\":16,\"boss\":1,\"boss2\":1,\"elite\":5,\"unknown\":9,\"chest\":3,\"shop\":3,\"rest\":6} · 不代表原生联机或过场 · 页面等待151.3ms"
+      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展0 · 288.5ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"unknown\":8,\"shop\":2,\"boss\":1,\"boss2\":1,\"monster\":10,\"elite\":2,\"rest\":6,\"chest\":2} · 不代表原生联机或过场 · 页面等待345.0ms"
     },
     {
       "family": "existing-demo",
       "config": "act3-double",
       "method": "extend",
-      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展72 · 161.0ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"monster\":18,\"boss\":1,\"boss2\":1,\"elite\":6,\"unknown\":16,\"chest\":4,\"shop\":4,\"rest\":6} · 不代表原生联机或过场 · 页面等待199.2ms"
+      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展76 · 288.8ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"unknown\":15,\"shop\":4,\"boss\":1,\"boss2\":1,\"monster\":20,\"elite\":5,\"rest\":6,\"chest\":4} · 不代表原生联机或过场 · 页面等待399.3ms"
     },
     {
       "family": "existing-demo",
       "config": "act3-double",
       "method": "scratch",
-      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展21 · 148.3ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"monster\":9,\"boss\":1,\"boss2\":1,\"unknown\":5,\"rest\":6,\"elite\":1,\"shop\":1} · 不代表原生联机或过场 · 页面等待200.8ms"
+      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展76 · 239.5ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"unknown\":6,\"shop\":1,\"boss\":1,\"boss2\":1,\"rest\":6,\"monster\":9,\"chest\":2,\"elite\":2} · 不代表原生联机或过场 · 页面等待329.7ms"
     },
     {
       "case": "budget zero preserves edited layout",
@@ -162,7 +162,7 @@
         "interrupted": true,
         "was_running": true
       },
-      "text": "UNKNOWN · 阶段 拼图编辑 · 保留原布局和原池 · 扩展10000 · 12834.8ms服务端完整耗时（含任务启动、独立验收） · budget exhausted · 不代表原生联机或过场 · 页面等待12867.6ms"
+      "text": "SAT · 阶段 先古之民选择 · 验收后替换 · 扩展73 · 257.0ms服务端完整耗时（含任务启动、独立验收） · {\"neow\":1,\"unknown\":6,\"shop\":1,\"boss\":1,\"boss2\":1,\"rest\":6,\"monster\":9,\"chest\":2,\"elite\":2} · 不代表原生联机或过场 · 页面等待332.7ms"
     },
     {
       "case": "request failure unlocks and preserves layout",
@@ -170,6 +170,14 @@
     },
     {
       "case": "invalid seed leaves layout usable",
+      "passed": true
+    },
+    {
+      "case": "old given pool rejected without replacement",
+      "passed": true
+    },
+    {
+      "case": "stale client missing original pool rejected",
       "passed": true
     }
   ],

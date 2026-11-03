@@ -37,10 +37,10 @@
         ]
       ],
       "types": [
-        "monster",
-        "monster",
-        "monster",
-        "monster"
+        "unknown",
+        "shop",
+        "unknown",
+        "elite"
       ],
       "color": "#d49a47"
     },
@@ -81,10 +81,10 @@
         ]
       ],
       "types": [
-        "elite",
+        "shop",
         "monster",
         "unknown",
-        "monster"
+        "unknown"
       ],
       "color": "#78a8ad"
     },
@@ -125,10 +125,10 @@
         ]
       ],
       "types": [
-        "chest",
         "elite",
-        "elite",
-        "shop"
+        "rest",
+        "unknown",
+        "monster"
       ],
       "color": "#ad7a9b"
     },
@@ -169,10 +169,10 @@
         ]
       ],
       "types": [
-        "shop",
+        "rest",
         "monster",
-        "monster",
-        "elite"
+        "chest",
+        "monster"
       ],
       "color": "#a5a65a"
     },
@@ -213,10 +213,10 @@
         ]
       ],
       "types": [
-        "unknown",
-        "unknown",
-        "unknown",
-        "chest"
+        "monster",
+        "monster",
+        "monster",
+        "unknown"
       ],
       "color": "#a67556"
     },
@@ -258,9 +258,9 @@
       ],
       "types": [
         "elite",
-        "unknown",
-        "rest",
-        "unknown"
+        "monster",
+        "monster",
+        "rest"
       ],
       "color": "#728eae"
     },
@@ -301,10 +301,10 @@
         ]
       ],
       "types": [
-        "monster",
-        "rest",
+        "shop",
         "unknown",
-        "monster"
+        "chest",
+        "unknown"
       ],
       "color": "#9c967d"
     },
@@ -345,10 +345,10 @@
         ]
       ],
       "types": [
-        "monster",
-        "chest",
-        "monster",
-        "unknown"
+        "rest",
+        "unknown",
+        "unknown",
+        "monster"
       ],
       "color": "#aa7268"
     },
@@ -389,9 +389,9 @@
         ]
       ],
       "types": [
-        "unknown",
         "monster",
-        "rest",
+        "unknown",
+        "unknown",
         "monster"
       ],
       "color": "#7f9b76"
@@ -433,10 +433,10 @@
         ]
       ],
       "types": [
-        "rest",
-        "monster",
-        "shop",
-        "monster"
+        "elite",
+        "unknown",
+        "chest",
+        "unknown"
       ],
       "color": "#af8b4f"
     },
@@ -477,9 +477,9 @@
         ]
       ],
       "types": [
-        "unknown",
-        "elite",
-        "unknown",
+        "rest",
+        "monster",
+        "chest",
         "monster"
       ],
       "color": "#8781ad"
@@ -521,9 +521,9 @@
         ]
       ],
       "types": [
+        "unknown",
         "rest",
         "monster",
-        "rest",
         "unknown"
       ],
       "color": "#ba8e78"
@@ -565,10 +565,10 @@
         ]
       ],
       "types": [
-        "chest",
-        "unknown",
         "monster",
-        "unknown"
+        "elite",
+        "monster",
+        "monster"
       ],
       "color": "#789894"
     },
@@ -609,10 +609,10 @@
         ]
       ],
       "types": [
-        "shop",
+        "elite",
         "monster",
-        "unknown",
-        "unknown"
+        "shop",
+        "monster"
       ],
       "color": "#b39d79"
     }

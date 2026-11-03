@@ -16,6 +16,13 @@ def clearance(a, b):
     return max(abs(a['x']-b['x']),abs(a['y']-b['y'])) >= radius(a)+radius(b)+2
 
 
+def pool_room_rules(pool):
+    for p in pool:
+        need(p['types'].count('rest')<=1,'at most one rest per fragment')
+        need(len(set(p['types']))>1,'four identical pre-Boss rooms')
+        need(all(not (p['types'][a]==p['types'][b]=='elite') for a,b in p['edges']),'adjacent pre-Boss elites')
+
+
 def check_walk(s, walk, budget):
     by={n['id']:n for n in s['nodes']};done={'N'}
     g={n:set() for n in by}
@@ -51,6 +58,7 @@ def verify(pool, s, budget, auto=True):
     p = {x['id']: x for x in pool}
     need(len(p) == 14 and Counter(x['shape'] for x in pool) == Counter({k: 2 for k in 'IOTSZJL'}), 'pool shapes')
     need(Counter(t for x in pool for t in x['types']) == Counter(monster=20, unknown=16, elite=6, shop=4, rest=6, chest=4), 'pool quota')
+    pool_room_rules(pool)
     for x in pool:
         need(len(x['pts']) == len(x['types']) == 4, 'pool size')
         canonical={'I':[(0,0),(1,0),(2,0),(3,0)],'O':[(0,0),(1,0),(0,1),(1,1)],'T':[(0,0),(1,0),(2,0),(1,1)],'S':[(1,0),(2,0),(0,1),(1,1)],'Z':[(0,0),(1,0),(1,1),(2,1)],'J':[(0,0),(0,1),(1,1),(2,1)],'L':[(2,0),(0,1),(1,1),(2,1)]}

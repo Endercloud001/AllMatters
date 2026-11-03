@@ -12,8 +12,8 @@
     "config": "act1",
     "budget": 1000,
     "samples": 100,
-    "valid": 86,
-    "UNKNOWN": 14,
+    "valid": 100,
+    "UNKNOWN": 0,
     "UNSAT": 0,
     "pool_or_old_layout_damage": 0
   },
@@ -30,8 +30,8 @@
     "config": "act2",
     "budget": 1000,
     "samples": 100,
-    "valid": 86,
-    "UNKNOWN": 14,
+    "valid": 100,
+    "UNKNOWN": 0,
     "UNSAT": 0,
     "pool_or_old_layout_damage": 0
   },
@@ -48,8 +48,8 @@
     "config": "act3",
     "budget": 1000,
     "samples": 100,
-    "valid": 86,
-    "UNKNOWN": 14,
+    "valid": 100,
+    "UNKNOWN": 0,
     "UNSAT": 0,
     "pool_or_old_layout_damage": 0
   },
@@ -66,8 +66,8 @@
     "config": "act3-double",
     "budget": 1000,
     "samples": 100,
-    "valid": 75,
-    "UNKNOWN": 25,
+    "valid": 100,
+    "UNKNOWN": 0,
     "UNSAT": 0,
     "pool_or_old_layout_damage": 0
   }

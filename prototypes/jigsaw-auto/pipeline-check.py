@@ -20,6 +20,7 @@ try:
                 ('invalid output valid witness','extend',100,witness,'invalid-output','SAT')]:
                 r=p.run(original,method,budget,27,w,fault)
                 assert r['status']==expected,(family,double,name,r['status'])
+                if fault=='invalid-output':assert r['rejection'], 'fault must exercise independent rejection'
                 assert original==before and r['state']['pool']==before['pool']
                 assert r['state']['votes']==[]
                 if expected=='UNKNOWN':assert r['state']['layout']==before['layout'] and r['state']['phase']=='editing'
@@ -35,20 +36,22 @@ try:
                 r=p.run(original,'extend',0,27,small,fault)
                 assert r['status']=='UNKNOWN' and r['witness_error'] and r['state']['layout']==before['layout']
                 rows.append(dict(family=family,double=double,case='old manual-only witness on '+fault,status=r['status'],passed=True,witness_error=r['witness_error']))
-            if family=='controlled':
-                old_four=copy.deepcopy(witness)
-                coords={1:[(-3-2*j,0) for j in range(4)],2:[(-11,0),(-13,0),(-11,2),(-13,2)],3:[(-15,0),(-17,0),(-15,2),(-17,2)]}
-                for n in old_four['nodes']:
-                    if n['piece'] in coords:n['x'],n['y']=coords[n['piece']][int(n['id'].split(':')[1])]
-                old_four['edges']=[e for e in old_four['edges'] if e['internal']]+[dict(a=a,b=b,internal=False) for a,b in [('N','0:0'),('N','1:0'),('1:3','2:0'),('2:1','3:0')]]
-                for fault in [None,'exception','invalid-output']:
-                    r=p.run(original,'extend',0,27,old_four,fault)
-                    assert r['status']=='UNKNOWN' and r['witness_error']=='boss neighbors' and r['state']['layout']==before['layout']
-                    rows.append(dict(family=family,double=double,case='old four-piece fallback '+str(fault),status=r['status'],passed=True,witness_error=r['witness_error']))
+            legacy=json.loads((ROOT/'legacy-room-inputs.json').read_text(encoding='utf8'))['controlled']['witnesses'][int(double)]
+            for fault in [None,'exception','invalid-output']:
+                r=p.run(original,'extend',0,27,legacy,fault)
+                assert r['status']=='UNKNOWN' and r['witness_error'] and r['state']['layout']==before['layout']
+                rows.append(dict(family=family,double=double,case='legacy pre-revision witness '+str(fault),status=r['status'],passed=True,witness_error=r['witness_error']))
             # Restart the same approved input; no editing-layout or pool substitution.
             a=p.run(original,'extend',100,27,witness);b=p.run(json.loads(json.dumps(original)),'extend',100,27,json.loads(json.dumps(witness)))
             assert a['state']==b['state'] and a['expanded']==b['expanded']
             rows.append(dict(family=family,double=double,case='restart same approved input',passed=True,status=b['status']))
+    legacy=json.loads((ROOT/'legacy-room-inputs.json').read_text(encoding='utf8'))['controlled']
+    for double in [False,True]:
+        original=dict(pool=copy.deepcopy(legacy['pool']),double=double,B=13,layout=copy.deepcopy(legacy['witnesses'][int(double)]),votes=['auto'],phase='generating')
+        for budget in [0,1000]:
+            r=p.run(original,'extend',budget,1,legacy['witnesses'][int(double)])
+            assert r['status']=='UNKNOWN' and r['state']['pool']==original['pool'] and r['state']['layout']==original['layout'] and r['witness_error']
+            rows.append(dict(family='legacy invalid given pool',double=double,case='reject without repairing or resampling',budget=budget,status=r['status'],passed=True,witness_error=r['witness_error']))
     (ROOT/'pipeline-check-results.json').write_text(json.dumps(rows,ensure_ascii=False,indent=2),encoding='utf8')
     print(len(rows),'integrated transaction checks passed')
 finally:p.close()

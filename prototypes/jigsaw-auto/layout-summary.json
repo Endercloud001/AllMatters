@@ -1,0 +1,4339 @@
+[
+  {
+    "family": "controlled",
+    "config": "act1",
+    "method": "witness",
+    "budget": 0,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "6": 100
+    },
+    "ordinary_nodes": {
+      "23": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 900,
+      "boss": 100,
+      "chest": 300,
+      "unknown": 200,
+      "elite": 200,
+      "shop": 100
+    },
+    "walk_room_totals": {
+      "rest": 400,
+      "monster": 500,
+      "chest": 200,
+      "unknown": 200,
+      "elite": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act1",
+    "method": "extend",
+    "budget": 0,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "6": 100
+    },
+    "ordinary_nodes": {
+      "23": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 900,
+      "boss": 100,
+      "chest": 300,
+      "unknown": 200,
+      "elite": 200,
+      "shop": 100
+    },
+    "walk_room_totals": {
+      "rest": 400,
+      "monster": 500,
+      "chest": 200,
+      "unknown": 200,
+      "elite": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act1",
+    "method": "scratch",
+    "budget": 0,
+    "valid": 0,
+    "unique_exact": 0,
+    "unique_up_to_global_rotation": 0,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {},
+    "ordinary_nodes": {},
+    "Boss_distance": {},
+    "rests": {},
+    "Boss_neighbors": {},
+    "room_totals": {},
+    "walk_room_totals": {},
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act1",
+    "method": "witness",
+    "budget": 100,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "6": 100
+    },
+    "ordinary_nodes": {
+      "23": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 900,
+      "boss": 100,
+      "chest": 300,
+      "unknown": 200,
+      "elite": 200,
+      "shop": 100
+    },
+    "walk_room_totals": {
+      "rest": 400,
+      "monster": 500,
+      "chest": 200,
+      "unknown": 200,
+      "elite": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act1",
+    "method": "extend",
+    "budget": 100,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 96.5,
+    "expansion_p95": 100,
+    "blocks": {
+      "14": 60,
+      "13": 14,
+      "11": 9,
+      "12": 14,
+      "9": 1,
+      "10": 2
+    },
+    "ordinary_nodes": {
+      "55": 60,
+      "51": 14,
+      "43": 9,
+      "47": 14,
+      "35": 1,
+      "39": 2
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 83,
+      "3": 17
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 1879,
+      "boss": 100,
+      "chest": 387,
+      "unknown": 1389,
+      "elite": 553,
+      "shop": 364
+    },
+    "walk_room_totals": {
+      "rest": 295,
+      "monster": 478,
+      "chest": 181,
+      "unknown": 303,
+      "elite": 122,
+      "boss": 100,
+      "shop": 21
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act1",
+    "method": "scratch",
+    "budget": 100,
+    "valid": 89,
+    "unique_exact": 89,
+    "unique_up_to_global_rotation": 89,
+    "expansion_p50": 59.5,
+    "expansion_p95": 100,
+    "blocks": {
+      "6": 89
+    },
+    "ordinary_nodes": {
+      "23": 89
+    },
+    "Boss_distance": {
+      "3": 44,
+      "4": 45
+    },
+    "rests": {
+      "6": 89
+    },
+    "Boss_neighbors": {
+      "4": 1,
+      "2": 67,
+      "3": 21
+    },
+    "room_totals": {
+      "neow": 89,
+      "rest": 534,
+      "monster": 801,
+      "boss": 89,
+      "shop": 89,
+      "chest": 267,
+      "unknown": 178,
+      "elite": 178
+    },
+    "walk_room_totals": {
+      "monster": 489,
+      "rest": 330,
+      "elite": 84,
+      "chest": 165,
+      "unknown": 149,
+      "boss": 89,
+      "shop": 29
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act1",
+    "method": "witness",
+    "budget": 1000,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "6": 100
+    },
+    "ordinary_nodes": {
+      "23": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 900,
+      "boss": 100,
+      "chest": 300,
+      "unknown": 200,
+      "elite": 200,
+      "shop": 100
+    },
+    "walk_room_totals": {
+      "rest": 400,
+      "monster": 500,
+      "chest": 200,
+      "unknown": 200,
+      "elite": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act1",
+    "method": "extend",
+    "budget": 1000,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 96.5,
+    "expansion_p95": 168,
+    "blocks": {
+      "14": 100
+    },
+    "ordinary_nodes": {
+      "55": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 81,
+      "3": 19
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 2000,
+      "boss": 100,
+      "chest": 400,
+      "unknown": 1500,
+      "elite": 600,
+      "shop": 400
+    },
+    "walk_room_totals": {
+      "rest": 290,
+      "monster": 477,
+      "chest": 180,
+      "unknown": 308,
+      "elite": 123,
+      "boss": 100,
+      "shop": 22
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act1",
+    "method": "scratch",
+    "budget": 1000,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 59.5,
+    "expansion_p95": 121,
+    "blocks": {
+      "6": 100
+    },
+    "ordinary_nodes": {
+      "23": 100
+    },
+    "Boss_distance": {
+      "3": 51,
+      "4": 49
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "4": 2,
+      "2": 75,
+      "3": 23
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 900,
+      "boss": 100,
+      "shop": 100,
+      "chest": 300,
+      "unknown": 200,
+      "elite": 200
+    },
+    "walk_room_totals": {
+      "monster": 549,
+      "rest": 371,
+      "elite": 95,
+      "chest": 187,
+      "unknown": 168,
+      "boss": 100,
+      "shop": 30
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act1",
+    "method": "witness",
+    "budget": 10000,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "6": 100
+    },
+    "ordinary_nodes": {
+      "23": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 900,
+      "boss": 100,
+      "chest": 300,
+      "unknown": 200,
+      "elite": 200,
+      "shop": 100
+    },
+    "walk_room_totals": {
+      "rest": 400,
+      "monster": 500,
+      "chest": 200,
+      "unknown": 200,
+      "elite": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act1",
+    "method": "extend",
+    "budget": 10000,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 96.5,
+    "expansion_p95": 168,
+    "blocks": {
+      "14": 100
+    },
+    "ordinary_nodes": {
+      "55": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 81,
+      "3": 19
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 2000,
+      "boss": 100,
+      "chest": 400,
+      "unknown": 1500,
+      "elite": 600,
+      "shop": 400
+    },
+    "walk_room_totals": {
+      "rest": 290,
+      "monster": 477,
+      "chest": 180,
+      "unknown": 308,
+      "elite": 123,
+      "boss": 100,
+      "shop": 22
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act1",
+    "method": "scratch",
+    "budget": 10000,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 59.5,
+    "expansion_p95": 121,
+    "blocks": {
+      "6": 100
+    },
+    "ordinary_nodes": {
+      "23": 100
+    },
+    "Boss_distance": {
+      "3": 51,
+      "4": 49
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "4": 2,
+      "2": 75,
+      "3": 23
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 900,
+      "boss": 100,
+      "shop": 100,
+      "chest": 300,
+      "unknown": 200,
+      "elite": 200
+    },
+    "walk_room_totals": {
+      "monster": 549,
+      "rest": 371,
+      "elite": 95,
+      "chest": 187,
+      "unknown": 168,
+      "boss": 100,
+      "shop": 30
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act2",
+    "method": "witness",
+    "budget": 0,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "6": 100
+    },
+    "ordinary_nodes": {
+      "23": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 900,
+      "boss": 100,
+      "chest": 300,
+      "unknown": 200,
+      "elite": 200,
+      "shop": 100
+    },
+    "walk_room_totals": {
+      "rest": 400,
+      "monster": 500,
+      "chest": 200,
+      "unknown": 100,
+      "elite": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act2",
+    "method": "extend",
+    "budget": 0,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "6": 100
+    },
+    "ordinary_nodes": {
+      "23": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 900,
+      "boss": 100,
+      "chest": 300,
+      "unknown": 200,
+      "elite": 200,
+      "shop": 100
+    },
+    "walk_room_totals": {
+      "rest": 400,
+      "monster": 500,
+      "chest": 200,
+      "unknown": 100,
+      "elite": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act2",
+    "method": "scratch",
+    "budget": 0,
+    "valid": 0,
+    "unique_exact": 0,
+    "unique_up_to_global_rotation": 0,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {},
+    "ordinary_nodes": {},
+    "Boss_distance": {},
+    "rests": {},
+    "Boss_neighbors": {},
+    "room_totals": {},
+    "walk_room_totals": {},
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act2",
+    "method": "witness",
+    "budget": 100,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "6": 100
+    },
+    "ordinary_nodes": {
+      "23": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 900,
+      "boss": 100,
+      "chest": 300,
+      "unknown": 200,
+      "elite": 200,
+      "shop": 100
+    },
+    "walk_room_totals": {
+      "rest": 400,
+      "monster": 500,
+      "chest": 200,
+      "unknown": 100,
+      "elite": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act2",
+    "method": "extend",
+    "budget": 100,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 96.5,
+    "expansion_p95": 100,
+    "blocks": {
+      "14": 60,
+      "13": 14,
+      "11": 9,
+      "12": 14,
+      "9": 1,
+      "10": 2
+    },
+    "ordinary_nodes": {
+      "55": 60,
+      "51": 14,
+      "43": 9,
+      "47": 14,
+      "35": 1,
+      "39": 2
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 83,
+      "3": 17
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 1879,
+      "boss": 100,
+      "chest": 387,
+      "unknown": 1389,
+      "elite": 553,
+      "shop": 364
+    },
+    "walk_room_totals": {
+      "rest": 282,
+      "monster": 429,
+      "chest": 181,
+      "unknown": 274,
+      "elite": 115,
+      "boss": 100,
+      "shop": 19
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act2",
+    "method": "scratch",
+    "budget": 100,
+    "valid": 89,
+    "unique_exact": 89,
+    "unique_up_to_global_rotation": 89,
+    "expansion_p50": 59.5,
+    "expansion_p95": 100,
+    "blocks": {
+      "6": 89
+    },
+    "ordinary_nodes": {
+      "23": 89
+    },
+    "Boss_distance": {
+      "3": 44,
+      "4": 45
+    },
+    "rests": {
+      "6": 89
+    },
+    "Boss_neighbors": {
+      "4": 1,
+      "2": 67,
+      "3": 21
+    },
+    "room_totals": {
+      "neow": 89,
+      "rest": 534,
+      "monster": 801,
+      "boss": 89,
+      "shop": 89,
+      "chest": 267,
+      "unknown": 178,
+      "elite": 178
+    },
+    "walk_room_totals": {
+      "monster": 459,
+      "rest": 318,
+      "elite": 76,
+      "chest": 158,
+      "unknown": 126,
+      "boss": 89,
+      "shop": 20
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act2",
+    "method": "witness",
+    "budget": 1000,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "6": 100
+    },
+    "ordinary_nodes": {
+      "23": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 900,
+      "boss": 100,
+      "chest": 300,
+      "unknown": 200,
+      "elite": 200,
+      "shop": 100
+    },
+    "walk_room_totals": {
+      "rest": 400,
+      "monster": 500,
+      "chest": 200,
+      "unknown": 100,
+      "elite": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act2",
+    "method": "extend",
+    "budget": 1000,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 96.5,
+    "expansion_p95": 168,
+    "blocks": {
+      "14": 100
+    },
+    "ordinary_nodes": {
+      "55": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 81,
+      "3": 19
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 2000,
+      "boss": 100,
+      "chest": 400,
+      "unknown": 1500,
+      "elite": 600,
+      "shop": 400
+    },
+    "walk_room_totals": {
+      "rest": 276,
+      "monster": 425,
+      "chest": 180,
+      "unknown": 283,
+      "elite": 116,
+      "boss": 100,
+      "shop": 20
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act2",
+    "method": "scratch",
+    "budget": 1000,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 59.5,
+    "expansion_p95": 121,
+    "blocks": {
+      "6": 100
+    },
+    "ordinary_nodes": {
+      "23": 100
+    },
+    "Boss_distance": {
+      "3": 51,
+      "4": 49
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "4": 2,
+      "2": 75,
+      "3": 23
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 900,
+      "boss": 100,
+      "shop": 100,
+      "chest": 300,
+      "unknown": 200,
+      "elite": 200
+    },
+    "walk_room_totals": {
+      "monster": 515,
+      "rest": 358,
+      "elite": 87,
+      "chest": 180,
+      "unknown": 140,
+      "boss": 100,
+      "shop": 20
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act2",
+    "method": "witness",
+    "budget": 10000,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "6": 100
+    },
+    "ordinary_nodes": {
+      "23": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 900,
+      "boss": 100,
+      "chest": 300,
+      "unknown": 200,
+      "elite": 200,
+      "shop": 100
+    },
+    "walk_room_totals": {
+      "rest": 400,
+      "monster": 500,
+      "chest": 200,
+      "unknown": 100,
+      "elite": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act2",
+    "method": "extend",
+    "budget": 10000,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 96.5,
+    "expansion_p95": 168,
+    "blocks": {
+      "14": 100
+    },
+    "ordinary_nodes": {
+      "55": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 81,
+      "3": 19
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 2000,
+      "boss": 100,
+      "chest": 400,
+      "unknown": 1500,
+      "elite": 600,
+      "shop": 400
+    },
+    "walk_room_totals": {
+      "rest": 276,
+      "monster": 425,
+      "chest": 180,
+      "unknown": 283,
+      "elite": 116,
+      "boss": 100,
+      "shop": 20
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act2",
+    "method": "scratch",
+    "budget": 10000,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 59.5,
+    "expansion_p95": 121,
+    "blocks": {
+      "6": 100
+    },
+    "ordinary_nodes": {
+      "23": 100
+    },
+    "Boss_distance": {
+      "3": 51,
+      "4": 49
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "4": 2,
+      "2": 75,
+      "3": 23
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 900,
+      "boss": 100,
+      "shop": 100,
+      "chest": 300,
+      "unknown": 200,
+      "elite": 200
+    },
+    "walk_room_totals": {
+      "monster": 515,
+      "rest": 358,
+      "elite": 87,
+      "chest": 180,
+      "unknown": 140,
+      "boss": 100,
+      "shop": 20
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act3",
+    "method": "witness",
+    "budget": 0,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "6": 100
+    },
+    "ordinary_nodes": {
+      "23": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 900,
+      "boss": 100,
+      "chest": 300,
+      "unknown": 200,
+      "elite": 200,
+      "shop": 100
+    },
+    "walk_room_totals": {
+      "rest": 400,
+      "monster": 400,
+      "chest": 200,
+      "unknown": 100,
+      "elite": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act3",
+    "method": "extend",
+    "budget": 0,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "6": 100
+    },
+    "ordinary_nodes": {
+      "23": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 900,
+      "boss": 100,
+      "chest": 300,
+      "unknown": 200,
+      "elite": 200,
+      "shop": 100
+    },
+    "walk_room_totals": {
+      "rest": 400,
+      "monster": 400,
+      "chest": 200,
+      "unknown": 100,
+      "elite": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act3",
+    "method": "scratch",
+    "budget": 0,
+    "valid": 0,
+    "unique_exact": 0,
+    "unique_up_to_global_rotation": 0,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {},
+    "ordinary_nodes": {},
+    "Boss_distance": {},
+    "rests": {},
+    "Boss_neighbors": {},
+    "room_totals": {},
+    "walk_room_totals": {},
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act3",
+    "method": "witness",
+    "budget": 100,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "6": 100
+    },
+    "ordinary_nodes": {
+      "23": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 900,
+      "boss": 100,
+      "chest": 300,
+      "unknown": 200,
+      "elite": 200,
+      "shop": 100
+    },
+    "walk_room_totals": {
+      "rest": 400,
+      "monster": 400,
+      "chest": 200,
+      "unknown": 100,
+      "elite": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act3",
+    "method": "extend",
+    "budget": 100,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 96.5,
+    "expansion_p95": 100,
+    "blocks": {
+      "14": 60,
+      "13": 14,
+      "11": 9,
+      "12": 14,
+      "9": 1,
+      "10": 2
+    },
+    "ordinary_nodes": {
+      "55": 60,
+      "51": 14,
+      "43": 9,
+      "47": 14,
+      "35": 1,
+      "39": 2
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 83,
+      "3": 17
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 1879,
+      "boss": 100,
+      "chest": 387,
+      "unknown": 1389,
+      "elite": 553,
+      "shop": 364
+    },
+    "walk_room_totals": {
+      "rest": 282,
+      "monster": 396,
+      "chest": 181,
+      "unknown": 249,
+      "elite": 74,
+      "boss": 100,
+      "shop": 18
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act3",
+    "method": "scratch",
+    "budget": 100,
+    "valid": 89,
+    "unique_exact": 89,
+    "unique_up_to_global_rotation": 89,
+    "expansion_p50": 59.5,
+    "expansion_p95": 100,
+    "blocks": {
+      "6": 89
+    },
+    "ordinary_nodes": {
+      "23": 89
+    },
+    "Boss_distance": {
+      "3": 44,
+      "4": 45
+    },
+    "rests": {
+      "6": 89
+    },
+    "Boss_neighbors": {
+      "4": 1,
+      "2": 67,
+      "3": 21
+    },
+    "room_totals": {
+      "neow": 89,
+      "rest": 534,
+      "monster": 801,
+      "boss": 89,
+      "shop": 89,
+      "chest": 267,
+      "unknown": 178,
+      "elite": 178
+    },
+    "walk_room_totals": {
+      "monster": 430,
+      "rest": 287,
+      "elite": 72,
+      "chest": 149,
+      "unknown": 111,
+      "boss": 89,
+      "shop": 19
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act3",
+    "method": "witness",
+    "budget": 1000,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "6": 100
+    },
+    "ordinary_nodes": {
+      "23": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 900,
+      "boss": 100,
+      "chest": 300,
+      "unknown": 200,
+      "elite": 200,
+      "shop": 100
+    },
+    "walk_room_totals": {
+      "rest": 400,
+      "monster": 400,
+      "chest": 200,
+      "unknown": 100,
+      "elite": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act3",
+    "method": "extend",
+    "budget": 1000,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 96.5,
+    "expansion_p95": 168,
+    "blocks": {
+      "14": 100
+    },
+    "ordinary_nodes": {
+      "55": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 81,
+      "3": 19
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 2000,
+      "boss": 100,
+      "chest": 400,
+      "unknown": 1500,
+      "elite": 600,
+      "shop": 400
+    },
+    "walk_room_totals": {
+      "rest": 276,
+      "monster": 396,
+      "chest": 180,
+      "unknown": 256,
+      "elite": 73,
+      "boss": 100,
+      "shop": 19
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act3",
+    "method": "scratch",
+    "budget": 1000,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 59.5,
+    "expansion_p95": 121,
+    "blocks": {
+      "6": 100
+    },
+    "ordinary_nodes": {
+      "23": 100
+    },
+    "Boss_distance": {
+      "3": 51,
+      "4": 49
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "4": 2,
+      "2": 75,
+      "3": 23
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 900,
+      "boss": 100,
+      "shop": 100,
+      "chest": 300,
+      "unknown": 200,
+      "elite": 200
+    },
+    "walk_room_totals": {
+      "monster": 483,
+      "rest": 321,
+      "elite": 83,
+      "chest": 170,
+      "unknown": 124,
+      "boss": 100,
+      "shop": 19
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act3",
+    "method": "witness",
+    "budget": 10000,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "6": 100
+    },
+    "ordinary_nodes": {
+      "23": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 900,
+      "boss": 100,
+      "chest": 300,
+      "unknown": 200,
+      "elite": 200,
+      "shop": 100
+    },
+    "walk_room_totals": {
+      "rest": 400,
+      "monster": 400,
+      "chest": 200,
+      "unknown": 100,
+      "elite": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act3",
+    "method": "extend",
+    "budget": 10000,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 96.5,
+    "expansion_p95": 168,
+    "blocks": {
+      "14": 100
+    },
+    "ordinary_nodes": {
+      "55": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 81,
+      "3": 19
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 2000,
+      "boss": 100,
+      "chest": 400,
+      "unknown": 1500,
+      "elite": 600,
+      "shop": 400
+    },
+    "walk_room_totals": {
+      "rest": 276,
+      "monster": 396,
+      "chest": 180,
+      "unknown": 256,
+      "elite": 73,
+      "boss": 100,
+      "shop": 19
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act3",
+    "method": "scratch",
+    "budget": 10000,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 59.5,
+    "expansion_p95": 121,
+    "blocks": {
+      "6": 100
+    },
+    "ordinary_nodes": {
+      "23": 100
+    },
+    "Boss_distance": {
+      "3": 51,
+      "4": 49
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "4": 2,
+      "2": 75,
+      "3": 23
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 900,
+      "boss": 100,
+      "shop": 100,
+      "chest": 300,
+      "unknown": 200,
+      "elite": 200
+    },
+    "walk_room_totals": {
+      "monster": 483,
+      "rest": 321,
+      "elite": 83,
+      "chest": 170,
+      "unknown": 124,
+      "boss": 100,
+      "shop": 19
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act3-double",
+    "method": "witness",
+    "budget": 0,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "6": 100
+    },
+    "ordinary_nodes": {
+      "22": 100
+    },
+    "Boss_distance": {
+      "3": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 800,
+      "boss": 100,
+      "boss2": 100,
+      "chest": 300,
+      "unknown": 200,
+      "elite": 200,
+      "shop": 100
+    },
+    "walk_room_totals": {
+      "rest": 400,
+      "monster": 400,
+      "chest": 200,
+      "unknown": 100,
+      "elite": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act3-double",
+    "method": "extend",
+    "budget": 0,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "6": 100
+    },
+    "ordinary_nodes": {
+      "22": 100
+    },
+    "Boss_distance": {
+      "3": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 800,
+      "boss": 100,
+      "boss2": 100,
+      "chest": 300,
+      "unknown": 200,
+      "elite": 200,
+      "shop": 100
+    },
+    "walk_room_totals": {
+      "rest": 400,
+      "monster": 400,
+      "chest": 200,
+      "unknown": 100,
+      "elite": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act3-double",
+    "method": "scratch",
+    "budget": 0,
+    "valid": 0,
+    "unique_exact": 0,
+    "unique_up_to_global_rotation": 0,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {},
+    "ordinary_nodes": {},
+    "Boss_distance": {},
+    "rests": {},
+    "Boss_neighbors": {},
+    "room_totals": {},
+    "walk_room_totals": {},
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act3-double",
+    "method": "witness",
+    "budget": 100,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "6": 100
+    },
+    "ordinary_nodes": {
+      "22": 100
+    },
+    "Boss_distance": {
+      "3": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 800,
+      "boss": 100,
+      "boss2": 100,
+      "chest": 300,
+      "unknown": 200,
+      "elite": 200,
+      "shop": 100
+    },
+    "walk_room_totals": {
+      "rest": 400,
+      "monster": 400,
+      "chest": 200,
+      "unknown": 100,
+      "elite": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act3-double",
+    "method": "extend",
+    "budget": 100,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 87.0,
+    "expansion_p95": 100,
+    "blocks": {
+      "12": 12,
+      "14": 67,
+      "11": 8,
+      "13": 8,
+      "9": 2,
+      "10": 3
+    },
+    "ordinary_nodes": {
+      "46": 12,
+      "54": 67,
+      "42": 8,
+      "50": 8,
+      "34": 2,
+      "38": 3
+    },
+    "Boss_distance": {
+      "3": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 75,
+      "3": 21,
+      "4": 4
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 1795,
+      "boss": 100,
+      "boss2": 100,
+      "chest": 391,
+      "unknown": 1378,
+      "elite": 556,
+      "shop": 368
+    },
+    "walk_room_totals": {
+      "rest": 313,
+      "monster": 315,
+      "chest": 189,
+      "unknown": 243,
+      "elite": 125,
+      "boss": 100,
+      "shop": 15
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act3-double",
+    "method": "scratch",
+    "budget": 100,
+    "valid": 83,
+    "unique_exact": 83,
+    "unique_up_to_global_rotation": 83,
+    "expansion_p50": 59.5,
+    "expansion_p95": 100,
+    "blocks": {
+      "6": 83
+    },
+    "ordinary_nodes": {
+      "22": 83
+    },
+    "Boss_distance": {
+      "2": 45,
+      "3": 38
+    },
+    "rests": {
+      "6": 83
+    },
+    "Boss_neighbors": {
+      "2": 69,
+      "3": 14
+    },
+    "room_totals": {
+      "neow": 83,
+      "rest": 498,
+      "monster": 664,
+      "boss": 83,
+      "boss2": 83,
+      "shop": 83,
+      "chest": 249,
+      "unknown": 166,
+      "elite": 166
+    },
+    "walk_room_totals": {
+      "monster": 358,
+      "rest": 296,
+      "unknown": 108,
+      "chest": 126,
+      "shop": 27,
+      "elite": 81,
+      "boss": 83
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act3-double",
+    "method": "witness",
+    "budget": 1000,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "6": 100
+    },
+    "ordinary_nodes": {
+      "22": 100
+    },
+    "Boss_distance": {
+      "3": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 800,
+      "boss": 100,
+      "boss2": 100,
+      "chest": 300,
+      "unknown": 200,
+      "elite": 200,
+      "shop": 100
+    },
+    "walk_room_totals": {
+      "rest": 400,
+      "monster": 400,
+      "chest": 200,
+      "unknown": 100,
+      "elite": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act3-double",
+    "method": "extend",
+    "budget": 1000,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 87.0,
+    "expansion_p95": 154,
+    "blocks": {
+      "14": 100
+    },
+    "ordinary_nodes": {
+      "54": 100
+    },
+    "Boss_distance": {
+      "3": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 74,
+      "3": 22,
+      "4": 4
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 1900,
+      "boss": 100,
+      "boss2": 100,
+      "chest": 400,
+      "unknown": 1500,
+      "elite": 600,
+      "shop": 400
+    },
+    "walk_room_totals": {
+      "rest": 304,
+      "monster": 317,
+      "chest": 187,
+      "unknown": 252,
+      "elite": 123,
+      "boss": 100,
+      "shop": 17
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act3-double",
+    "method": "scratch",
+    "budget": 1000,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 59.5,
+    "expansion_p95": 119,
+    "blocks": {
+      "6": 98,
+      "7": 1,
+      "8": 1
+    },
+    "ordinary_nodes": {
+      "22": 98,
+      "26": 1,
+      "30": 1
+    },
+    "Boss_distance": {
+      "2": 51,
+      "3": 49
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 82,
+      "3": 18
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 805,
+      "boss": 100,
+      "boss2": 100,
+      "shop": 102,
+      "chest": 300,
+      "unknown": 203,
+      "elite": 202
+    },
+    "walk_room_totals": {
+      "monster": 427,
+      "rest": 355,
+      "unknown": 136,
+      "chest": 156,
+      "shop": 33,
+      "elite": 93,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act3-double",
+    "method": "witness",
+    "budget": 10000,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "6": 100
+    },
+    "ordinary_nodes": {
+      "22": 100
+    },
+    "Boss_distance": {
+      "3": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 800,
+      "boss": 100,
+      "boss2": 100,
+      "chest": 300,
+      "unknown": 200,
+      "elite": 200,
+      "shop": 100
+    },
+    "walk_room_totals": {
+      "rest": 400,
+      "monster": 400,
+      "chest": 200,
+      "unknown": 100,
+      "elite": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act3-double",
+    "method": "extend",
+    "budget": 10000,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 87.0,
+    "expansion_p95": 154,
+    "blocks": {
+      "14": 100
+    },
+    "ordinary_nodes": {
+      "54": 100
+    },
+    "Boss_distance": {
+      "3": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 74,
+      "3": 22,
+      "4": 4
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 1900,
+      "boss": 100,
+      "boss2": 100,
+      "chest": 400,
+      "unknown": 1500,
+      "elite": 600,
+      "shop": 400
+    },
+    "walk_room_totals": {
+      "rest": 304,
+      "monster": 317,
+      "chest": 187,
+      "unknown": 252,
+      "elite": 123,
+      "boss": 100,
+      "shop": 17
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "controlled",
+    "config": "act3-double",
+    "method": "scratch",
+    "budget": 10000,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 59.5,
+    "expansion_p95": 119,
+    "blocks": {
+      "6": 98,
+      "7": 1,
+      "8": 1
+    },
+    "ordinary_nodes": {
+      "22": 98,
+      "26": 1,
+      "30": 1
+    },
+    "Boss_distance": {
+      "2": 51,
+      "3": 49
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 82,
+      "3": 18
+    },
+    "room_totals": {
+      "neow": 100,
+      "rest": 600,
+      "monster": 805,
+      "boss": 100,
+      "boss2": 100,
+      "shop": 102,
+      "chest": 300,
+      "unknown": 203,
+      "elite": 202
+    },
+    "walk_room_totals": {
+      "monster": 427,
+      "rest": 355,
+      "unknown": 136,
+      "chest": 156,
+      "shop": 33,
+      "elite": 93,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act1",
+    "method": "witness",
+    "budget": 0,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "10": 100
+    },
+    "ordinary_nodes": {
+      "39": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 900,
+      "shop": 300,
+      "boss": 100,
+      "monster": 1500,
+      "elite": 400,
+      "rest": 600,
+      "chest": 200
+    },
+    "walk_room_totals": {
+      "unknown": 500,
+      "shop": 200,
+      "rest": 200,
+      "monster": 400,
+      "chest": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act1",
+    "method": "extend",
+    "budget": 0,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "10": 100
+    },
+    "ordinary_nodes": {
+      "39": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 900,
+      "shop": 300,
+      "boss": 100,
+      "monster": 1500,
+      "elite": 400,
+      "rest": 600,
+      "chest": 200
+    },
+    "walk_room_totals": {
+      "unknown": 500,
+      "shop": 200,
+      "rest": 200,
+      "monster": 400,
+      "chest": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act1",
+    "method": "scratch",
+    "budget": 0,
+    "valid": 0,
+    "unique_exact": 0,
+    "unique_up_to_global_rotation": 0,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {},
+    "ordinary_nodes": {},
+    "Boss_distance": {},
+    "rests": {},
+    "Boss_neighbors": {},
+    "room_totals": {},
+    "walk_room_totals": {},
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act1",
+    "method": "witness",
+    "budget": 100,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "10": 100
+    },
+    "ordinary_nodes": {
+      "39": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 900,
+      "shop": 300,
+      "boss": 100,
+      "monster": 1500,
+      "elite": 400,
+      "rest": 600,
+      "chest": 200
+    },
+    "walk_room_totals": {
+      "unknown": 500,
+      "shop": 200,
+      "rest": 200,
+      "monster": 400,
+      "chest": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act1",
+    "method": "extend",
+    "budget": 100,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 47.0,
+    "expansion_p95": 88,
+    "blocks": {
+      "14": 98,
+      "13": 2
+    },
+    "ordinary_nodes": {
+      "55": 98,
+      "51": 2
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 79,
+      "3": 20,
+      "4": 1
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 1596,
+      "shop": 399,
+      "boss": 100,
+      "monster": 1998,
+      "elite": 500,
+      "rest": 600,
+      "chest": 399
+    },
+    "walk_room_totals": {
+      "unknown": 500,
+      "shop": 200,
+      "rest": 200,
+      "monster": 400,
+      "chest": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act1",
+    "method": "scratch",
+    "budget": 100,
+    "valid": 76,
+    "unique_exact": 76,
+    "unique_up_to_global_rotation": 76,
+    "expansion_p50": 68.5,
+    "expansion_p95": 100,
+    "blocks": {
+      "7": 76
+    },
+    "ordinary_nodes": {
+      "27": 76
+    },
+    "Boss_distance": {
+      "3": 38,
+      "4": 38
+    },
+    "rests": {
+      "6": 76
+    },
+    "Boss_neighbors": {
+      "3": 23,
+      "2": 51,
+      "4": 2
+    },
+    "room_totals": {
+      "neow": 76,
+      "unknown": 532,
+      "shop": 76,
+      "boss": 76,
+      "rest": 456,
+      "monster": 684,
+      "chest": 152,
+      "elite": 152
+    },
+    "walk_room_totals": {
+      "shop": 76,
+      "unknown": 337,
+      "monster": 305,
+      "chest": 87,
+      "rest": 195,
+      "elite": 64,
+      "boss": 76
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act1",
+    "method": "witness",
+    "budget": 1000,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "10": 100
+    },
+    "ordinary_nodes": {
+      "39": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 900,
+      "shop": 300,
+      "boss": 100,
+      "monster": 1500,
+      "elite": 400,
+      "rest": 600,
+      "chest": 200
+    },
+    "walk_room_totals": {
+      "unknown": 500,
+      "shop": 200,
+      "rest": 200,
+      "monster": 400,
+      "chest": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act1",
+    "method": "extend",
+    "budget": 1000,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 47.0,
+    "expansion_p95": 88,
+    "blocks": {
+      "14": 100
+    },
+    "ordinary_nodes": {
+      "55": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 79,
+      "3": 20,
+      "4": 1
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 1600,
+      "shop": 400,
+      "boss": 100,
+      "monster": 2000,
+      "elite": 500,
+      "rest": 600,
+      "chest": 400
+    },
+    "walk_room_totals": {
+      "unknown": 500,
+      "shop": 200,
+      "rest": 200,
+      "monster": 400,
+      "chest": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act1",
+    "method": "scratch",
+    "budget": 1000,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 68.5,
+    "expansion_p95": 147,
+    "blocks": {
+      "7": 100
+    },
+    "ordinary_nodes": {
+      "27": 100
+    },
+    "Boss_distance": {
+      "3": 51,
+      "4": 49
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "3": 32,
+      "2": 66,
+      "4": 2
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 700,
+      "shop": 100,
+      "boss": 100,
+      "rest": 600,
+      "monster": 900,
+      "chest": 200,
+      "elite": 200
+    },
+    "walk_room_totals": {
+      "shop": 100,
+      "unknown": 439,
+      "monster": 409,
+      "chest": 115,
+      "rest": 253,
+      "elite": 84,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act1",
+    "method": "witness",
+    "budget": 10000,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "10": 100
+    },
+    "ordinary_nodes": {
+      "39": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 900,
+      "shop": 300,
+      "boss": 100,
+      "monster": 1500,
+      "elite": 400,
+      "rest": 600,
+      "chest": 200
+    },
+    "walk_room_totals": {
+      "unknown": 500,
+      "shop": 200,
+      "rest": 200,
+      "monster": 400,
+      "chest": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act1",
+    "method": "extend",
+    "budget": 10000,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 47.0,
+    "expansion_p95": 88,
+    "blocks": {
+      "14": 100
+    },
+    "ordinary_nodes": {
+      "55": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 79,
+      "3": 20,
+      "4": 1
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 1600,
+      "shop": 400,
+      "boss": 100,
+      "monster": 2000,
+      "elite": 500,
+      "rest": 600,
+      "chest": 400
+    },
+    "walk_room_totals": {
+      "unknown": 500,
+      "shop": 200,
+      "rest": 200,
+      "monster": 400,
+      "chest": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act1",
+    "method": "scratch",
+    "budget": 10000,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 68.5,
+    "expansion_p95": 147,
+    "blocks": {
+      "7": 100
+    },
+    "ordinary_nodes": {
+      "27": 100
+    },
+    "Boss_distance": {
+      "3": 51,
+      "4": 49
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "3": 32,
+      "2": 66,
+      "4": 2
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 700,
+      "shop": 100,
+      "boss": 100,
+      "rest": 600,
+      "monster": 900,
+      "chest": 200,
+      "elite": 200
+    },
+    "walk_room_totals": {
+      "shop": 100,
+      "unknown": 439,
+      "monster": 409,
+      "chest": 115,
+      "rest": 253,
+      "elite": 84,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act2",
+    "method": "witness",
+    "budget": 0,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "10": 100
+    },
+    "ordinary_nodes": {
+      "39": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 900,
+      "shop": 300,
+      "boss": 100,
+      "monster": 1500,
+      "elite": 400,
+      "rest": 600,
+      "chest": 200
+    },
+    "walk_room_totals": {
+      "unknown": 400,
+      "shop": 200,
+      "rest": 200,
+      "monster": 400,
+      "chest": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act2",
+    "method": "extend",
+    "budget": 0,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "10": 100
+    },
+    "ordinary_nodes": {
+      "39": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 900,
+      "shop": 300,
+      "boss": 100,
+      "monster": 1500,
+      "elite": 400,
+      "rest": 600,
+      "chest": 200
+    },
+    "walk_room_totals": {
+      "unknown": 400,
+      "shop": 200,
+      "rest": 200,
+      "monster": 400,
+      "chest": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act2",
+    "method": "scratch",
+    "budget": 0,
+    "valid": 0,
+    "unique_exact": 0,
+    "unique_up_to_global_rotation": 0,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {},
+    "ordinary_nodes": {},
+    "Boss_distance": {},
+    "rests": {},
+    "Boss_neighbors": {},
+    "room_totals": {},
+    "walk_room_totals": {},
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act2",
+    "method": "witness",
+    "budget": 100,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "10": 100
+    },
+    "ordinary_nodes": {
+      "39": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 900,
+      "shop": 300,
+      "boss": 100,
+      "monster": 1500,
+      "elite": 400,
+      "rest": 600,
+      "chest": 200
+    },
+    "walk_room_totals": {
+      "unknown": 400,
+      "shop": 200,
+      "rest": 200,
+      "monster": 400,
+      "chest": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act2",
+    "method": "extend",
+    "budget": 100,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 47.0,
+    "expansion_p95": 88,
+    "blocks": {
+      "14": 98,
+      "13": 2
+    },
+    "ordinary_nodes": {
+      "55": 98,
+      "51": 2
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 79,
+      "3": 20,
+      "4": 1
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 1596,
+      "shop": 399,
+      "boss": 100,
+      "monster": 1998,
+      "elite": 500,
+      "rest": 600,
+      "chest": 399
+    },
+    "walk_room_totals": {
+      "unknown": 400,
+      "shop": 200,
+      "rest": 200,
+      "monster": 400,
+      "chest": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act2",
+    "method": "scratch",
+    "budget": 100,
+    "valid": 76,
+    "unique_exact": 76,
+    "unique_up_to_global_rotation": 76,
+    "expansion_p50": 68.5,
+    "expansion_p95": 100,
+    "blocks": {
+      "7": 76
+    },
+    "ordinary_nodes": {
+      "27": 76
+    },
+    "Boss_distance": {
+      "3": 38,
+      "4": 38
+    },
+    "rests": {
+      "6": 76
+    },
+    "Boss_neighbors": {
+      "3": 23,
+      "2": 51,
+      "4": 2
+    },
+    "room_totals": {
+      "neow": 76,
+      "unknown": 532,
+      "shop": 76,
+      "boss": 76,
+      "rest": 456,
+      "monster": 684,
+      "chest": 152,
+      "elite": 152
+    },
+    "walk_room_totals": {
+      "shop": 76,
+      "unknown": 320,
+      "monster": 273,
+      "chest": 76,
+      "rest": 187,
+      "elite": 56,
+      "boss": 76
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act2",
+    "method": "witness",
+    "budget": 1000,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "10": 100
+    },
+    "ordinary_nodes": {
+      "39": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 900,
+      "shop": 300,
+      "boss": 100,
+      "monster": 1500,
+      "elite": 400,
+      "rest": 600,
+      "chest": 200
+    },
+    "walk_room_totals": {
+      "unknown": 400,
+      "shop": 200,
+      "rest": 200,
+      "monster": 400,
+      "chest": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act2",
+    "method": "extend",
+    "budget": 1000,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 47.0,
+    "expansion_p95": 88,
+    "blocks": {
+      "14": 100
+    },
+    "ordinary_nodes": {
+      "55": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 79,
+      "3": 20,
+      "4": 1
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 1600,
+      "shop": 400,
+      "boss": 100,
+      "monster": 2000,
+      "elite": 500,
+      "rest": 600,
+      "chest": 400
+    },
+    "walk_room_totals": {
+      "unknown": 400,
+      "shop": 200,
+      "rest": 200,
+      "monster": 400,
+      "chest": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act2",
+    "method": "scratch",
+    "budget": 1000,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 68.5,
+    "expansion_p95": 147,
+    "blocks": {
+      "7": 100
+    },
+    "ordinary_nodes": {
+      "27": 100
+    },
+    "Boss_distance": {
+      "3": 51,
+      "4": 49
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "3": 32,
+      "2": 66,
+      "4": 2
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 700,
+      "shop": 100,
+      "boss": 100,
+      "rest": 600,
+      "monster": 900,
+      "chest": 200,
+      "elite": 200
+    },
+    "walk_room_totals": {
+      "shop": 100,
+      "unknown": 418,
+      "monster": 366,
+      "chest": 98,
+      "rest": 243,
+      "elite": 75,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act2",
+    "method": "witness",
+    "budget": 10000,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "10": 100
+    },
+    "ordinary_nodes": {
+      "39": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 900,
+      "shop": 300,
+      "boss": 100,
+      "monster": 1500,
+      "elite": 400,
+      "rest": 600,
+      "chest": 200
+    },
+    "walk_room_totals": {
+      "unknown": 400,
+      "shop": 200,
+      "rest": 200,
+      "monster": 400,
+      "chest": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act2",
+    "method": "extend",
+    "budget": 10000,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 47.0,
+    "expansion_p95": 88,
+    "blocks": {
+      "14": 100
+    },
+    "ordinary_nodes": {
+      "55": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 79,
+      "3": 20,
+      "4": 1
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 1600,
+      "shop": 400,
+      "boss": 100,
+      "monster": 2000,
+      "elite": 500,
+      "rest": 600,
+      "chest": 400
+    },
+    "walk_room_totals": {
+      "unknown": 400,
+      "shop": 200,
+      "rest": 200,
+      "monster": 400,
+      "chest": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act2",
+    "method": "scratch",
+    "budget": 10000,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 68.5,
+    "expansion_p95": 147,
+    "blocks": {
+      "7": 100
+    },
+    "ordinary_nodes": {
+      "27": 100
+    },
+    "Boss_distance": {
+      "3": 51,
+      "4": 49
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "3": 32,
+      "2": 66,
+      "4": 2
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 700,
+      "shop": 100,
+      "boss": 100,
+      "rest": 600,
+      "monster": 900,
+      "chest": 200,
+      "elite": 200
+    },
+    "walk_room_totals": {
+      "shop": 100,
+      "unknown": 418,
+      "monster": 366,
+      "chest": 98,
+      "rest": 243,
+      "elite": 75,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act3",
+    "method": "witness",
+    "budget": 0,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "10": 100
+    },
+    "ordinary_nodes": {
+      "39": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 900,
+      "shop": 300,
+      "boss": 100,
+      "monster": 1500,
+      "elite": 400,
+      "rest": 600,
+      "chest": 200
+    },
+    "walk_room_totals": {
+      "unknown": 400,
+      "shop": 200,
+      "rest": 200,
+      "monster": 300,
+      "chest": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act3",
+    "method": "extend",
+    "budget": 0,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "10": 100
+    },
+    "ordinary_nodes": {
+      "39": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 900,
+      "shop": 300,
+      "boss": 100,
+      "monster": 1500,
+      "elite": 400,
+      "rest": 600,
+      "chest": 200
+    },
+    "walk_room_totals": {
+      "unknown": 400,
+      "shop": 200,
+      "rest": 200,
+      "monster": 300,
+      "chest": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act3",
+    "method": "scratch",
+    "budget": 0,
+    "valid": 0,
+    "unique_exact": 0,
+    "unique_up_to_global_rotation": 0,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {},
+    "ordinary_nodes": {},
+    "Boss_distance": {},
+    "rests": {},
+    "Boss_neighbors": {},
+    "room_totals": {},
+    "walk_room_totals": {},
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act3",
+    "method": "witness",
+    "budget": 100,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "10": 100
+    },
+    "ordinary_nodes": {
+      "39": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 900,
+      "shop": 300,
+      "boss": 100,
+      "monster": 1500,
+      "elite": 400,
+      "rest": 600,
+      "chest": 200
+    },
+    "walk_room_totals": {
+      "unknown": 400,
+      "shop": 200,
+      "rest": 200,
+      "monster": 300,
+      "chest": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act3",
+    "method": "extend",
+    "budget": 100,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 47.0,
+    "expansion_p95": 88,
+    "blocks": {
+      "14": 98,
+      "13": 2
+    },
+    "ordinary_nodes": {
+      "55": 98,
+      "51": 2
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 79,
+      "3": 20,
+      "4": 1
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 1596,
+      "shop": 399,
+      "boss": 100,
+      "monster": 1998,
+      "elite": 500,
+      "rest": 600,
+      "chest": 399
+    },
+    "walk_room_totals": {
+      "unknown": 400,
+      "shop": 200,
+      "rest": 200,
+      "monster": 300,
+      "chest": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act3",
+    "method": "scratch",
+    "budget": 100,
+    "valid": 76,
+    "unique_exact": 76,
+    "unique_up_to_global_rotation": 76,
+    "expansion_p50": 68.5,
+    "expansion_p95": 100,
+    "blocks": {
+      "7": 76
+    },
+    "ordinary_nodes": {
+      "27": 76
+    },
+    "Boss_distance": {
+      "3": 38,
+      "4": 38
+    },
+    "rests": {
+      "6": 76
+    },
+    "Boss_neighbors": {
+      "3": 23,
+      "2": 51,
+      "4": 2
+    },
+    "room_totals": {
+      "neow": 76,
+      "unknown": 532,
+      "shop": 76,
+      "boss": 76,
+      "rest": 456,
+      "monster": 684,
+      "chest": 152,
+      "elite": 152
+    },
+    "walk_room_totals": {
+      "shop": 76,
+      "unknown": 308,
+      "monster": 239,
+      "chest": 69,
+      "rest": 170,
+      "elite": 50,
+      "boss": 76
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act3",
+    "method": "witness",
+    "budget": 1000,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "10": 100
+    },
+    "ordinary_nodes": {
+      "39": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 900,
+      "shop": 300,
+      "boss": 100,
+      "monster": 1500,
+      "elite": 400,
+      "rest": 600,
+      "chest": 200
+    },
+    "walk_room_totals": {
+      "unknown": 400,
+      "shop": 200,
+      "rest": 200,
+      "monster": 300,
+      "chest": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act3",
+    "method": "extend",
+    "budget": 1000,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 47.0,
+    "expansion_p95": 88,
+    "blocks": {
+      "14": 100
+    },
+    "ordinary_nodes": {
+      "55": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 79,
+      "3": 20,
+      "4": 1
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 1600,
+      "shop": 400,
+      "boss": 100,
+      "monster": 2000,
+      "elite": 500,
+      "rest": 600,
+      "chest": 400
+    },
+    "walk_room_totals": {
+      "unknown": 400,
+      "shop": 200,
+      "rest": 200,
+      "monster": 300,
+      "chest": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act3",
+    "method": "scratch",
+    "budget": 1000,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 68.5,
+    "expansion_p95": 147,
+    "blocks": {
+      "7": 100
+    },
+    "ordinary_nodes": {
+      "27": 100
+    },
+    "Boss_distance": {
+      "3": 51,
+      "4": 49
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "3": 32,
+      "2": 66,
+      "4": 2
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 700,
+      "shop": 100,
+      "boss": 100,
+      "rest": 600,
+      "monster": 900,
+      "chest": 200,
+      "elite": 200
+    },
+    "walk_room_totals": {
+      "shop": 100,
+      "unknown": 401,
+      "monster": 319,
+      "chest": 90,
+      "rest": 223,
+      "elite": 67,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act3",
+    "method": "witness",
+    "budget": 10000,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "10": 100
+    },
+    "ordinary_nodes": {
+      "39": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 900,
+      "shop": 300,
+      "boss": 100,
+      "monster": 1500,
+      "elite": 400,
+      "rest": 600,
+      "chest": 200
+    },
+    "walk_room_totals": {
+      "unknown": 400,
+      "shop": 200,
+      "rest": 200,
+      "monster": 300,
+      "chest": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act3",
+    "method": "extend",
+    "budget": 10000,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 47.0,
+    "expansion_p95": 88,
+    "blocks": {
+      "14": 100
+    },
+    "ordinary_nodes": {
+      "55": 100
+    },
+    "Boss_distance": {
+      "4": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 79,
+      "3": 20,
+      "4": 1
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 1600,
+      "shop": 400,
+      "boss": 100,
+      "monster": 2000,
+      "elite": 500,
+      "rest": 600,
+      "chest": 400
+    },
+    "walk_room_totals": {
+      "unknown": 400,
+      "shop": 200,
+      "rest": 200,
+      "monster": 300,
+      "chest": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act3",
+    "method": "scratch",
+    "budget": 10000,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 68.5,
+    "expansion_p95": 147,
+    "blocks": {
+      "7": 100
+    },
+    "ordinary_nodes": {
+      "27": 100
+    },
+    "Boss_distance": {
+      "3": 51,
+      "4": 49
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "3": 32,
+      "2": 66,
+      "4": 2
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 700,
+      "shop": 100,
+      "boss": 100,
+      "rest": 600,
+      "monster": 900,
+      "chest": 200,
+      "elite": 200
+    },
+    "walk_room_totals": {
+      "shop": 100,
+      "unknown": 401,
+      "monster": 319,
+      "chest": 90,
+      "rest": 223,
+      "elite": 67,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act3-double",
+    "method": "witness",
+    "budget": 0,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "8": 100
+    },
+    "ordinary_nodes": {
+      "30": 100
+    },
+    "Boss_distance": {
+      "3": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 800,
+      "shop": 200,
+      "boss": 100,
+      "boss2": 100,
+      "monster": 1000,
+      "elite": 200,
+      "rest": 600,
+      "chest": 200
+    },
+    "walk_room_totals": {
+      "unknown": 300,
+      "shop": 200,
+      "rest": 200,
+      "monster": 400,
+      "chest": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act3-double",
+    "method": "extend",
+    "budget": 0,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "8": 100
+    },
+    "ordinary_nodes": {
+      "30": 100
+    },
+    "Boss_distance": {
+      "3": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 800,
+      "shop": 200,
+      "boss": 100,
+      "boss2": 100,
+      "monster": 1000,
+      "elite": 200,
+      "rest": 600,
+      "chest": 200
+    },
+    "walk_room_totals": {
+      "unknown": 300,
+      "shop": 200,
+      "rest": 200,
+      "monster": 400,
+      "chest": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act3-double",
+    "method": "scratch",
+    "budget": 0,
+    "valid": 0,
+    "unique_exact": 0,
+    "unique_up_to_global_rotation": 0,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {},
+    "ordinary_nodes": {},
+    "Boss_distance": {},
+    "rests": {},
+    "Boss_neighbors": {},
+    "room_totals": {},
+    "walk_room_totals": {},
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act3-double",
+    "method": "witness",
+    "budget": 100,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "8": 100
+    },
+    "ordinary_nodes": {
+      "30": 100
+    },
+    "Boss_distance": {
+      "3": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 800,
+      "shop": 200,
+      "boss": 100,
+      "boss2": 100,
+      "monster": 1000,
+      "elite": 200,
+      "rest": 600,
+      "chest": 200
+    },
+    "walk_room_totals": {
+      "unknown": 300,
+      "shop": 200,
+      "rest": 200,
+      "monster": 400,
+      "chest": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act3-double",
+    "method": "extend",
+    "budget": 100,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 79.5,
+    "expansion_p95": 100,
+    "blocks": {
+      "12": 9,
+      "13": 15,
+      "14": 73,
+      "9": 1,
+      "11": 2
+    },
+    "ordinary_nodes": {
+      "46": 9,
+      "50": 15,
+      "54": 73,
+      "34": 1,
+      "42": 2
+    },
+    "Boss_distance": {
+      "3": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 96,
+      "3": 4
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 1442,
+      "shop": 385,
+      "boss": 100,
+      "boss2": 100,
+      "monster": 1934,
+      "elite": 481,
+      "rest": 600,
+      "chest": 382
+    },
+    "walk_room_totals": {
+      "unknown": 300,
+      "shop": 173,
+      "rest": 200,
+      "monster": 404,
+      "chest": 100,
+      "elite": 23,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act3-double",
+    "method": "scratch",
+    "budget": 100,
+    "valid": 80,
+    "unique_exact": 80,
+    "unique_up_to_global_rotation": 80,
+    "expansion_p50": 71.5,
+    "expansion_p95": 100,
+    "blocks": {
+      "7": 80
+    },
+    "ordinary_nodes": {
+      "26": 80
+    },
+    "Boss_distance": {
+      "2": 44,
+      "3": 36
+    },
+    "rests": {
+      "6": 80
+    },
+    "Boss_neighbors": {
+      "2": 65,
+      "3": 15
+    },
+    "room_totals": {
+      "neow": 80,
+      "unknown": 480,
+      "shop": 80,
+      "boss": 80,
+      "boss2": 80,
+      "rest": 480,
+      "monster": 720,
+      "chest": 160,
+      "elite": 160
+    },
+    "walk_room_totals": {
+      "shop": 80,
+      "unknown": 240,
+      "chest": 90,
+      "monster": 294,
+      "rest": 199,
+      "elite": 57,
+      "boss": 80
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act3-double",
+    "method": "witness",
+    "budget": 1000,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "8": 100
+    },
+    "ordinary_nodes": {
+      "30": 100
+    },
+    "Boss_distance": {
+      "3": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 800,
+      "shop": 200,
+      "boss": 100,
+      "boss2": 100,
+      "monster": 1000,
+      "elite": 200,
+      "rest": 600,
+      "chest": 200
+    },
+    "walk_room_totals": {
+      "unknown": 300,
+      "shop": 200,
+      "rest": 200,
+      "monster": 400,
+      "chest": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act3-double",
+    "method": "extend",
+    "budget": 1000,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 79.5,
+    "expansion_p95": 136,
+    "blocks": {
+      "14": 100
+    },
+    "ordinary_nodes": {
+      "54": 100
+    },
+    "Boss_distance": {
+      "3": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 96,
+      "3": 4
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 1500,
+      "shop": 400,
+      "boss": 100,
+      "boss2": 100,
+      "monster": 2000,
+      "elite": 500,
+      "rest": 600,
+      "chest": 400
+    },
+    "walk_room_totals": {
+      "unknown": 300,
+      "shop": 173,
+      "rest": 200,
+      "monster": 404,
+      "chest": 100,
+      "elite": 23,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act3-double",
+    "method": "scratch",
+    "budget": 1000,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 71.5,
+    "expansion_p95": 127,
+    "blocks": {
+      "7": 100
+    },
+    "ordinary_nodes": {
+      "26": 100
+    },
+    "Boss_distance": {
+      "2": 51,
+      "3": 49
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 81,
+      "3": 19
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 600,
+      "shop": 100,
+      "boss": 100,
+      "boss2": 100,
+      "rest": 600,
+      "monster": 900,
+      "chest": 200,
+      "elite": 200
+    },
+    "walk_room_totals": {
+      "shop": 100,
+      "unknown": 300,
+      "chest": 109,
+      "monster": 376,
+      "rest": 244,
+      "elite": 71,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act3-double",
+    "method": "witness",
+    "budget": 10000,
+    "valid": 100,
+    "unique_exact": 1,
+    "unique_up_to_global_rotation": 1,
+    "expansion_p50": 0.0,
+    "expansion_p95": 0,
+    "blocks": {
+      "8": 100
+    },
+    "ordinary_nodes": {
+      "30": 100
+    },
+    "Boss_distance": {
+      "3": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 100
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 800,
+      "shop": 200,
+      "boss": 100,
+      "boss2": 100,
+      "monster": 1000,
+      "elite": 200,
+      "rest": 600,
+      "chest": 200
+    },
+    "walk_room_totals": {
+      "unknown": 300,
+      "shop": 200,
+      "rest": 200,
+      "monster": 400,
+      "chest": 100,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act3-double",
+    "method": "extend",
+    "budget": 10000,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 79.5,
+    "expansion_p95": 136,
+    "blocks": {
+      "14": 100
+    },
+    "ordinary_nodes": {
+      "54": 100
+    },
+    "Boss_distance": {
+      "3": 100
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 96,
+      "3": 4
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 1500,
+      "shop": 400,
+      "boss": 100,
+      "boss2": 100,
+      "monster": 2000,
+      "elite": 500,
+      "rest": 600,
+      "chest": 400
+    },
+    "walk_room_totals": {
+      "unknown": 300,
+      "shop": 173,
+      "rest": 200,
+      "monster": 404,
+      "chest": 100,
+      "elite": 23,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  },
+  {
+    "family": "existing-demo",
+    "config": "act3-double",
+    "method": "scratch",
+    "budget": 10000,
+    "valid": 100,
+    "unique_exact": 100,
+    "unique_up_to_global_rotation": 100,
+    "expansion_p50": 71.5,
+    "expansion_p95": 127,
+    "blocks": {
+      "7": 100
+    },
+    "ordinary_nodes": {
+      "26": 100
+    },
+    "Boss_distance": {
+      "2": 51,
+      "3": 49
+    },
+    "rests": {
+      "6": 100
+    },
+    "Boss_neighbors": {
+      "2": 81,
+      "3": 19
+    },
+    "room_totals": {
+      "neow": 100,
+      "unknown": 600,
+      "shop": 100,
+      "boss": 100,
+      "boss2": 100,
+      "rest": 600,
+      "monster": 900,
+      "chest": 200,
+      "elite": 200
+    },
+    "walk_room_totals": {
+      "shop": 100,
+      "unknown": 300,
+      "chest": 109,
+      "monster": 376,
+      "rest": 244,
+      "elite": 71,
+      "boss": 100
+    },
+    "required_rest_coverage_complete": true
+  }
+]
