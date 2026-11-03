@@ -1,4 +1,4 @@
-# Agent自动实验结果：等待用户体验
+# 自动实验与用户验收结果
 
 搜索 tree-search-v2（增量几何/必要Boss邻块优先）；Python independent-verifier-v3（新房型规则）；事务原型 transaction-v1。Git提交提供源码追溯，不增加自定义hash或冻结接口。
 
@@ -151,6 +151,6 @@
 
 - 增量几何与全量几何48组对照的scene、status、扩展数一致。必要Boss邻块优先仅改变候选次序，不新增规则；最终独立Python仍验收全部成功结果。
 
-本票继续开放；不发布resolution、不解除集成票依赖、不关闭其他验证票。下一步仅需用户体验与反馈，以及由反馈触发的必要修订。
+用户已于2026-11-04确认新版布局更为合理并予以通过，允许收尾；第2/3组此前已通过。验收原文及边界见HITL-ACCEPTANCE.md。本票通过resolution交接，不关闭其他验证票、不将原型扩展为正式生成器。
 
 当前规则的reproducibility.json记录72组重复运行，scene/status/expanded全部一致；时间与RSS不要求逐值相同。

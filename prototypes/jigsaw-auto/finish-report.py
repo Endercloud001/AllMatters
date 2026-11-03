@@ -33,7 +33,7 @@ for key,items in layout_groups.items():
     layouts.append(dict(family=key[0],config=key[1],method=key[2],budget=key[3],valid=len(good),unique_exact=len({r['signatures'][0] for r in good}),unique_up_to_global_rotation=len({r['signatures'][1] for r in good}),expansion_p50=statistics.median(exp),expansion_p95=exp[94],blocks=dict(Counter(r['metrics']['blocks'] for r in good)),ordinary_nodes=dict(Counter(r['metrics']['normal'] for r in good)),Boss_distance=dict(Counter(r['metrics']['distance'] for r in good)),rests=dict(Counter(r['metrics']['rest'] for r in good)),Boss_neighbors=dict(Counter(r['metrics']['boss_neighbors'] for r in good)),room_totals=dict(room_totals),walk_room_totals=dict(walk_totals),required_rest_coverage_complete=all(r['metrics']['required']==r['metrics']['covered'] for r in good)))
 (ROOT/'layout-summary.json').write_text(json.dumps(layouts,ensure_ascii=False,indent=2),encoding='utf8')
 layout_index={(r['family'],r['config'],r['method'],r['budget']):r for r in layouts}
-lines=['# Agent自动实验结果：等待用户体验','',
+lines=['# 自动实验与用户验收结果','',
        '搜索 tree-search-v2（增量几何/必要Boss邻块优先）；Python independent-verifier-v3（新房型规则）；事务原型 transaction-v1。Git提交提供源码追溯，不增加自定义hash或冻结接口。',
        '',f'最新独立验证器重新验收 {checked} 个成功记录，零不符。9,600次完整事务、400次旧见证构造、800次额外给定池事务分别保留完整gzip JSONL。失败均保留原池及指定原布局，清票回编辑；从未把UNKNOWN计为UNSAT。',
        '', '## 完整事务耗时', '',
@@ -60,6 +60,6 @@ lines += ['', '## 当前规则及用户反馈','', '- 三项均在Boss替换前�
           '- 内存为Node进程RSS采样，各组最大采样范围 %.1f–%.1f MiB；不是Python+Node总峰值或单次搜索增量。原始记录保留采样值。' % (min(g['rss_max'] for g in summary['groups'])/1048576,max(g['rss_max'] for g in summary['groups'])/1048576),
           '- 构造保证来自已验证受控见证；额外给定池的成功率与布局多样性仅有实验支持。全部自动成功含异常回退，都经过独立验收。现有扩展实验偏好继续增加可放碎块直至池用满或预算结束，这只是比较样本的搜索策略，不增加最少块数玩法规则。',
           '- 不把任何毫秒值提升为玩法限制。布局、房型、多样性或等待是否可接受仍由用户体验决定；若不接受，回到grilling，不擅改房型配额、额度或最短Boss距离。',
-          '', '- 当前规则72组重复运行的scene/status/expanded一致；增量几何与全量几何48组对照的scene、status、扩展数一致。必要Boss邻块优先仅改变候选次序，不新增规则；最终独立Python仍验收全部成功结果。', '', '本票继续开放；不发布resolution、不解除集成票依赖、不关闭其他验证票。下一步仅需用户体验与反馈，以及由反馈触发的必要修订。']
+          '', '- 当前规则72组重复运行的scene/status/expanded一致；增量几何与全量几何48组对照的scene、status、扩展数一致。必要Boss邻块优先仅改变候选次序，不新增规则；最终独立Python仍验收全部成功结果。', '', '用户已于2026-11-04确认新版布局更为合理并予以通过，允许收尾；第2/3组此前已通过。验收原文及边界见HITL-ACCEPTANCE.md。本票通过resolution交接，不关闭其他验证票、不将原型扩展为正式生成器。']
 (ROOT/'AGENT-RESULTS.md').write_text('\n'.join(lines)+'\n',encoding='utf8')
 print(json.dumps(dict(reaccepted_successes=checked,failures=0)))
