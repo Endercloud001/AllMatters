@@ -14,7 +14,7 @@
 
 工作树根：`./tools/Test.ps1 -Branch All -Filter PrototypeHunting`。后续仅C#改动可加 `-SkipResourceExport`。配置使用本工作树忽略的 `Paths.local.props`，全部为已有绝对开发依赖路径。两目标必须顺序运行。全组前需先运行 `./prototypes/hunting-boundaries/presentation/Build.ps1` 和 `./prototypes/hunting-boundaries/five-worm/Build.ps1`，准备各自的独立DLL；资源实验还需按RESOURCE-SEARCH.md下载作者0.13.0的PCK到忽略目录，不能用缺少输入时跳过的结果冒充通过。
 
-探针入口为 `src/Tests/PrototypeHunting*Tests.cs` 与原创规则模型，接入一次性Godot测试宿主。局部玩法Harmony适配限于测试期间并释放；独立HUD、五虫、女王、休息点游戏包分别见presentation/、five-worm/、queen/、rest/的ACCEPTANCE.md，没有正式追猎实现。全组入口会构建四个独立包。记录刷新命令：`./prototypes/hunting-boundaries/RefreshEvidence.ps1 -Run combined-r11`；它只整理日志，不批准完成状态。宝箱反例/返回值测量即使退出0，仍明确记录requirementSatisfied=false或未定，不计为规则通过。真实结束检测/原生结算补验及其IO隔离范围见BATCH-RESULTS.md。
+探针入口为 `src/Tests/PrototypeHunting*Tests.cs` 与原创规则模型，接入一次性Godot测试宿主。局部玩法Harmony适配限于测试期间并释放；独立HUD、五虫、女王、休息点游戏包分别见presentation/、five-worm/、queen/、rest/的ACCEPTANCE.md，没有正式追猎实现。全组入口会构建四个独立包。记录刷新命令：`./prototypes/hunting-boundaries/RefreshEvidence.ps1 -Run combined-r12`；它只整理日志，不批准完成状态。宝箱反例/返回值测量即使退出0，仍明确记录requirementSatisfied=false或未定，不计为规则通过。真实结束检测/原生结算补验及其IO隔离范围见BATCH-RESULTS.md。
 
 ## 已运行范围与限制
 

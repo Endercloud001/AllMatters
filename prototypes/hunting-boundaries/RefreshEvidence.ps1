@@ -1,4 +1,4 @@
-param([string]$Run = 'combined-r11')
+param([string]$Run = 'combined-r12')
 # Report only. Does not approve requirements, enforce a gate or mutate game data.
 $ErrorActionPreference = 'Stop'
 $log = Join-Path $PSScriptRoot "evidence/$Run.log"
@@ -74,7 +74,7 @@ for ($index=0; $index -lt $lines.Count; $index++) {
         input = "原生测试宿主固定输入及操作顺序见src/Tests/PrototypeHunting*Tests.cs；记录类型=$kind，版本=$version，人数=$players；观测行包含本分支种子/目标/状态输入。"
         expected = $expected
         actual = $line
-        verdict = $(if($line -match 'negativeControl=True'){'negative control: native ending rejects last-death power without hold'}elseif($kind -match 'NEGATIVE'){'confirmed-gap: actual direct grants bypass cleared list'}elseif($kind -eq 'TREASURE_RETURN' -and $line -match 'hookCounterActual=0'){'confirmed-gap: cancelled receipt interrupts this caller nonreward continuation'}elseif($kind -eq 'TREASURE_RETURN'){'bounded observation: contextual carrier only; production strategy not selected'}else{'scoped runtime observation; not whole-requirement approval'})
+        verdict = $(if($line -match 'negativeControl=True'){'negative control: native ending rejects last-death power without hold'}elseif($kind -eq 'UI_CHOICE_SCREEN_NEGATIVE'){'confirmed-gap: beta PCK references UI script absent in public; native pair/completion only, not full public screen'}elseif($kind -match 'NEGATIVE'){'confirmed-gap: actual direct grants bypass cleared list'}elseif($kind -eq 'TREASURE_RETURN' -and $line -match 'hookCounterActual=0'){'confirmed-gap: cancelled receipt interrupts this caller nonreward continuation'}elseif($kind -eq 'TREASURE_RETURN'){'bounded observation: contextual carrier only; production strategy not selected'}else{'scoped runtime observation; not whole-requirement approval'})
         requirementSatisfied = $(if($line -match 'negativeControl=True' -or $kind -match 'NEGATIVE' -or ($kind -eq 'TREASURE_RETURN' -and $line -match 'hookCounterActual=0')){$false}else{$null})
         command = './tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport'
         exitStatus = $exitStatus
@@ -83,7 +83,7 @@ for ($index=0; $index -lt $lines.Count; $index++) {
         gap = '见本行日志尾部及BATCH-RESULTS.md对应组；完整UI/网络/保存不由此推定'
     })
 }
-$records | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $PSScriptRoot 'runtime-cases.json')
+[IO.File]::WriteAllText((Join-Path $PSScriptRoot 'runtime-cases.json'),($records | ConvertTo-Json -Depth 6)+[Environment]::NewLine,[Text.UTF8Encoding]::new($false))
 foreach ($group in $matrix.groups) {
     $covered = @($records | Where-Object { $_.groups -contains $group.id })
     if (!$covered.Count) { continue }
@@ -93,5 +93,5 @@ foreach ($group in $matrix.groups) {
     $group.status = 'partial'
     $group.gap = '组内剩余自动分支与用户实机均须逐项补齐；详见BATCH-RESULTS.md'
 }
-$matrix | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $matrixPath
+[IO.File]::WriteAllText($matrixPath,($matrix | ConvertTo-Json -Depth 8)+[Environment]::NewLine,[Text.UTF8Encoding]::new($false))
 Write-Output "Recorded $($records.Count) runtime rows from $Run (script exit $exitStatus); no requirement auto-approved."

@@ -82,6 +82,7 @@ internal static class HelloWorldTests
                 .Concat(PrototypeHuntingNativeEndingTests.Cases)
                 .Concat(PrototypeHuntingCombatEndTests.Cases)
                 .Concat(PrototypeHuntingStageTests.Cases)
+                .Concat(PrototypeHuntingChoiceScreenTests.Cases)
                 .Concat(PrototypeHuntingQueenTests.Cases)
                 .Concat(PrototypeHuntingServiceTests.Cases)
                 .Concat(PrototypeHuntingTreasureTests.Cases)

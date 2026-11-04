@@ -4,6 +4,8 @@
 
 主要新增可直接读取日志：
 
+最新选择屏批次：`combined-r12.log`退出0，双目标各51项、4536行观察；`full-check-r6.log`双目标各267项且整体检查通过，退出0。其中public完整选择屏为明确资源反例（`UI_CHOICE_SCREEN_NEGATIVE`、requirementSatisfied=false），实际Godot缺脚本/子节点Ready错误与退出资源泄漏均保留；观察断言通过不代表该要求通过。beta完整选择节点树仅在隔离输入宿主下运行，不证明物理输入、OverlayStack或游戏外观。runs.json共131次；r1–r6选择屏诊断原文在ZIP。
+
 2026-11-04后续批次：`combined-r11.log`退出0，双目标各50项、4512行结构化观察；`full-check-r5.log`退出0，双目标各266项且整体检查通过。`rest-entry-r3.log`是实际独立休息点DLL与原生选项/按钮/房间过滤，`native-turn-r2.log`是1–4人×9玩家回合穿插原生敌方开始/行动/结束。仅作为各自边界的运行证据；具体输入和未验证范围见BATCH-RESULTS.md。runs.json现索引123次运行，包含新批次的错误过滤器、错误DLL路径等失败中间记录；原文完整保留ZIP。
 
 最新汇总为 `combined-r10.log` 和 `one-command-r1.log`（退出0，双目标各47项原型实验）；`full-check-r4.log` 双目标各263项并通过完整检查，退出0。仍有Godot退出时各一个Material/Shader资源泄漏诊断，不能据此声称无诊断。`runtime-cases.json` 的4290行观察来自combined-r10，原始行号保持不变。

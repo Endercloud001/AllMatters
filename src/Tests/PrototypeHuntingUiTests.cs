@@ -18,7 +18,7 @@ internal static class PrototypeHuntingUiTests
 {
     internal static readonly (string Name,Func<Task> Test)[] Cases=[("PrototypeHuntingUi native rest disabled icon and release path",()=>RestButtons(false)),("PrototypeHuntingUi standalone rest DLL actual native buttons",()=>RestButtons(true)),("PrototypeHuntingUi native shop hidden used visuals and input handlers",ShopSlots),("PrototypeHuntingUi original Calamity and Tender power presentation adapters",ChoiceCards)];
     private static bool PoolReady;
-    private static void CardPool(){if(PoolReady)return;MegaCrit.Sts2.Core.Nodes.Pooling.NodePool.Init<MegaCrit.Sts2.Core.Nodes.Cards.NCard>("res://scenes/cards/card.tscn",0);PoolReady=true;}
+    internal static void CardPool(){if(PoolReady)return;MegaCrit.Sts2.Core.Nodes.Pooling.NodePool.Init<MegaCrit.Sts2.Core.Nodes.Cards.NCard>("res://scenes/cards/card.tscn",0);PoolReady=true;}
     private static async Task ChoiceCards()
     {
         STS2RitsuLib.RitsuLibFramework.EnsureGodotScriptsRegistered(typeof(CardModel).Assembly,STS2RitsuLib.RitsuLibFramework.CreateLogger("Prototype70NativeUI"));

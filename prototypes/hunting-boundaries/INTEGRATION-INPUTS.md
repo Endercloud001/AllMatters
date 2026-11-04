@@ -37,6 +37,8 @@
 
 public v0.107.1/59260271、beta v0.111.0/41cef1ea。public喷火器没有beta直接伤害；A0沙漏Ebb public26/beta22。public休息无beta全员完成API。其他未改原生数值按目标版本保留。
 
+原生交替回合方法补验：public敌方结束直接开始下一玩家回合，beta交给外层循环；已在1–4人×9玩家回合运行并验证细看3/6/9。选择屏beta真实完整节点树三组二选一/中英文/左右返回通过，输入宿主、热键及隐藏牌堆定位有显式替代，不含OverlayStack及物理输入。public配用beta PCK实际缺NHotkeyIcon及原ControllerIcon，单次反例标明requirementSatisfied=false，不能作为完整public界面通过。public原生PCK备份路径待用户答复；Agent不改安装。
+
 Godot4.5.1 mono下实际RitsuLib0.6.7注册已通过；本票没有沿用早期独立.NET失败排除它。三个准确STS1物种的作者4.2.11资源已实际加载/播放，原始3.4.02失败；作者PCK只在忽略目录，没有新再分发授权。两目标宿主共享beta PCK/native Spine，尚非public原版资源独立安装证明。
 
 ## 当前用户验收状态

@@ -43,6 +43,16 @@
 
 `native-turn-r1/r2`分别通过双目标1–4人×9玩家回合。实际调用原生StartTurn→SetupPlayerTurn及玩家结束phase1/phase2，正常起手5张，3/6/9限制额外抽牌，结束清手并移除细看。穿插8次原生敌方StartTurn→ExecuteEnemyTurn→EndEnemyTurn→SwitchSides，推进真实RoundNumber至9。public原生敌方结束立即开始下一玩家回合，beta需外层循环再调StartTurn，探针分别消费其原生时序。使用原型真菌兽和预设已启用阶段计数，每敌方前恢复玩家HP仅作存活输入；不是实验体完整阶段战斗、StartCombat、自动准备调度或联网证明。原生复生及异步完成边界仍由另一实验覆盖。
 
+## 原生二选一完整节点树补验与public资源反例
+
+新增`PrototypeHuntingChoiceScreenTests`实际实例化原生NChooseACardSelectionScreen，设置原生三组二选一输入，执行Ready、生成两个原生NGridCardHolder、默认焦点/循环邻居、禁用跳过、SelectHolder完成源；每组左右选择和中英文共12次beta运行通过，展示牌不进任何牌堆或永久牌组。组合运行`combined-r12`双目标各51项、4536行观察，退出0。
+
+这仍不是完整OverlayStack推入/移除或物理输入验收：输入管理器采用未入树原生节点，隔离图标查询、热键注册/注销及隐藏ExhaustPile的定位；原生输入管理器Ready会初始化并保存按键映射，本实验未执行。没有把这些替代项当作原生行为通过。
+
+**public资源反例**：本机仅有beta PCK。public程序集不存在beta场景引用的NHotkeyIcon；实际载入报缺少脚本，public跳过按钮Ready还缺原ControllerIcon。public仅执行一次有界负例：主体两选项与完成源可运行，但明确`requirementSatisfied=false`，保留全部Godot错误，不计完整public选择屏通过。两目标Ritsu原生程序集注册已成功；这里是版本中没有该类型，不能沿用早期独立.NET失败否定Ritsu。已询问用户是否有public原生PCK备份；Agent不切换/修改安装。
+
+相较之前两个Material/Shader诊断，完整选择树还暴露更多资源/CanvasItem退出泄漏，原日志保留；不能宣称干净生命周期。早期r1根节点Ready期间添加失败，r2/r3暴露宿主缺热键/隐藏牌堆定位，r4/r5记录版本差异；后续通过观察断言不抹去这些失败。
+
 ## 原生结束检测和结算补验
 
 早期最后死亡探针在既有宿主强制IsEnding=false下得到易伤2，仅证明该条件下的死亡命令和手动玩家清理。新增显式作用域恢复真实IsInProgress/IsEnding，输入受控原生活跃状态后，双版本都实际暴露反例：最后敌人死亡时IsEnding=true，原生PowerCmd.Apply拒绝，易伤为0。失败原日志 `native-ending-negative-public-beta.log`、`native-ending-negative-public.log`各退出1保留。

@@ -1435,5 +1435,104 @@
       "text": "SentryGodotInitializer: Sentry GDExtension not loaded in this process; skipping. If you see this in a running game (not during project export or IDE script analysis), check Godot's log for extension load failures.",
       "line": 14
     }
+  },
+  {
+    "run": "choice-screen-r1",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::choice-screen-r1.log",
+    "exitFile": "intermediate-runs.zip::choice-screen-r1.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "text": "SentryGodotInitializer: Sentry GDExtension not loaded in this process; skipping. If you see this in a running game (not during project export or IDE script analysis), check Godot's log for extension load failures.",
+      "line": 75
+    }
+  },
+  {
+    "run": "choice-screen-r2",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::choice-screen-r2.log",
+    "exitFile": "intermediate-runs.zip::choice-screen-r2.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "text": "SentryGodotInitializer: Sentry GDExtension not loaded in this process; skipping. If you see this in a running game (not during project export or IDE script analysis), check Godot's log for extension load failures.",
+      "line": 75
+    }
+  },
+  {
+    "run": "choice-screen-r3",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::choice-screen-r3.log",
+    "exitFile": "intermediate-runs.zip::choice-screen-r3.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "text": "SentryGodotInitializer: Sentry GDExtension not loaded in this process; skipping. If you see this in a running game (not during project export or IDE script analysis), check Godot's log for extension load failures.",
+      "line": 75
+    }
+  },
+  {
+    "run": "choice-screen-r4",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::choice-screen-r4.log",
+    "exitFile": "intermediate-runs.zip::choice-screen-r4.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "text": "SentryGodotInitializer: Sentry GDExtension not loaded in this process; skipping. If you see this in a running game (not during project export or IDE script analysis), check Godot's log for extension load failures.",
+      "line": 75
+    }
+  },
+  {
+    "run": "choice-screen-r5",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::choice-screen-r5.log",
+    "exitFile": "intermediate-runs.zip::choice-screen-r5.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "text": "SentryGodotInitializer: Sentry GDExtension not loaded in this process; skipping. If you see this in a running game (not during project export or IDE script analysis), check Godot's log for extension load failures.",
+      "line": 75
+    }
+  },
+  {
+    "run": "choice-screen-r6",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::choice-screen-r6.log",
+    "exitFile": "intermediate-runs.zip::choice-screen-r6.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "text": "SentryGodotInitializer: Sentry GDExtension not loaded in this process; skipping. If you see this in a running game (not during project export or IDE script analysis), check Godot's log for extension load failures.",
+      "line": 75
+    }
+  },
+  {
+    "run": "combined-r12",
+    "exitStatus": 0,
+    "fullLog": "combined-r12.log",
+    "exitFile": "combined-r12.exit.txt",
+    "targetPassLines": [
+      "Passed 51 tests against 0.1.0.0.",
+      "Passed 51 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "text": "SentryGodotInitializer: Sentry GDExtension not loaded in this process; skipping. If you see this in a running game (not during project export or IDE script analysis), check Godot's log for extension load failures.",
+      "line": 75
+    }
+  },
+  {
+    "run": "full-check-r6",
+    "exitStatus": 0,
+    "fullLog": "full-check-r6.log",
+    "exitFile": "full-check-r6.exit.txt",
+    "targetPassLines": [
+      "Passed 267 tests against 0.1.0.0.",
+      "Passed 267 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "text": "PASS: Test compile-failure",
+      "line": 5
+    }
   }
 ]
