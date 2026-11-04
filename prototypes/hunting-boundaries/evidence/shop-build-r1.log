@@ -1,0 +1,38 @@
+  正在确定要还原的项目…
+  已还原 E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\prototypes\hunting-boundaries\shop\Shop.csproj (用时 2.45 秒)。
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\PrototypeHuntingShopProbe.cs(26,20): warning CS8600: 将 null 文本或可能的 null 值转换为不可为 null 类型。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\prototypes\hunting-boundaries\shop\Shop.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\PrototypeHuntingShopProbe.cs(27,21): warning CS8604: “bool PrototypeHuntingShopProbe.Applies(Player player)”中的形参“player”可能传入 null 引用实参。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\prototypes\hunting-boundaries\shop\Shop.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\PrototypeHuntingShopProbe.cs(38,45): warning CS8600: 将 null 文本或可能的 null 值转换为不可为 null 类型。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\prototypes\hunting-boundaries\shop\Shop.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\PrototypeHuntingShopProbe.cs(38,45): warning CS8604: “bool PrototypeHuntingShopProbe.Applies(Player player)”中的形参“player”可能传入 null 引用实参。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\prototypes\hunting-boundaries\shop\Shop.csproj]
+  Shop -> E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\prototypes\hunting-boundaries\shop\bin\public-beta\Release\AllMattersHuntingShopProbe.dll
+
+已成功生成。
+
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\PrototypeHuntingShopProbe.cs(26,20): warning CS8600: 将 null 文本或可能的 null 值转换为不可为 null 类型。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\prototypes\hunting-boundaries\shop\Shop.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\PrototypeHuntingShopProbe.cs(27,21): warning CS8604: “bool PrototypeHuntingShopProbe.Applies(Player player)”中的形参“player”可能传入 null 引用实参。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\prototypes\hunting-boundaries\shop\Shop.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\PrototypeHuntingShopProbe.cs(38,45): warning CS8600: 将 null 文本或可能的 null 值转换为不可为 null 类型。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\prototypes\hunting-boundaries\shop\Shop.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\PrototypeHuntingShopProbe.cs(38,45): warning CS8604: “bool PrototypeHuntingShopProbe.Applies(Player player)”中的形参“player”可能传入 null 引用实参。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\prototypes\hunting-boundaries\shop\Shop.csproj]
+    4 个警告
+    0 个错误
+
+已用时间 00:00:05.59
+Shop-only prototype: E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\dist\public-beta\AllMattersHuntingShopProbe
+  正在确定要还原的项目…
+  所有项目均是最新的，无法还原。
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\PrototypeHuntingShopProbe.cs(26,20): warning CS8600: 将 null 文本或可能的 null 值转换为不可为 null 类型。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\prototypes\hunting-boundaries\shop\Shop.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\PrototypeHuntingShopProbe.cs(27,21): warning CS8604: “bool PrototypeHuntingShopProbe.Applies(Player player)”中的形参“player”可能传入 null 引用实参。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\prototypes\hunting-boundaries\shop\Shop.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\PrototypeHuntingShopProbe.cs(38,45): warning CS8600: 将 null 文本或可能的 null 值转换为不可为 null 类型。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\prototypes\hunting-boundaries\shop\Shop.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\PrototypeHuntingShopProbe.cs(38,45): warning CS8604: “bool PrototypeHuntingShopProbe.Applies(Player player)”中的形参“player”可能传入 null 引用实参。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\prototypes\hunting-boundaries\shop\Shop.csproj]
+  Shop -> E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\prototypes\hunting-boundaries\shop\bin\public\Release\AllMattersHuntingShopProbe.dll
+
+已成功生成。
+
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\PrototypeHuntingShopProbe.cs(26,20): warning CS8600: 将 null 文本或可能的 null 值转换为不可为 null 类型。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\prototypes\hunting-boundaries\shop\Shop.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\PrototypeHuntingShopProbe.cs(27,21): warning CS8604: “bool PrototypeHuntingShopProbe.Applies(Player player)”中的形参“player”可能传入 null 引用实参。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\prototypes\hunting-boundaries\shop\Shop.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\PrototypeHuntingShopProbe.cs(38,45): warning CS8600: 将 null 文本或可能的 null 值转换为不可为 null 类型。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\prototypes\hunting-boundaries\shop\Shop.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\src\Tests\PrototypeHuntingShopProbe.cs(38,45): warning CS8604: “bool PrototypeHuntingShopProbe.Applies(Player player)”中的形参“player”可能传入 null 引用实参。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\prototypes\hunting-boundaries\shop\Shop.csproj]
+    4 个警告
+    0 个错误
+
+已用时间 00:00:01.22
+Shop-only prototype: E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70\dist\public\AllMattersHuntingShopProbe

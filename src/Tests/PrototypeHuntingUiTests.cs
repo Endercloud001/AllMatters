@@ -16,7 +16,7 @@ using MegaCrit.Sts2.Core.Multiplayer.Game;
 
 internal static class PrototypeHuntingUiTests
 {
-    internal static readonly (string Name,Func<Task> Test)[] Cases=[("PrototypeHuntingUi native rest disabled icon and release path",()=>RestButtons(false)),("PrototypeHuntingUi standalone rest DLL actual native buttons",()=>RestButtons(true)),("PrototypeHuntingUi native shop hidden used visuals and input handlers",ShopSlots),("PrototypeHuntingUi original Calamity and Tender power presentation adapters",ChoiceCards)];
+    internal static readonly (string Name,Func<Task> Test)[] Cases=[("PrototypeHuntingUi native rest disabled icon and release path",()=>RestButtons(false)),("PrototypeHuntingUi standalone rest DLL actual native buttons",()=>RestButtons(true)),("PrototypeHuntingUi native shop hidden used visuals and input handlers",ShopSlots),("PrototypeHuntingUi standalone shop DLL actual native inputs",()=>ShopSlotsCore(true)),("PrototypeHuntingUi original Calamity and Tender power presentation adapters",ChoiceCards)];
     private static bool PoolReady;
     internal static void CardPool(){if(PoolReady)return;MegaCrit.Sts2.Core.Nodes.Pooling.NodePool.Init<MegaCrit.Sts2.Core.Nodes.Cards.NCard>("res://scenes/cards/card.tscn",0);PoolReady=true;}
     private static async Task ChoiceCards()
@@ -54,19 +54,9 @@ internal static class PrototypeHuntingUiTests
         finally{patch.UnpatchAll(patch.Id);MegaCrit.Sts2.Core.Localization.LocManager.Instance.SetLanguage("eng");}
     }
     private static bool NoTooltip()=>false;
-    private static void RestrictVisual(NMerchantSlot __instance)
-    {
-        __instance.FocusMode=Control.FocusModeEnum.None;
-        __instance.MouseFilter=Control.MouseFilterEnum.Ignore;
-        __instance.Hitbox.MouseFilter=Control.MouseFilterEnum.Ignore;
-        if(__instance is NMerchantCardRemoval)
-        {
-            var animator=__instance.GetNode<AnimationPlayer>("%Animation");animator.Play("Used");animator.Advance(0);
-            __instance.GetNode<Control>("Cost").Visible=false;
-        }
-        else __instance.Visible=false;
-    }
-    private static async Task ShopSlots()
+    private static void RestrictVisual(NMerchantSlot __instance)=>PrototypeHuntingShopProbe.RestrictVisual(__instance);
+    private static Task ShopSlots()=>ShopSlotsCore(false);
+    private static async Task ShopSlotsCore(bool standalone)
     {
         STS2RitsuLib.RitsuLibFramework.EnsureGodotScriptsRegistered(typeof(CardModel).Assembly,STS2RitsuLib.RitsuLibFramework.CreateLogger("Prototype70NativeUI"));
         using var atlases=HeadlessTestSetup.LoadAtlases("card_atlas","relic_atlas");
@@ -79,16 +69,33 @@ internal static class PrototypeHuntingUiTests
         var inv=MerchantInventory.CreateForNormalMerchant(p);
         using var rug=new NMerchantInventory();AccessTools.Property(typeof(NMerchantInventory),nameof(NMerchantInventory.Inventory)).SetValue(rug,inv);
         var patch=new Harmony("allmatters.prototype70.shop-ui");
+        const string liveId="AllMattersHuntingShopProbe";
+        if(standalone)
+        {
+#if STS2_PUBLIC
+            const string target="public";
+#else
+            const string target="public-beta";
+#endif
+            var pack=System.Reflection.Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(System.Reflection.AssemblyMetadataAttribute),false).Cast<System.Reflection.AssemblyMetadataAttribute>().Single(a=>a.Key=="ModResourcePack").Value!;
+            var path=Path.GetFullPath(Path.Combine(Path.GetDirectoryName(pack)!,target,liveId,liveId+".dll"));
+            var assembly=System.Runtime.Loader.AssemblyLoadContext.GetLoadContext(typeof(TestRunner).Assembly)!.LoadFromAssemblyPath(path);
+            assembly.GetType("PrototypeHuntingShopMod",true)!.GetMethod("Initialize")!.Invoke(null,null);
+            Console.WriteLine($"UI_SHOP_ENTRY target={target} actualDllInitialized=true path={path}; following native nodes and inputs use built DLL hooks");
+        }
         Type[] types=[typeof(NMerchantCard),typeof(NMerchantRelic),typeof(NMerchantPotion),typeof(NMerchantCardRemoval)];
         foreach(var type in types)
         {
-            patch.Patch(AccessTools.Method(type,"UpdateVisual"),postfix:new HarmonyMethod(typeof(PrototypeHuntingUiTests),nameof(RestrictVisual)));
+            if(!standalone)patch.Patch(AccessTools.Method(type,"UpdateVisual"),postfix:new HarmonyMethod(typeof(PrototypeHuntingUiTests),nameof(RestrictVisual)));
             patch.Patch(AccessTools.Method(type,"CreateHoverTip"),prefix:new HarmonyMethod(typeof(PrototypeHuntingUiTests),nameof(NoTooltip)));
         }
+        if(!standalone)
+        {
         patch.Patch(AccessTools.Method(typeof(MerchantEntry),nameof(MerchantEntry.OnTryPurchaseWrapper)),prefix:new HarmonyMethod(typeof(PrototypeHuntingServiceTests),"BlockShop"));
         patch.Patch(AccessTools.Method(typeof(MerchantCardRemovalEntry),nameof(MerchantCardRemovalEntry.OnTryPurchaseWrapper),[typeof(MerchantInventory),typeof(bool),typeof(bool)]),prefix:new HarmonyMethod(typeof(PrototypeHuntingServiceTests),"BlockShop"));
         patch.Patch(AccessTools.Method(typeof(OneOffSynchronizer),nameof(OneOffSynchronizer.DoLocalMerchantCardRemoval)),prefix:new HarmonyMethod(typeof(PrototypeHuntingServiceTests),"BlockRemovalSender"));
         patch.Patch(AccessTools.Method(typeof(OneOffSynchronizer),"DoMerchantCardRemoval"),prefix:new HarmonyMethod(typeof(PrototypeHuntingServiceTests),"BlockRemovalReceiver"));
+        }
         bool hadAction=InputMap.HasAction(MegaInput.select);
         var oldInputs=hadAction?InputMap.ActionGetEvents(MegaInput.select).ToArray():[];
         if(!hadAction)InputMap.AddAction(MegaInput.select);
@@ -127,11 +134,33 @@ internal static class PrototypeHuntingUiTests
                 }
                 finally{tree.Root.RemoveChild(slot);slot.Free();}
             }
+            if(standalone)
+            {
+                int gold=p.Gold,cards=p.Deck.Cards.Count,uses=p.ExtraFields.CardShopRemovalsUsed;
+                ulong rng=HeadlessTestSetup.RngPosition(p.PlayerRng.Shops);
+                foreach(var entry in inv.AllEntries)
+                    NativeEventTests.Check(!await entry.OnTryPurchaseWrapper(inv)&&!await entry.OnTryPurchaseWrapper(inv,true),"Actual standalone DLL denies paid and free programmatic purchases");
+                NativeEventTests.Check(!await inv.CardRemovalEntry!.OnTryPurchaseWrapper(inv,true,false),"Standalone DLL denies free removal wrapper");
+                NativeEventTests.Check(!await RunManager.Instance.OneOffSynchronizer.DoLocalMerchantCardRemoval(0,false),"Standalone DLL denies direct free sender");
+                NativeEventTests.Check(!await (Task<bool>)AccessTools.Method(typeof(OneOffSynchronizer),"DoMerchantCardRemoval").Invoke(RunManager.Instance.OneOffSynchronizer,[p,0,false])!,"Standalone DLL denies direct receiver");
+                NativeEventTests.Check(p.Gold==gold&&p.Deck.Cards.Count==cards&&p.ExtraFields.CardShopRemovalsUsed==uses&&rng==HeadlessTestSetup.RngPosition(p.PlayerRng.Shops)&&inv.AllEntries.All(e=>e.IsStocked)&&!inv.CardRemovalEntry.Used,"Standalone guard leaves inventory, RNG, gold, deck, count and real Used unchanged");
+                Console.WriteLine("UI_SHOP_TRANSACTIONS players=1 actualDll=true paidAndFreeAllEntries=denied removalWrapperSenderReceiver=denied goldDeckRngUsesStock=unchanged realUsed=false; native single-process APIs, not network receiver transport");
+                run.PopCurrentRoom();p.Gold=100;p.Creature.SetCurrentHpInternal(10);
+                var cleric=ModelDb.AllEvents.Single(e=>e.Id.Entry=="ALL_MATTERS_EVENT_CLERIC").ToMutable();
+#if STS2_PUBLIC
+                await cleric.BeginEvent(p,false);
+#else
+                await cleric.BeginEvent(p,null,false);
+#endif
+                await cleric.CurrentOptions.Single(o=>o.TextKey.EndsWith(".HEAL")).Chosen();
+                NativeEventTests.Check(cleric.IsFinished&&p.Gold==65&&p.Creature.CurrentHp==30,"Ordinary event service remains native under actual standalone shop DLL");
+                Console.WriteLine("UI_SHOP_EVENT players=1 actualDll=true clericHeal=true paid35=true hp30=true eventFinished=true currentRoomNotMerchant=true");
+            }
         }
         finally
         {
             InputMap.ActionEraseEvents(MegaInput.select);if(hadAction){foreach(var e in oldInputs)InputMap.ActionAddEvent(MegaInput.select,e);}else InputMap.EraseAction(MegaInput.select);
-            patch.UnpatchAll(patch.Id);rug.Free();RunManager.Instance.CleanUp(false);
+            patch.UnpatchAll(patch.Id);if(standalone)new Harmony(liveId).UnpatchAll(liveId);rug.Free();RunManager.Instance.CleanUp(false);
         }
     }
     private static async Task RestButtons(bool standalone)

@@ -13,7 +13,7 @@ using MegaCrit.Sts2.Core.Runs;
 
 internal static class PrototypeHuntingServiceTests
 {
-    private static bool Restricted=true;
+    private static bool Restricted {get=>PrototypeHuntingShopProbe.Restricted;set=>PrototypeHuntingShopProbe.Restricted=value;}
     internal static readonly (string Name, Func<Task> Test)[] Cases = [("PrototypeHuntingServices merchant execution rejects without inventory mutation", Shop),("PrototypeHuntingServices rest execution filtering and native Heal", Rest),("PrototypeHuntingServices direct removal sender and receiver protected",DirectRemoval),("PrototypeHuntingServices actual second store removal and retained first store pricing",CrossStore)];
     private static async Task CrossStore()
     {
@@ -76,19 +76,15 @@ internal static class PrototypeHuntingServiceTests
     }
     private static bool BlockShop(MerchantEntry __instance,ref Task<bool> __result)
     {
-        var p=(Player)AccessTools.Field(typeof(MerchantEntry),"_player").GetValue(__instance);
-        if(!Restricted||p.RunState.CurrentRoom is not MerchantRoom)return true;
-        __result=Task.FromResult(false);return false;
+        return PrototypeHuntingShopProbe.BlockShop(__instance,ref __result);
     }
     private static bool BlockRemovalSender(OneOffSynchronizer __instance,ref Task<bool> __result)
     {
-        var player=(Player)AccessTools.Property(typeof(OneOffSynchronizer),"LocalPlayer").GetValue(__instance)!;
-        return BlockRemovalReceiver(player,ref __result);
+        return PrototypeHuntingShopProbe.BlockRemovalSender(__instance,ref __result);
     }
     private static bool BlockRemovalReceiver(Player player,ref Task<bool> __result)
     {
-        if(!Restricted||player.RunState.CurrentRoom is not MerchantRoom)return true;
-        __result=Task.FromResult(false);return false;
+        return PrototypeHuntingShopProbe.BlockRemovalReceiver(player,ref __result);
     }
     private static bool BlockRest(RestSiteSynchronizer __instance,Player player,int optionIndex,ref Task<bool> __result)
     {

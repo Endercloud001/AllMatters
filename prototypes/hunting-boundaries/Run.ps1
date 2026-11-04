@@ -3,7 +3,7 @@ $ErrorActionPreference='Stop'
 $repo=(Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '../..')).Path
 Push-Location $repo
 try {
-    foreach($probe in @('presentation','five-worm','queen','rest')) {
+    foreach($probe in @('presentation','five-worm','queen','rest','shop','treasure')) {
         & (Join-Path $PSScriptRoot "$probe/Build.ps1") -Branch $Branch
     }
     if(!(Test-Path -LiteralPath (Join-Path $repo '.local/resource-search/ActsFromThePast.pck'))){throw 'Exact author resource input is missing. Follow RESOURCE-SEARCH.md; no substitute art is used.'}

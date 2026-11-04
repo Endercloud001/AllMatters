@@ -1,5 +1,20 @@
 # 真实API实验进展（整票未解决）
 
+## 续验批次（2026-11-04）
+
+从833d63f另建 `prototype/hunting-boundaries-continuation` 工作树，复制原树未提交商店实验为输入，原树保持原样。先核实地图/本票完整正文和全部评论、完整规则/入口研究修订/多人Godot补验及原生阻塞和指派。逐组新增具体输入、历史证据、自动缺口与用户边界表 `CONTINUATION-MATRIX.md`；原matrix/runtime记录仍保留。
+
+- 商店独立DLL双版实际运行：四类商品/删牌、注入鼠标/键盘/手柄处理器及收费/免费程序调用拒绝，钱/牌组/库存/RNG/次数不变；普通Cleric事件付款35/治疗20仍执行。命令 `./prototypes/hunting-boundaries/shop/Build.ps1 -Branch All` 后 `./tools/Test.ps1 -Branch All -Filter 'standalone shop DLL'`，退出0，见 `evidence/continuation-shop-r1.log`。两版均有308个资源退出仍占用、34个CanvasItem及其他RID泄漏；不称干净生命周期或完整商店屏幕通过。
+- 原生空箱动画子链：P/B各1–4人；真实Collection.InitializeRelics/SpawnEmptyChestVfx/AnimIn/Tween→CompleteWithNoRelics→OnRelicsAwarded→AnimateRelicAwards，两个原生完成源由一次延迟通知完成，没有提前手动Complete，实际遗物增量0。命令 `./tools/Test.ps1 -Branch All -Filter PrototypeHuntingTreasureAnimation -SkipResourceExport` 退出0，`evidence/treasure-tween-r2.log`。人工重建Ready字段/节点与事件订阅，空原生hands不入树，Cmd.Wait仍在TestMode；不当作完整选择屏或P原版资源证据。
+- beta原版 `rooms/treasure_room.tscn` 已实际入树并运行真实OpenChest：1–4人输入，原生Spine开箱/空文案和烟/Collection Tween/两等待源完成，真实异步奖励钩子每人非奖励计数1，金币/遗物增量0，继续按钮启用，经过地图旅行调用边界。FTUE入口在调用前返回完成任务，实际进度读写分支不进入；原生热键、多人指针hands、外层游戏/输入/地图宿主和屏幕跟踪外部接缝有明确隔离。保留原版完整场景/开箱命令，但不称真实游戏/网络/物理输入或完整地图旅行通过。专项迭代和最终结论以 `evidence/treasure-screen-r6.log` / 退出文件及后续全组日志为准。
+- 后续 `treasure-package-r2.log`（退出0，B5项/P4项）已实际加载独立宝箱DLL，B原场景OpenChest组合Face及Spoils输入：全员Face消耗，本地Spoils任务/移牌/移标记/完成历史均保留；远端任务在单客户端宿主保持pending，不伪造联网完成；全员异步非奖励计数1，钱/遗物增量0。P仍只运行真实方法级Tween。独立包及视觉/物理输入步骤见treasure/ACCEPTANCE.md。测试退出保留2个CanvasItem/ObjectDB泄漏。直接异步GainGold/Obtain返回值兼容反例仍未解决。初次空箱子链失败是夹具错误：未给MegaLabel提供显式字体、把已有初始遗物误当新增；修正为真实前后差量。原版场景r1编译命名空间失败，r2–r4暴露外层NGame.CurrentRunNode及SetUpTest重置本地身份的宿主缺口；原始失败日志保留，不归咎玩法。
+- 原生布局新增 `layout-native-r5.log`，命令 `./tools/Test.ps1 -Branch All -Filter PrototypeHuntingLayout -SkipResourceExport`，退出0。P/B各1–4人×90遭遇变体×3生态=1080输入，原始物种视觉Ready/Bounds、原生PositionEnemies、专用场景CreateScene/PositionCreaturesWithSlots、原生UpdateBounds及RandomizeEnemyScalesAndHues均实际运行；全部敌人保留且拒绝fallback资源。每版288输入缺原生追加Marker、88输入通用算法局部越宽、44输入初始Bounds相交。专用场景的fallback只是比较测量，不能算其原生实际布局；临时测量Marker也不是正式布局方案。public共享beta资源仍有NAeonGlassVfx缺脚本及TestSubject缺父级粒子节点等Godot错误，即使测量断言通过也不批准资源完整。raw creature/state-display叶隔离不证明真实意图文字、血条、玩家区、鼠标命中或手柄导航。缩放后的交集/准确资源与专用位置逐行保留，不据汇总删怪。研究接缝见LAYOUT-NEXT-RESEARCH.md。
+- 用户确认暂无public PCK备份并授权线上查找/拉取。已核GitHub资源树/版本记录，只取四个小文本，无大包/安装改动。API记录v0.107.1的同仓资源目录却有v0.98.3记录且宝箱场景结构也不匹配，不能充作匹配资源。来源、大小、版本冲突见 `PUBLIC-RESOURCE-SEARCH.md`。完整public界面继续未验证；P仍运行方法级真实动画子链，原版场景测试未列入P测试集合，不伪造成功。
+
+最新续验：`full-check-continuation-r3.log` 退出0；Passed 271 tests against 0.1.0.0. / Passed 270 tests against 0.1.0.0.，PowerShell语法/工作流/空白/资源导出/双版测试及构建全PASS。`runtime-cases.json`已刷新到该命令，共6727条观察；13组仍partial。所有失败迭代及Godot错误保留，`continuation-raw-runs.zip`保存去除尾随空白之前的原文；新增可读日志仅规范行尾。`runs.json`共154条，旧131条未丢弃。专项命令及精确层级见BATCH-RESULTS.md和CONTINUATION-MATRIX.md；退出0不等于规则批准。
+
+本轮没有实现正式追猎、选择集成架构、修改玩法或取得任何用户实机结果。仍须补专用场景完整布局/原生启动和阶段链、OverlayStack生命周期、宝箱直接命令调用方及相应实机入口。完整检查点/原生联机由多人验证票消费。各组保持partial，不发布resolution、不关闭本票或其他票，不更新地图Decisions so far。
+
 2026-11-04；只在 `prototype/hunting-boundaries` 工作树运行，无正式追猎功能、安装改动、Steam/游戏启动或真实存档操作。玩法数值和顺序直接取[完整追猎resolution](https://github.com/Endercloud001/AllMatters/issues/63#issuecomment-6584771226)，不是从研究摘要恢复规格。
 
 ## 宿主边界

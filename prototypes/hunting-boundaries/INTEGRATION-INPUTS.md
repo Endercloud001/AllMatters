@@ -1,5 +1,11 @@
 # 集成票的部分输入（非resolution，不解除阻塞）
 
+2026-11-04续验新增输入（分支prototype/hunting-boundaries-continuation）：空奖励列表本身不能完成原生Collection的两个等待源，实际AnimIn的Tween延迟调用CompleteWithNoRelics后，两版1–4人子链均完成。beta真实宝箱原场景/OpenChest进一步跑通非奖励异步钩子和继续启用，FTUE进度在调用前隔离，外围地图/屏幕/输入宿主有显式替代；完整public场景尚无匹配资源，线上可找到的资源版本记录冲突，不能以同仓public DLL认证。商店新增独立DLL已实际加载运行且事件服务不误禁，但退出仍有资源泄漏。具体输入/命令/日志/剩余问题见BATCH-RESULTS顶部、CONTINUATION-MATRIX、TREASURE-UI-RESEARCH和PUBLIC-RESOURCE-SEARCH；不解除原生blocked-by，不给出正式架构或通用第三方直接发奖兼容承诺。
+
+续验补充：原生布局双版1–4人各1080输入真实运行（layout-native-r5/退出0），准确物种视觉/Bounds→原生定位→UpdateBounds→原生cosmetic缩放。每版288个输入缺专用追加Marker；通用算法比较有88越宽/44初始Bounds相交输入。专用场景没有自动fallback，临时Marker只供测量；不能据此省略追加或锁定集成方案。P缺VFX脚本/节点诊断与共享beta资源限制保留。完整意图/血条/玩家区域仍待补，物理点击由用户验收。
+
+宝箱独立DLL实际双版加载（treasure-package-r2/退出0，B5项/P4项）；B原场景OpenChest组合Face、本地Spoils及全员异步非奖励钩子，钱/遗物增量0，空Tween一次通知、继续启用并原生淡出。非本地Spoils在单客户端宿主保持待处理；直接第三方遗物命令兼容仍未解决，不将全局NormalCall当正式上下文。六包及用户画面/输入步骤统一见ACCEPTANCE-INDEX.md。
+
 供[选择四向地图与拼图状态的集成方案](https://github.com/Endercloud001/AllMatters/issues/67)和[验证多人拼图竞态、阶段恢复与统一计步](https://github.com/Endercloud001/AllMatters/issues/68)按需消费。完整规则只引用[追猎resolution](https://github.com/Endercloud001/AllMatters/issues/63#issuecomment-6584771226)。以下不是新冻结contract、持久化schema、并发协议或集成架构决定。
 
 ## 可用原生入口与实证限制
@@ -37,12 +43,12 @@
 
 public v0.107.1/59260271、beta v0.111.0/41cef1ea。public喷火器没有beta直接伤害；A0沙漏Ebb public26/beta22。public休息无beta全员完成API。其他未改原生数值按目标版本保留。
 
-原生交替回合方法补验：public敌方结束直接开始下一玩家回合，beta交给外层循环；已在1–4人×9玩家回合运行并验证细看3/6/9。选择屏beta真实完整节点树三组二选一/中英文/左右返回通过，输入宿主、热键及隐藏牌堆定位有显式替代，不含OverlayStack及物理输入。public配用beta PCK实际缺NHotkeyIcon及原ControllerIcon，单次反例标明requirementSatisfied=false，不能作为完整public界面通过。public原生PCK备份路径待用户答复；Agent不改安装。
+原生交替回合方法补验：public敌方结束直接开始下一玩家回合，beta交给外层循环；已在1–4人×9玩家回合运行并验证细看3/6/9。选择屏beta真实完整节点树三组二选一/中英文/左右返回通过，输入宿主、热键及隐藏牌堆定位有显式替代，不含OverlayStack及物理输入。public配用beta PCK实际缺NHotkeyIcon及原ControllerIcon，单次反例标明requirementSatisfied=false，不能作为完整public界面通过。用户确认暂无public原生PCK备份；授权线上检索后仍未取得匹配资源；Agent不改安装。
 
 Godot4.5.1 mono下实际RitsuLib0.6.7注册已通过；本票没有沿用早期独立.NET失败排除它。三个准确STS1物种的作者4.2.11资源已实际加载/播放，原始3.4.02失败；作者PCK只在忽略目录，没有新再分发授权。两目标宿主共享beta PCK/native Spine，尚非public原版资源独立安装证明。
 
 ## 当前用户验收状态
 
-HUD、五虫、女王、休息点的独立包和步骤分别见presentation/、five-worm/、queen/、rest/。用户已明确暂未验收HUD并要求继续其余实验；未收到任一实机结果。休息点新包实际加载并验证原生选项身份/按钮/灰显/执行边界，待画面与物理输入验收；商店真实界面、选择屏和完整开箱动画等入口仍需继续准备，不应把本可自动执行的验证交给用户。
+HUD、五虫、女王、休息点的独立包和步骤分别见presentation/、five-worm/、queen/、rest/。用户已明确暂未验收HUD并要求继续其余实验；未收到任一实机结果。休息点新包实际加载并验证原生选项身份/按钮/灰显/执行边界，待画面与物理输入验收；商店与宝箱已提供独立验收包；完整选择屏生命周期/战斗呈现等自动缺口仍需继续，不应把本可自动执行的验证交给用户。
 
 本票保持开放。当前文档只提供可消费的阶段输入；不发布resolution、不更新地图Decisions so far、不关闭其他票或移除原生阻塞关系。

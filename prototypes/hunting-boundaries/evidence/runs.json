@@ -1534,5 +1534,298 @@
       "text": "PASS: Test compile-failure",
       "line": 5
     }
+  },
+  {
+    "run": "continuation-all-r1",
+    "exitStatus": 0,
+    "fullLog": "continuation-all-r1.log",
+    "exitFile": "continuation-all-r1.exit.txt",
+    "targetPassLines": [
+      "Passed 53 tests against 0.1.0.0.",
+      "Passed 53 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "line": 5739,
+      "text": "WARNING: 4 RIDs of type \"CanvasItem\" were leaked."
+    }
+  },
+  {
+    "run": "continuation-shop-r1",
+    "exitStatus": 0,
+    "fullLog": "continuation-shop-r1.log",
+    "exitFile": "continuation-shop-r1.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "line": 2966,
+      "text": "WARNING: 34 RIDs of type \"CanvasItem\" were leaked."
+    }
+  },
+  {
+    "run": "full-check-continuation-r1",
+    "exitStatus": 1,
+    "fullLog": "full-check-continuation-r1.log",
+    "exitFile": "full-check-continuation-r1.exit.txt",
+    "targetPassLines": [
+      "Passed 270 tests against 0.1.0.0.",
+      "Passed 269 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "line": 7939,
+      "text": "WARNING: 8 RIDs of type \"CanvasItem\" were leaked."
+    }
+  },
+  {
+    "run": "full-check-continuation-r2",
+    "exitStatus": 0,
+    "fullLog": "full-check-continuation-r2.log",
+    "exitFile": "full-check-continuation-r2.exit.txt",
+    "targetPassLines": [
+      "Passed 270 tests against 0.1.0.0.",
+      "Passed 269 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "line": 7928,
+      "text": "WARNING: 8 RIDs of type \"CanvasItem\" were leaked."
+    }
+  },
+  {
+    "run": "full-check-continuation-r3",
+    "exitStatus": 0,
+    "fullLog": "full-check-continuation-r3.log",
+    "exitFile": "full-check-continuation-r3.exit.txt",
+    "targetPassLines": [
+      "Passed 271 tests against 0.1.0.0.",
+      "Passed 270 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "line": 9223,
+      "text": "WARNING: 8 RIDs of type \"CanvasItem\" were leaked."
+    }
+  },
+  {
+    "run": "layout-native-r1",
+    "exitStatus": 1,
+    "fullLog": "layout-native-r1.log",
+    "exitFile": "layout-native-r1.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 2536,
+      "text": "ERROR: Parameter \"p_child\" is null."
+    }
+  },
+  {
+    "run": "layout-native-r2",
+    "exitStatus": 0,
+    "fullLog": "layout-native-r2.log",
+    "exitFile": "layout-native-r2.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "line": 3159,
+      "text": "ERROR: Cannot instantiate C# script because the associated class could not be found. Script: 'res://src/Core/Nodes/Vfx/NAeonGlassVfx.cs'. Make sure the script exists and contains a class definition with a name that matches the filename of the script exactly (it's case-sensitive)."
+    }
+  },
+  {
+    "run": "layout-native-r3",
+    "exitStatus": 0,
+    "fullLog": "layout-native-r3.log",
+    "exitFile": "layout-native-r3.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "line": 3159,
+      "text": "ERROR: Cannot instantiate C# script because the associated class could not be found. Script: 'res://src/Core/Nodes/Vfx/NAeonGlassVfx.cs'. Make sure the script exists and contains a class definition with a name that matches the filename of the script exactly (it's case-sensitive)."
+    }
+  },
+  {
+    "run": "layout-native-r4",
+    "exitStatus": 0,
+    "fullLog": "layout-native-r4.log",
+    "exitFile": "layout-native-r4.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "line": 3168,
+      "text": "ERROR: Cannot instantiate C# script because the associated class could not be found. Script: 'res://src/Core/Nodes/Vfx/NAeonGlassVfx.cs'. Make sure the script exists and contains a class definition with a name that matches the filename of the script exactly (it's case-sensitive)."
+    }
+  },
+  {
+    "run": "layout-native-r5",
+    "exitStatus": 0,
+    "fullLog": "layout-native-r5.log",
+    "exitFile": "layout-native-r5.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "line": 4041,
+      "text": "ERROR: Cannot instantiate C# script because the associated class could not be found. Script: 'res://src/Core/Nodes/Vfx/NAeonGlassVfx.cs'. Make sure the script exists and contains a class definition with a name that matches the filename of the script exactly (it's case-sensitive)."
+    }
+  },
+  {
+    "run": "shop-build-r1",
+    "exitStatus": 0,
+    "fullLog": "shop-build-r1.log",
+    "exitFile": "shop-build-r1.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "shop-live-r1",
+    "exitStatus": 0,
+    "fullLog": "shop-live-r1.log",
+    "exitFile": "shop-live-r1.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "line": 2558,
+      "text": "WARNING: 34 RIDs of type \"CanvasItem\" were leaked."
+    }
+  },
+  {
+    "run": "shop-live-r2",
+    "exitStatus": 0,
+    "fullLog": "shop-live-r2.log",
+    "exitFile": "shop-live-r2.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "line": 2560,
+      "text": "WARNING: 34 RIDs of type \"CanvasItem\" were leaked."
+    }
+  },
+  {
+    "run": "treasure-package-r1",
+    "exitStatus": 0,
+    "fullLog": "treasure-package-r1.log",
+    "exitFile": "treasure-package-r1.exit.txt",
+    "targetPassLines": [
+      "Passed 5 tests against 0.1.0.0.",
+      "Passed 4 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "line": 2648,
+      "text": "WARNING: 2 RIDs of type \"CanvasItem\" were leaked."
+    }
+  },
+  {
+    "run": "treasure-package-r2",
+    "exitStatus": 0,
+    "fullLog": "treasure-package-r2.log",
+    "exitFile": "treasure-package-r2.exit.txt",
+    "targetPassLines": [
+      "Passed 5 tests against 0.1.0.0.",
+      "Passed 4 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "line": 2648,
+      "text": "WARNING: 2 RIDs of type \"CanvasItem\" were leaked."
+    }
+  },
+  {
+    "run": "treasure-screen-r1",
+    "exitStatus": 1,
+    "fullLog": "treasure-screen-r1.log",
+    "exitFile": "treasure-screen-r1.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 24,
+      "text": "E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70_continue\\src\\Tests\\PrototypeHuntingTreasureScreenTests.cs(77,55): error CS0246: 未能找到类型或命名空间名“NetSingleplayerGameService”(是否缺少 using 指令或程序集引用?) [E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70_continue\\src\\Tests\\AllMatters.Tests.csproj]"
+    }
+  },
+  {
+    "run": "treasure-screen-r2",
+    "exitStatus": 1,
+    "fullLog": "treasure-screen-r2.log",
+    "exitFile": "treasure-screen-r2.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 2542,
+      "text": "WARNING: 2 RIDs of type \"CanvasItem\" were leaked."
+    }
+  },
+  {
+    "run": "treasure-screen-r3",
+    "exitStatus": 1,
+    "fullLog": "treasure-screen-r3.log",
+    "exitFile": "treasure-screen-r3.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 2544,
+      "text": "WARNING: 2 RIDs of type \"CanvasItem\" were leaked."
+    }
+  },
+  {
+    "run": "treasure-screen-r4",
+    "exitStatus": 1,
+    "fullLog": "treasure-screen-r4.log",
+    "exitFile": "treasure-screen-r4.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 2544,
+      "text": "WARNING: 2 RIDs of type \"CanvasItem\" were leaked."
+    }
+  },
+  {
+    "run": "treasure-screen-r5",
+    "exitStatus": 0,
+    "fullLog": "treasure-screen-r5.log",
+    "exitFile": "treasure-screen-r5.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "line": 2544,
+      "text": "WARNING: 2 RIDs of type \"CanvasItem\" were leaked."
+    }
+  },
+  {
+    "run": "treasure-screen-r6",
+    "exitStatus": 0,
+    "fullLog": "treasure-screen-r6.log",
+    "exitFile": "treasure-screen-r6.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "line": 2544,
+      "text": "WARNING: 2 RIDs of type \"CanvasItem\" were leaked."
+    }
+  },
+  {
+    "run": "treasure-tween-r1",
+    "exitStatus": 1,
+    "fullLog": "treasure-tween-r1.log",
+    "exitFile": "treasure-tween-r1.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 2533,
+      "text": "ERROR: System.InvalidOperationException: MegaLabel '/root/@Control@2/EmptyLabel' has no theme font override. Please set one to avoid a Godot engine bug."
+    }
+  },
+  {
+    "run": "treasure-tween-r2",
+    "exitStatus": 0,
+    "fullLog": "treasure-tween-r2.log",
+    "exitFile": "treasure-tween-r2.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
   }
 ]

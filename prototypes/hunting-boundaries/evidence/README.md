@@ -2,6 +2,8 @@
 
 `runs.json`列出每次运行的实际脚本退出状态、目标通过行、首条相关诊断及完整日志位置。脚本外层catch会记录失败，不用外层PowerShell进程退出0掩盖内部失败。记录不会自动把实验组或整票判定为完成。
 
+最新续验：`full-check-continuation-r3.log` 退出0；Passed 271 tests against 0.1.0.0. / Passed 270 tests against 0.1.0.0.，PowerShell语法/工作流/空白/资源导出/双版测试及构建全PASS。`runtime-cases.json`已刷新到该命令，共6727条观察；13组仍partial。所有失败迭代及Godot错误保留，`continuation-raw-runs.zip`保存去除尾随空白之前的原文；新增可读日志仅规范行尾。`runs.json`共154条，旧131条未丢弃。专项命令及精确层级见BATCH-RESULTS.md和CONTINUATION-MATRIX.md；退出0不等于规则批准。
+
 主要新增可直接读取日志：
 
 最新选择屏批次：`combined-r12.log`退出0，双目标各51项、4536行观察；`full-check-r6.log`双目标各267项且整体检查通过，退出0。其中public完整选择屏为明确资源反例（`UI_CHOICE_SCREEN_NEGATIVE`、requirementSatisfied=false），实际Godot缺脚本/子节点Ready错误与退出资源泄漏均保留；观察断言通过不代表该要求通过。beta完整选择节点树仅在隔离输入宿主下运行，不证明物理输入、OverlayStack或游戏外观。runs.json共131次；r1–r6选择屏诊断原文在ZIP。

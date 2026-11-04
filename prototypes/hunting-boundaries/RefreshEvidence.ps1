@@ -12,18 +12,22 @@ $matrix = Get-Content -LiteralPath $matrixPath -Raw | ConvertFrom-Json
 for ($index=0; $index -lt $lines.Count; $index++) {
     $line = $lines[$index]
     if ($line -match '^Testing ([^:]+) : ([^ ]+)') { $version = "$($Matches[1]) $($Matches[2])" }
-    if ($line -notmatch '^(EVIDENCE |SPAWN|LIVE_FIVE|LIVE_QUEEN|COMPANION |MODEL |RANDOM|LAST_SPORE |NATIVE_|COMBAT_END|STAGE|QUEEN players|SHOP|REST|TREASURE|TABLE|CLOCK |KNOWLEDGE |MOVES |FATAL |MASK|VISIT|VISUAL |SCENE |COVERAGE |COVERAGE_SUMMARY|RESOURCE_|UI_|HUD_)') { continue }
+    if ($line -notmatch '^(EVIDENCE |SPAWN|LIVE_FIVE|LIVE_QUEEN|COMPANION |MODEL |RANDOM|LAST_SPORE |NATIVE_|COMBAT_END|STAGE|QUEEN players|SHOP|REST|TREASURE|TABLE|CLOCK |KNOWLEDGE |MOVES |FATAL |MASK|VISIT|VISUAL |SCENE |COVERAGE |COVERAGE_SUMMARY|RESOURCE_|UI_|HUD_|LAYOUT)') { continue }
     $players = $null
     if ($line -match 'players=(\d+)') { $players = [int]$Matches[1] }
+    if ($line -match 'players=1-4') { $players = @(1,2,3,4) }
     $kind = ($line -split ' ')[0]
+    if($null -eq $players -and $kind -match '^UI_SHOP|^UI_CHOICE|^HUD_'){$players=1}
     $group = switch -Regex ($kind) {
         '^SPAWN|^LIVE_FIVE|^COMPANION|^VISUAL' { @(1,3,8); break }
         '^LIVE_QUEEN' { @(1,6,8); break }
+        '^LAYOUT' { @(1,8); break }
         '^COVERAGE' { @(1,8); break }
         '^RESOURCE_|^SCENE' { @(1); break }
         '^UI_REST' { @(10); break }
         '^UI_SHOP' { @(9); break }
         '^UI_CHOICE' { @(4); break }
+        '^UI_TREASURE' { @(11); break }
         '^HUD_' { @(13); break }
         '^MODEL|^RANDOM|^LAST_SPORE' { @(2,8); break }
         '^NATIVE_PLAYER_TURN|^NATIVE_ALTERNATING' { @(5); break }
@@ -44,10 +48,12 @@ for ($index=0; $index -lt $lines.Count; $index++) {
     }
     $rules = @($matrix.groups | Where-Object { $_.id -in $group } | ForEach-Object rule)
     $expected = switch -Regex ($kind) {
+        '^LAYOUT' { '保留全部原敌及准确追加物种；运行真实视觉Ready/Bounds、原生定位、UpdateBounds及原生cosmetic缩放。逐项报告缺Marker、越宽及重叠，不把扫描退出0当布局批准。专用场景的通用fallback仅测量，实验Marker不是正式方案。'; break }
         '^COVERAGE' { '保留原敌；第一幕按生态追加普通敌人、第三幕追加神秘术士，HP只作一次原生缩放；第二幕仅全员1弱/1脆/1易伤。专用场景缺Marker应作为缺口保留。'; break }
         '^RESOURCE_' { '实际报告原始骨架版本、原生资源/骨架加载结果；读取成功不得当成可转换或可发布。'; break }
         '^UI_SHOP|^SHOP' { '全部购买及删牌入口（含免费）拒绝；原库存/RNG/钱/补货/次数保持；真实动态折扣和跨店价格继续生效；原生事件服务放行。'; break }
         '^UI_CHOICE' { '原生卡牌节点中英文名称、真实纹理及描述可用，展示对象不入牌堆；完整选择屏及外观另验。'; break }
+        '^UI_TREASURE' { '空列表不提前通知；由原生展示Tween发送一次空奖励通知，并完成原生两个等待任务；保留非奖励效果、禁止真实数据写入。重建夹具/外围替代及目标版本范围单列，不等于完整游戏UI。'; break }
         '^HUD_' { '四态提示明确区分最后一步/本房安全/面具生效/按时Boss；示例输入须明示，Godot容器在给定分辨率内且不抢既有焦点；独立DLL实际注册钩子，不据此宣称原生游戏UI通过。'; break }
         '^UI_REST|^REST' { '保留原禁用条件和Heal/Mend效果/额外次数，其余选项禁用且不记历史；public/beta完成时序分别观测。'; break }
         '^MODEL|^RANDOM|^LAST_SPORE' { '真菌兽首咬/两咬必生长/40%条件与孢子2；神秘术士三状态、每存活玩家六选一、随机受伤目标治疗12/随机活敌力量2；火炬头攻击10循环。'; break }
@@ -70,13 +76,13 @@ for ($index=0; $index -lt $lines.Count; $index++) {
         groups = @($group)
         version = $version
         players = $players
-        layer = $(if($kind -match '^HUD_'){'真实Godot视口/独立DLL注册；示例输入，未启动游戏'}elseif($kind -match '^RESOURCE_|^SCENE|^VISUAL'){'真实资源/原生节点/动画；共享beta资源，不是实机布局'}elseif($kind -match '^UI_'){'真实原生UI节点及注入处理器；不是物理输入/完整屏幕'}elseif($kind -match '^COVERAGE'){'真实原生遭遇生成/添加接口；原敌未全面初始化，不是完整战斗'}else{'Godot真实程序集/命令/局部适配；显式驱动范围见BATCH-RESULTS.md'})
+        layer = $(if($kind -match '^LAYOUT'){'真实物种资源/原生定位/缩放/Hitbox几何；raw控件，非完整Ready/意图/物理点击/public原版资源'}elseif($kind -match '^UI_TREASURE_SCREEN'){'真实beta原版场景/OpenChest/Spine/Tween；外围宿主替代，不是游戏实机/联网'}elseif($kind -match '^UI_TREASURE_TWEEN'){'真实双版Collection/原生Tween/完成处理器；重建视觉夹具，不是完整屏幕'}elseif($kind -match '^HUD_'){'真实Godot视口/独立DLL注册；示例输入，未启动游戏'}elseif($kind -match '^RESOURCE_|^SCENE|^VISUAL'){'真实资源/原生节点/动画；共享beta资源，不是实机布局'}elseif($kind -match '^UI_'){'真实原生UI节点及注入处理器；不是物理输入/完整屏幕'}elseif($kind -match '^COVERAGE'){'真实原生遭遇生成/添加接口；原敌未全面初始化，不是完整战斗'}else{'Godot真实程序集/命令/局部适配；显式驱动范围见BATCH-RESULTS.md'})
         input = "原生测试宿主固定输入及操作顺序见src/Tests/PrototypeHunting*Tests.cs；记录类型=$kind，版本=$version，人数=$players；观测行包含本分支种子/目标/状态输入。"
         expected = $expected
         actual = $line
-        verdict = $(if($line -match 'negativeControl=True'){'negative control: native ending rejects last-death power without hold'}elseif($kind -eq 'UI_CHOICE_SCREEN_NEGATIVE'){'confirmed-gap: beta PCK references UI script absent in public; native pair/completion only, not full public screen'}elseif($kind -match 'NEGATIVE'){'confirmed-gap: actual direct grants bypass cleared list'}elseif($kind -eq 'TREASURE_RETURN' -and $line -match 'hookCounterActual=0'){'confirmed-gap: cancelled receipt interrupts this caller nonreward continuation'}elseif($kind -eq 'TREASURE_RETURN'){'bounded observation: contextual carrier only; production strategy not selected'}else{'scoped runtime observation; not whole-requirement approval'})
-        requirementSatisfied = $(if($line -match 'negativeControl=True' -or $kind -match 'NEGATIVE' -or ($kind -eq 'TREASURE_RETURN' -and $line -match 'hookCounterActual=0')){$false}else{$null})
-        command = './tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport'
+        verdict = $(if($kind -eq 'LAYOUT_GAP'){'confirmed-gap: exact resource or native geometry path failed'}elseif($kind -eq 'LAYOUT' -and $line -match 'missingNativeAppendMarker=True'){'confirmed-gap: native dedicated scene has no append marker; temporary measurement marker does not resolve layout'}elseif($line -match 'negativeControl=True'){'negative control: native ending rejects last-death power without hold'}elseif($kind -eq 'UI_CHOICE_SCREEN_NEGATIVE'){'confirmed-gap: beta PCK references UI script absent in public; native pair/completion only, not full public screen'}elseif($kind -match 'NEGATIVE'){'confirmed-gap: actual direct grants bypass cleared list'}elseif($kind -eq 'TREASURE_RETURN' -and $line -match 'hookCounterActual=0'){'confirmed-gap: cancelled receipt interrupts this caller nonreward continuation'}elseif($kind -eq 'TREASURE_RETURN'){'bounded observation: contextual carrier only; production strategy not selected'}else{'scoped runtime observation; not whole-requirement approval'})
+        requirementSatisfied = $(if($kind -eq 'LAYOUT_GAP' -or ($kind -eq 'LAYOUT' -and $line -match 'missingNativeAppendMarker=True') -or $line -match 'negativeControl=True' -or $kind -match 'NEGATIVE' -or ($kind -eq 'TREASURE_RETURN' -and $line -match 'hookCounterActual=0')){$false}else{$null})
+        command = $(if($Run -match '^full-check'){'./tools/Check.ps1'}elseif($Run -match '^continuation-all'){'./prototypes/hunting-boundaries/Run.ps1 -Branch All -SkipResourceExport'}else{'./tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport'})
         exitStatus = $exitStatus
         log = "evidence/$Run.log"
         rawLine = $index+1

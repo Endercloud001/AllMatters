@@ -18,10 +18,10 @@
       "layer": "Godot真实API/行为；UI另需用户",
       "input": "按rule逐子场景展开",
       "expected": "满足引用规则全部边界",
-      "actual": "已运行子实验3238条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
+      "actual": "已运行子实验5400条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
       "exitStatus": 0,
       "logs": [
-        "evidence/combined-r12.log",
+        "evidence/full-check-continuation-r3.log",
         "runtime-cases.json",
         "BATCH-RESULTS.md"
       ],
@@ -48,7 +48,7 @@
       "actual": "已运行子实验168条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
       "exitStatus": 0,
       "logs": [
-        "evidence/combined-r12.log",
+        "evidence/full-check-continuation-r3.log",
         "runtime-cases.json",
         "BATCH-RESULTS.md"
       ],
@@ -75,7 +75,7 @@
       "actual": "已运行子实验248条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
       "exitStatus": 0,
       "logs": [
-        "evidence/combined-r12.log",
+        "evidence/full-check-continuation-r3.log",
         "runtime-cases.json",
         "BATCH-RESULTS.md"
       ],
@@ -102,7 +102,7 @@
       "actual": "已运行子实验154条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
       "exitStatus": 0,
       "logs": [
-        "evidence/combined-r12.log",
+        "evidence/full-check-continuation-r3.log",
         "runtime-cases.json",
         "BATCH-RESULTS.md"
       ],
@@ -129,7 +129,7 @@
       "actual": "已运行子实验488条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
       "exitStatus": 0,
       "logs": [
-        "evidence/combined-r12.log",
+        "evidence/full-check-continuation-r3.log",
         "runtime-cases.json",
         "BATCH-RESULTS.md"
       ],
@@ -156,7 +156,7 @@
       "actual": "已运行子实验98条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
       "exitStatus": 0,
       "logs": [
-        "evidence/combined-r12.log",
+        "evidence/full-check-continuation-r3.log",
         "runtime-cases.json",
         "BATCH-RESULTS.md"
       ],
@@ -183,7 +183,7 @@
       "actual": "已运行子实验40条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
       "exitStatus": 0,
       "logs": [
-        "evidence/combined-r12.log",
+        "evidence/full-check-continuation-r3.log",
         "runtime-cases.json",
         "BATCH-RESULTS.md"
       ],
@@ -207,10 +207,10 @@
       "layer": "Godot真实API/行为；UI另需用户",
       "input": "按rule逐子场景展开",
       "expected": "满足引用规则全部边界",
-      "actual": "已运行子实验3406条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
+      "actual": "已运行子实验5568条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
       "exitStatus": 0,
       "logs": [
-        "evidence/combined-r12.log",
+        "evidence/full-check-continuation-r3.log",
         "runtime-cases.json",
         "BATCH-RESULTS.md"
       ],
@@ -234,10 +234,10 @@
       "layer": "Godot真实API/行为；UI另需用户",
       "input": "按rule逐子场景展开",
       "expected": "满足引用规则全部边界",
-      "actual": "已运行子实验48条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
+      "actual": "已运行子实验62条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
       "exitStatus": 0,
       "logs": [
-        "evidence/combined-r12.log",
+        "evidence/full-check-continuation-r3.log",
         "runtime-cases.json",
         "BATCH-RESULTS.md"
       ],
@@ -264,7 +264,7 @@
       "actual": "已运行子实验54条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
       "exitStatus": 0,
       "logs": [
-        "evidence/combined-r12.log",
+        "evidence/full-check-continuation-r3.log",
         "runtime-cases.json",
         "BATCH-RESULTS.md"
       ],
@@ -288,10 +288,10 @@
       "layer": "Godot真实API/行为；UI另需用户",
       "input": "按rule逐子场景展开",
       "expected": "满足引用规则全部边界",
-      "actual": "已运行子实验132条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
+      "actual": "已运行子实验147条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
       "exitStatus": 0,
       "logs": [
-        "evidence/combined-r12.log",
+        "evidence/full-check-continuation-r3.log",
         "runtime-cases.json",
         "BATCH-RESULTS.md"
       ],
@@ -318,7 +318,7 @@
       "actual": "已运行子实验88条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
       "exitStatus": 0,
       "logs": [
-        "evidence/combined-r12.log",
+        "evidence/full-check-continuation-r3.log",
         "runtime-cases.json",
         "BATCH-RESULTS.md"
       ],
@@ -345,7 +345,7 @@
       "actual": "已运行子实验34条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
       "exitStatus": 0,
       "logs": [
-        "evidence/combined-r12.log",
+        "evidence/full-check-continuation-r3.log",
         "runtime-cases.json",
         "BATCH-RESULTS.md"
       ],
