@@ -2,7 +2,7 @@
 
 来源：[明确拼图教程、正式界面提示与输入可达性要求](https://github.com/Endercloud001/AllMatters/issues/71)。父地图：[v0.1.2 拼图更新：决策地图](https://github.com/Endercloud001/AllMatters/issues/56)。2026-11-05。
 
-本稿整合逐轮用户决定，不是正式功能实现或resolution。逐轮用户原话与修订见同目录 `SESSION.md`。用户完整确认后才发布resolution、更新地图与交接输入、关闭本票。多人验证票保持开放，不直接运行to-spec。
+本记录整合逐轮用户决定。2026-11-05，用户明确确认：“要求完整、符合预期。可发布 resolution、更新术语、父地图及交接票输入并关闭本票。”逐轮原话与修订见同目录 `SESSION.md`。本记录为规格输入，不实现正式功能；多人验证票保持开放，不直接运行to-spec。
 
 ## 1. 已消费的前提
 
