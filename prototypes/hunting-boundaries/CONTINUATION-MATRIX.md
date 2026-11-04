@@ -1,4 +1,6 @@
-# 续验覆盖矩阵（未解决）
+# 续验覆盖矩阵（历史剩余项；收口见CLOSEOUT）
+
+2026-11-04 收口更新：人工清单已由用户明确确认通过，public界面按用户声明验收；新增双版1–4人原生开战/两次实际复生/第三阶段9回合串联实验。当前结论、13组逐项答案与适配限制以 [CLOSEOUT.md](CLOSEOUT.md) 为准。以下旧批次的“待验/未收到/未解决”描述保留为历史，不覆盖本次结论。
 
 2026-11-04。问题：真实双版入口能否保留完整追猎规则，剩余适配究竟属于行为、显示、原生多人还是恢复？唯一规则源为[完整追猎规则](https://github.com/Endercloud001/AllMatters/issues/63#issuecomment-6584771226)，补充历史实现来自[入口研究修订](https://github.com/Endercloud001/AllMatters/issues/66#issuecomment-6600755901)。本表补足 matrix.json 的笼统 gap，不以一个相邻实验批准整组。
 

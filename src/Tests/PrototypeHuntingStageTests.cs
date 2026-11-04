@@ -50,7 +50,111 @@ internal static class PrototypeHuntingStageTests
         HoldRevive=false;ReachedRevive=true;__result=Continue();return false;
         async Task Continue(){await ReleaseRevive!.Task;await CreatureCmd.SetMaxHp(creature,amount);}
     }
-    internal static readonly (string Name, Func<Task> Test)[] Cases = [("PrototypeHuntingStage native respawns and real draw filtering at full turns 3 6 9", Stage),("PrototypeHuntingStage native player turn setup and both end phases",()=>NativePlayerTurns(false)),("PrototypeHuntingStage native alternating sides through scrutiny turns",()=>NativePlayerTurns(true))];
+    internal static readonly (string Name, Func<Task> Test)[] Cases = [("PrototypeHuntingStage native respawns and real draw filtering at full turns 3 6 9", Stage),("PrototypeHuntingStage native player turn setup and both end phases",()=>NativePlayerTurns(false)),("PrototypeHuntingStage native alternating sides through scrutiny turns",()=>NativePlayerTurns(true)),("PrototypeHuntingStage continuous native start death revival and nine turns",Continuous)];
+    private static PrototypeHuntingClock? ContinuousClock;
+    private static TaskCompletionSource<Func<Task>?>? ParkedCoordinator;
+    private static bool SkipFtue(ref bool __result){__result=true;return false;}
+    private static bool ParkCoordinator(ref Task<Func<Task>?> __result)
+    {ParkedCoordinator=new();__result=ParkedCoordinator.Task;return false;}
+    private static void AfterRevive(TestSubject __instance,ref Task __result)
+    {
+        var native=__result;__result=Finish();
+        async Task Finish()
+        {
+            await native;
+            var ctx=new ThrowingPlayerChoiceContext();
+            int phase=(int)HarmonyLib.AccessTools.Property(typeof(TestSubject),"Respawns").GetValue(__instance)!;
+            if(phase==1)
+            {
+                await PowerCmd.Remove(__instance.Creature.GetPower<PainfulStabsPower>());
+                var shy=await PowerCmd.Apply<SkittishPower>(ctx,__instance.Creature,10,null,null);
+                if(shy!.Amount!=10)await PowerCmd.ModifyAmount(ctx,shy,10-shy.Amount,null,null);
+                await PowerCmd.Apply<SuckPower>(ctx,__instance.Creature,3,null,null);
+            }
+            if(phase==2)
+            {
+                await PowerCmd.Remove(__instance.Creature.GetPower<SkittishPower>());
+                await PowerCmd.Remove(__instance.Creature.GetPower<SuckPower>());
+                ContinuousClock=await PowerCmd.Apply<PrototypeHuntingClock>(ctx,__instance.Creature,1,null,null);
+                ContinuousClock!.Armed=true;
+            }
+        }
+    }
+    private static async Task Continuous()
+    {
+        ModelDb.Inject(typeof(PrototypeHuntingClock));ModelDb.Inject(typeof(PrototypeHuntingScrutiny));
+        var patch=new HarmonyLib.Harmony("allmatters.prototype70.continuous-stage");
+        patch.Patch(HarmonyLib.AccessTools.Method(typeof(MegaCrit.Sts2.Core.Saves.SaveManager),"SeenFtue"),prefix:new HarmonyLib.HarmonyMethod(typeof(PrototypeHuntingStageTests),nameof(SkipFtue)));
+        patch.Patch(HarmonyLib.AccessTools.Method(typeof(TestSubject),"RespawnMove"),postfix:new HarmonyLib.HarmonyMethod(typeof(PrototypeHuntingStageTests),nameof(AfterRevive)));
+#if !STS2_PUBLIC
+        // Only the readiness coordinator is parked. Native start, side setup,
+        // death interception, enemy moves and player end phases remain real.
+        patch.Patch(HarmonyLib.AccessTools.Method(typeof(CombatManager),"AwaitTurnEndAndSwitchSides"),prefix:new HarmonyLib.HarmonyMethod(typeof(PrototypeHuntingStageTests),nameof(ParkCoordinator)));
+#endif
+        try
+        {
+            for(int n=1;n<=4;n++)
+            {
+                var run=HeadlessTestSetup.Run("HUNTING70_CONTINUOUS",Enumerable.Repeat(ModelDb.Character<Ironclad>(),n).ToArray());
+                using var battle=new HeadlessTestSetup.EncounterCombatScope(run,ModelDb.Encounter<TestSubjectBoss>().ToMutable());
+                using var lifecycle=HeadlessCombatInProgress.EnterNativeLifecycle();
+                var subject=(TestSubject)battle.Monster;var ctx=new ThrowingPlayerChoiceContext();
+                ContinuousClock=await PowerCmd.Apply<PrototypeHuntingClock>(ctx,subject.Creature,1,null,null);
+                foreach(var p in run.Players)for(int i=0;i<90;i++)PileType.Draw.GetPile(p).AddInternal(battle.Combat.CreateCard<DefendIronclad>(p));
+                Task start=InvokeNative("StartCombatInternal");
+                try
+                {
+                    for(int frame=0;frame<120&&!start.IsCompleted&&run.Players.Any(p=>PileType.Hand.GetPile(p).Cards.Count!=5);frame++)
+                        await Godot.Engine.GetMainLoop().ToSignal(Godot.Engine.GetMainLoop(),Godot.SceneTree.SignalName.ProcessFrame);
+                    if(start.IsFaulted)await start;
+                    NativeEventTests.Check(CombatManager.Instance.IsInProgress&&subject.Creature.HasPower<AdaptablePower>()&&run.Players.All(p=>PileType.Hand.GetPile(p).Cards.Count==5),"Native start reaches first player hand and actual AfterAdded powers, without supplied active flag");
+                    for(int phase=1;phase<=2;phase++)
+                    {
+                        await CreatureCmd.Kill(subject.Creature);
+                        NativeEventTests.Check(subject.NextMove.Id=="RESPAWN_MOVE"&&ContinuousClock!.FullPlayerTurns==0,"Actual native death interception selects revive without counting a half turn");
+                        await InvokeNative("EndPlayerTurnPhaseOneInternal");await InvokeNative("EndPlayerTurnPhaseTwoInternal");
+                        await InvokeNative("SwitchSides");await InvokeNative("StartTurn");
+#if !STS2_PUBLIC
+                        await InvokeNative("StartTurn");
+#endif
+                        NativeEventTests.Check((int)HarmonyLib.AccessTools.Property(typeof(TestSubject),"Respawns").GetValue(subject)! ==phase,"Native enemy turn completed exactly one actual revival");
+                        Console.WriteLine($"STAGE_CONTINUOUS_TRANSITION players={n} phase={phase} armed={ContinuousClock!.Armed} count={ContinuousClock.FullPlayerTurns} attached={subject.Creature.HasPower<PrototypeHuntingClock>()} side={battle.Combat.CurrentSide}");
+                        NativeEventTests.Check(ContinuousClock.FullPlayerTurns==(phase==2?1:0),"First complete player start after third-form completion is turn1");
+                    }
+                    NativeEventTests.Check(!subject.Creature.HasPower<SkittishPower>()&&!subject.Creature.HasPower<SuckPower>()&&subject.Creature.HasPower<NemesisPower>(),"Stage2 powers removed after native third-form completion");
+                    for(int turn=1;turn<=9;turn++)
+                    {
+                        bool limited=turn%3==0;
+                        NativeEventTests.Check(ContinuousClock!.FullPlayerTurns==turn&&subject.Creature.HasPower<PrototypeHuntingScrutiny>()==limited,"Continuous native player start applies exact3/6/9 scrutiny");
+                        foreach(var p in run.Players)
+                        {
+                            NativeEventTests.Check(PileType.Hand.GetPile(p).Cards.Count==5,"Continuous native starting draw remains five");
+                            await CardPileCmd.Draw(ctx,1,p,fromHandDraw:false);
+                            NativeEventTests.Check(PileType.Hand.GetPile(p).Cards.Count==(limited?5:6),"Continuous extra draw respects scrutiny");
+                        }
+                        await InvokeNative("EndPlayerTurnPhaseOneInternal");await InvokeNative("EndPlayerTurnPhaseTwoInternal");
+                        NativeEventTests.Check(!subject.Creature.HasPower<PrototypeHuntingScrutiny>(),"Continuous native end removes scrutiny");
+                        Console.WriteLine($"STAGE_CONTINUOUS players={n} phase3Turn={turn} nativeStart=true nativeDeathsAndRevives=2 limited={limited} normalDraw=5 extraDraw={(limited?"blocked":"allowed")} endRemoved=true; FTUE query isolated before save access, readiness coordinator parked, explicit native turn dispatch, player HP reset before enemies, no network/checkpoint/production integration proof");
+                        if(turn==9)break;
+                        foreach(var p in run.Players)p.Creature.SetCurrentHpInternal(p.Creature.MaxHp);
+                        await InvokeNative("SwitchSides");await InvokeNative("StartTurn");
+#if !STS2_PUBLIC
+                        await InvokeNative("StartTurn");
+#endif
+                    }
+                }
+                finally
+                {
+#if !STS2_PUBLIC
+                    CombatManager.Instance.Reset(true);ParkedCoordinator?.TrySetResult(null);
+                    try{await start.WaitAsync(TimeSpan.FromSeconds(5));}catch(OperationCanceledException){}
+#endif
+                    ContinuousClock=null;ParkedCoordinator=null;
+                }
+            }
+        }
+        finally{patch.UnpatchAll(patch.Id);}
+    }
     private static async Task NativePlayerTurns(bool enemySides)
     {
         PrototypeHuntingModelTests.Inject();

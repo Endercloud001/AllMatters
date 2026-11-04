@@ -1,4 +1,6 @@
-# 追猎边界：一次性原型（未解决）
+# 追猎边界：一次性原型与交接
+
+2026-11-04 收口更新：人工清单已由用户明确确认通过，public界面按用户声明验收；新增双版1–4人原生开战/两次实际复生/第三阶段9回合串联实验。当前结论、13组逐项答案与适配限制以 [CLOSEOUT.md](CLOSEOUT.md) 为准。以下旧批次的“待验/未收到/未解决”描述保留为历史，不覆盖本次结论。
 
 最新续验分支 `prototype/hunting-boundaries-continuation`，原工作树修改保留。逐组具体剩余覆盖见 `CONTINUATION-MATRIX.md`，最新实证见 `BATCH-RESULTS.md` 顶部。`Run.ps1` 当前构建六个独立探针（含商店和宝箱）；beta原版宝箱场景与双版动画子链也纳入PrototypeHunting过滤器。public原版场景未具备准确资源，未伪造成功。以下较早批次路径/统计保留为历史，最新本机工作树是 `E:/Godot_v4.5.1-stable_mono_win64/sts2mod/AllMatters_prototype70_continue/`。
 

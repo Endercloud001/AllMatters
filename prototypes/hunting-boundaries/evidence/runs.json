@@ -1827,5 +1827,67 @@
       "Passed 1 tests against 0.1.0.0."
     ],
     "firstDiagnostic": null
+  },
+  {
+    "run": "stage-continuous-r1",
+    "exitStatus": 1,
+    "fullLog": "stage-continuous-r1.log",
+    "exitFile": "stage-continuous-r1.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": "E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70_continue\\src\\Tests\\PrototypeHuntingStageTests.cs(119,136): error CS1525: 表达式项“=”无效 [E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70_continue\\src\\Tests\\AllMatters.Tests.csproj]"
+  },
+  {
+    "run": "stage-continuous-r2",
+    "exitStatus": 1,
+    "fullLog": "stage-continuous-r2.log",
+    "exitFile": "stage-continuous-r2.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": "[ERROR] Attempting to register type AllMatters.Relics.BlueCandle in assembly AllMatters, Version=0.1.1.0, Culture=neutral, PublicKeyToken=null, but it is not associated with any mod! You may need to call ModManager.AssociateAssemblyWithMod to manually register the assembly. Type sorting may break because of this, causing errors in multiplayer."
+  },
+  {
+    "run": "stage-continuous-r3",
+    "exitStatus": 1,
+    "fullLog": "stage-continuous-r3.log",
+    "exitFile": "stage-continuous-r3.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": "[ERROR] Attempting to register type AllMatters.Relics.BlueCandle in assembly AllMatters, Version=0.1.1.0, Culture=neutral, PublicKeyToken=null, but it is not associated with any mod! You may need to call ModManager.AssociateAssemblyWithMod to manually register the assembly. Type sorting may break because of this, causing errors in multiplayer."
+  },
+  {
+    "run": "stage-continuous-r4",
+    "exitStatus": 1,
+    "fullLog": "stage-continuous-r4.log",
+    "exitFile": "stage-continuous-r4.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": "[ERROR] Attempting to register type AllMatters.Relics.BlueCandle in assembly AllMatters, Version=0.1.1.0, Culture=neutral, PublicKeyToken=null, but it is not associated with any mod! You may need to call ModManager.AssociateAssemblyWithMod to manually register the assembly. Type sorting may break because of this, causing errors in multiplayer."
+  },
+  {
+    "run": "stage-continuous-r5",
+    "exitStatus": 1,
+    "fullLog": "stage-continuous-r5.log",
+    "exitFile": "stage-continuous-r5.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": "[ERROR] Attempting to register type AllMatters.Relics.BlueCandle in assembly AllMatters, Version=0.1.1.0, Culture=neutral, PublicKeyToken=null, but it is not associated with any mod! You may need to call ModManager.AssociateAssemblyWithMod to manually register the assembly. Type sorting may break because of this, causing errors in multiplayer."
+  },
+  {
+    "run": "stage-continuous-r6",
+    "exitStatus": 0,
+    "fullLog": "stage-continuous-r6.log",
+    "exitFile": "stage-continuous-r6.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": "[ERROR] Attempting to register type AllMatters.Relics.BlueCandle in assembly AllMatters, Version=0.1.1.0, Culture=neutral, PublicKeyToken=null, but it is not associated with any mod! You may need to call ModManager.AssociateAssemblyWithMod to manually register the assembly. Type sorting may break because of this, causing errors in multiplayer."
+  },
+  {
+    "run": "full-check-closeout-r1",
+    "exitStatus": 0,
+    "fullLog": "full-check-closeout-r1.log",
+    "exitFile": "full-check-closeout-r1.exit.txt",
+    "targetPassLines": [
+      "Passed 273 tests against 0.1.0.0.",
+      "Passed 272 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": "[ERROR] Attempting to register type AllMatters.Relics.BlueCandle in assembly AllMatters, Version=0.1.1.0, Culture=neutral, PublicKeyToken=null, but it is not associated with any mod! You may need to call ModManager.AssociateAssemblyWithMod to manually register the assembly. Type sorting may break because of this, causing errors in multiplayer."
   }
 ]

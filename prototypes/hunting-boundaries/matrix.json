@@ -18,15 +18,18 @@
       "layer": "Godot真实API/行为；UI另需用户",
       "input": "按rule逐子场景展开",
       "expected": "满足引用规则全部边界",
-      "actual": "已运行子实验5400条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
+      "actual": "已有子实验；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成；收口答案和负例见CLOSEOUT.md，人工清单用户已确认通过；原型回答可行性及边界，不是正式功能实现。 本次完整检查运行观察6829条；每组归属明细见runtime-cases.json（该数字是所有组总数，非本组计数）。",
       "exitStatus": 0,
       "logs": [
-        "evidence/full-check-continuation-r3.log",
+        "evidence/full-check-closeout-r1.log",
         "runtime-cases.json",
-        "BATCH-RESULTS.md"
+        "BATCH-RESULTS.md",
+        "CLOSEOUT.md",
+        "USER-ACCEPTANCE-2026-11-04.md"
       ],
-      "status": "partial",
-      "gap": "组内剩余自动分支与用户实机均须逐项补齐；详见BATCH-RESULTS.md"
+      "status": "prototype-question-answered-with-limits",
+      "gap": "逐场景缺Marker/越宽/相交已测；必须专用适配，不能删怪；未提供全遭遇逐分辨率实机穷举。",
+      "manualAcceptance": "用户确认上一轮人工清单全部通过；public界面为用户声明验收；来源USER-ACCEPTANCE-2026-11-04.md，无自动命令退出状态"
     },
     {
       "id": 2,
@@ -45,15 +48,18 @@
       "layer": "Godot真实API/行为；UI另需用户",
       "input": "按rule逐子场景展开",
       "expected": "满足引用规则全部边界",
-      "actual": "已运行子实验168条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
+      "actual": "已有子实验；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成；收口答案和负例见CLOSEOUT.md，人工清单用户已确认通过；原型回答可行性及边界，不是正式功能实现。 本次完整检查运行观察6829条；每组归属明细见runtime-cases.json（该数字是所有组总数，非本组计数）。",
       "exitStatus": 0,
       "logs": [
-        "evidence/full-check-continuation-r3.log",
+        "evidence/full-check-closeout-r1.log",
         "runtime-cases.json",
-        "BATCH-RESULTS.md"
+        "BATCH-RESULTS.md",
+        "CLOSEOUT.md",
+        "USER-ACCEPTANCE-2026-11-04.md"
       ],
-      "status": "partial",
-      "gap": "组内剩余自动分支与用户实机均须逐项补齐；详见BATCH-RESULTS.md"
+      "status": "prototype-question-answered-with-limits",
+      "gap": "原生Ending必须延至最后孢子完成；第三方免疫组合与正式资源许可不外推。",
+      "manualAcceptance": "用户确认上一轮人工清单全部通过；public界面为用户声明验收；来源USER-ACCEPTANCE-2026-11-04.md，无自动命令退出状态"
     },
     {
       "id": 3,
@@ -72,15 +78,18 @@
       "layer": "Godot真实API/行为；UI另需用户",
       "input": "按rule逐子场景展开",
       "expected": "满足引用规则全部边界",
-      "actual": "已运行子实验248条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
+      "actual": "已有子实验；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成；收口答案和负例见CLOSEOUT.md，人工清单用户已确认通过；原型回答可行性及边界，不是正式功能实现。 本次完整检查运行观察6829条；每组归属明细见runtime-cases.json（该数字是所有组总数，非本组计数）。",
       "exitStatus": 0,
       "logs": [
-        "evidence/full-check-continuation-r3.log",
+        "evidence/full-check-closeout-r1.log",
         "runtime-cases.json",
-        "BATCH-RESULTS.md"
+        "BATCH-RESULTS.md",
+        "CLOSEOUT.md",
+        "USER-ACCEPTANCE-2026-11-04.md"
       ],
-      "status": "partial",
-      "gap": "组内剩余自动分支与用户实机均须逐项补齐；详见BATCH-RESULTS.md"
+      "status": "prototype-question-answered-with-limits",
+      "gap": "逐敌能力/普通追加及指定Minion接缝已验证，正式接入另行实现。",
+      "manualAcceptance": "用户确认上一轮人工清单全部通过；public界面为用户声明验收；来源USER-ACCEPTANCE-2026-11-04.md，无自动命令退出状态"
     },
     {
       "id": 4,
@@ -99,15 +108,18 @@
       "layer": "Godot真实API/行为；UI另需用户",
       "input": "按rule逐子场景展开",
       "expected": "满足引用规则全部边界",
-      "actual": "已运行子实验154条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
+      "actual": "已有子实验；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成；收口答案和负例见CLOSEOUT.md，人工清单用户已确认通过；原型回答可行性及边界，不是正式功能实现。 本次完整检查运行观察6829条；每组归属明细见runtime-cases.json（该数字是所有组总数，非本组计数）。",
       "exitStatus": 0,
       "logs": [
-        "evidence/full-check-continuation-r3.log",
+        "evidence/full-check-closeout-r1.log",
         "runtime-cases.json",
-        "BATCH-RESULTS.md"
+        "BATCH-RESULTS.md",
+        "CLOSEOUT.md",
+        "USER-ACCEPTANCE-2026-11-04.md"
       ],
-      "status": "partial",
-      "gap": "组内剩余自动分支与用户实机均须逐项补齐；详见BATCH-RESULTS.md"
+      "status": "prototype-question-answered-with-limits",
+      "gap": "public界面依用户声明通过，准确public PCK仍未取得；beta原生弹层已自动运行。",
+      "manualAcceptance": "用户确认上一轮人工清单全部通过；public界面为用户声明验收；来源USER-ACCEPTANCE-2026-11-04.md，无自动命令退出状态"
     },
     {
       "id": 5,
@@ -126,15 +138,19 @@
       "layer": "Godot真实API/行为；UI另需用户",
       "input": "按rule逐子场景展开",
       "expected": "满足引用规则全部边界",
-      "actual": "已运行子实验488条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
+      "actual": "已有子实验；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成；收口答案和负例见CLOSEOUT.md，人工清单用户已确认通过；原型回答可行性及边界，不是正式功能实现。 本次完整检查运行观察6829条；每组归属明细见runtime-cases.json（该数字是所有组总数，非本组计数）。",
       "exitStatus": 0,
       "logs": [
-        "evidence/full-check-continuation-r3.log",
+        "evidence/full-check-closeout-r1.log",
         "runtime-cases.json",
-        "BATCH-RESULTS.md"
+        "BATCH-RESULTS.md",
+        "CLOSEOUT.md",
+        "USER-ACCEPTANCE-2026-11-04.md",
+        "evidence/stage-continuous-r6.log"
       ],
-      "status": "partial",
-      "gap": "组内剩余自动分支与用户实机均须逐项补齐；详见BATCH-RESULTS.md"
+      "status": "prototype-question-answered-with-limits",
+      "gap": "同场原生开战/两次实际复生/9回合已运行；readiness显式分发、联网和检查点不由此证明。",
+      "manualAcceptance": "用户确认上一轮人工清单全部通过；public界面为用户声明验收；来源USER-ACCEPTANCE-2026-11-04.md，无自动命令退出状态"
     },
     {
       "id": 6,
@@ -153,15 +169,18 @@
       "layer": "Godot真实API/行为；UI另需用户",
       "input": "按rule逐子场景展开",
       "expected": "满足引用规则全部边界",
-      "actual": "已运行子实验98条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
+      "actual": "已有子实验；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成；收口答案和负例见CLOSEOUT.md，人工清单用户已确认通过；原型回答可行性及边界，不是正式功能实现。 本次完整检查运行观察6829条；每组归属明细见runtime-cases.json（该数字是所有组总数，非本组计数）。",
       "exitStatus": 0,
       "logs": [
-        "evidence/full-check-continuation-r3.log",
+        "evidence/full-check-closeout-r1.log",
         "runtime-cases.json",
-        "BATCH-RESULTS.md"
+        "BATCH-RESULTS.md",
+        "CLOSEOUT.md",
+        "USER-ACCEPTANCE-2026-11-04.md"
       ],
-      "status": "partial",
-      "gap": "组内剩余自动分支与用户实机均须逐项补齐；详见BATCH-RESULTS.md"
+      "status": "prototype-question-answered-with-limits",
+      "gap": "一次重燃/快照/激怒及用户完整流程通过；恢复一次性状态由集成消费。",
+      "manualAcceptance": "用户确认上一轮人工清单全部通过；public界面为用户声明验收；来源USER-ACCEPTANCE-2026-11-04.md，无自动命令退出状态"
     },
     {
       "id": 7,
@@ -180,15 +199,18 @@
       "layer": "Godot真实API/行为；UI另需用户",
       "input": "按rule逐子场景展开",
       "expected": "满足引用规则全部边界",
-      "actual": "已运行子实验40条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
+      "actual": "已有子实验；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成；收口答案和负例见CLOSEOUT.md，人工清单用户已确认通过；原型回答可行性及边界，不是正式功能实现。 本次完整检查运行观察6829条；每组归属明细见runtime-cases.json（该数字是所有组总数，非本组计数）。",
       "exitStatus": 0,
       "logs": [
-        "evidence/full-check-continuation-r3.log",
+        "evidence/full-check-closeout-r1.log",
         "runtime-cases.json",
-        "BATCH-RESULTS.md"
+        "BATCH-RESULTS.md",
+        "CLOSEOUT.md",
+        "USER-ACCEPTANCE-2026-11-04.md"
       ],
-      "status": "partial",
-      "gap": "组内剩余自动分支与用户实机均须逐项补齐；详见BATCH-RESULTS.md"
+      "status": "prototype-question-answered-with-limits",
+      "gap": "每玩家12与原生出牌已验；正式UI状态接入/恢复和联网另验。",
+      "manualAcceptance": "用户确认上一轮人工清单全部通过；public界面为用户声明验收；来源USER-ACCEPTANCE-2026-11-04.md，无自动命令退出状态"
     },
     {
       "id": 8,
@@ -207,15 +229,18 @@
       "layer": "Godot真实API/行为；UI另需用户",
       "input": "按rule逐子场景展开",
       "expected": "满足引用规则全部边界",
-      "actual": "已运行子实验5568条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
+      "actual": "已有子实验；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成；收口答案和负例见CLOSEOUT.md，人工清单用户已确认通过；原型回答可行性及边界，不是正式功能实现。 本次完整检查运行观察6829条；每组归属明细见runtime-cases.json（该数字是所有组总数，非本组计数）。",
       "exitStatus": 0,
       "logs": [
-        "evidence/full-check-continuation-r3.log",
+        "evidence/full-check-closeout-r1.log",
         "runtime-cases.json",
-        "BATCH-RESULTS.md"
+        "BATCH-RESULTS.md",
+        "CLOSEOUT.md",
+        "USER-ACCEPTANCE-2026-11-04.md"
       ],
-      "status": "partial",
-      "gap": "组内剩余自动分支与用户实机均须逐项补齐；详见BATCH-RESULTS.md"
+      "status": "prototype-question-answered-with-limits",
+      "gap": "原生HP/Fatal/胜利已验；不承诺所有第三方击杀效果。",
+      "manualAcceptance": "用户确认上一轮人工清单全部通过；public界面为用户声明验收；来源USER-ACCEPTANCE-2026-11-04.md，无自动命令退出状态"
     },
     {
       "id": 9,
@@ -234,15 +259,18 @@
       "layer": "Godot真实API/行为；UI另需用户",
       "input": "按rule逐子场景展开",
       "expected": "满足引用规则全部边界",
-      "actual": "已运行子实验62条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
+      "actual": "已有子实验；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成；收口答案和负例见CLOSEOUT.md，人工清单用户已确认通过；原型回答可行性及边界，不是正式功能实现。 本次完整检查运行观察6829条；每组归属明细见runtime-cases.json（该数字是所有组总数，非本组计数）。",
       "exitStatus": 0,
       "logs": [
-        "evidence/full-check-continuation-r3.log",
+        "evidence/full-check-closeout-r1.log",
         "runtime-cases.json",
-        "BATCH-RESULTS.md"
+        "BATCH-RESULTS.md",
+        "CLOSEOUT.md",
+        "USER-ACCEPTANCE-2026-11-04.md"
       ],
-      "status": "partial",
-      "gap": "组内剩余自动分支与用户实机均须逐项补齐；详见BATCH-RESULTS.md"
+      "status": "prototype-question-answered-with-limits",
+      "gap": "用户输入/重开/退出通过；内存库存不是保存；退出泄漏诊断仍保留。",
+      "manualAcceptance": "用户确认上一轮人工清单全部通过；public界面为用户声明验收；来源USER-ACCEPTANCE-2026-11-04.md，无自动命令退出状态"
     },
     {
       "id": 10,
@@ -261,15 +289,18 @@
       "layer": "Godot真实API/行为；UI另需用户",
       "input": "按rule逐子场景展开",
       "expected": "满足引用规则全部边界",
-      "actual": "已运行子实验54条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
+      "actual": "已有子实验；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成；收口答案和负例见CLOSEOUT.md，人工清单用户已确认通过；原型回答可行性及边界，不是正式功能实现。 本次完整检查运行观察6829条；每组归属明细见runtime-cases.json（该数字是所有组总数，非本组计数）。",
       "exitStatus": 0,
       "logs": [
-        "evidence/full-check-continuation-r3.log",
+        "evidence/full-check-closeout-r1.log",
         "runtime-cases.json",
-        "BATCH-RESULTS.md"
+        "BATCH-RESULTS.md",
+        "CLOSEOUT.md",
+        "USER-ACCEPTANCE-2026-11-04.md"
       ],
-      "status": "partial",
-      "gap": "组内剩余自动分支与用户实机均须逐项补齐；详见BATCH-RESULTS.md"
+      "status": "prototype-question-answered-with-limits",
+      "gap": "public Exit不等于全员结束，beta等待全员；用户休息与物理输入通过。",
+      "manualAcceptance": "用户确认上一轮人工清单全部通过；public界面为用户声明验收；来源USER-ACCEPTANCE-2026-11-04.md，无自动命令退出状态"
     },
     {
       "id": 11,
@@ -288,15 +319,18 @@
       "layer": "Godot真实API/行为；UI另需用户",
       "input": "按rule逐子场景展开",
       "expected": "满足引用规则全部边界",
-      "actual": "已运行子实验147条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
+      "actual": "已有子实验；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成；收口答案和负例见CLOSEOUT.md，人工清单用户已确认通过；原型回答可行性及边界，不是正式功能实现。 本次完整检查运行观察6829条；每组归属明细见runtime-cases.json（该数字是所有组总数，非本组计数）。",
       "exitStatus": 0,
       "logs": [
-        "evidence/full-check-continuation-r3.log",
+        "evidence/full-check-closeout-r1.log",
         "runtime-cases.json",
-        "BATCH-RESULTS.md"
+        "BATCH-RESULTS.md",
+        "CLOSEOUT.md",
+        "USER-ACCEPTANCE-2026-11-04.md"
       ],
-      "status": "partial",
-      "gap": "组内剩余自动分支与用户实机均须逐项补齐；详见BATCH-RESULTS.md"
+      "status": "prototype-question-answered-with-limits",
+      "gap": "直接发奖可绕过列表；取消实际入库会破坏要求收据的调用方，须按来源适配；不宣称任意Mod兼容。",
+      "manualAcceptance": "用户确认上一轮人工清单全部通过；public界面为用户声明验收；来源USER-ACCEPTANCE-2026-11-04.md，无自动命令退出状态"
     },
     {
       "id": 12,
@@ -315,15 +349,18 @@
       "layer": "Godot真实API/行为；UI另需用户",
       "input": "按rule逐子场景展开",
       "expected": "满足引用规则全部边界",
-      "actual": "已运行子实验88条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
+      "actual": "已有子实验；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成；收口答案和负例见CLOSEOUT.md，人工清单用户已确认通过；原型回答可行性及边界，不是正式功能实现。 本次完整检查运行观察6829条；每组归属明细见runtime-cases.json（该数字是所有组总数，非本组计数）。",
       "exitStatus": 0,
       "logs": [
-        "evidence/full-check-continuation-r3.log",
+        "evidence/full-check-closeout-r1.log",
         "runtime-cases.json",
-        "BATCH-RESULTS.md"
+        "BATCH-RESULTS.md",
+        "CLOSEOUT.md",
+        "USER-ACCEPTANCE-2026-11-04.md"
       ],
-      "status": "partial",
-      "gap": "组内剩余自动分支与用户实机均须逐项补齐；详见BATCH-RESULTS.md"
+      "status": "prototype-question-answered-with-limits",
+      "gap": "受控聚合/原生结算已验；统一网络/保存/完整恢复归相关票；不把事件Boss当终点。",
+      "manualAcceptance": "用户确认上一轮人工清单全部通过；public界面为用户声明验收；来源USER-ACCEPTANCE-2026-11-04.md，无自动命令退出状态"
     },
     {
       "id": 13,
@@ -342,15 +379,18 @@
       "layer": "Godot真实API/行为；UI另需用户",
       "input": "按rule逐子场景展开",
       "expected": "满足引用规则全部边界",
-      "actual": "已运行子实验34条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
+      "actual": "已有子实验；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成；收口答案和负例见CLOSEOUT.md，人工清单用户已确认通过；原型回答可行性及边界，不是正式功能实现。 本次完整检查运行观察6829条；每组归属明细见runtime-cases.json（该数字是所有组总数，非本组计数）。",
       "exitStatus": 0,
       "logs": [
-        "evidence/full-check-continuation-r3.log",
+        "evidence/full-check-closeout-r1.log",
         "runtime-cases.json",
-        "BATCH-RESULTS.md"
+        "BATCH-RESULTS.md",
+        "CLOSEOUT.md",
+        "USER-ACCEPTANCE-2026-11-04.md"
       ],
-      "status": "partial",
-      "gap": "组内剩余自动分支与用户实机均须逐项补齐；详见BATCH-RESULTS.md"
+      "status": "prototype-question-answered-with-limits",
+      "gap": "示例四态用户通过；领域状态未集成，不外推所有设备。",
+      "manualAcceptance": "用户确认上一轮人工清单全部通过；public界面为用户声明验收；来源USER-ACCEPTANCE-2026-11-04.md，无自动命令退出状态"
     }
   ]
 }
