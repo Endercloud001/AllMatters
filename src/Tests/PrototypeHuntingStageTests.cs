@@ -113,10 +113,9 @@ internal static class PrototypeHuntingStageTests
                         await CreatureCmd.Kill(subject.Creature);
                         NativeEventTests.Check(subject.NextMove.Id=="RESPAWN_MOVE"&&ContinuousClock!.FullPlayerTurns==0,"Actual native death interception selects revive without counting a half turn");
                         await InvokeNative("EndPlayerTurnPhaseOneInternal");await InvokeNative("EndPlayerTurnPhaseTwoInternal");
+                        await InvokeNative("SwitchSides");
+                        await subject.NextMove.PerformMove(battle.Combat.PlayerCreatures);
                         await InvokeNative("SwitchSides");await InvokeNative("StartTurn");
-#if !STS2_PUBLIC
-                        await InvokeNative("StartTurn");
-#endif
                         NativeEventTests.Check((int)HarmonyLib.AccessTools.Property(typeof(TestSubject),"Respawns").GetValue(subject)! ==phase,"Native enemy turn completed exactly one actual revival");
                         Console.WriteLine($"STAGE_CONTINUOUS_TRANSITION players={n} phase={phase} armed={ContinuousClock!.Armed} count={ContinuousClock.FullPlayerTurns} attached={subject.Creature.HasPower<PrototypeHuntingClock>()} side={battle.Combat.CurrentSide}");
                         NativeEventTests.Check(ContinuousClock.FullPlayerTurns==(phase==2?1:0),"First complete player start after third-form completion is turn1");

@@ -19,8 +19,8 @@
 
 较早各步骤中的 `AllMatters_prototype70/dist/...` 为历史路径；本表的 `_continue/dist/...` 是本轮重新构建产物。女王需要用户单独提供作者原始 `ActsFromThePast.pck`，本机已存在的研究输入可读自 `E:/Godot_v4.5.1-stable_mono_win64/sts2mod/AllMatters_prototype70/.local/resource-search/ActsFromThePast.pck`，或按女王步骤使用环境变量；Agent未向mods复制资源。
 
-优先可验本轮商店及既有HUD，不必先收齐所有战斗场景。每次反馈记录：实际游戏完整版本、人数、分辨率/窗口、输入设备、操作顺序/预期/实际、问题画面和日志位置。没有反馈不标成功。public完整资源本机及已查线上来源仍未具备，API/共享beta资源运行不能替代public实机。
+以上六包及上一轮单列清单已由用户确认实机通过。public界面是用户声明验收；本机未取得public原版PCK，Agent自动public场景证据仍有限。
 
-宝箱新增独立探针只供视觉/物理输入验收，不要求用户代做其余自动缺口。普通追加全场景布局、完整知识选择OverlayStack及直接发奖兼容边界也仍有Agent工作。此表不是“Agent自动部分全部完成”声明。
+自动实验证据与限制见CLOSEOUT.md；直接发奖调用方限制已回答并交接，不要求用户代做。
 
 人工验收状态：本表六包及上一轮知识选择/战斗/真实客户端清单，现均按用户最新确认标为通过，不再重复请求；详细证据级别见USER-ACCEPTANCE-2026-11-04.md。public界面为用户声明验收。

@@ -10,13 +10,13 @@
 
 ## 最新连续阶段实验
 
-命令：`./tools/Test.ps1 -Branch All -Filter 'continuous native start' -SkipResourceExport`。`evidence/stage-continuous-r6.log`、同名exit.txt：退出0，两目标各1项，分别运行1/2/3/4人，每人数9个第三阶段玩家回合（合计72行STAGE_CONTINUOUS）。
+命令：`./tools/Test.ps1 -Branch All -Filter 'continuous native start' -SkipResourceExport`。`evidence/stage-continuous-r8.log`、同名exit.txt：退出0，两目标各1项，分别运行1/2/3/4人，每人数9个第三阶段玩家回合（合计72行STAGE_CONTINUOUS）。
 
 同一原版TestSubjectBoss战斗实际执行SetUpCombat→StartCombatInternal→AfterCreatureAdded/AfterAddedToRoom→首手5张→CreatureCmd.Kill及Adaptable死亡拦截→敌方复生→第二次死亡及复生→第三阶段后的9个玩家回合。原生复生Task完成后局部wrapper清除阶段二胆小/吮吸并挂载计时能力；首个完整玩家方StartTurn计为1，3/6/9额外Draw被拒，原生起手5张保持，原生玩家结束阶段清除细看。敌方实际执行Lacerate/BigPounce/BurningGrowl循环。
 
 这是新的串联实证，替代“只预先启动计时器/手动派发钩子”的推断。此前受控挂起SetMaxHp的实验仍证明Respawns=2不等于完成复生。r1为夹具语法错误；r2/r3在未激活战斗时走生成牌历史路径缺房间历史，改为直接准备抽牌堆输入；r4/r5发现先前计时对象在后续原生回合未挂载，不能只置Armed，r6在真正第三阶段完成后Apply。全部失败日志保留。
 
-限制：FTUE查询入口在访问真实进度前替换为true；输入抽牌堆直接准备90张Defend；beta外层readiness coordinator挂起，两个目标均显式调用原生StartTurn/两结束阶段/切边，敌方前恢复玩家HP保证长实验存活。public敌方结束自动启动下一玩家回合，beta需外层继续启动。原生开场、复生、抽牌和敌方行动保持真实；不宣称自动全员就绪、网络消息、检查点、保存或正式集成。测试末释放挂起任务并Reset，不遗留后台战斗循环。
+限制：FTUE查询入口在访问真实进度前替换为true；输入抽牌堆直接准备90张Defend；beta外层readiness coordinator挂起，两个目标均显式调用原生StartTurn/两结束阶段/切边，敌方前恢复玩家HP保证长实验存活。public敌方结束自动启动下一玩家回合，beta需外层继续启动。原生开场、复生、抽牌和敌方行动保持真实；不宣称自动全员就绪、网络消息、检查点、保存或正式集成。测试末释放挂起任务并Reset，不遗留后台战斗循环。r6确认一次beta重复StartTurn会造成计数2；r7复验重现，r8移除重复启动并双版通过。
 
 ## 13组覆盖收口
 
@@ -50,4 +50,4 @@ P=public v0.107.1/59260271，B=public-beta v0.111.0/41cef1ea；Godot4.5.1 mono�
 
 本票完成的是可行性/边界问题的回答；正式布局修复、服务接入、统一多人/恢复、状态接入与素材正式分发不在本原型中实现。不关闭其他票，不选择集成架构，不把已测负例改成“所有规则均已实现”。
 
-最终完整检查：./tools/Check.ps1，evidence/full-check-closeout-r1.log及exit.txt，退出0；beta273项/public272项，6829条运行观察，脚本/资源/双版测试和构建均PASS。保留已有资源缺失、模型关联及泄漏诊断，不把退出0写成干净运行或规则全部通过。
+最终完整检查：./tools/Check.ps1，evidence/full-check-closeout-r2.log及exit.txt，退出0；beta273项/public272项，6829条运行观察，脚本/资源/双版测试和构建均PASS。保留已有资源缺失、模型关联及泄漏诊断，不把退出0写成干净运行或规则全部通过。

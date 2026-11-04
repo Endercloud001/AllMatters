@@ -1880,14 +1880,55 @@
     "firstDiagnostic": "[ERROR] Attempting to register type AllMatters.Relics.BlueCandle in assembly AllMatters, Version=0.1.1.0, Culture=neutral, PublicKeyToken=null, but it is not associated with any mod! You may need to call ModManager.AssociateAssemblyWithMod to manually register the assembly. Type sorting may break because of this, causing errors in multiplayer."
   },
   {
-    "run": "full-check-closeout-r1",
+    "run": "full-check-closeout-r2",
     "exitStatus": 0,
-    "fullLog": "full-check-closeout-r1.log",
-    "exitFile": "full-check-closeout-r1.exit.txt",
+    "fullLog": "full-check-closeout-r2.log",
+    "exitFile": "full-check-closeout-r2.exit.txt",
     "targetPassLines": [
       "Passed 273 tests against 0.1.0.0.",
       "Passed 272 tests against 0.1.0.0."
     ],
     "firstDiagnostic": "[ERROR] Attempting to register type AllMatters.Relics.BlueCandle in assembly AllMatters, Version=0.1.1.0, Culture=neutral, PublicKeyToken=null, but it is not associated with any mod! You may need to call ModManager.AssociateAssemblyWithMod to manually register the assembly. Type sorting may break because of this, causing errors in multiplayer."
+  },
+  {
+    "run": "stage-continuous-r7",
+    "exitStatus": 1,
+    "fullLog": "stage-continuous-r7.log",
+    "exitFile": "stage-continuous-r7.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": "[ERROR] Attempting to register type AllMatters.Relics.BlueCandle in assembly AllMatters, Version=0.1.1.0, Culture=neutral, PublicKeyToken=null, but it is not associated with any mod! You may need to call ModManager.AssociateAssemblyWithMod to manually register the assembly. Type sorting may break because of this, causing errors in multiplayer."
+  },
+  {
+    "run": "stage-continuous-r8",
+    "exitStatus": 0,
+    "fullLog": "stage-continuous-r8.log",
+    "exitFile": "stage-continuous-r8.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": "[ERROR] Attempting to register type AllMatters.Relics.BlueCandle in assembly AllMatters, Version=0.1.1.0, Culture=neutral, PublicKeyToken=null, but it is not associated with any mod! You may need to call ModManager.AssociateAssemblyWithMod to manually register the assembly. Type sorting may break because of this, causing errors in multiplayer."
+  },
+  {
+    "run": "stage-continuous-r8",
+    "exitStatus": 0,
+    "fullLog": "stage-continuous-r8.log",
+    "exitFile": "stage-continuous-r8.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "full-check-closeout-r2",
+    "exitStatus": 0,
+    "fullLog": "full-check-closeout-r2.log",
+    "exitFile": "full-check-closeout-r2.exit.txt",
+    "targetPassLines": [
+      "Passed 273 tests against 0.1.0.0.",
+      "Passed 272 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": "RitsuLib reports test-host model-association diagnostics; check still exited0"
   }
 ]
