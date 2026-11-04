@@ -1,0 +1,9 @@
+{
+  "id":"AllMattersHuntingPresentationProbe",
+  "name":"AllMatters Hunting Presentation PROTOTYPE",
+  "author":"Endercloud001",
+  "description":"一次性四态HUD示例；Ctrl+F8切换。只显示示例输入，没有追猎玩法或保存。",
+  "version":"0.0.1-prototype",
+  "has_pck":false,"has_dll":true,"affects_gameplay":false,
+  "dependencies":[{"id":"STS2-RitsuLib"}]
+}

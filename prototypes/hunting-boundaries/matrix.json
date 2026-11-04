@@ -18,11 +18,15 @@
       "layer": "Godot真实API/行为；UI另需用户",
       "input": "按rule逐子场景展开",
       "expected": "满足引用规则全部边界",
-      "actual": "未运行",
-      "exitStatus": null,
-      "logs": [],
-      "status": "todo",
-      "gap": "全部子场景待运行；不由已有通用测试推定通过"
+      "actual": "已运行子实验3218条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
+      "exitStatus": 0,
+      "logs": [
+        "evidence/combined-r6.log",
+        "runtime-cases.json",
+        "BATCH-RESULTS.md"
+      ],
+      "status": "partial",
+      "gap": "组内剩余自动分支与用户实机均须逐项补齐；详见BATCH-RESULTS.md"
     },
     {
       "id": 2,
@@ -41,11 +45,15 @@
       "layer": "Godot真实API/行为；UI另需用户",
       "input": "按rule逐子场景展开",
       "expected": "满足引用规则全部边界",
-      "actual": "未运行",
-      "exitStatus": null,
-      "logs": [],
-      "status": "todo",
-      "gap": "全部子场景待运行；不由已有通用测试推定通过"
+      "actual": "已运行子实验104条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
+      "exitStatus": 0,
+      "logs": [
+        "evidence/combined-r6.log",
+        "runtime-cases.json",
+        "BATCH-RESULTS.md"
+      ],
+      "status": "partial",
+      "gap": "组内剩余自动分支与用户实机均须逐项补齐；详见BATCH-RESULTS.md"
     },
     {
       "id": 3,
@@ -64,11 +72,15 @@
       "layer": "Godot真实API/行为；UI另需用户",
       "input": "按rule逐子场景展开",
       "expected": "满足引用规则全部边界",
-      "actual": "未运行",
-      "exitStatus": null,
-      "logs": [],
-      "status": "todo",
-      "gap": "全部子场景待运行；不由已有通用测试推定通过"
+      "actual": "已运行子实验230条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
+      "exitStatus": 0,
+      "logs": [
+        "evidence/combined-r6.log",
+        "runtime-cases.json",
+        "BATCH-RESULTS.md"
+      ],
+      "status": "partial",
+      "gap": "组内剩余自动分支与用户实机均须逐项补齐；详见BATCH-RESULTS.md"
     },
     {
       "id": 4,
@@ -87,11 +99,15 @@
       "layer": "Godot真实API/行为；UI另需用户",
       "input": "按rule逐子场景展开",
       "expected": "满足引用规则全部边界",
-      "actual": "未运行",
-      "exitStatus": null,
-      "logs": [],
-      "status": "todo",
-      "gap": "全部子场景待运行；不由已有通用测试推定通过"
+      "actual": "已运行子实验128条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
+      "exitStatus": 0,
+      "logs": [
+        "evidence/combined-r6.log",
+        "runtime-cases.json",
+        "BATCH-RESULTS.md"
+      ],
+      "status": "partial",
+      "gap": "组内剩余自动分支与用户实机均须逐项补齐；详见BATCH-RESULTS.md"
     },
     {
       "id": 5,
@@ -110,11 +126,15 @@
       "layer": "Godot真实API/行为；UI另需用户",
       "input": "按rule逐子场景展开",
       "expected": "满足引用规则全部边界",
-      "actual": "未运行",
-      "exitStatus": null,
-      "logs": [],
-      "status": "todo",
-      "gap": "全部子场景待运行；不由已有通用测试推定通过"
+      "actual": "已运行子实验280条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
+      "exitStatus": 0,
+      "logs": [
+        "evidence/combined-r6.log",
+        "runtime-cases.json",
+        "BATCH-RESULTS.md"
+      ],
+      "status": "partial",
+      "gap": "组内剩余自动分支与用户实机均须逐项补齐；详见BATCH-RESULTS.md"
     },
     {
       "id": 6,
@@ -133,11 +153,15 @@
       "layer": "Godot真实API/行为；UI另需用户",
       "input": "按rule逐子场景展开",
       "expected": "满足引用规则全部边界",
-      "actual": "未运行",
-      "exitStatus": null,
-      "logs": [],
-      "status": "todo",
-      "gap": "全部子场景待运行；不由已有通用测试推定通过"
+      "actual": "已运行子实验48条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
+      "exitStatus": 0,
+      "logs": [
+        "evidence/combined-r6.log",
+        "runtime-cases.json",
+        "BATCH-RESULTS.md"
+      ],
+      "status": "partial",
+      "gap": "组内剩余自动分支与用户实机均须逐项补齐；详见BATCH-RESULTS.md"
     },
     {
       "id": 7,
@@ -156,11 +180,15 @@
       "layer": "Godot真实API/行为；UI另需用户",
       "input": "按rule逐子场景展开",
       "expected": "满足引用规则全部边界",
-      "actual": "未运行",
-      "exitStatus": null,
-      "logs": [],
-      "status": "todo",
-      "gap": "全部子场景待运行；不由已有通用测试推定通过"
+      "actual": "已运行子实验40条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
+      "exitStatus": 0,
+      "logs": [
+        "evidence/combined-r6.log",
+        "runtime-cases.json",
+        "BATCH-RESULTS.md"
+      ],
+      "status": "partial",
+      "gap": "组内剩余自动分支与用户实机均须逐项补齐；详见BATCH-RESULTS.md"
     },
     {
       "id": 8,
@@ -179,11 +207,15 @@
       "layer": "Godot真实API/行为；UI另需用户",
       "input": "按rule逐子场景展开",
       "expected": "满足引用规则全部边界",
-      "actual": "未运行",
-      "exitStatus": null,
-      "logs": [],
-      "status": "todo",
-      "gap": "全部子场景待运行；不由已有通用测试推定通过"
+      "actual": "已运行子实验3322条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
+      "exitStatus": 0,
+      "logs": [
+        "evidence/combined-r6.log",
+        "runtime-cases.json",
+        "BATCH-RESULTS.md"
+      ],
+      "status": "partial",
+      "gap": "组内剩余自动分支与用户实机均须逐项补齐；详见BATCH-RESULTS.md"
     },
     {
       "id": 9,
@@ -202,11 +234,15 @@
       "layer": "Godot真实API/行为；UI另需用户",
       "input": "按rule逐子场景展开",
       "expected": "满足引用规则全部边界",
-      "actual": "未运行",
-      "exitStatus": null,
-      "logs": [],
-      "status": "todo",
-      "gap": "全部子场景待运行；不由已有通用测试推定通过"
+      "actual": "已运行子实验48条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
+      "exitStatus": 0,
+      "logs": [
+        "evidence/combined-r6.log",
+        "runtime-cases.json",
+        "BATCH-RESULTS.md"
+      ],
+      "status": "partial",
+      "gap": "组内剩余自动分支与用户实机均须逐项补齐；详见BATCH-RESULTS.md"
     },
     {
       "id": 10,
@@ -225,11 +261,15 @@
       "layer": "Godot真实API/行为；UI另需用户",
       "input": "按rule逐子场景展开",
       "expected": "满足引用规则全部边界",
-      "actual": "未运行",
-      "exitStatus": null,
-      "logs": [],
-      "status": "todo",
-      "gap": "全部子场景待运行；不由已有通用测试推定通过"
+      "actual": "已运行子实验42条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
+      "exitStatus": 0,
+      "logs": [
+        "evidence/combined-r6.log",
+        "runtime-cases.json",
+        "BATCH-RESULTS.md"
+      ],
+      "status": "partial",
+      "gap": "组内剩余自动分支与用户实机均须逐项补齐；详见BATCH-RESULTS.md"
     },
     {
       "id": 11,
@@ -248,11 +288,15 @@
       "layer": "Godot真实API/行为；UI另需用户",
       "input": "按rule逐子场景展开",
       "expected": "满足引用规则全部边界",
-      "actual": "未运行",
-      "exitStatus": null,
-      "logs": [],
-      "status": "todo",
-      "gap": "全部子场景待运行；不由已有通用测试推定通过"
+      "actual": "已运行子实验28条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
+      "exitStatus": 0,
+      "logs": [
+        "evidence/combined-r6.log",
+        "runtime-cases.json",
+        "BATCH-RESULTS.md"
+      ],
+      "status": "partial",
+      "gap": "组内剩余自动分支与用户实机均须逐项补齐；详见BATCH-RESULTS.md"
     },
     {
       "id": 12,
@@ -271,11 +315,15 @@
       "layer": "Godot真实API/行为；UI另需用户",
       "input": "按rule逐子场景展开",
       "expected": "满足引用规则全部边界",
-      "actual": "未运行",
-      "exitStatus": null,
-      "logs": [],
-      "status": "todo",
-      "gap": "全部子场景待运行；不由已有通用测试推定通过"
+      "actual": "已运行子实验48条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
+      "exitStatus": 0,
+      "logs": [
+        "evidence/combined-r6.log",
+        "runtime-cases.json",
+        "BATCH-RESULTS.md"
+      ],
+      "status": "partial",
+      "gap": "组内剩余自动分支与用户实机均须逐项补齐；详见BATCH-RESULTS.md"
     },
     {
       "id": 13,
@@ -294,11 +342,15 @@
       "layer": "Godot真实API/行为；UI另需用户",
       "input": "按rule逐子场景展开",
       "expected": "满足引用规则全部边界",
-      "actual": "未运行",
-      "exitStatus": null,
-      "logs": [],
-      "status": "todo",
-      "gap": "全部子场景待运行；不由已有通用测试推定通过"
+      "actual": "已运行子实验34条；范围及断言见runtime-cases.json和BATCH-RESULTS.md，不代表整组完成",
+      "exitStatus": 0,
+      "logs": [
+        "evidence/combined-r6.log",
+        "runtime-cases.json",
+        "BATCH-RESULTS.md"
+      ],
+      "status": "partial",
+      "gap": "组内剩余自动分支与用户实机均须逐项补齐；详见BATCH-RESULTS.md"
     }
   ]
 }

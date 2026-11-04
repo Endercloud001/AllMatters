@@ -1,0 +1,938 @@
+[
+  {
+    "run": "batch1-r2",
+    "exitStatus": 0,
+    "fullLog": "batch1-r2.log",
+    "exitFile": "batch1-r2.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "batch1",
+    "exitStatus": null,
+    "fullLog": "batch1.log",
+    "exitFile": "batch1.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 16,
+      "text": "E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\src\\Tests\\PrototypeHuntingTests.cs(22,88): error CS0103: 当前上下文中不存在名称“CombatSide” [E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\src\\Tests\\AllMatters.Tests.csproj]"
+    }
+  },
+  {
+    "run": "batch2-r2",
+    "exitStatus": 0,
+    "fullLog": "batch2-r2.log",
+    "exitFile": "batch2-r2.exit.txt",
+    "targetPassLines": [
+      "Passed 2 tests against 0.1.0.0.",
+      "Passed 2 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "batch2",
+    "exitStatus": 1,
+    "fullLog": "batch2.log",
+    "exitFile": "batch2.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 5,
+      "text": "E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\src\\Tests\\PrototypeHuntingTests.cs(30,113): error CS1061: “MonsterModel”未包含“IsAwake”的定义，并且找不到可接受第一个“MonsterModel”类型参数的可访问扩展方法“IsAwake”(是否缺少 using 指令或程序集引用?) [E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\src\\Tests\\AllMatters.Tests.csproj]"
+    }
+  },
+  {
+    "run": "batch3",
+    "exitStatus": 0,
+    "fullLog": "batch3.log",
+    "exitFile": "batch3.exit.txt",
+    "targetPassLines": [
+      "Passed 3 tests against 0.1.0.0.",
+      "Passed 3 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "batch4",
+    "exitStatus": 0,
+    "fullLog": "batch4.log",
+    "exitFile": "batch4.exit.txt",
+    "targetPassLines": [
+      "Passed 4 tests against 0.1.0.0.",
+      "Passed 4 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "batch5",
+    "exitStatus": 0,
+    "fullLog": "batch5.log",
+    "exitFile": "batch5.exit.txt",
+    "targetPassLines": [
+      "Passed 4 tests against 0.1.0.0.",
+      "Passed 4 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "clock-r1",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::clock-r1.log",
+    "exitFile": "intermediate-runs.zip::clock-r1.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "combined-r1",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::combined-r1.log",
+    "exitFile": "intermediate-runs.zip::combined-r1.exit.txt",
+    "targetPassLines": [
+      "Passed 18 tests against 0.1.0.0.",
+      "Passed 18 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "line": 2685,
+      "text": "ERROR: Cannot instantiate C# script because the associated class could not be found. Script: 'res://src/Core/Nodes/Combat/NCreatureVisuals.cs'. Make sure the script exists and contains a class definition with a name that matches the filename of the script exactly (it's case-sensitive)."
+    }
+  },
+  {
+    "run": "combined-r2",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::combined-r2.log",
+    "exitFile": "intermediate-runs.zip::combined-r2.exit.txt",
+    "targetPassLines": [
+      "Passed 24 tests against 0.1.0.0.",
+      "Passed 24 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "line": 2685,
+      "text": "ERROR: Cannot instantiate C# script because the associated class could not be found. Script: 'res://src/Core/Nodes/Combat/NCreatureVisuals.cs'. Make sure the script exists and contains a class definition with a name that matches the filename of the script exactly (it's case-sensitive)."
+    }
+  },
+  {
+    "run": "combined-r3",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::combined-r3.log",
+    "exitFile": "intermediate-runs.zip::combined-r3.exit.txt",
+    "targetPassLines": [
+      "Passed 34 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "line": 4936,
+      "text": "ERROR: 258 RID allocations of type 'PN13RendererDummy14TextureStorage12DummyTextureE' were leaked at exit."
+    }
+  },
+  {
+    "run": "combined-r4",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::combined-r4.log",
+    "exitFile": "intermediate-runs.zip::combined-r4.exit.txt",
+    "targetPassLines": [
+      "Passed 35 tests against 0.1.0.0.",
+      "Passed 35 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "line": 4944,
+      "text": "ERROR: 258 RID allocations of type 'PN13RendererDummy14TextureStorage12DummyTextureE' were leaked at exit."
+    }
+  },
+  {
+    "run": "combined-r5",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::combined-r5.log",
+    "exitFile": "intermediate-runs.zip::combined-r5.exit.txt",
+    "targetPassLines": [
+      "Passed 37 tests against 0.1.0.0.",
+      "Passed 37 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "combined-r6",
+    "exitStatus": 0,
+    "fullLog": "combined-r6.log",
+    "exitFile": "combined-r6.exit.txt",
+    "targetPassLines": [
+      "Passed 39 tests against 0.1.0.0.",
+      "Passed 39 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "coverage-r1",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::coverage-r1.log",
+    "exitFile": "intermediate-runs.zip::coverage-r1.exit.txt",
+    "targetPassLines": [
+      "Passed 3 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "line": 3413,
+      "text": "System.Exception: act=1 players=1 encounter=BattlewornDummyEventEncounter: InvalidOperationException: Setting must be set!"
+    }
+  },
+  {
+    "run": "coverage-r2",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::coverage-r2.log",
+    "exitFile": "intermediate-runs.zip::coverage-r2.exit.txt",
+    "targetPassLines": [
+      "Passed 4 tests against 0.1.0.0.",
+      "Passed 4 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "coverage-r3",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::coverage-r3.log",
+    "exitFile": "intermediate-runs.zip::coverage-r3.exit.txt",
+    "targetPassLines": [
+      "Passed 4 tests against 0.1.0.0.",
+      "Passed 4 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "direct-removal-r1",
+    "exitStatus": 1,
+    "fullLog": "direct-removal-r1.log",
+    "exitFile": "direct-removal-r1.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 2519,
+      "text": "System.Exception: Public direct removal sender must be denied before selection/payment/mutation"
+    }
+  },
+  {
+    "run": "direct-removal-r2",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::direct-removal-r2.log",
+    "exitFile": "intermediate-runs.zip::direct-removal-r2.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "fatal-r1",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::fatal-r1.log",
+    "exitFile": "intermediate-runs.zip::fatal-r1.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "hud-r1",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::hud-r1.log",
+    "exitFile": "intermediate-runs.zip::hud-r1.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "hud-r2",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::hud-r2.log",
+    "exitFile": "intermediate-runs.zip::hud-r2.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 6,
+      "text": "E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\src\\Tests\\PrototypeHuntingHudTests.cs(7,71): error CS0308: 非泛型 方法“Assembly.GetCustomAttributes(bool)”不能与类型参数一起使用 [E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\src\\Tests\\AllMatters.Tests.csproj]"
+    }
+  },
+  {
+    "run": "hud-r3",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::hud-r3.log",
+    "exitFile": "intermediate-runs.zip::hud-r3.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 2535,
+      "text": "System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation."
+    }
+  },
+  {
+    "run": "hud-r4",
+    "exitStatus": 0,
+    "fullLog": "hud-r4.log",
+    "exitFile": "hud-r4.exit.txt",
+    "targetPassLines": [
+      "Passed 2 tests against 0.1.0.0.",
+      "Passed 2 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "knowledge-r1",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::knowledge-r1.log",
+    "exitFile": "intermediate-runs.zip::knowledge-r1.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 5,
+      "text": "E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\src\\Tests\\PrototypeHuntingKnowledgeTests.cs(52,42): error CS0246: 未能找到类型或命名空间名“ICardSelector”(是否缺少 using 指令或程序集引用?) [E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\src\\Tests\\AllMatters.Tests.csproj]"
+    }
+  },
+  {
+    "run": "knowledge-r2",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::knowledge-r2.log",
+    "exitFile": "intermediate-runs.zip::knowledge-r2.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "mask-r1",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::mask-r1.log",
+    "exitFile": "intermediate-runs.zip::mask-r1.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 2507,
+      "text": "System.Exception: Final true map boss native hook removes all masks"
+    }
+  },
+  {
+    "run": "mask-r2",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::mask-r2.log",
+    "exitFile": "intermediate-runs.zip::mask-r2.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "models-r1",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::models-r1.log",
+    "exitFile": "intermediate-runs.zip::models-r1.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 2483,
+      "text": "System.Exception: Torch fixed10 per native target player"
+    }
+  },
+  {
+    "run": "models-r2",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::models-r2.log",
+    "exitFile": "intermediate-runs.zip::models-r2.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "moves-r1",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::moves-r1.log",
+    "exitFile": "intermediate-runs.zip::moves-r1.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "presentation-build-r1",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::presentation-build-r1.log",
+    "exitFile": "intermediate-runs.zip::presentation-build-r1.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "presentation-build-r2",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::presentation-build-r2.log",
+    "exitFile": "intermediate-runs.zip::presentation-build-r2.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "presentation-build-r3",
+    "exitStatus": 0,
+    "fullLog": "presentation-build-r3.log",
+    "exitFile": "presentation-build-r3.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "queen-r1",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::queen-r1.log",
+    "exitFile": "intermediate-runs.zip::queen-r1.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 2487,
+      "text": "System.Exception: Two torches immediately attack for12 after Enrage"
+    }
+  },
+  {
+    "run": "queen-r2",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::queen-r2.log",
+    "exitFile": "intermediate-runs.zip::queen-r2.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 9,
+      "text": "E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\src\\Tests\\PrototypeHuntingServiceTests.cs(63,89): error CS0246: 未能找到类型或命名空间名“Courier”(是否缺少 using 指令或程序集引用?) [E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\src\\Tests\\AllMatters.Tests.csproj]"
+    }
+  },
+  {
+    "run": "queen-r3",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::queen-r3.log",
+    "exitFile": "intermediate-runs.zip::queen-r3.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 2492,
+      "text": "System.Exception: Two torches immediately attack for12 after Enrage; actual=20"
+    }
+  },
+  {
+    "run": "queen-r4",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::queen-r4.log",
+    "exitFile": "intermediate-runs.zip::queen-r4.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "resources-r1",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::resources-r1.log",
+    "exitFile": "intermediate-runs.zip::resources-r1.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "resources-r2",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::resources-r2.log",
+    "exitFile": "intermediate-runs.zip::resources-r2.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 14,
+      "text": "E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\src\\Tests\\PrototypeHuntingResourceTests.cs(37,20): error CS0104: “Environment”是“Godot.Environment”和“System.Environment”之间的不明确的引用 [E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\src\\Tests\\AllMatters.Tests.csproj]"
+    }
+  },
+  {
+    "run": "resources-r3",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::resources-r3.log",
+    "exitFile": "intermediate-runs.zip::resources-r3.exit.txt",
+    "targetPassLines": [
+      "Passed 2 tests against 0.1.0.0.",
+      "Passed 2 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "resources-r4",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::resources-r4.log",
+    "exitFile": "intermediate-runs.zip::resources-r4.exit.txt",
+    "targetPassLines": [
+      "Passed 2 tests against 0.1.0.0.",
+      "Passed 2 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "line": 2529,
+      "text": "ERROR: Parent node is busy setting up children, `add_child()` failed. Consider using `add_child.call_deferred(child)` instead."
+    }
+  },
+  {
+    "run": "resources-r5",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::resources-r5.log",
+    "exitFile": "intermediate-runs.zip::resources-r5.exit.txt",
+    "targetPassLines": [
+      "Passed 2 tests against 0.1.0.0.",
+      "Passed 2 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "resources-r6",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::resources-r6.log",
+    "exitFile": "intermediate-runs.zip::resources-r6.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 11,
+      "text": "E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\src\\Tests\\PrototypeHuntingResourceTests.cs(26,38): error CS1061: “NCreatureVisuals”未包含“SpineAnimationController”的定义，并且找不到可接受第一个“NCreatureVisuals”类型参数的可访问扩展方法“SpineAnimationController”(是否缺少 using 指令或程序集引用?) [E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\src\\Tests\\AllMatters.Tests.csproj]"
+    }
+  },
+  {
+    "run": "resources-r7",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::resources-r7.log",
+    "exitFile": "intermediate-runs.zip::resources-r7.exit.txt",
+    "targetPassLines": [
+      "Passed 3 tests against 0.1.0.0.",
+      "Passed 3 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "resources-r8",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::resources-r8.log",
+    "exitFile": "intermediate-runs.zip::resources-r8.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 11,
+      "text": "E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\src\\Tests\\PrototypeHuntingResourceTests.cs(32,353): error CS1061: “MegaSprite”未包含“Scale”的定义，并且找不到可接受第一个“MegaSprite”类型参数的可访问扩展方法“Scale”(是否缺少 using 指令或程序集引用?) [E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\src\\Tests\\AllMatters.Tests.csproj]"
+    }
+  },
+  {
+    "run": "resources-r9",
+    "exitStatus": 0,
+    "fullLog": "resources-r9.log",
+    "exitFile": "resources-r9.exit.txt",
+    "targetPassLines": [
+      "Passed 3 tests against 0.1.0.0.",
+      "Passed 3 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "rest-extras-r1",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::rest-extras-r1.log",
+    "exitFile": "intermediate-runs.zip::rest-extras-r1.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "rest-extras-r2",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::rest-extras-r2.log",
+    "exitFile": "intermediate-runs.zip::rest-extras-r2.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "services-r1",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::services-r1.log",
+    "exitFile": "intermediate-runs.zip::services-r1.exit.txt",
+    "targetPassLines": [
+      "Passed 2 tests against 0.1.0.0.",
+      "Passed 2 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "services-r2",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::services-r2.log",
+    "exitFile": "intermediate-runs.zip::services-r2.exit.txt",
+    "targetPassLines": [
+      "Passed 4 tests against 0.1.0.0.",
+      "Passed 4 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "spawn-r1",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::spawn-r1.log",
+    "exitFile": "intermediate-runs.zip::spawn-r1.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 2488,
+      "text": "System.Exception: Three actual bites deal 18 total, got 36"
+    }
+  },
+  {
+    "run": "spawn-r2",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::spawn-r2.log",
+    "exitFile": "intermediate-runs.zip::spawn-r2.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "spawn-r3",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::spawn-r3.log",
+    "exitFile": "intermediate-runs.zip::spawn-r3.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 2508,
+      "text": "System.Exception: Inklet native capability and opening preserved without Minion/stun"
+    }
+  },
+  {
+    "run": "spawn-r4",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::spawn-r4.log",
+    "exitFile": "intermediate-runs.zip::spawn-r4.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 2522,
+      "text": "ERROR: Cannot instantiate C# script because the associated class could not be found. Script: 'res://src/Core/Nodes/Combat/NCreatureVisuals.cs'. Make sure the script exists and contains a class definition with a name that matches the filename of the script exactly (it's case-sensitive)."
+    }
+  },
+  {
+    "run": "spawn-r5",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::spawn-r5.log",
+    "exitFile": "intermediate-runs.zip::spawn-r5.exit.txt",
+    "targetPassLines": [
+      "Passed 3 tests against 0.1.0.0.",
+      "Passed 3 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "line": 2521,
+      "text": "ERROR: Cannot instantiate C# script because the associated class could not be found. Script: 'res://src/Core/Nodes/Combat/NCreatureVisuals.cs'. Make sure the script exists and contains a class definition with a name that matches the filename of the script exactly (it's case-sensitive)."
+    }
+  },
+  {
+    "run": "stage-r1",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::stage-r1.log",
+    "exitFile": "intermediate-runs.zip::stage-r1.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 8,
+      "text": "E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\src\\Tests\\PrototypeHuntingStageTests.cs(60,44): error CS1061: “TestSubject”未包含“Respawns”的定义，并且找不到可接受第一个“TestSubject”类型参数的可访问扩展方法“Respawns”(是否缺少 using 指令或程序集引用?) [E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\src\\Tests\\AllMatters.Tests.csproj]"
+    }
+  },
+  {
+    "run": "stage-r2",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::stage-r2.log",
+    "exitFile": "intermediate-runs.zip::stage-r2.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 2483,
+      "text": "System.InvalidOperationException: DEFEND_IRONCLAD must be added to a CombatState before adding it to this pile."
+    }
+  },
+  {
+    "run": "stage-r3",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::stage-r3.log",
+    "exitFile": "intermediate-runs.zip::stage-r3.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 12,
+      "text": "E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\src\\Tests\\PrototypeHuntingQueenTests.cs(91,21): error CS0200: 无法为属性或索引器“MonsterModel.SpawnedThisTurn”赋值 - 它是只读的 [E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\src\\Tests\\AllMatters.Tests.csproj]"
+    }
+  },
+  {
+    "run": "stage-r4",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::stage-r4.log",
+    "exitFile": "intermediate-runs.zip::stage-r4.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "stage-r5",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::stage-r5.log",
+    "exitFile": "intermediate-runs.zip::stage-r5.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "table-r1",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::table-r1.log",
+    "exitFile": "intermediate-runs.zip::table-r1.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 15,
+      "text": "E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\src\\Tests\\PrototypeHuntingTableTests.cs(42,65): error CS0246: 未能找到类型或命名空间名“RegenerationPower”(是否缺少 using 指令或程序集引用?) [E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\src\\Tests\\AllMatters.Tests.csproj]"
+    }
+  },
+  {
+    "run": "table-r2",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::table-r2.log",
+    "exitFile": "intermediate-runs.zip::table-r2.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 2499,
+      "text": "System.InvalidOperationException: No valid next state found."
+    }
+  },
+  {
+    "run": "table-r3",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::table-r3.log",
+    "exitFile": "intermediate-runs.zip::table-r3.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 2505,
+      "text": "System.Exception: Native four Burns retained"
+    }
+  },
+  {
+    "run": "table-r4",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::table-r4.log",
+    "exitFile": "intermediate-runs.zip::table-r4.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 2514,
+      "text": "System.Exception: Native shell20 retained alongside Plating6"
+    }
+  },
+  {
+    "run": "table-r5",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::table-r5.log",
+    "exitFile": "intermediate-runs.zip::table-r5.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 2518,
+      "text": "System.Exception: Clear visible negatives and retain positive/hidden powers"
+    }
+  },
+  {
+    "run": "table-r6",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::table-r6.log",
+    "exitFile": "intermediate-runs.zip::table-r6.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "line": 2736,
+      "text": "System.InvalidOperationException: Operation is not valid due to the current state of the object."
+    }
+  },
+  {
+    "run": "table-r7",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::table-r7.log",
+    "exitFile": "intermediate-runs.zip::table-r7.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "treasure-r1",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::treasure-r1.log",
+    "exitFile": "intermediate-runs.zip::treasure-r1.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 5,
+      "text": "E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\src\\Tests\\PrototypeHuntingTreasureTests.cs(17,21): error CS0534: “PrototypeHuntingRewardRelic”不实现继承的抽象成员“RelicModel.Rarity.get” [E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\src\\Tests\\AllMatters.Tests.csproj]"
+    }
+  },
+  {
+    "run": "treasure-r2",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::treasure-r2.log",
+    "exitFile": "intermediate-runs.zip::treasure-r2.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 13,
+      "text": "E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\src\\Tests\\PrototypeHuntingTreasureTests.cs(88,30): error CS1061: “CardModel”未包含“SpoilsActIndex”的定义，并且找不到可接受第一个“CardModel”类型参数的可访问扩展方法“SpoilsActIndex”(是否缺少 using 指令或程序集引用?) [E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\src\\Tests\\AllMatters.Tests.csproj]"
+    }
+  },
+  {
+    "run": "treasure-r3",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::treasure-r3.log",
+    "exitFile": "intermediate-runs.zip::treasure-r3.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "treasure-r4",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::treasure-r4.log",
+    "exitFile": "intermediate-runs.zip::treasure-r4.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 2492,
+      "text": "System.NullReferenceException: Object reference not set to an instance of an object."
+    }
+  },
+  {
+    "run": "treasure-r5",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::treasure-r5.log",
+    "exitFile": "intermediate-runs.zip::treasure-r5.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 2492,
+      "text": "System.Exception: All-empty native relic voting finishes without waiting for votes"
+    }
+  },
+  {
+    "run": "treasure-r6",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::treasure-r6.log",
+    "exitFile": "intermediate-runs.zip::treasure-r6.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "treasure-r7",
+    "exitStatus": 0,
+    "fullLog": "treasure-r7.log",
+    "exitFile": "treasure-r7.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "ui-r1",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::ui-r1.log",
+    "exitFile": "intermediate-runs.zip::ui-r1.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "ui-r2",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::ui-r2.log",
+    "exitFile": "intermediate-runs.zip::ui-r2.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 2531,
+      "text": "System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation."
+    }
+  },
+  {
+    "run": "ui-r3",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::ui-r3.log",
+    "exitFile": "intermediate-runs.zip::ui-r3.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 2531,
+      "text": "System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation."
+    }
+  },
+  {
+    "run": "ui-r4",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::ui-r4.log",
+    "exitFile": "intermediate-runs.zip::ui-r4.exit.txt",
+    "targetPassLines": [
+      "Passed 2 tests against 0.1.0.0.",
+      "Passed 2 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "line": 2548,
+      "text": "ERROR: 258 RID allocations of type 'PN13RendererDummy14TextureStorage12DummyTextureE' were leaked at exit."
+    }
+  },
+  {
+    "run": "ui-r5",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::ui-r5.log",
+    "exitFile": "intermediate-runs.zip::ui-r5.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 18,
+      "text": "E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\src\\Tests\\PrototypeHuntingUiTests.cs(51,85): error CS0234: 命名空间“MegaCrit.Sts2.Core.Nodes.GodotExtensions”中不存在类型或命名空间名“MegaLabel”(是否缺少程序集引用?) [E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\src\\Tests\\AllMatters.Tests.csproj]"
+    }
+  },
+  {
+    "run": "ui-r6",
+    "exitStatus": 0,
+    "fullLog": "ui-r6.log",
+    "exitFile": "ui-r6.exit.txt",
+    "targetPassLines": [
+      "Passed 3 tests against 0.1.0.0.",
+      "Passed 3 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "visit-r1",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::visit-r1.log",
+    "exitFile": "intermediate-runs.zip::visit-r1.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "line": 2566,
+      "text": "System.InvalidOperationException: Player 1 became ready to enter combat ENCOUNTER.ENTOMANCER_ELITE,but they are already set to ready for ENCOUNTER.ALL_MATTERS_ENCOUNTER_COLOSSEUM_FIRST_ENCOUNTER!"
+    }
+  },
+  {
+    "run": "visit-r2",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::visit-r2.log",
+    "exitFile": "intermediate-runs.zip::visit-r2.exit.txt",
+    "targetPassLines": [
+      "Passed 2 tests against 0.1.0.0.",
+      "Passed 2 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "visit-r3",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::visit-r3.log",
+    "exitFile": "intermediate-runs.zip::visit-r3.exit.txt",
+    "targetPassLines": [
+      "Passed 2 tests against 0.1.0.0.",
+      "Passed 2 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": null
+  }
+]
