@@ -2,5 +2,5 @@
   "id":"AllMattersHuntingTreasureProbe","name":"AllMatters Treasure Boundary PROTOTYPE",
   "author":"Endercloud001","version":"0.0.1-prototype",
   "description":"强制所有宝箱为空奖输入；保留原生开箱与已知非奖励流程。仅验证原生及奖励列表路径，不保证第三方直接发遗物兼容；无追猎预算、面具或保存状态。",
-  "dependencies":["com.ritsukage.sts2-RitsuLib"],"has_dll":true,"has_pck":false,"affects_gameplay":true
+  "dependencies":[{"id":"STS2-RitsuLib"}],"has_dll":true,"has_pck":false,"affects_gameplay":true
 }

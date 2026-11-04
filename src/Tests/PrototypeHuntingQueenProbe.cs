@@ -72,7 +72,7 @@ public static class PrototypeHuntingQueenMod
         string path=System.Environment.GetEnvironmentVariable("ALLMATTERS_HUNTING_RESOURCE_PACK")??Path.Combine(Path.GetDirectoryName(typeof(PrototypeHuntingQueenMod).Assembly.Location)!,"ActsFromThePast.pck");
         if(!ProjectSettings.LoadResourcePack(path,false))throw new FileNotFoundException("Place the author's original 0.13.0 ActsFromThePast.pck beside this probe DLL, or set ALLMATTERS_HUNTING_RESOURCE_PACK; no art is bundled.",path);
         STS2RitsuLib.RitsuLibFramework.EnsureGodotScriptsRegistered(typeof(MonsterModel).Assembly,STS2RitsuLib.RitsuLibFramework.CreateLogger("AllMattersHuntingQueenProbe"));
-        ModelDb.Inject(typeof(TorchForProbe));PrototypeHuntingQueenProbe.Install(new Harmony("AllMattersHuntingQueenProbe"));
+        PrototypeHuntingQueenProbe.Install(new Harmony("AllMattersHuntingQueenProbe"));
         GD.Print("[AllMattersHuntingQueenProbe] current-combat Queen/Torch resource+layout probe active. No save/recovery support claimed.");
     }
 }

@@ -1,0 +1,160 @@
+Testing public-beta : 0.1.0+41cef1ea4657c524aa50e870df009e56337e8c32 [E:\SteamLibrary\steamapps\common\Slay the Spire 2\data_sts2_windows_x86_64\sts2.dll]
+  正在确定要还原的项目…
+  所有项目均是最新的，无法还原。
+  AllMatters -> E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\bin\public-beta\Debug\net9.0\AllMatters.dll
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingClockTests.cs(22,37): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\MaskedBanditsTests.cs(155,9): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingChoiceScreenTests.cs(69,32): warning CS8600: 将 null 文本或可能的 null 值转换为不可为 null 类型。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingChoiceScreenTests.cs(70,45): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingModelTests.cs(24,9): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingClockTests.cs(62,46): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingQueenProbe.cs(48,36): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingShopProbe.cs(26,20): warning CS8600: 将 null 文本或可能的 null 值转换为不可为 null 类型。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingShopProbe.cs(27,21): warning CS8604: “bool PrototypeHuntingShopProbe.Applies(Player player)”中的形参“player”可能传入 null 引用实参。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingShopProbe.cs(38,45): warning CS8600: 将 null 文本或可能的 null 值转换为不可为 null 类型。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingShopProbe.cs(38,45): warning CS8604: “bool PrototypeHuntingShopProbe.Applies(Player player)”中的形参“player”可能传入 null 引用实参。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingTests.cs(33,13): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingSpawnTests.cs(53,85): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingKnowledgeTests.cs(111,98): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingMovesTests.cs(47,121): warning CS8604: “FranticEscape CombatState.CreateCard<FranticEscape>(Player owner)”中的形参“owner”可能传入 null 引用实参。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingMovesTests.cs(48,121): warning CS8604: “FranticEscape CombatState.CreateCard<FranticEscape>(Player owner)”中的形参“owner”可能传入 null 引用实参。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingMovesTests.cs(57,53): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingStartupTests.cs(42,34): warning CS8600: 将 null 文本或可能的 null 值转换为不可为 null 类型。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingStartupTests.cs(42,34): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingStartupTests.cs(44,18): warning CS8600: 将 null 文本或可能的 null 值转换为不可为 null 类型。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingStartupTests.cs(44,18): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingSpawnTests.cs(103,31): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\TrashHeapColorlessTests.cs(36,66): warning CS8625: 无法将 null 字面量转换为非 null 的引用类型。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingStageTests.cs(114,105): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingTableTests.cs(53,64): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingTableTests.cs(94,47): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingTreasureScreenTests.cs(133,66): warning CS8605: 取消装箱可能为 null 的值。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingModelTests.cs(75,108): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingModelTests.cs(84,108): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingModelTests.cs(92,108): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingQueenTests.cs(80,55): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingSpawnTests.cs(197,21): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingUiTests.cs(199,34): warning CS8605: 取消装箱可能为 null 的值。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingUiTests.cs(206,40): warning CS8605: 取消装箱可能为 null 的值。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingUiTests.cs(207,125): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingUiTests.cs(218,41): warning CS8605: 取消装箱可能为 null 的值。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingUiTests.cs(231,36): warning CS8605: 取消装箱可能为 null 的值。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingLayoutTests.cs(72,22): warning CS8600: 将 null 文本或可能的 null 值转换为不可为 null 类型。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingLayoutTests.cs(72,22): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+  AllMatters.Tests -> E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\.godot\mono\temp\bin\Debug\AllMatters.Tests.dll
+
+已成功生成。
+
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingClockTests.cs(22,37): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\MaskedBanditsTests.cs(155,9): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingChoiceScreenTests.cs(69,32): warning CS8600: 将 null 文本或可能的 null 值转换为不可为 null 类型。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingChoiceScreenTests.cs(70,45): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingModelTests.cs(24,9): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingClockTests.cs(62,46): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingQueenProbe.cs(48,36): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingShopProbe.cs(26,20): warning CS8600: 将 null 文本或可能的 null 值转换为不可为 null 类型。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingShopProbe.cs(27,21): warning CS8604: “bool PrototypeHuntingShopProbe.Applies(Player player)”中的形参“player”可能传入 null 引用实参。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingShopProbe.cs(38,45): warning CS8600: 将 null 文本或可能的 null 值转换为不可为 null 类型。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingShopProbe.cs(38,45): warning CS8604: “bool PrototypeHuntingShopProbe.Applies(Player player)”中的形参“player”可能传入 null 引用实参。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingTests.cs(33,13): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingSpawnTests.cs(53,85): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingKnowledgeTests.cs(111,98): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingMovesTests.cs(47,121): warning CS8604: “FranticEscape CombatState.CreateCard<FranticEscape>(Player owner)”中的形参“owner”可能传入 null 引用实参。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingMovesTests.cs(48,121): warning CS8604: “FranticEscape CombatState.CreateCard<FranticEscape>(Player owner)”中的形参“owner”可能传入 null 引用实参。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingMovesTests.cs(57,53): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingStartupTests.cs(42,34): warning CS8600: 将 null 文本或可能的 null 值转换为不可为 null 类型。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingStartupTests.cs(42,34): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingStartupTests.cs(44,18): warning CS8600: 将 null 文本或可能的 null 值转换为不可为 null 类型。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingStartupTests.cs(44,18): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingSpawnTests.cs(103,31): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\TrashHeapColorlessTests.cs(36,66): warning CS8625: 无法将 null 字面量转换为非 null 的引用类型。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingStageTests.cs(114,105): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingTableTests.cs(53,64): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingTableTests.cs(94,47): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingTreasureScreenTests.cs(133,66): warning CS8605: 取消装箱可能为 null 的值。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingModelTests.cs(75,108): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingModelTests.cs(84,108): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingModelTests.cs(92,108): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingQueenTests.cs(80,55): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingSpawnTests.cs(197,21): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingUiTests.cs(199,34): warning CS8605: 取消装箱可能为 null 的值。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingUiTests.cs(206,40): warning CS8605: 取消装箱可能为 null 的值。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingUiTests.cs(207,125): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingUiTests.cs(218,41): warning CS8605: 取消装箱可能为 null 的值。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingUiTests.cs(231,36): warning CS8605: 取消装箱可能为 null 的值。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingLayoutTests.cs(72,22): warning CS8600: 将 null 文本或可能的 null 值转换为不可为 null 类型。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingLayoutTests.cs(72,22): warning CS8602: 解引用可能出现空引用。 [E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\AllMatters.Tests.csproj]
+    39 个警告
+    0 个错误
+
+已用时间 00:00:01.72
+Godot Engine v4.5.1.stable.mono.official.f62fdbde1 - https://godotengine.org
+
+SentryGodotInitializer: Sentry GDExtension not loaded in this process; skipping. If you see this in a running game (not during project export or IDE script analysis), check Godot's log for extension load failures.
+[INFO] Registered 22 migrations
+[INFO] Current save versions: PrefsSave v2; ProfileSave v2; SerializableProgress v24; RunHistory v10; SerializableRun v20; SettingsSave v8
+[WARN] Game doesn't have ReleaseInfo. We can't check version compatibility, so assuming all mods are supported.
+[INFO] [com.ritsukage.sts2-RitsuLib] Framework ID: com.ritsukage.sts2-RitsuLib
+[INFO] [com.ritsukage.sts2-RitsuLib] Framework Name: RitsuLib
+[INFO] [com.ritsukage.sts2-RitsuLib] Version: 0.6.7 [compat branch: 0.111.0]
+[INFO] [com.ritsukage.sts2-RitsuLib] Initializing shared framework...
+[INFO] [com.ritsukage.sts2-RitsuLib] [HarmonyInitSetterCompat] Installed on 2 reflection importer entry point(s).
+[INFO] [com.ritsukage.sts2-RitsuLib] [Config] Debug compatibility master is enabled. Sub-flags (only when master on): LocTable=True, UnlockEpoch=True, AncientArchitect=True. Mod Steam cloud mirror: disabled. Config file: user://test/mod_data/com.ritsukage.sts2-RitsuLib/settings.json
+[INFO] [com.ritsukage.sts2-RitsuLib] [RitsuLib-ModSettings] Loaded translations: language='zhs', fallback='eng', entries=1663, local=1663, fallbackEntries=0, sources=2 (local=1, fallback=1)
+[INFO] [com.ritsukage.sts2-RitsuLib] [DebugLogViewer] Local debug log viewer listening at http://127.0.0.1:18742/?token=3888a11cca7002014b1132c487e2ba4f
+[INFO] [com.ritsukage.sts2-RitsuLib] [Godot] RitsuGodot node factories initialized.
+[INFO] [com.ritsukage.sts2-RitsuLib] [SmartFormat] Registered Source: STS2RitsuLib.Combat.SecondaryResources.SecondaryResourceLocStringSource (order=0).
+[INFO] [com.ritsukage.sts2-RitsuLib] [SmartFormat] Registered Formatter: STS2RitsuLib.Combat.SecondaryResources.SecondaryResourceIconsFormatter (order=0).
+[INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - framework core] Applying 431 patches...
+[INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - framework core] Patch application complete: 431 applied, 0 ignored, 0 failed, 431 total
+[INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - framework core] All patches applied successfully
+[INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - settings ui] Applying 18 patches...
+[INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - settings ui] Patch application complete: 18 applied, 0 ignored, 0 failed, 18 total
+[INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - settings ui] All patches applied successfully
+[INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - content assets] Applying 120 patches...
+[INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - content assets] Patch application complete: 120 applied, 0 ignored, 0 failed, 120 total
+[INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - content assets] All patches applied successfully
+[INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - character assets] Applying 53 patches...
+[INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - character assets] Patch application complete: 53 applied, 0 ignored, 0 failed, 53 total
+[INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - character assets] All patches applied successfully
+[INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - content registry] Applying 31 patches...
+[INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - content registry] Patch application complete: 31 applied, 0 ignored, 0 failed, 31 total
+[INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - content registry] All patches applied successfully
+[INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - persistence] Applying 3 patches...
+[INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - persistence] Patch application complete: 3 applied, 0 ignored, 0 failed, 3 total
+[INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - persistence] All patches applied successfully
+[INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - unlocks] Applying 22 patches...
+[INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - unlocks] Patch application complete: 22 applied, 0 ignored, 0 failed, 22 total
+[INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - unlocks] All patches applied successfully
+[INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - framework core] Applying 3 dynamic patch(es)...
+[INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - framework core] Dynamic patch application complete: 3/3 succeeded
+[INFO] [com.ritsukage.sts2-RitsuLib] [Graphics] 2D texture filter applied: linear_mipmap.
+[INFO] [com.ritsukage.sts2-RitsuLib] [SteamWorkshopUpdate] Coordinator initialized.
+[INFO] [com.ritsukage.sts2-RitsuLib] Shared framework initialization complete.
+[AllMattersHuntingQueenProbe] current-combat Queen/Torch resource+layout probe active. No save/recovery support claimed.
+STARTUP_LOADED target=public-beta mod=AllMattersHuntingQueenProbe initializerBeforeModelDb=true
+[INFO] Initializing language for the first time from platform locale: zh-CN -> zhs
+[INFO] Loading locale path=res://localization/eng
+[INFO] Loading locale path=res://localization/zhs
+STARTUP_NATIVE_INIT target=public-beta mods=1 mode=PrototypeHuntingStartup/queen
+STARTUP_MODEL type=PrototypeHuntingLiveTorch alreadyPresent=True nativeScan=True
+[INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - content registry] Applying 25 dynamic patch(es)...
+[INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - content registry] Dynamic patch application complete: 25/25 succeeded
+[INFO] [com.ritsukage.sts2-RitsuLib] [Content] Dynamic act content patching initialized for 5 act type(s).
+[INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - content registry] Applying 17 dynamic patch(es)...
+[INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - content registry] Dynamic patch application complete: 17/17 succeeded
+[INFO] [com.ritsukage.sts2-RitsuLib] [Content] Dynamic character starter patching initialized for 8 character type(s).
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> MegaCrit.Sts2.Core.Models.Exceptions.DuplicateModelException: ModelDb already contains ID MONSTER.PROTOTYPE_HUNTING_LIVE_TORCH mapped to type PrototypeHuntingLiveTorch, but you are trying to map it to type PrototypeHuntingLiveTorch. Possible causes:
+ - You have called a constructor on an AbstractModel. Use ModelDb instead.
+ - There is a conflict in mod content names.
+   at MegaCrit.Sts2.Core.Models.AbstractModel..ctor()
+   at MegaCrit.Sts2.Core.Models.MonsterModel..ctor()
+   at PrototypeHuntingLiveTorch..ctor()
+   at System.RuntimeType.CreateInstanceDefaultCtor(Boolean publicOnly, Boolean wrapExceptions)
+   --- End of inner exception stack trace ---
+   at System.RuntimeType.CreateInstanceDefaultCtor(Boolean publicOnly, Boolean wrapExceptions)
+   at MegaCrit.Sts2.Core.Models.ModelDb.Init_Patch5(Type[] injectedModelTypes)
+   at PrototypeHuntingStartupTests.Run(String mode) in E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\PrototypeHuntingStartupTests.cs:line 68
+   at HelloWorldTests.Run(String[] args) in E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\HelloWorldTests.cs:line 27
+   at TestRunner._Ready() in E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatters_prototype70_continue\src\Tests\TestRunner.cs:line 60

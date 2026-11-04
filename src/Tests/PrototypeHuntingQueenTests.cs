@@ -36,6 +36,7 @@ internal static class PrototypeHuntingQueenTests
         {
             System.Environment.SetEnvironmentVariable(variable,Path.GetFullPath(Path.Combine(Path.GetDirectoryName(pack)!,"../.local/resource-search/ActsFromThePast.pck")));
             assembly.GetType("PrototypeHuntingQueenMod",true)!.GetMethod("Initialize")!.Invoke(null,null);
+            ModelDb.Inject(assembly.GetType("PrototypeHuntingLiveTorch",true)!);
             await QueenLoop(assembly.GetType("PrototypeHuntingLiveTorch",true)!);
             string encounter=ModelDb.Encounter<QueenBoss>().Id.Entry;
             NativeEventTests.Check(ModelDb.GetById<EncounterModel>(new ModelId(ModelId.SlugifyCategory<EncounterModel>(),encounter)) is QueenBoss,"Native fight model lookup resolves queen encounter ID");

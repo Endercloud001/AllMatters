@@ -38,8 +38,8 @@ public static class PrototypeHuntingFiveWormProbe
     {
         if(__instance is not PhrogParasiteElite)return;
         if(!__result.HasNode("wriggler5"))__result.AddChild(new Marker2D{Name="wriggler5"});
-        for(int i=1;i<=5;i++)__result.GetNode<Marker2D>("wriggler"+i).Position=new Vector2(900+180*(i-1),700);
-        GD.Print("[AllMattersHuntingFiveWormProbe] native Phrog scene: five worm markers x=900/1080/1260/1440/1620 y=700; experimental positions, no layout acceptance yet.");
+        for(int i=1;i<=5;i++)__result.GetNode<Marker2D>("wriggler"+i).Position=new Vector2(840+210*(i-1),700);
+        GD.Print("[AllMattersHuntingFiveWormProbe] native Phrog scene: five worm markers x=840/1050/1260/1470/1680 y=700 (210px equal spacing); wider user-requested trial, no layout acceptance yet.");
     }
 }
 

@@ -43,7 +43,7 @@ internal static class PrototypeHuntingSpawnTests
                 await battle.Monster.AfterAddedToRoom();
                 using(var scene=battle.Combat.Encounter!.CreateScene())
                 {
-                    NativeEventTests.Check(scene.HasNode("wriggler5")&&scene.GetNode<Godot.Marker2D>("wriggler5").Position.X==1620,"Built DLL modifies actual native scene at runtime");scene.Free();
+                    NativeEventTests.Check(scene.HasNode("wriggler5")&&scene.GetNode<Godot.Marker2D>("wriggler5").Position.X==1680,"Built DLL modifies actual native scene at runtime");scene.Free();
                 }
                 await CreatureCmd.Kill(battle.Monster.Creature);
                 NativeEventTests.Check(battle.Combat.Enemies.Count(c=>c.Monster is Wriggler)==5&&battle.Combat.Enemies.Where(c=>c.Monster is Wriggler).Select(c=>c.SlotName).SequenceEqual(Enumerable.Range(1,5).Select(i=>"wriggler"+i)),"Built DLL native death/slot order equals shared probe");
@@ -53,7 +53,7 @@ internal static class PrototypeHuntingSpawnTests
                     await model.NextMove.PerformMove(battle.Combat.PlayerCreatures);model.MoveStateMachine.OnMovePerformed(model.NextMove);model.RollMove(battle.Combat.PlayerCreatures);
                 }
                 NativeEventTests.Check(battle.Combat.Enemies.Single(c=>c.SlotName=="wriggler5").Monster!.NextMove.Id=="NASTY_BITE_MOVE","Built DLL fifth branch runs after actual spawn empty action");
-                Console.WriteLine($"LIVE_FIVE players={n} target={target} actualBuiltInitializer=true nativeDeathCount=5 nativeSceneMarker5=true nativeOrder=1/2/3/4/5 fifthFirstAction=NASTY_BITE_MOVE; actual game rendering/music/full turn loop/user acceptance untested");
+                Console.WriteLine($"LIVE_FIVE players={n} target={target} actualBuiltInitializer=true nativeDeathCount=5 nativeSceneMarker5=true wider210pxSpacing=true nativeOrder=1/2/3/4/5 fifthFirstAction=NASTY_BITE_MOVE; actual game rendering/music/full turn loop/user acceptance untested");
             }
             string encounter=ModelDb.Encounter<PhrogParasiteElite>().Id.Entry;
             var lookup=ModelDb.GetById<EncounterModel>(new ModelId(ModelId.SlugifyCategory<EncounterModel>(),encounter));
@@ -177,7 +177,7 @@ internal static class PrototypeHuntingSpawnTests
                 await battle.Monster.AfterAddedToRoom();
                 using(var scene=battle.Combat.Encounter!.CreateScene())
                 {
-                    NativeEventTests.Check(scene.HasNode("wriggler5")&&scene.GetNode<Godot.Marker2D>("wriggler5").Position.X==1620,"Shared live probe actually patches native CreateScene and fifth position");
+                    NativeEventTests.Check(scene.HasNode("wriggler5")&&scene.GetNode<Godot.Marker2D>("wriggler5").Position.X==1680,"Shared live probe actually patches native CreateScene and fifth position");
                     scene.Free();
                 }
                 var infested = battle.Monster.Creature.GetPower<InfestedPower>()!;

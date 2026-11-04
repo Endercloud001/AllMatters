@@ -8,6 +8,7 @@ using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Acts;
 using MegaCrit.Sts2.Core.Models.Characters;
+using MegaCrit.Sts2.Core.Models.Encounters;
 using MegaCrit.Sts2.Core.Models.Monsters;
 using MegaCrit.Sts2.Core.Nodes.Combat;
 using MegaCrit.Sts2.Core.Nodes.Rooms;
@@ -16,8 +17,57 @@ using MegaCrit.Sts2.Core.Runs;
 
 internal static class PrototypeHuntingLayoutTests
 {
-    internal static readonly (string Name,Func<Task> Test)[] Cases=[("PrototypeHuntingLayout real species bounds and native placement across all encounter variants",Sweep)];
+    internal static readonly (string Name,Func<Task> Test)[] Cases=[("PrototypeHuntingLayout real species bounds and native placement across all encounter variants",Sweep),("PrototypeHuntingLayout five real Wriggler bounds at widened native Phrog slots",FiveWormSpacing)];
     private static bool NoCreatureLifecycle()=>false;
+    private static async Task FiveWormSpacing()
+    {
+        PrototypeHuntingModelTests.Inject();
+        STS2RitsuLib.RitsuLibFramework.EnsureGodotScriptsRegistered(typeof(CardModel).Assembly,STS2RitsuLib.RitsuLibFramework.CreateLogger("Prototype70FiveWormSpacing"));
+        var pack=Assembly.GetExecutingAssembly().GetCustomAttributes<AssemblyMetadataAttribute>().Single(a=>a.Key=="ModResourcePack").Value!;
+        NativeEventTests.Check(ProjectSettings.LoadResourcePack(Path.GetFullPath(Path.Combine(Path.GetDirectoryName(pack)!,"../.local/resource-search/ActsFromThePast.pck")),false),"Exact monster resource input mounted for five worm layout");
+        var tree=(SceneTree)Engine.GetMainLoop();await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
+        var patch=new Harmony("allmatters.prototype70.five-worm-spacing");
+        foreach(var m in new[]{"_Ready","_EnterTree","_ExitTree"})patch.Patch(AccessTools.Method(typeof(NCreature),m),prefix:new HarmonyMethod(typeof(PrototypeHuntingLayoutTests),nameof(NoCreatureLifecycle)));
+        patch.Patch(AccessTools.Method(AccessTools.Field(typeof(NCreature),"_stateDisplay").FieldType,"SetCreatureBounds"),prefix:new HarmonyMethod(typeof(PrototypeHuntingLayoutTests),nameof(NoCreatureLifecycle)));
+        PrototypeHuntingFiveWormProbe.Install(patch);
+        var run=RunState.CreateForTest([MegaCrit.Sts2.Core.Entities.Players.Player.CreateForNewRun(ModelDb.Character<Ironclad>(),MegaCrit.Sts2.Core.Unlocks.UnlockState.all,1)],acts:[ModelDb.Act<Overgrowth>(),ModelDb.Act<Hive>(),ModelDb.Act<Glory>()],seed:"HUNTING70_WORM_SPACING");
+        var combat=new CombatState(ModelDb.Encounter<PhrogParasiteElite>().ToMutable(),run);
+        using var room=new NCombatRoom();var nodes=new List<NCreature>();var widgets=new List<Node>();Control? slots=null;
+        try
+        {
+            for(int i=1;i<=5;i++)
+            {
+                var entity=combat.CreateCreature(ModelDb.Monster<Wriggler>().ToMutable(),CombatSide.Enemy,"wriggler"+i);
+                var visual=entity.Monster!.CreateVisuals();var node=new NCreature();nodes.Add(node);
+                AccessTools.Property(typeof(NCreature),nameof(NCreature.Entity)).SetValue(node,entity);AccessTools.Property(typeof(NCreature),nameof(NCreature.Visuals)).SetValue(node,visual);
+                var hitbox=new Control();var intent=new Control();node.AddChild(hitbox);node.AddChild(intent);
+                AccessTools.Property(typeof(NCreature),nameof(NCreature.Hitbox)).SetValue(node,hitbox);AccessTools.Property(typeof(NCreature),nameof(NCreature.IntentContainer)).SetValue(node,intent);
+                foreach(string field in new[]{"_selectionReticle","_stateDisplay"}){var member=AccessTools.Field(typeof(NCreature),field);var widget=(Node)Activator.CreateInstance(member.FieldType)!;widgets.Add(widget);member.SetValue(node,widget);}
+                node.AddChild(visual);tree.Root.AddChild(node);
+                NativeEventTests.Check(visual.IsNodeReady()&&visual.Bounds.Size.X>0&&!visual.SceneFilePath.Contains("fallback",StringComparison.OrdinalIgnoreCase),$"Wriggler {i} uses actual native model visual/Bounds; path={visual.SceneFilePath}");
+            }
+            AccessTools.Field(typeof(NCombatRoom),"_visuals").SetValue(room,new CombatRoom(combat));
+            ((List<NCreature>)AccessTools.Field(typeof(NCombatRoom),"_creatureNodes").GetValue(room)).AddRange(nodes);
+            slots=combat.Encounter!.CreateScene();tree.Root.AddChild(slots);slots.Position-=new Vector2(960,540);
+            AccessTools.Property(typeof(NCombatRoom),"EncounterSlots").SetValue(room,slots);
+            AccessTools.Method(typeof(NCombatRoom),"PositionCreaturesWithSlots").Invoke(room,[nodes]);
+            foreach(var node in nodes)AccessTools.Method(typeof(NCreature),"UpdateBounds",[typeof(Node)]).Invoke(node,[node.Visuals]);
+            var expected=Enumerable.Range(0,5).Select(i=>new Vector2(840+210*i,700)).ToArray();
+            NativeEventTests.Check(Enumerable.Range(0,5).All(i=>slots.GetNode<Marker2D>("wriggler"+(i+1)).Position==expected[i]),"All five real scene markers use centered 210px spacing");
+            NativeEventTests.Check(Enumerable.Range(0,5).All(i=>nodes[i].GlobalPosition==slots.GetNode<Marker2D>("wriggler"+(i+1)).GlobalPosition),"Native PositionCreaturesWithSlots places all five creatures at their exact intended markers");
+            var boxes=nodes.Select(n=>n.Hitbox.GetGlobalRect()).ToArray();int intersections=0;
+            for(int a=0;a<boxes.Length;a++)for(int b=a+1;b<boxes.Length;b++)if(boxes[a].Intersects(boxes[b]))intersections++;
+            NativeEventTests.Check(intersections==0,$"Widened five-creature native hitboxes should not intersect; intersections={intersections}");
+            Console.WriteLine($"LAYOUT_FIVE_WORM players=1 target=both nativeWrigglerVisuals=5 markerX=840/1050/1260/1470/1680 gap=210 actualNativeSlotPositioning=true updateBounds=true hitboxIntersections={intersections}; real game rendered health bars/intent/physical selection not covered");
+        }
+        finally
+        {
+            patch.UnpatchAll(patch.Id);
+            foreach(var node in nodes){if(node.GetParent()!=null)tree.Root.RemoveChild(node);node.Free();}
+            foreach(var widget in widgets)widget.Free();
+            if(slots!=null){if(slots.GetParent()!=null)tree.Root.RemoveChild(slots);slots.Free();}
+        }
+    }
     private static async Task Sweep()
     {
         PrototypeHuntingModelTests.Inject();

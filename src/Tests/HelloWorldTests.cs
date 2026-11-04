@@ -23,6 +23,8 @@ internal static class HelloWorldTests
 {
     public static async Task<int> Run(string[] args)
     {
+        if (args.FirstOrDefault()?.StartsWith("PrototypeHuntingStartup", StringComparison.Ordinal) == true)
+            return await PrototypeHuntingStartupTests.Run(args[0]);
         TestMode.IsOn = true;
         LocalContext.NetId = 1;
         // The real game constructs saves before loading mods; preserve that ordering.

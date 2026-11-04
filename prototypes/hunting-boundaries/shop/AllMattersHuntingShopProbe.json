@@ -2,5 +2,5 @@
   "id":"AllMattersHuntingShopProbe","name":"AllMatters Shop Boundary PROTOTYPE",
   "author":"Endercloud001","version":"0.0.1-prototype",
   "description":"强制惩罚商店输入；隐藏真实商品、删牌已用外观及购买执行拒绝；无追猎预算、面具或保存状态。",
-  "dependencies":["com.ritsukage.sts2-RitsuLib"],"has_dll":true,"has_pck":false,"affects_gameplay":true
+  "dependencies":[{"id":"STS2-RitsuLib"}],"has_dll":true,"has_pck":false,"affects_gameplay":true
 }

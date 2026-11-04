@@ -1,5 +1,18 @@
 # 真实API实验进展（整票未解决）
 
+2026-11-04后续用户实机已回填部分观察：商店禁用、五虫及意图、锻造禁用、空箱、女王两火炬头符合预期；旧五虫血条重叠，新210px间距已获用户本次窗口实机通过。精确范围及截图见[用户验收记录](USER-ACCEPTANCE-2026-11-04.md)，以下“尚无用户结果”为历史批次状态。整票未解决。
+
+## 用户复验与选择弹层补验（2026-11-04）
+
+启动错误补证：旧女王初始化先Inject火炬头，随后原生ModelDb.Init重复构造同一ID，真实用户启动日志及隔离仅女王启动顺序均重现DuplicateModelException。修正为生产探针初始化不Inject，模型交原生扫描；测试宿主后加载DLL所需Inject移入测试调用方。startup-queen-before.log为失败，startup-six-fixed.log为双版六包同载初始化→原生ModelDb.Init/序列化缓存/InitIds通过。休息/商店/宝箱依赖清单更正为实际STS2-RitsuLib ID。未改安装或存档。
+
+最新acceptance-overlay-check.log记录完整Check.ps1退出0，双版测试及构建/资源/脚本检查全PASS；已知public资源负例等诊断仍保留。
+
+
+用户明确通过beta单角色窗口下五虫210px间距，出生空过与奇偶意图截图已保留，见USER-ACCEPTANCE-2026-11-04.md。不是全分辨率/物理点击/多人通过。
+
+`./tools/Test.ps1 -Branch public-beta -Filter PrototypeHuntingChoiceScreen -SkipResourceExport`，choice-overlay-r2退出0，原生三组选择×中英×左右共12输入均实际执行NOverlayStack.Push→AfterOverlayOpened/Shown→SelectHolder→CardsSelected→Remove→Hidden/Closed→队列释放；screenCount=0，原生节点实际失效，展示牌不进牌堆/永久牌组。原生堆栈的成员及Tween保持运行；raw backstop与Ready的外部订阅、地图覆盖查询、ActiveScreenContext.Update隔离，不能宣称游戏焦点恢复。public继续既有资源负例，不外推beta通过。r1夹具在父节点仍Ready时AddChild失败，改为先等ProcessFrame；保留失败日志。
+
 ## 续验批次（2026-11-04）
 
 从833d63f另建 `prototype/hunting-boundaries-continuation` 工作树，复制原树未提交商店实验为输入，原树保持原样。先核实地图/本票完整正文和全部评论、完整规则/入口研究修订/多人Godot补验及原生阻塞和指派。逐组新增具体输入、历史证据、自动缺口与用户边界表 `CONTINUATION-MATRIX.md`；原matrix/runtime记录仍保留。
