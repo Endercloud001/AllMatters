@@ -92,9 +92,7 @@ internal static class PrototypeHuntingServiceTests
     }
     private static bool BlockRest(RestSiteSynchronizer __instance,Player player,int optionIndex,ref Task<bool> __result)
     {
-        var option=__instance.GetOptionsForPlayer(player)[optionIndex];
-        if(option.IsEnabled && option is HealRestSiteOption or MendRestSiteOption)return true;
-        __result=Task.FromResult(false);return false;
+        return PrototypeHuntingRestProbe.Choose(__instance,player,optionIndex,ref __result);
     }
     private static async Task Shop()
     {
@@ -178,6 +176,7 @@ internal static class PrototypeHuntingServiceTests
                 RunManager.Instance.SetUpTest(run,new MegaCrit.Sts2.Core.Multiplayer.NetSingleplayerGameService());
                 try
                 {
+                    run.PushRoom(new RestSiteRoom());
                     var sync=RunManager.Instance.RestSiteSynchronizer;
                     sync.BeginRestSite();
                     foreach(var p in run.Players)

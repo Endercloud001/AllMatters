@@ -14,16 +14,9 @@ using MegaCrit.Sts2.Core.Rooms;
 using MegaCrit.Sts2.Core.Runs;
 using MegaCrit.Sts2.Core.Multiplayer.Game;
 
-internal sealed class PrototypeHuntingDisabledDisplay(RestSiteOption original,Player owner):RestSiteOption(owner)
-{
-    public override string OptionId=>original.OptionId;
-    public override MegaCrit.Sts2.Core.Localization.LocString Description=>original.Description;
-    public override bool IsEnabled=>false;
-    public override Task<bool> OnSelect()=>Task.FromResult(false);
-}
 internal static class PrototypeHuntingUiTests
 {
-    internal static readonly (string Name,Func<Task> Test)[] Cases=[("PrototypeHuntingUi native rest disabled icon and release path",RestButtons),("PrototypeHuntingUi native shop hidden used visuals and input handlers",ShopSlots),("PrototypeHuntingUi original Calamity and Tender power presentation adapters",ChoiceCards)];
+    internal static readonly (string Name,Func<Task> Test)[] Cases=[("PrototypeHuntingUi native rest disabled icon and release path",()=>RestButtons(false)),("PrototypeHuntingUi standalone rest DLL actual native buttons",()=>RestButtons(true)),("PrototypeHuntingUi native shop hidden used visuals and input handlers",ShopSlots),("PrototypeHuntingUi original Calamity and Tender power presentation adapters",ChoiceCards)];
     private static bool PoolReady;
     private static void CardPool(){if(PoolReady)return;MegaCrit.Sts2.Core.Nodes.Pooling.NodePool.Init<MegaCrit.Sts2.Core.Nodes.Cards.NCard>("res://scenes/cards/card.tscn",0);PoolReady=true;}
     private static async Task ChoiceCards()
@@ -141,17 +134,34 @@ internal static class PrototypeHuntingUiTests
             patch.UnpatchAll(patch.Id);rug.Free();RunManager.Instance.CleanUp(false);
         }
     }
-    private static async Task RestButtons()
+    private static async Task RestButtons(bool standalone)
     {
         STS2RitsuLib.RitsuLibFramework.EnsureGodotScriptsRegistered(typeof(CardModel).Assembly,STS2RitsuLib.RitsuLibFramework.CreateLogger("Prototype70NativeUI"));
         var player=HeadlessTestSetup.PlayerWithRun("HUNTING70_UI");
+        ((MegaCrit.Sts2.Core.Runs.RunState)player.RunState).PushRoom(new RestSiteRoom());
+        var patch=new Harmony(standalone?"AllMattersHuntingRestProbe":"allmatters.prototype70.rest-original-ui");
+        if(standalone)
+        {
+#if STS2_PUBLIC
+            const string target="public";
+#else
+            const string target="public-beta";
+#endif
+            var pack=System.Reflection.Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(System.Reflection.AssemblyMetadataAttribute),false).Cast<System.Reflection.AssemblyMetadataAttribute>().Single(a=>a.Key=="ModResourcePack").Value!;
+            var path=Path.GetFullPath(Path.Combine(Path.GetDirectoryName(pack)!,target,"AllMattersHuntingRestProbe","AllMattersHuntingRestProbe.dll"));
+            var assembly=System.Runtime.Loader.AssemblyLoadContext.GetLoadContext(typeof(TestRunner).Assembly)!.LoadFromAssemblyPath(path);
+            assembly.GetType("PrototypeHuntingRestMod",true)!.GetMethod("Initialize")!.Invoke(null,null);
+            Console.WriteLine($"UI_REST_ENTRY target={target} actualDllInitialized=true path={path}; following native-node behavior uses built DLL hooks");
+        }
+        else PrototypeHuntingRestProbe.Install(patch);
+        try
+        {
         var tree=(SceneTree)Engine.GetMainLoop();
         await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
         foreach(RestSiteOption original in new RestSiteOption[]{new HealRestSiteOption(player),new SmithRestSiteOption(player)})
         {
             bool allowed=original is HealRestSiteOption;
-            RestSiteOption shown=allowed?original:new PrototypeHuntingDisabledDisplay(original,player);
-            using var button=NRestSiteButton.Create(shown);
+            using var button=NRestSiteButton.Create(original);
             try
             {
                 tree.Root.AddChild(button);await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
@@ -159,12 +169,28 @@ internal static class PrototypeHuntingUiTests
                 var hsv=(ShaderMaterial)icon.Material;
                 bool unclickable=(bool)AccessTools.Field(typeof(NRestSiteButton),"_isUnclickable").GetValue(button);
                 NativeEventTests.Check(icon.Texture!=null&&icon.Texture.GetWidth()>0,"Original icon retained");
+                NativeEventTests.Check(ReferenceEquals(button.Option,original)&&icon.Texture==original.Icon,"Original option identity and texture retained; no model wrapper");
                 NativeEventTests.Check(unclickable==!allowed,"Native cached execution disable follows display state");
                 NativeEventTests.Check(Math.Abs(hsv.GetShaderParameter("s").AsDouble()-(allowed?1:0))<0.001&&Math.Abs(hsv.GetShaderParameter("v").AsDouble()-(allowed?1:0.6))<0.001,"Native grey shader matches enabled/disabled");
                 if(!allowed)AccessTools.Method(typeof(NRestSiteButton),"OnRelease").Invoke(button,null);
-                Console.WriteLine($"UI_REST option={shown.OptionId} iconWidth={icon.Texture.GetWidth()} nativeIsReady={button.IsNodeReady()} unclickable={unclickable} s={hsv.GetShaderParameter("s")} v={hsv.GetShaderParameter("v")} disabledReleaseInvoked={!allowed}; standalone native node, no physical focus/resolution acceptance");
+                AccessTools.Method(typeof(NRestSiteButton),"Reload").Invoke(button,null);
+                NativeEventTests.Check((bool)AccessTools.Field(typeof(NRestSiteButton),"_isUnclickable").GetValue(button)==!allowed,"Native reload preserves denial and original option");
+                Console.WriteLine($"UI_REST option={original.OptionId} originalIdentity=true actualRestRoom=true iconWidth={icon.Texture.GetWidth()} nativeIsReady={button.IsNodeReady()} unclickable={unclickable} s={hsv.GetShaderParameter("s")} v={hsv.GetShaderParameter("v")} disabledReleaseInvoked={!allowed}; standalone native node, no physical focus/resolution acceptance");
             }
             finally{tree.Root.RemoveChild(button);button.Free();}
+        }
+        ((MegaCrit.Sts2.Core.Runs.RunState)player.RunState).PopCurrentRoom();
+        using(var normalButton=NRestSiteButton.Create(new SmithRestSiteOption(player)))
+        {
+            tree.Root.AddChild(normalButton);
+            try
+            {
+                await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
+                NativeEventTests.Check(!(bool)AccessTools.Field(typeof(NRestSiteButton),"_isUnclickable").GetValue(normalButton),"Outside native RestSiteRoom, original enabled Smith is not disabled");
+                NativeEventTests.Check(Math.Abs(((ShaderMaterial)normalButton.GetNode<TextureRect>("%Icon").Material).GetShaderParameter("s").AsDouble()-1)<0.001,"Outside rest room original color remains");
+                Console.WriteLine($"UI_REST_OUTSIDE standalone={standalone} originalSmithEnabled=true blocked=false colorUnchanged=true");
+            }
+            finally{tree.Root.RemoveChild(normalButton);normalButton.Free();}
         }
         foreach(var card in player.Deck.Cards.ToArray())player.Deck.RemoveInternal(card);
         var nativeDisabled=new SmithRestSiteOption(player);
@@ -178,5 +204,7 @@ internal static class PrototypeHuntingUiTests
             Console.WriteLine("UI_REST_ORIGINAL emptyUpgradableDeck=true originalSmithDisabled=true nativeButtonRelease=denied; no option enable override");
         }
         finally{tree.Root.RemoveChild(disabledButton);disabledButton.Free();}
+        }
+        finally{patch.UnpatchAll(patch.Id);}
     }
 }

@@ -1,4 +1,4 @@
-param([string]$Run = 'combined-r10')
+param([string]$Run = 'combined-r11')
 # Report only. Does not approve requirements, enforce a gate or mutate game data.
 $ErrorActionPreference = 'Stop'
 $log = Join-Path $PSScriptRoot "evidence/$Run.log"
@@ -26,6 +26,7 @@ for ($index=0; $index -lt $lines.Count; $index++) {
         '^UI_CHOICE' { @(4); break }
         '^HUD_' { @(13); break }
         '^MODEL|^RANDOM|^LAST_SPORE' { @(2,8); break }
+        '^NATIVE_PLAYER_TURN|^NATIVE_ALTERNATING' { @(5); break }
         '^NATIVE_' { @(2,8); break }
         '^COMBAT_END' { @(2,8,12); break }
         '^STAGE' { @(5); break }
@@ -50,6 +51,7 @@ for ($index=0; $index -lt $lines.Count; $index++) {
         '^HUD_' { '四态提示明确区分最后一步/本房安全/面具生效/按时Boss；示例输入须明示，Godot容器在给定分辨率内且不抢既有焦点；独立DLL实际注册钩子，不据此宣称原生游戏UI通过。'; break }
         '^UI_REST|^REST' { '保留原禁用条件和Heal/Mend效果/额外次数，其余选项禁用且不记历史；public/beta完成时序分别观测。'; break }
         '^MODEL|^RANDOM|^LAST_SPORE' { '真菌兽首咬/两咬必生长/40%条件与孢子2；神秘术士三状态、每存活玩家六选一、随机受伤目标治疗12/随机活敌力量2；火炬头攻击10循环。'; break }
+        '^NATIVE_PLAYER_TURN|^NATIVE_ALTERNATING' { '已启动阶段输入下，真实原生起手5张放行，3/6/9额外抽牌受限；原生玩家结束两阶段移除细看并清手。穿插原生敌方开始/执行/结束和切边推进轮数；不升级为自动准备调度或实验体全场。'; break }
         '^NATIVE_|^COMBAT_END' { '真实原生结束检测下最后死亡效果先结算，阻止死亡不触发、人工制品按原生抵挡；默认暂缓接缝在死亡移除后释放；原生清理在胜利/奖励前，最终面具移除、首Boss/事件Boss保留。负例开关/原型遭遇/IO隔离范围须明示。'; break }
         '^SPAWN|^COMPANION|^VISUAL' { '五虫真实召唤并按1至5排序，出生空过后奇攻偶寄生；墨宝普通敌，指定睡眠/随从及Minion语义保持；资源/Marker独立报告。'; break }
         '^QUEEN' { '任意当前意图覆盖一次重燃；新怪不进入当前快照，下个敌方阶段直接攻；声明左槽行动顺序，激怒只增存活火炬头力量2。'; break }

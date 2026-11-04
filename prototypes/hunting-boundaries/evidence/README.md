@@ -4,6 +4,8 @@
 
 主要新增可直接读取日志：
 
+2026-11-04后续批次：`combined-r11.log`退出0，双目标各50项、4512行结构化观察；`full-check-r5.log`退出0，双目标各266项且整体检查通过。`rest-entry-r3.log`是实际独立休息点DLL与原生选项/按钮/房间过滤，`native-turn-r2.log`是1–4人×9玩家回合穿插原生敌方开始/行动/结束。仅作为各自边界的运行证据；具体输入和未验证范围见BATCH-RESULTS.md。runs.json现索引123次运行，包含新批次的错误过滤器、错误DLL路径等失败中间记录；原文完整保留ZIP。
+
 最新汇总为 `combined-r10.log` 和 `one-command-r1.log`（退出0，双目标各47项原型实验）；`full-check-r4.log` 双目标各263项并通过完整检查，退出0。仍有Godot退出时各一个Material/Shader资源泄漏诊断，不能据此声称无诊断。`runtime-cases.json` 的4290行观察来自combined-r10，原始行号保持不变。
 
 新增关键原始证据：`native-ending-negative-public*.log`（退出1，最后死亡易伤0反例）、`native-ending-r3.log`（暂缓结束后2，含阻止死亡及Artifact）、`combat-end-r5.log`（真实原生结束/清理/奖励前面具边界）、`five-worm-live-r4.log`、`queen-live-r3.log`（实际独立DLL及准确资源）、`treasure-direct-r2.log`（异步直接奖励绕过及返回值兼容性反例）。测量命令退出0不代表其中的规则缺口已经解决。

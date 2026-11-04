@@ -37,6 +37,12 @@
 
 上述反例的命令退出0表示测量按预期复现了缺口；runtime-cases的verdict/requirementSatisfied分别保留，不能用测试总数批准整票。当前可消费入口/领域状态与多人票输入另见INTEGRATION-INPUTS.md。
 
+## 休息点原对象及原生回合补验（后续批次）
+
+`rest-native-r2`两目标各47项通过；`rest-entry-r3`两目标各4项原生UI通过。休息点改用原对象：不包装/替换RestSiteOption，在原生Create/Reload后设置既有禁用标记和灰显材质，ChooseOption入口按实际RestSiteRoom过滤。原图标、对象身份、原本禁用条件保留；离开休息房间原生Smith不误禁。基本治疗/迷你帐篷/皇家枕头/远端修补受控输入在实际房间上下文复验通过。新增rest独立DLL实际加载初始化并驱动原生按钮，实机步骤见rest/ACCEPTANCE.md；没有用户实机结果。
+
+`native-turn-r1/r2`分别通过双目标1–4人×9玩家回合。实际调用原生StartTurn→SetupPlayerTurn及玩家结束phase1/phase2，正常起手5张，3/6/9限制额外抽牌，结束清手并移除细看。穿插8次原生敌方StartTurn→ExecuteEnemyTurn→EndEnemyTurn→SwitchSides，推进真实RoundNumber至9。public原生敌方结束立即开始下一玩家回合，beta需外层循环再调StartTurn，探针分别消费其原生时序。使用原型真菌兽和预设已启用阶段计数，每敌方前恢复玩家HP仅作存活输入；不是实验体完整阶段战斗、StartCombat、自动准备调度或联网证明。原生复生及异步完成边界仍由另一实验覆盖。
+
 ## 原生结束检测和结算补验
 
 早期最后死亡探针在既有宿主强制IsEnding=false下得到易伤2，仅证明该条件下的死亡命令和手动玩家清理。新增显式作用域恢复真实IsInProgress/IsEnding，输入受控原生活跃状态后，双版本都实际暴露反例：最后敌人死亡时IsEnding=true，原生PowerCmd.Apply拒绝，易伤为0。失败原日志 `native-ending-negative-public-beta.log`、`native-ending-negative-public.log`各退出1保留。

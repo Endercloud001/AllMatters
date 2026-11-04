@@ -1,4 +1,5 @@
-// THROWAWAY stage/draw experiment. Explicit hook driving, not a full turn loop or checkpoint.
+// THROWAWAY stage/draw experiments: explicit revival hooks and native turn methods;
+// no automatic readiness coordinator, start-combat, checkpoint or network proof.
 using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
@@ -49,7 +50,53 @@ internal static class PrototypeHuntingStageTests
         HoldRevive=false;ReachedRevive=true;__result=Continue();return false;
         async Task Continue(){await ReleaseRevive!.Task;await CreatureCmd.SetMaxHp(creature,amount);}
     }
-    internal static readonly (string Name, Func<Task> Test)[] Cases = [("PrototypeHuntingStage native respawns and real draw filtering at full turns 3 6 9", Stage)];
+    internal static readonly (string Name, Func<Task> Test)[] Cases = [("PrototypeHuntingStage native respawns and real draw filtering at full turns 3 6 9", Stage),("PrototypeHuntingStage native player turn setup and both end phases",()=>NativePlayerTurns(false)),("PrototypeHuntingStage native alternating sides through scrutiny turns",()=>NativePlayerTurns(true))];
+    private static async Task NativePlayerTurns(bool enemySides)
+    {
+        PrototypeHuntingModelTests.Inject();
+        ModelDb.Inject(typeof(PrototypeHuntingFinalFungusEncounter));ModelDb.Inject(typeof(PrototypeHuntingClock));ModelDb.Inject(typeof(PrototypeHuntingScrutiny));
+        for(int n=1;n<=4;n++)
+        {
+            var run=HeadlessTestSetup.Run("HUNTING70_NATIVE_PLAYER_TURNS",Enumerable.Repeat(ModelDb.Character<Ironclad>(),n).ToArray());
+            using var battle=new HeadlessTestSetup.EncounterCombatScope(run,ModelDb.Encounter<PrototypeHuntingFinalFungusEncounter>().ToMutable());
+            var clock=await PowerCmd.Apply<PrototypeHuntingClock>(new ThrowingPlayerChoiceContext(),battle.Monster.Creature,1,null,null);clock!.Armed=true;
+            using var lifecycle=HeadlessCombatInProgress.EnterNativeLifecycle();
+            PrototypeHuntingNativeEndingTests.SupplyActiveInput();
+            foreach(var p in run.Players)for(int i=0;i<70;i++)await CardPileCmd.AddGeneratedCardToCombat(battle.Combat.CreateCard<DefendIronclad>(p),PileType.Draw,p);
+            for(int turn=1;turn<=9;turn++)
+            {
+#if STS2_PUBLIC
+                if(!enemySides||turn==1)
+#endif
+                await InvokeNative("StartTurn");
+                bool limited=turn%3==0;
+                NativeEventTests.Check(clock.FullPlayerTurns==turn&&battle.Monster.Creature.HasPower<PrototypeHuntingScrutiny>()==limited,"Native start dispatches one full-side counter before actual native hand draw");
+                foreach(var p in run.Players)
+                {
+                    NativeEventTests.Check(PileType.Hand.GetPile(p).Cards.Count==5,"Native setup actually draws normal five on limited and ordinary turns");
+                    await CardPileCmd.Draw(new ThrowingPlayerChoiceContext(),1,p,fromHandDraw:false);
+                    NativeEventTests.Check(PileType.Hand.GetPile(p).Cards.Count==(limited?5:6),"Extra draw uses actual scrutiny after native setup");
+                }
+                await InvokeNative("EndPlayerTurnPhaseOneInternal");
+                await InvokeNative("EndPlayerTurnPhaseTwoInternal");
+                NativeEventTests.Check(!battle.Monster.Creature.HasPower<PrototypeHuntingScrutiny>()&&run.Players.All(p=>PileType.Hand.GetPile(p).Cards.Count==0),"Native phase two clears scrutiny and flushes every hand");
+                Console.WriteLine($"NATIVE_PLAYER_TURN players={n} fullTurn={turn} alternatingSides={enemySides} nativeStartAndSetup=true actualOpeningCardsPerPlayer=5 limited={limited} extraDraw={(limited?"blocked":"allowed")} nativeEndPhaseOne=true nativeEndPhaseTwo=true handsFlushed=true scrutinyRemoved=true; supplied already-armed phase input, native methods explicitly entered, no start-combat/automatic readiness-loop/network/save proof");
+                if(enemySides&&turn<9)
+                {
+                    foreach(var p in run.Players)p.Creature.SetCurrentHpInternal(p.Creature.MaxHp);
+                    await InvokeNative("SwitchSides");await InvokeNative("StartTurn");
+                    NativeEventTests.Check(battle.Combat.CurrentSide==CombatSide.Player&&battle.Combat.RoundNumber==turn+1,"Native enemy execution/end switches side and advances native round");
+                    Console.WriteLine($"NATIVE_ALTERNATING players={n} playerTurnCompleted={turn} nativeEnemyStartExecutionEnd=true nativeRound={battle.Combat.RoundNumber} currentSide=Player livingPrimary=true playerHpResetBeforeEnemy=true; prototype fungus encounter, native full start/end methods but readiness coordinator not run");
+                }
+            }
+        }
+    }
+    private static Task InvokeNative(string name)
+    {
+        var methods=typeof(MegaCrit.Sts2.Core.Combat.CombatManager).GetMethods(System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.Public|System.Reflection.BindingFlags.NonPublic).Where(m=>m.Name==name).OrderByDescending(m=>m.GetParameters().Length);
+        var method=methods.First();var args=method.GetParameters().Select(p=>p.ParameterType.Name=="CombatTurnState"?HarmonyLib.AccessTools.Field(typeof(MegaCrit.Sts2.Core.Combat.CombatManager),"_turnState").GetValue(MegaCrit.Sts2.Core.Combat.CombatManager.Instance):p.HasDefaultValue?p.DefaultValue:null).ToArray();
+        return method.Invoke(MegaCrit.Sts2.Core.Combat.CombatManager.Instance,args) as Task??Task.CompletedTask;
+    }
     private static async Task Stage()
     {
         ModelDb.Inject(typeof(PrototypeHuntingScrutiny)); ModelDb.Inject(typeof(PrototypeHuntingClock));

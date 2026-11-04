@@ -23,9 +23,7 @@ internal static class PrototypeHuntingRestExtrasTests
     private static bool Remote(ref Task<PlayerChoiceResult> __result){__result=Task.FromResult(PlayerChoiceResult.FromPlayerId(Target));return false;}
     private static bool Filter(RestSiteSynchronizer __instance,Player player,int optionIndex,ref Task<bool> __result)
     {
-        var option=__instance.GetOptionsForPlayer(player)[optionIndex];
-        if(option.IsEnabled&&option is HealRestSiteOption or MendRestSiteOption)return true;
-        __result=Task.FromResult(false);return false;
+        return PrototypeHuntingRestProbe.Choose(__instance,player,optionIndex,ref __result);
     }
     private static async Task Extra()
     {
@@ -50,6 +48,7 @@ internal static class PrototypeHuntingRestExtrasTests
                         var counter=(PrototypeHuntingRestCounter)ModelDb.Relic<PrototypeHuntingRestCounter>().ToMutable();p.AddRelicInternal(counter);
                         p.Creature.SetCurrentHpInternal(10);
                     }
+                    run.PushRoom(new MegaCrit.Sts2.Core.Rooms.RestSiteRoom());
                     var sync=RunManager.Instance.RestSiteSynchronizer;sync.BeginRestSite();
                     foreach(var p in run.Players)
                     {
