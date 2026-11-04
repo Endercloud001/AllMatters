@@ -65,7 +65,7 @@ internal static class HelloWorldTests
                 ("Chinese localization survives language changes", ChinesePresentation),
                 ("Upgrade preview highlights only the added words", UpgradePreviewHighlight)
             ];
-            var selected = cases.Concat(PrototypeCoopTests.Cases).Concat(ClericTests.Cases).Concat(BeggarFountainTests.Cases).Concat(AugmenterTests.Cases).Concat(CursedTomeTests.Cases).Concat(WheelOfChangeTests.Cases).Concat(TombOfLordRedMaskTests.Cases)
+            var selected = cases.Concat(PrototypeCheckpointTests.Cases).Concat(PrototypeCoopTests.Cases).Concat(ClericTests.Cases).Concat(BeggarFountainTests.Cases).Concat(AugmenterTests.Cases).Concat(CursedTomeTests.Cases).Concat(WheelOfChangeTests.Cases).Concat(TombOfLordRedMaskTests.Cases)
                 .Concat(LibraryTests.Cases).Concat(MaskedBanditsTests.Cases).Concat(MindBloomTests.Cases).Concat(ColosseumTests.Cases).Concat(NativeEventTests.Cases).Concat(NativeProbabilityTests.Cases).Concat(NativeRadianceTests.Cases).Concat(NativeNlothTests.Cases).Concat(NativeCandleTests.Cases).Concat(NativeSelectionTests.Cases).Concat(NativeRelicEventTests.Cases)
                 .Concat(NativeCounterTests.Cases).Concat(TrashHeapTests.Cases).Concat(TrashHeapDefectTests.Cases).Concat(TrashHeapRedGreenTests.Cases).Concat(TrashHeapColorlessTests.Cases).Concat(OmniscienceTests.Cases).Concat(TrashHeapRelicTests.Cases)
                 .Concat(EventFeedbackTests.Cases).Concat(AmbrosiaTests.Cases)

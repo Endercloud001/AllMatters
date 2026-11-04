@@ -1,0 +1,14 @@
+[
+  {
+    "target": "public-beta",
+    "exitCode": 0,
+    "command": "tools/Test.ps1 -Branch public-beta -Filter PrototypeCheckpoint -SkipResourceExport",
+    "log": "public-beta.log"
+  },
+  {
+    "target": "public",
+    "exitCode": 0,
+    "command": "tools/Test.ps1 -Branch public -Filter PrototypeCheckpoint -SkipResourceExport",
+    "log": "public.log"
+  }
+]

@@ -1,0 +1,5794 @@
+[
+  {
+    "scenario": "normal",
+    "multiplayer": false,
+    "synchronous": false,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run.save",
+    "ritsuPath": "profile68/saves/current_run.save",
+    "nativeGold": 222,
+    "nativeRedMask": 1,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "missing-main",
+    "multiplayer": false,
+    "synchronous": false,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run.save.backup",
+    "ritsuPath": "profile68/saves/current_run.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": false,
+    "state": null,
+    "nativeMatches": true,
+    "modMatches": false,
+    "primaryStillExists": false,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "DeleteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "native-invalid",
+    "multiplayer": false,
+    "synchronous": false,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run.save.backup",
+    "ritsuPath": "profile68/saves/current_run.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": false,
+    "state": null,
+    "nativeMatches": true,
+    "modMatches": false,
+    "primaryStillExists": false,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "RenameFile",
+        "path": "profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "native-invalid-rename-fails",
+    "multiplayer": false,
+    "synchronous": false,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run.save.backup",
+    "ritsuPath": "profile68/saves/current_run.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": false,
+    "primaryStillExists": true,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "RenameFile",
+        "path": "profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "write-fails",
+    "multiplayer": false,
+    "synchronous": false,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run.save",
+    "ritsuPath": "profile68/saves/current_run.save",
+    "nativeGold": 222,
+    "nativeRedMask": 1,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": "InvalidOperationException: Simulated write failure",
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "normal",
+    "multiplayer": false,
+    "synchronous": false,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run.save",
+    "ritsuPath": "profile68/saves/current_run.save",
+    "nativeGold": 222,
+    "nativeRedMask": 1,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "missing-main",
+    "multiplayer": false,
+    "synchronous": false,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run.save.backup",
+    "ritsuPath": "profile68/saves/current_run.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": true,
+    "state": {
+      "Phase": "editing",
+      "Budget": 7,
+      "Penalized": false
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": false,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "DeleteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "native-invalid",
+    "multiplayer": false,
+    "synchronous": false,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run.save.backup",
+    "ritsuPath": "profile68/saves/current_run.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": true,
+    "state": {
+      "Phase": "editing",
+      "Budget": 7,
+      "Penalized": false
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": false,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "RenameFile",
+        "path": "profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "native-invalid-rename-fails",
+    "multiplayer": false,
+    "synchronous": false,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run.save.backup",
+    "ritsuPath": "profile68/saves/current_run.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": true,
+    "state": {
+      "Phase": "editing",
+      "Budget": 7,
+      "Penalized": false
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "RenameFile",
+        "path": "profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "write-fails",
+    "multiplayer": false,
+    "synchronous": false,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run.save",
+    "ritsuPath": "profile68/saves/current_run.save",
+    "nativeGold": 222,
+    "nativeRedMask": 1,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": "InvalidOperationException: Simulated write failure",
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "normal",
+    "multiplayer": false,
+    "synchronous": true,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run.save",
+    "ritsuPath": "profile68/saves/current_run.save",
+    "nativeGold": 222,
+    "nativeRedMask": 1,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "missing-main",
+    "multiplayer": false,
+    "synchronous": true,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run.save.backup",
+    "ritsuPath": "profile68/saves/current_run.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": false,
+    "state": null,
+    "nativeMatches": true,
+    "modMatches": false,
+    "primaryStillExists": false,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "DeleteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "native-invalid",
+    "multiplayer": false,
+    "synchronous": true,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run.save.backup",
+    "ritsuPath": "profile68/saves/current_run.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": false,
+    "state": null,
+    "nativeMatches": true,
+    "modMatches": false,
+    "primaryStillExists": false,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "RenameFile",
+        "path": "profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "native-invalid-rename-fails",
+    "multiplayer": false,
+    "synchronous": true,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run.save.backup",
+    "ritsuPath": "profile68/saves/current_run.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": false,
+    "primaryStillExists": true,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "RenameFile",
+        "path": "profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "write-fails",
+    "multiplayer": false,
+    "synchronous": true,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run.save",
+    "ritsuPath": "profile68/saves/current_run.save",
+    "nativeGold": 222,
+    "nativeRedMask": 1,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": "InvalidOperationException: Simulated write failure",
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "normal",
+    "multiplayer": false,
+    "synchronous": true,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run.save",
+    "ritsuPath": "profile68/saves/current_run.save",
+    "nativeGold": 222,
+    "nativeRedMask": 1,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "missing-main",
+    "multiplayer": false,
+    "synchronous": true,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run.save.backup",
+    "ritsuPath": "profile68/saves/current_run.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": true,
+    "state": {
+      "Phase": "editing",
+      "Budget": 7,
+      "Penalized": false
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": false,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "DeleteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "native-invalid",
+    "multiplayer": false,
+    "synchronous": true,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run.save.backup",
+    "ritsuPath": "profile68/saves/current_run.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": true,
+    "state": {
+      "Phase": "editing",
+      "Budget": 7,
+      "Penalized": false
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": false,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "RenameFile",
+        "path": "profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "native-invalid-rename-fails",
+    "multiplayer": false,
+    "synchronous": true,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run.save.backup",
+    "ritsuPath": "profile68/saves/current_run.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": true,
+    "state": {
+      "Phase": "editing",
+      "Budget": 7,
+      "Penalized": false
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "RenameFile",
+        "path": "profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "write-fails",
+    "multiplayer": false,
+    "synchronous": true,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run.save",
+    "ritsuPath": "profile68/saves/current_run.save",
+    "nativeGold": 222,
+    "nativeRedMask": 1,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": "InvalidOperationException: Simulated write failure",
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "normal",
+    "multiplayer": true,
+    "synchronous": false,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run_mp.save",
+    "ritsuPath": "profile68/saves/current_run_mp.save",
+    "nativeGold": 222,
+    "nativeRedMask": 1,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "missing-main",
+    "multiplayer": true,
+    "synchronous": false,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run_mp.save.backup",
+    "ritsuPath": "profile68/saves/current_run_mp.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": false,
+    "state": null,
+    "nativeMatches": true,
+    "modMatches": false,
+    "primaryStillExists": false,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "DeleteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "native-invalid",
+    "multiplayer": true,
+    "synchronous": false,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run_mp.save.backup",
+    "ritsuPath": "profile68/saves/current_run_mp.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": false,
+    "state": null,
+    "nativeMatches": true,
+    "modMatches": false,
+    "primaryStillExists": false,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "RenameFile",
+        "path": "profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "native-invalid-rename-fails",
+    "multiplayer": true,
+    "synchronous": false,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run_mp.save.backup",
+    "ritsuPath": "profile68/saves/current_run_mp.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": false,
+    "primaryStillExists": true,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "RenameFile",
+        "path": "profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "write-fails",
+    "multiplayer": true,
+    "synchronous": false,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run_mp.save",
+    "ritsuPath": "profile68/saves/current_run_mp.save",
+    "nativeGold": 222,
+    "nativeRedMask": 1,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": "InvalidOperationException: Simulated write failure",
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "normal",
+    "multiplayer": true,
+    "synchronous": false,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run_mp.save",
+    "ritsuPath": "profile68/saves/current_run_mp.save",
+    "nativeGold": 222,
+    "nativeRedMask": 1,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "missing-main",
+    "multiplayer": true,
+    "synchronous": false,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run_mp.save.backup",
+    "ritsuPath": "profile68/saves/current_run_mp.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": true,
+    "state": {
+      "Phase": "editing",
+      "Budget": 7,
+      "Penalized": false
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": false,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "DeleteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "native-invalid",
+    "multiplayer": true,
+    "synchronous": false,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run_mp.save.backup",
+    "ritsuPath": "profile68/saves/current_run_mp.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": true,
+    "state": {
+      "Phase": "editing",
+      "Budget": 7,
+      "Penalized": false
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": false,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "RenameFile",
+        "path": "profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "native-invalid-rename-fails",
+    "multiplayer": true,
+    "synchronous": false,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run_mp.save.backup",
+    "ritsuPath": "profile68/saves/current_run_mp.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": true,
+    "state": {
+      "Phase": "editing",
+      "Budget": 7,
+      "Penalized": false
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "RenameFile",
+        "path": "profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "write-fails",
+    "multiplayer": true,
+    "synchronous": false,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run_mp.save",
+    "ritsuPath": "profile68/saves/current_run_mp.save",
+    "nativeGold": 222,
+    "nativeRedMask": 1,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": "InvalidOperationException: Simulated write failure",
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "normal",
+    "multiplayer": true,
+    "synchronous": true,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run_mp.save",
+    "ritsuPath": "profile68/saves/current_run_mp.save",
+    "nativeGold": 222,
+    "nativeRedMask": 1,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "missing-main",
+    "multiplayer": true,
+    "synchronous": true,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run_mp.save.backup",
+    "ritsuPath": "profile68/saves/current_run_mp.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": false,
+    "state": null,
+    "nativeMatches": true,
+    "modMatches": false,
+    "primaryStillExists": false,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "DeleteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "native-invalid",
+    "multiplayer": true,
+    "synchronous": true,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run_mp.save.backup",
+    "ritsuPath": "profile68/saves/current_run_mp.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": false,
+    "state": null,
+    "nativeMatches": true,
+    "modMatches": false,
+    "primaryStillExists": false,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "RenameFile",
+        "path": "profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "native-invalid-rename-fails",
+    "multiplayer": true,
+    "synchronous": true,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run_mp.save.backup",
+    "ritsuPath": "profile68/saves/current_run_mp.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": false,
+    "primaryStillExists": true,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "RenameFile",
+        "path": "profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "write-fails",
+    "multiplayer": true,
+    "synchronous": true,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run_mp.save",
+    "ritsuPath": "profile68/saves/current_run_mp.save",
+    "nativeGold": 222,
+    "nativeRedMask": 1,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": "InvalidOperationException: Simulated write failure",
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "normal",
+    "multiplayer": true,
+    "synchronous": true,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run_mp.save",
+    "ritsuPath": "profile68/saves/current_run_mp.save",
+    "nativeGold": 222,
+    "nativeRedMask": 1,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "missing-main",
+    "multiplayer": true,
+    "synchronous": true,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run_mp.save.backup",
+    "ritsuPath": "profile68/saves/current_run_mp.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": true,
+    "state": {
+      "Phase": "editing",
+      "Budget": 7,
+      "Penalized": false
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": false,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "DeleteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "native-invalid",
+    "multiplayer": true,
+    "synchronous": true,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run_mp.save.backup",
+    "ritsuPath": "profile68/saves/current_run_mp.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": true,
+    "state": {
+      "Phase": "editing",
+      "Budget": 7,
+      "Penalized": false
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": false,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "RenameFile",
+        "path": "profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "native-invalid-rename-fails",
+    "multiplayer": true,
+    "synchronous": true,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run_mp.save.backup",
+    "ritsuPath": "profile68/saves/current_run_mp.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": true,
+    "state": {
+      "Phase": "editing",
+      "Budget": 7,
+      "Penalized": false
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "RenameFile",
+        "path": "profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "write-fails",
+    "multiplayer": true,
+    "synchronous": true,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68/saves/current_run_mp.save",
+    "ritsuPath": "profile68/saves/current_run_mp.save",
+    "nativeGold": 222,
+    "nativeRedMask": 1,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": "InvalidOperationException: Simulated write failure",
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public-beta"
+  },
+  {
+    "scenario": "normal",
+    "multiplayer": false,
+    "synchronous": false,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run.save",
+    "ritsuPath": "profile68\\saves\\current_run.save",
+    "nativeGold": 222,
+    "nativeRedMask": 1,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "missing-main",
+    "multiplayer": false,
+    "synchronous": false,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run.save.backup",
+    "ritsuPath": "profile68\\saves\\current_run.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": false,
+    "state": null,
+    "nativeMatches": true,
+    "modMatches": false,
+    "primaryStillExists": false,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "DeleteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "native-invalid",
+    "multiplayer": false,
+    "synchronous": false,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run.save.backup",
+    "ritsuPath": "profile68\\saves\\current_run.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": false,
+    "state": null,
+    "nativeMatches": true,
+    "modMatches": false,
+    "primaryStillExists": false,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "RenameFile",
+        "path": "profile68\\saves\\current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "native-invalid-rename-fails",
+    "multiplayer": false,
+    "synchronous": false,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run.save.backup",
+    "ritsuPath": "profile68\\saves\\current_run.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": false,
+    "primaryStillExists": true,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "RenameFile",
+        "path": "profile68\\saves\\current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "write-fails",
+    "multiplayer": false,
+    "synchronous": false,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run.save",
+    "ritsuPath": "profile68\\saves\\current_run.save",
+    "nativeGold": 222,
+    "nativeRedMask": 1,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": "InvalidOperationException: Simulated write failure",
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "normal",
+    "multiplayer": false,
+    "synchronous": false,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run.save",
+    "ritsuPath": "profile68\\saves\\current_run.save",
+    "nativeGold": 222,
+    "nativeRedMask": 1,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "missing-main",
+    "multiplayer": false,
+    "synchronous": false,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run.save.backup",
+    "ritsuPath": "profile68\\saves\\current_run.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": true,
+    "state": {
+      "Phase": "editing",
+      "Budget": 7,
+      "Penalized": false
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": false,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "DeleteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "native-invalid",
+    "multiplayer": false,
+    "synchronous": false,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run.save.backup",
+    "ritsuPath": "profile68\\saves\\current_run.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": true,
+    "state": {
+      "Phase": "editing",
+      "Budget": 7,
+      "Penalized": false
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": false,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "RenameFile",
+        "path": "profile68\\saves\\current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "native-invalid-rename-fails",
+    "multiplayer": false,
+    "synchronous": false,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run.save.backup",
+    "ritsuPath": "profile68\\saves\\current_run.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": true,
+    "state": {
+      "Phase": "editing",
+      "Budget": 7,
+      "Penalized": false
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "RenameFile",
+        "path": "profile68\\saves\\current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "write-fails",
+    "multiplayer": false,
+    "synchronous": false,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run.save",
+    "ritsuPath": "profile68\\saves\\current_run.save",
+    "nativeGold": 222,
+    "nativeRedMask": 1,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": "InvalidOperationException: Simulated write failure",
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "normal",
+    "multiplayer": false,
+    "synchronous": true,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run.save",
+    "ritsuPath": "profile68\\saves\\current_run.save",
+    "nativeGold": 222,
+    "nativeRedMask": 1,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "missing-main",
+    "multiplayer": false,
+    "synchronous": true,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run.save.backup",
+    "ritsuPath": "profile68\\saves\\current_run.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": false,
+    "state": null,
+    "nativeMatches": true,
+    "modMatches": false,
+    "primaryStillExists": false,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "DeleteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "native-invalid",
+    "multiplayer": false,
+    "synchronous": true,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run.save.backup",
+    "ritsuPath": "profile68\\saves\\current_run.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": false,
+    "state": null,
+    "nativeMatches": true,
+    "modMatches": false,
+    "primaryStillExists": false,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "RenameFile",
+        "path": "profile68\\saves\\current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "native-invalid-rename-fails",
+    "multiplayer": false,
+    "synchronous": true,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run.save.backup",
+    "ritsuPath": "profile68\\saves\\current_run.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": false,
+    "primaryStillExists": true,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "RenameFile",
+        "path": "profile68\\saves\\current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "write-fails",
+    "multiplayer": false,
+    "synchronous": true,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run.save",
+    "ritsuPath": "profile68\\saves\\current_run.save",
+    "nativeGold": 222,
+    "nativeRedMask": 1,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": "InvalidOperationException: Simulated write failure",
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "normal",
+    "multiplayer": false,
+    "synchronous": true,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run.save",
+    "ritsuPath": "profile68\\saves\\current_run.save",
+    "nativeGold": 222,
+    "nativeRedMask": 1,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "missing-main",
+    "multiplayer": false,
+    "synchronous": true,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run.save.backup",
+    "ritsuPath": "profile68\\saves\\current_run.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": true,
+    "state": {
+      "Phase": "editing",
+      "Budget": 7,
+      "Penalized": false
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": false,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "DeleteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "native-invalid",
+    "multiplayer": false,
+    "synchronous": true,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run.save.backup",
+    "ritsuPath": "profile68\\saves\\current_run.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": true,
+    "state": {
+      "Phase": "editing",
+      "Budget": 7,
+      "Penalized": false
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": false,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "RenameFile",
+        "path": "profile68\\saves\\current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "native-invalid-rename-fails",
+    "multiplayer": false,
+    "synchronous": true,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run.save.backup",
+    "ritsuPath": "profile68\\saves\\current_run.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": true,
+    "state": {
+      "Phase": "editing",
+      "Budget": 7,
+      "Penalized": false
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "RenameFile",
+        "path": "profile68\\saves\\current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "write-fails",
+    "multiplayer": false,
+    "synchronous": true,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run.save",
+    "ritsuPath": "profile68\\saves\\current_run.save",
+    "nativeGold": 222,
+    "nativeRedMask": 1,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": "InvalidOperationException: Simulated write failure",
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "normal",
+    "multiplayer": true,
+    "synchronous": false,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run_mp.save",
+    "ritsuPath": "profile68\\saves\\current_run_mp.save",
+    "nativeGold": 222,
+    "nativeRedMask": 1,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "missing-main",
+    "multiplayer": true,
+    "synchronous": false,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run_mp.save.backup",
+    "ritsuPath": "profile68\\saves\\current_run_mp.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": false,
+    "state": null,
+    "nativeMatches": true,
+    "modMatches": false,
+    "primaryStillExists": false,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "DeleteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "native-invalid",
+    "multiplayer": true,
+    "synchronous": false,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run_mp.save.backup",
+    "ritsuPath": "profile68\\saves\\current_run_mp.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": false,
+    "state": null,
+    "nativeMatches": true,
+    "modMatches": false,
+    "primaryStillExists": false,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "RenameFile",
+        "path": "profile68\\saves\\current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "native-invalid-rename-fails",
+    "multiplayer": true,
+    "synchronous": false,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run_mp.save.backup",
+    "ritsuPath": "profile68\\saves\\current_run_mp.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": false,
+    "primaryStillExists": true,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "RenameFile",
+        "path": "profile68\\saves\\current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "write-fails",
+    "multiplayer": true,
+    "synchronous": false,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run_mp.save",
+    "ritsuPath": "profile68\\saves\\current_run_mp.save",
+    "nativeGold": 222,
+    "nativeRedMask": 1,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": "InvalidOperationException: Simulated write failure",
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "normal",
+    "multiplayer": true,
+    "synchronous": false,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run_mp.save",
+    "ritsuPath": "profile68\\saves\\current_run_mp.save",
+    "nativeGold": 222,
+    "nativeRedMask": 1,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "missing-main",
+    "multiplayer": true,
+    "synchronous": false,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run_mp.save.backup",
+    "ritsuPath": "profile68\\saves\\current_run_mp.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": true,
+    "state": {
+      "Phase": "editing",
+      "Budget": 7,
+      "Penalized": false
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": false,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "DeleteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "native-invalid",
+    "multiplayer": true,
+    "synchronous": false,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run_mp.save.backup",
+    "ritsuPath": "profile68\\saves\\current_run_mp.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": true,
+    "state": {
+      "Phase": "editing",
+      "Budget": 7,
+      "Penalized": false
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": false,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "RenameFile",
+        "path": "profile68\\saves\\current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "native-invalid-rename-fails",
+    "multiplayer": true,
+    "synchronous": false,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run_mp.save.backup",
+    "ritsuPath": "profile68\\saves\\current_run_mp.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": true,
+    "state": {
+      "Phase": "editing",
+      "Budget": 7,
+      "Penalized": false
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "RenameFile",
+        "path": "profile68\\saves\\current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "write-fails",
+    "multiplayer": true,
+    "synchronous": false,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run_mp.save",
+    "ritsuPath": "profile68\\saves\\current_run_mp.save",
+    "nativeGold": 222,
+    "nativeRedMask": 1,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": "InvalidOperationException: Simulated write failure",
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "normal",
+    "multiplayer": true,
+    "synchronous": true,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run_mp.save",
+    "ritsuPath": "profile68\\saves\\current_run_mp.save",
+    "nativeGold": 222,
+    "nativeRedMask": 1,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "missing-main",
+    "multiplayer": true,
+    "synchronous": true,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run_mp.save.backup",
+    "ritsuPath": "profile68\\saves\\current_run_mp.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": false,
+    "state": null,
+    "nativeMatches": true,
+    "modMatches": false,
+    "primaryStillExists": false,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "DeleteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "native-invalid",
+    "multiplayer": true,
+    "synchronous": true,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run_mp.save.backup",
+    "ritsuPath": "profile68\\saves\\current_run_mp.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": false,
+    "state": null,
+    "nativeMatches": true,
+    "modMatches": false,
+    "primaryStillExists": false,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "RenameFile",
+        "path": "profile68\\saves\\current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "native-invalid-rename-fails",
+    "multiplayer": true,
+    "synchronous": true,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run_mp.save.backup",
+    "ritsuPath": "profile68\\saves\\current_run_mp.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": false,
+    "primaryStillExists": true,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "RenameFile",
+        "path": "profile68\\saves\\current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "write-fails",
+    "multiplayer": true,
+    "synchronous": true,
+    "adapted": false,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run_mp.save",
+    "ritsuPath": "profile68\\saves\\current_run_mp.save",
+    "nativeGold": 222,
+    "nativeRedMask": 1,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": "InvalidOperationException: Simulated write failure",
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "normal",
+    "multiplayer": true,
+    "synchronous": true,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run_mp.save",
+    "ritsuPath": "profile68\\saves\\current_run_mp.save",
+    "nativeGold": 222,
+    "nativeRedMask": 1,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "missing-main",
+    "multiplayer": true,
+    "synchronous": true,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run_mp.save.backup",
+    "ritsuPath": "profile68\\saves\\current_run_mp.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": true,
+    "state": {
+      "Phase": "editing",
+      "Budget": 7,
+      "Penalized": false
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": false,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "DeleteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "native-invalid",
+    "multiplayer": true,
+    "synchronous": true,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run_mp.save.backup",
+    "ritsuPath": "profile68\\saves\\current_run_mp.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": true,
+    "state": {
+      "Phase": "editing",
+      "Budget": 7,
+      "Penalized": false
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": false,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "RenameFile",
+        "path": "profile68\\saves\\current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "native-invalid-rename-fails",
+    "multiplayer": true,
+    "synchronous": true,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run_mp.save.backup",
+    "ritsuPath": "profile68\\saves\\current_run_mp.save",
+    "nativeGold": 111,
+    "nativeRedMask": 0,
+    "hasMod": true,
+    "state": {
+      "Phase": "editing",
+      "Budget": 7,
+      "Penalized": false
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": null,
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "RenameFile",
+        "path": "profile68\\saves\\current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public"
+  },
+  {
+    "scenario": "write-fails",
+    "multiplayer": true,
+    "synchronous": true,
+    "adapted": true,
+    "nativeStatus": "Success",
+    "source": "profile68\\saves\\current_run_mp.save",
+    "ritsuPath": "profile68\\saves\\current_run_mp.save",
+    "nativeGold": 222,
+    "nativeRedMask": 1,
+    "hasMod": true,
+    "state": {
+      "Phase": "exploring",
+      "Budget": 0,
+      "Penalized": true
+    },
+    "nativeMatches": true,
+    "modMatches": true,
+    "primaryStillExists": true,
+    "writeError": "InvalidOperationException: Simulated write failure",
+    "savedEvents": 0,
+    "latest": "B",
+    "calls": [
+      {
+        "method": "CreateDirectory",
+        "path": "PROTOTYPE68-memory-wipe-me/PROTOTYPE68-memory-wipe-me"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "WriteFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save.backup"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "ReadFile",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      },
+      {
+        "method": "FileExists",
+        "path": "PROTOTYPE68-memory-wipe-me/profile68/saves/current_run_mp.save"
+      }
+    ],
+    "target": "public"
+  }
+]

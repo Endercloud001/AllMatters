@@ -1,5 +1,7 @@
 # Godot宿主补验
 
+2026-11-05续验：[主文件／backup同来源补验](CHECKPOINT-RESULTS.md)已复用此宿主完成真实 ToSave／SaveRun／LoadRunSave及多人路径／FromSerializable；不重复本页注册实验。[收口建议](CLOSEOUT-PROPOSAL.md)待用户确认，未验证正式网络／大厅等状态不变。
+
 2026-11-03，用户提供Godot目录并授权继续尝试构建。仅在独立prototype工作树配置忽略文件Paths.local.props；未改主工作区、Steam、游戏mods或真实存档。
 
 实际可执行文件：`E:/Godot_v4.5.1-stable_mono_win64/Godot_v4.5.1-stable_mono_win64_console.exe`。使用原仓库headless编辑器导入/打包、测试项目和构建脚本，未启动正式游戏。RitsuLib0.6.7及.NET9运行时引用同级主仓库已有开发依赖；游戏API public0.107.1/59260271…与beta0.111.0/41cef1ea…，不是宣称当前Steam最新。
