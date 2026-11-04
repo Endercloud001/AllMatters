@@ -44,6 +44,7 @@ internal static class PrototypeCheckpointTests
     // Minimal scoped adaptation: consume the path recorded by native's own successful parser result.
     private static async Task Experiment()
     {
+        var previousNetId = MegaCrit.Sts2.Core.Context.LocalContext.NetId;
         var harmony = new Harmony("AllMatters.Prototype68.Checkpoint");
         var parse = typeof(MigrationManager).GetMethod("LoadWithAggressiveRecovery", BindingFlags.NonPublic | BindingFlags.Instance)!
             .MakeGenericMethod(typeof(SerializableRun));
@@ -138,6 +139,7 @@ internal static class PrototypeCheckpointTests
         {
             harmony.UnpatchAll(harmony.Id);
             RunManager.Instance.CleanUp(false);
+            MegaCrit.Sts2.Core.Context.LocalContext.NetId = previousNetId;
         }
     }
 

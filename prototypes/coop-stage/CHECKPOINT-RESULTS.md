@@ -62,6 +62,7 @@ node prototypes/coop-stage/Summarize-Checkpoint.cjs
 - [80条字段、源路径、预期对照及IO调用](checkpoint-evidence/observations.json)。每条保留是否适配、人数路径、写模式、原生源、金币／遗物、Mod字段、失败详情及最新标记。
 - 原始完整 [public日志](checkpoint-evidence/public.log) 与 [beta日志](checkpoint-evidence/public-beta.log)：包含构建、版本、Ritsu初始化、原生失败／fallback、每条结果。存在宿主已有的未关联Mod模型诊断与两个既有 nullable 编译警告；不宣称零 ERROR 或零警告。
 - [探索过程与失败记录](CHECKPOINT-ATTEMPTS.md)：包括不能拦截 UnsafeAccessor helper、不同中间入口及其限制；这些均不作为最终加载证据。
+- 用户确认后发现并修正探针清理时对全局LocalContext.NetId的污染；[最终完整检查日志](checkpoint-evidence/final-check.log)实际退出0，双版各219项测试、资源、双版构建及脚本检查全部PASS。原生矩阵结论不变；完整检查不证明正式拼图功能已实现。
 
 ## 能证明与不能证明
 

@@ -11,3 +11,7 @@
 早期smoke使用同一路径覆盖日志，故第2、3项的原始单独文件未保留；异常文本与退出码来自本会话工具输出，不能将当前成功smoke文件冒充早期失败原日志。关键的原行为失败反例及适配后证据均在最终原始日志和 observations.json 中完整保留，不依赖这些环境诊断。
 
 中途 commentary 曾表示将绕开公开加载入口；最终已撤销该实验捷径。判断以当前源与最终日志为准，不将先前建议写成已完成结论。
+
+## 发布前完整检查与隔离修正
+
+用户确认后首次推送钩子完整检查中，新增矩阵通过，但双版既有Augmenter Decay断言失败（`Only the third owner turn removes 3, once; Artifact preserves the gain.`）。定位到探针原生 `RunManager.CleanUp(false)` 清空 `LocalContext.NetId`，污染了后续测试的全局本地玩家身份。探针现保存并在最终清理后恢复进入前NetId；没有修改正式能力或放宽既有断言。再次运行 `tools/Check.ps1` 退出0，语法、workflow、空白、资源、双版各219项测试及双版构建全部PASS；[最终完整日志](checkpoint-evidence/final-check.log)包含修正后矩阵和全部既有测试。首次推送检查失败日志留本机 `.local/issue68-continuation/first-push-check.log`，不把首次推送写成全量通过。
