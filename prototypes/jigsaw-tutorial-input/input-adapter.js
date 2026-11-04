@@ -79,7 +79,7 @@ function command(key){
   nav.last=key;
   if(key==='variant'){changeVariant();return}
   if(key==='previous'||key==='next'){setRegion(key==='previous'?-1:1);draw();return}
-  if(key==='cancel'){if(s.hands[p]||s.select[p])Model.cancel(s,p);else nav.last='无待取消操作；仍在拼图';draw();return}
+  if(key==='cancel'){if(s.hands[p]||s.select[p])Model.cancel(s,p);else nav.last='原版暂停菜单入口（本页仅标示，不退出拼图、不撤票）';draw();return}
   if(key==='return'){if(Model.edit(s,p))Model.remove(s,p);draw();return}
   if(key==='secondary'){
     if(!Model.edit(s,p))return;

@@ -1,0 +1,12 @@
+{
+  "nodes": 25,
+  "reachable": 25,
+  "unreachable": [],
+  "removed": true,
+  "restored": true,
+  "cancelRestored": true,
+  "backRetainsVote": true,
+  "helpClosed": true,
+  "scope": "Browser grid navigation, local two-player model; no physical controller, Godot or real multiplayer",
+  "errors": []
+}
