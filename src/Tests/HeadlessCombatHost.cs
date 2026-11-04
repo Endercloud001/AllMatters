@@ -14,6 +14,11 @@ using MegaCrit.Sts2.Core.Unlocks;
 [HarmonyPatch(typeof(CombatManager), nameof(CombatManager.IsInProgress), MethodType.Getter)]
 internal static class HeadlessCombatInProgress
 {
+    internal static bool UseNativeLifecycle {get;private set;}
+    internal static IDisposable EnterNativeLifecycle()
+    {bool previous=UseNativeLifecycle;UseNativeLifecycle=true;return new NativeScope(previous);}
+    private sealed class NativeScope(bool previous):IDisposable
+    {public void Dispose()=>UseNativeLifecycle=previous;}
     // Event damage must use the real out-of-combat path, without combat history.
     public static IDisposable EnterEvent()
     {
@@ -30,6 +35,7 @@ internal static class HeadlessCombatInProgress
 
     private static bool Prefix(ref bool __result)
     {
+        if(UseNativeLifecycle)return true;
         __result = _inProgress;
         return false;
     }
@@ -40,6 +46,7 @@ internal static class HeadlessCombatNotEnding
 {
     private static bool Prefix(ref bool __result)
     {
+        if(HeadlessCombatInProgress.UseNativeLifecycle)return true;
         __result = false;
         return false;
     }

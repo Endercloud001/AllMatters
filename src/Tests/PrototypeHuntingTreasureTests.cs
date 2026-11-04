@@ -34,7 +34,87 @@ public sealed class PrototypeHuntingRewardRelic : RelicModel
 
 internal static class PrototypeHuntingTreasureTests
 {
-    internal static readonly (string Name,Func<Task> Test)[] Cases=[("PrototypeHuntingTreasure native Spoils quest and async extras without rewards",Treasure)];
+    internal static readonly (string Name,Func<Task> Test)[] Cases=[("PrototypeHuntingTreasure native Spoils quest and async extras without rewards",Treasure),("PrototypeHuntingTreasure NEGATIVE direct async native grant bypass measurement",DirectCommands),("PrototypeHuntingTreasure primitive cancellation and caller contract measurements",CancellationContracts)];
+    private static bool DirectInjected,ContextualCarrier;
+    private static void InjectDirect(){if(DirectInjected)return;ModelDb.Inject(typeof(PrototypeHuntingDirectRewardRelic));DirectInjected=true;}
+    private static bool BlockAllTreasureGold(Player player,ref Task __result)
+    {if(player.RunState.CurrentRoom is not TreasureRoom)return true;__result=Task.CompletedTask;return false;}
+    private static bool ReturnWithoutReceipt(RelicModel relic,Player player,ref Task<RelicModel> __result)
+    {
+        if(player.RunState.CurrentRoom is not TreasureRoom)return true;
+        // Experimental carriers only, never selected as the production API.
+        if(ContextualCarrier)relic.Owner=player;
+        __result=Task.FromResult(relic);return false;
+    }
+    private static async Task CancellationContracts()
+    {
+        using var outside=HeadlessCombatInProgress.EnterEvent();InjectDirect();
+        var patch=new Harmony("allmatters.prototype70.treasure-return-contract");
+        patch.Patch(AccessTools.Method(typeof(PlayerCmd),nameof(PlayerCmd.GainGold)),prefix:new HarmonyMethod(typeof(PrototypeHuntingTreasureTests),nameof(BlockAllTreasureGold)));
+        patch.Patch(AccessTools.Method(typeof(RelicCmd),nameof(RelicCmd.Obtain),[typeof(RelicModel),typeof(Player),typeof(int)]),prefix:new HarmonyMethod(typeof(PrototypeHuntingTreasureTests),nameof(ReturnWithoutReceipt)));
+        patch.Patch(AccessTools.Method(typeof(RewardsSet),nameof(RewardsSet.GenerateWithoutOffering)),postfix:new HarmonyMethod(typeof(PrototypeHuntingTreasureTests),nameof(ClearFinal)));
+        try
+        {
+            foreach(int mode in new[]{0,1,2})for(int n=1;n<=4;n++)
+            {
+                ContextualCarrier=mode!=0;var run=HeadlessTestSetup.Run("HUNTING70_REWARD_RETURN",Enumerable.Repeat(ModelDb.Character<Ironclad>(),n).ToArray());
+                RunManager.Instance.SetUpTest(run,new MegaCrit.Sts2.Core.Multiplayer.NetSingleplayerGameService());
+                try
+                {
+                    run.AppendToMapPointHistory(MapPointType.Treasure,RoomType.Treasure,null);var room=new TreasureRoom(0);run.PushRoom(room);
+                    foreach(var p in run.Players)
+                    {
+                        var extra=(PrototypeHuntingDirectRewardRelic)ModelDb.Relic<PrototypeHuntingDirectRewardRelic>().ToMutable();extra.UseReturnedOwner=true;extra.RequireInventoryReceipt=mode==2;p.AddRelicInternal(extra);
+                        int gold=p.Gold,owned=p.Relics.Count,history=run.CurrentMapPointHistoryEntry!.GetEntry(p.NetId).RelicChoices.Count;
+                        bool bag=p.RelicGrabBag.Contains(ModelDb.Relic<MegaCrit.Sts2.Core.Models.Relics.Anchor>());
+                        var rewards=new RewardsSet(p).EmptyForRoom(room).WithCustomRewards([new GoldReward(20,p)]);Exception? error=null;
+                        try{await rewards.GenerateWithoutOffering();}catch(Exception e){error=e;}
+                        NativeEventTests.Check(p.Gold==gold&&p.Relics.Count==owned&&run.CurrentMapPointHistoryEntry.GetEntry(p.NetId).RelicChoices.Count==history&&p.RelicGrabBag.Contains(ModelDb.Relic<MegaCrit.Sts2.Core.Models.Relics.Anchor>())==bag,"Primitive denial causes no actual gold/relic/history/bag receipt");
+                        NativeEventTests.Check(extra.NonRewardCounter==(mode==1?1:0),"Carrier compatibility is measured: bare Owner access fails; contextual carrier permits Owner-only caller, actual-receipt assertion still fails");
+                        Console.WriteLine($"TREASURE_RETURN players={n} player={p.NetId} mode={(mode==0?"bare":mode==1?"contextual-owner":"contextual-requires-receipt")} nativeGoldDelta=0 nativeRelicDelta=0 nativeHistoryDelta=0 bagUnchanged=true carrierInInventory=false hookCounterExpected=1 hookCounterActual={extra.NonRewardCounter} error={error?.GetType().Name??"none"} rewardListCount={rewards.Rewards.Count} productionStrategySelected=false; contextual carrier is only a probe, caller compatibility is NOT universally proven");
+                    }
+                    run.PopCurrentRoom();var eventModel=ModelDb.Event<AllMatters.Events.Cleric>();run.PushRoom(new EventRoom(eventModel));run.AppendToMapPointHistory(MapPointType.Unknown,RoomType.Event,eventModel.Id);
+                    var normal=run.Players[0];int normalGold=normal.Gold,normalRelics=normal.Relics.Count;
+                    await PlayerCmd.GainGold(11,normal);await RelicCmd.Obtain<MegaCrit.Sts2.Core.Models.Relics.Anchor>(normal);
+                    NativeEventTests.Check(normal.Gold==normalGold+11&&normal.Relics.Count==normalRelics+1,"Same primitive guards allow ordinary event native gold/relic receipt");
+                    Console.WriteLine($"TREASURE_RETURN_EVENT players={n} mode={mode} ordinaryEvent=Cleric nativeGainGold11=allowed nativeObtainAnchor=allowed; guards remain installed, no room reward-policy false positive");
+                }
+                finally{RunManager.Instance.CleanUp(false);}
+            }
+        }
+        finally{patch.UnpatchAll(patch.Id);ContextualCarrier=false;}
+    }
+    private static async Task DirectCommands()
+    {
+        using var outside=HeadlessCombatInProgress.EnterEvent();InjectDirect();
+        var patch=new Harmony("allmatters.prototype70.treasure-direct-negative");
+        patch.Patch(AccessTools.Method(typeof(Hook),nameof(Hook.ShouldGenerateTreasure)),prefix:new HarmonyMethod(typeof(PrototypeHuntingTreasureTests),nameof(TreasureGate)));
+        patch.Patch(AccessTools.Method(typeof(PlayerCmd),nameof(PlayerCmd.GainGold)),prefix:new HarmonyMethod(typeof(PrototypeHuntingTreasureTests),nameof(NoGold)));
+        patch.Patch(AccessTools.Method(typeof(RewardsSet),nameof(RewardsSet.GenerateWithoutOffering)),postfix:new HarmonyMethod(typeof(PrototypeHuntingTreasureTests),nameof(ClearFinal)));
+        try
+        {
+            for(int n=1;n<=4;n++)
+            {
+                var run=HeadlessTestSetup.Run("HUNTING70_DIRECT_REWARDS",Enumerable.Repeat(ModelDb.Character<Ironclad>(),n).ToArray());
+                RunManager.Instance.SetUpTest(run,new MegaCrit.Sts2.Core.Multiplayer.NetSingleplayerGameService());
+                try
+                {
+                    run.AppendToMapPointHistory(MapPointType.Treasure,RoomType.Treasure,null);var room=new TreasureRoom(0);run.PushRoom(room);
+                    foreach(var p in run.Players)
+                    {
+                        var extra=(PrototypeHuntingDirectRewardRelic)ModelDb.Relic<PrototypeHuntingDirectRewardRelic>().ToMutable();p.AddRelicInternal(extra);
+                        int gold=p.Gold,owned=p.Relics.Count,history=run.CurrentMapPointHistoryEntry!.GetEntry(p.NetId).RelicChoices.Count;
+                        var rewards=new RewardsSet(p).EmptyForRoom(room).WithCustomRewards([new GoldReward(20,p)]);await rewards.GenerateWithoutOffering();
+                        bool bypass=p.Gold==gold+11&&p.Relics.Count==owned+1&&run.CurrentMapPointHistoryEntry.GetEntry(p.NetId).RelicChoices.Count==history+1;
+                        NativeEventTests.Check(bypass&&rewards.Rewards.Count==0&&extra.NonRewardCounter==1,"NEGATIVE measurement: clearing the list after hooks does not undo actual direct native grants; nonreward hook still completes");
+                        Console.WriteLine($"TREASURE_DIRECT_NEGATIVE players={n} player={p.NetId} hook=asyncAfterModifyingRewards input=GainGold11+ObtainAnchor expectedGoldDelta=0 actualGoldDelta={p.Gold-gold} expectedRelicDelta=0 actualRelicDelta={p.Relics.Count-owned} actualPickedHistoryDelta=1 clearedRewardList=0 nonRewardCounter=1 requirementSatisfied=false; measurement passed means bypass reproduced, NOT treasure rule passed");
+                    }
+                }
+                finally{RunManager.Instance.CleanUp(false);}
+            }
+        }
+        finally{patch.UnpatchAll(patch.Id);}
+    }
     private static bool NormalPath;
     private static bool TreasureGate(Player player,ref bool __result)
     {
@@ -135,5 +215,18 @@ internal static class PrototypeHuntingTreasureTests
     }
 }
 
-
-
+public sealed class PrototypeHuntingDirectRewardRelic : RelicModel
+{
+    public int NonRewardCounter{get;private set;}
+    public bool UseReturnedOwner{get;set;}
+    public bool RequireInventoryReceipt{get;set;}
+    public override MegaCrit.Sts2.Core.Entities.Relics.RelicRarity Rarity=>MegaCrit.Sts2.Core.Entities.Relics.RelicRarity.Event;
+    public override bool TryModifyRewards(Player player,List<Reward> rewards,AbstractRoom? room)=>player==Owner&&room is TreasureRoom;
+    public override async Task AfterModifyingRewards()
+    {
+        await Task.Yield();await PlayerCmd.GainGold(11,Owner);var returned=await RelicCmd.Obtain<MegaCrit.Sts2.Core.Models.Relics.Anchor>(Owner);
+        if(UseReturnedOwner)_=returned.Owner.NetId;
+        if(RequireInventoryReceipt&&!Owner.Relics.Contains(returned))throw new InvalidOperationException("Emitter assumes actual relic receipt before continuing its nonreward work.");
+        NonRewardCounter++;
+    }
+}

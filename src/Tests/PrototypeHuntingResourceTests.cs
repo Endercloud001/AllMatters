@@ -111,4 +111,3 @@ internal static class PrototypeHuntingResourceTests
         string Read(string entry){using var reader=new StreamReader(archive.GetEntry(entry)!.Open());return reader.ReadToEnd();}
     }
 }
-

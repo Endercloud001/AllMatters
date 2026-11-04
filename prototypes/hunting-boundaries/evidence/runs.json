@@ -934,5 +934,378 @@
       "Passed 2 tests against 0.1.0.0."
     ],
     "firstDiagnostic": null
+  },
+  {
+    "run": "combat-end-r1",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::combat-end-r1.log",
+    "exitFile": "intermediate-runs.zip::combat-end-r1.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "text": "E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\src\\Tests\\PrototypeHuntingCombatEndTests.cs(28,26): error CS0115: “PrototypeHuntingFinalFungusEncounter.IsValidForAct(ActModel)”: 没有找到适合的方法来重写 [E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\src\\Tests\\AllMatters.Tests.csproj]",
+      "line": 5
+    }
+  },
+  {
+    "run": "combat-end-r2",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::combat-end-r2.log",
+    "exitFile": "intermediate-runs.zip::combat-end-r2.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "text": "E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\src\\Tests\\PrototypeHuntingCombatEndTests.cs(111,104): error CS0234: 命名空间“MegaCrit.Sts2.Core.Entities.Creatures”中不存在类型或命名空间名“CombatSide”(是否缺少程序集引用?) [E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\src\\Tests\\AllMatters.Tests.csproj]",
+      "line": 11
+    }
+  },
+  {
+    "run": "combat-end-r3",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::combat-end-r3.log",
+    "exitFile": "intermediate-runs.zip::combat-end-r3.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "text": "SentryGodotInitializer: Sentry GDExtension not loaded in this process; skipping. If you see this in a running game (not during project export or IDE script analysis), check Godot's log for extension load failures.",
+      "line": 67
+    }
+  },
+  {
+    "run": "combat-end-r4",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::combat-end-r4.log",
+    "exitFile": "intermediate-runs.zip::combat-end-r4.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "text": "E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\src\\Tests\\PrototypeHuntingCombatEndTests.cs(106,69): error CS8852: 只能在对象初始值设定项中或在实例构造函数或 \"init\" 访问器中的 \"this\" 或 \"base\" 上分配 init-only 属性或索引器 \"CombatRoom.ParentEventId\"。 [E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\src\\Tests\\AllMatters.Tests.csproj]",
+      "line": 14
+    }
+  },
+  {
+    "run": "combat-end-r5",
+    "exitStatus": 0,
+    "fullLog": "combat-end-r5.log",
+    "exitFile": "combat-end-r5.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "text": "SentryGodotInitializer: Sentry GDExtension not loaded in this process; skipping. If you see this in a running game (not during project export or IDE script analysis), check Godot's log for extension load failures.",
+      "line": 67
+    }
+  },
+  {
+    "run": "combined-r10",
+    "exitStatus": 0,
+    "fullLog": "combined-r10.log",
+    "exitFile": "combined-r10.exit.txt",
+    "targetPassLines": [
+      "Passed 47 tests against 0.1.0.0.",
+      "Passed 47 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "text": "SentryGodotInitializer: Sentry GDExtension not loaded in this process; skipping. If you see this in a running game (not during project export or IDE script analysis), check Godot's log for extension load failures.",
+      "line": 67
+    }
+  },
+  {
+    "run": "combined-r7",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::combined-r7.log",
+    "exitFile": "intermediate-runs.zip::combined-r7.exit.txt",
+    "targetPassLines": [
+      "Passed 41 tests against 0.1.0.0.",
+      "Passed 41 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "text": "SentryGodotInitializer: Sentry GDExtension not loaded in this process; skipping. If you see this in a running game (not during project export or IDE script analysis), check Godot's log for extension load failures.",
+      "line": 67
+    }
+  },
+  {
+    "run": "combined-r8",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::combined-r8.log",
+    "exitFile": "intermediate-runs.zip::combined-r8.exit.txt",
+    "targetPassLines": [
+      "Passed 44 tests against 0.1.0.0.",
+      "Passed 44 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "text": "SentryGodotInitializer: Sentry GDExtension not loaded in this process; skipping. If you see this in a running game (not during project export or IDE script analysis), check Godot's log for extension load failures.",
+      "line": 67
+    }
+  },
+  {
+    "run": "combined-r9",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::combined-r9.log",
+    "exitFile": "intermediate-runs.zip::combined-r9.exit.txt",
+    "targetPassLines": [
+      "Passed 47 tests against 0.1.0.0.",
+      "Passed 47 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "text": "SentryGodotInitializer: Sentry GDExtension not loaded in this process; skipping. If you see this in a running game (not during project export or IDE script analysis), check Godot's log for extension load failures.",
+      "line": 67
+    }
+  },
+  {
+    "run": "five-worm-build-r1",
+    "exitStatus": null,
+    "fullLog": "intermediate-runs.zip::five-worm-build-r1.log",
+    "exitFile": null,
+    "targetPassLines": [],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "five-worm-live-r1",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::five-worm-live-r1.log",
+    "exitFile": "intermediate-runs.zip::five-worm-live-r1.exit.txt",
+    "targetPassLines": [
+      "Passed 3 tests against 0.1.0.0.",
+      "Passed 3 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "text": "SentryGodotInitializer: Sentry GDExtension not loaded in this process; skipping. If you see this in a running game (not during project export or IDE script analysis), check Godot's log for extension load failures.",
+      "line": 85
+    }
+  },
+  {
+    "run": "five-worm-live-r2",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::five-worm-live-r2.log",
+    "exitFile": "intermediate-runs.zip::five-worm-live-r2.exit.txt",
+    "targetPassLines": [
+      "Passed 4 tests against 0.1.0.0.",
+      "Passed 4 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "text": "SentryGodotInitializer: Sentry GDExtension not loaded in this process; skipping. If you see this in a running game (not during project export or IDE script analysis), check Godot's log for extension load failures.",
+      "line": 65
+    }
+  },
+  {
+    "run": "five-worm-live-r3",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::five-worm-live-r3.log",
+    "exitFile": "intermediate-runs.zip::five-worm-live-r3.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "text": "SentryGodotInitializer: Sentry GDExtension not loaded in this process; skipping. If you see this in a running game (not during project export or IDE script analysis), check Godot's log for extension load failures.",
+      "line": 67
+    }
+  },
+  {
+    "run": "five-worm-live-r4",
+    "exitStatus": 0,
+    "fullLog": "five-worm-live-r4.log",
+    "exitFile": "five-worm-live-r4.exit.txt",
+    "targetPassLines": [
+      "Passed 5 tests against 0.1.0.0.",
+      "Passed 5 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "text": "SentryGodotInitializer: Sentry GDExtension not loaded in this process; skipping. If you see this in a running game (not during project export or IDE script analysis), check Godot's log for extension load failures.",
+      "line": 67
+    }
+  },
+  {
+    "run": "full-check-r2",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::full-check-r2.log",
+    "exitFile": "intermediate-runs.zip::full-check-r2.exit.txt",
+    "targetPassLines": [
+      "Passed 260 tests against 0.1.0.0.",
+      "Passed 260 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "text": "PASS: Test compile-failure",
+      "line": 5
+    }
+  },
+  {
+    "run": "full-check-r3",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::full-check-r3.log",
+    "exitFile": "intermediate-runs.zip::full-check-r3.exit.txt",
+    "targetPassLines": [
+      "Passed 260 tests against 0.1.0.0.",
+      "Passed 260 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "text": "PASS: Test compile-failure",
+      "line": 5
+    }
+  },
+  {
+    "run": "full-check-r4",
+    "exitStatus": 0,
+    "fullLog": "full-check-r4.log",
+    "exitFile": "full-check-r4.exit.txt",
+    "targetPassLines": [
+      "Passed 263 tests against 0.1.0.0.",
+      "Passed 263 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "text": "PASS: Test compile-failure",
+      "line": 5
+    }
+  },
+  {
+    "run": "native-ending-negative-public-beta",
+    "exitStatus": 1,
+    "fullLog": "native-ending-negative-public-beta.log",
+    "exitFile": "native-ending-negative-public-beta.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "text": "SentryGodotInitializer: Sentry GDExtension not loaded in this process; skipping. If you see this in a running game (not during project export or IDE script analysis), check Godot's log for extension load failures.",
+      "line": 67
+    }
+  },
+  {
+    "run": "native-ending-negative-public",
+    "exitStatus": 1,
+    "fullLog": "native-ending-negative-public.log",
+    "exitFile": "native-ending-negative-public.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "text": "[INFO] [com.ritsukage.sts2-RitsuLib] [Patcher - framework core] Patch application complete: 431 applied, 0 ignored, 0 failed, 431 total",
+      "line": 83
+    }
+  },
+  {
+    "run": "native-ending-r2",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::native-ending-r2.log",
+    "exitFile": "intermediate-runs.zip::native-ending-r2.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "text": "SentryGodotInitializer: Sentry GDExtension not loaded in this process; skipping. If you see this in a running game (not during project export or IDE script analysis), check Godot's log for extension load failures.",
+      "line": 67
+    }
+  },
+  {
+    "run": "native-ending-r3",
+    "exitStatus": 0,
+    "fullLog": "native-ending-r3.log",
+    "exitFile": "native-ending-r3.exit.txt",
+    "targetPassLines": [
+      "Passed 2 tests against 0.1.0.0.",
+      "Passed 2 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "text": "SentryGodotInitializer: Sentry GDExtension not loaded in this process; skipping. If you see this in a running game (not during project export or IDE script analysis), check Godot's log for extension load failures.",
+      "line": 67
+    }
+  },
+  {
+    "run": "one-command-r1",
+    "exitStatus": 0,
+    "fullLog": "one-command-r1.log",
+    "exitFile": "one-command-r1.exit.txt",
+    "targetPassLines": [
+      "Passed 47 tests against 0.1.0.0.",
+      "Passed 47 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "text": "SentryGodotInitializer: Sentry GDExtension not loaded in this process; skipping. If you see this in a running game (not during project export or IDE script analysis), check Godot's log for extension load failures.",
+      "line": 133
+    }
+  },
+  {
+    "run": "queen-build-r1",
+    "exitStatus": 1,
+    "fullLog": "intermediate-runs.zip::queen-build-r1.log",
+    "exitFile": "intermediate-runs.zip::queen-build-r1.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": {
+      "text": "E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\src\\Tests\\PrototypeHuntingQueenProbe.cs(72,21): error CS0104: “Environment”是“Godot.Environment”和“System.Environment”之间的不明确的引用 [E:\\Godot_v4.5.1-stable_mono_win64\\sts2mod\\AllMatters_prototype70\\prototypes\\hunting-boundaries\\queen\\Queen.csproj]",
+      "line": 3
+    }
+  },
+  {
+    "run": "queen-build-r2",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::queen-build-r2.log",
+    "exitFile": "intermediate-runs.zip::queen-build-r2.exit.txt",
+    "targetPassLines": [],
+    "firstDiagnostic": null
+  },
+  {
+    "run": "queen-live-r1",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::queen-live-r1.log",
+    "exitFile": "intermediate-runs.zip::queen-live-r1.exit.txt",
+    "targetPassLines": [
+      "Passed 1 tests against 0.1.0.0.",
+      "Passed 1 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "text": "SentryGodotInitializer: Sentry GDExtension not loaded in this process; skipping. If you see this in a running game (not during project export or IDE script analysis), check Godot's log for extension load failures.",
+      "line": 67
+    }
+  },
+  {
+    "run": "queen-live-r2",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::queen-live-r2.log",
+    "exitFile": "intermediate-runs.zip::queen-live-r2.exit.txt",
+    "targetPassLines": [
+      "Passed 2 tests against 0.1.0.0.",
+      "Passed 2 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "text": "SentryGodotInitializer: Sentry GDExtension not loaded in this process; skipping. If you see this in a running game (not during project export or IDE script analysis), check Godot's log for extension load failures.",
+      "line": 67
+    }
+  },
+  {
+    "run": "queen-live-r3",
+    "exitStatus": 0,
+    "fullLog": "queen-live-r3.log",
+    "exitFile": "queen-live-r3.exit.txt",
+    "targetPassLines": [
+      "Passed 2 tests against 0.1.0.0.",
+      "Passed 2 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "text": "SentryGodotInitializer: Sentry GDExtension not loaded in this process; skipping. If you see this in a running game (not during project export or IDE script analysis), check Godot's log for extension load failures.",
+      "line": 67
+    }
+  },
+  {
+    "run": "treasure-direct-r1",
+    "exitStatus": 0,
+    "fullLog": "intermediate-runs.zip::treasure-direct-r1.log",
+    "exitFile": "intermediate-runs.zip::treasure-direct-r1.exit.txt",
+    "targetPassLines": [
+      "Passed 2 tests against 0.1.0.0.",
+      "Passed 2 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "text": "SentryGodotInitializer: Sentry GDExtension not loaded in this process; skipping. If you see this in a running game (not during project export or IDE script analysis), check Godot's log for extension load failures.",
+      "line": 67
+    }
+  },
+  {
+    "run": "treasure-direct-r2",
+    "exitStatus": 0,
+    "fullLog": "treasure-direct-r2.log",
+    "exitFile": "treasure-direct-r2.exit.txt",
+    "targetPassLines": [
+      "Passed 3 tests against 0.1.0.0.",
+      "Passed 3 tests against 0.1.0.0."
+    ],
+    "firstDiagnostic": {
+      "text": "SentryGodotInitializer: Sentry GDExtension not loaded in this process; skipping. If you see this in a running game (not during project export or IDE script analysis), check Godot's log for extension load failures.",
+      "line": 67
+    }
   }
 ]

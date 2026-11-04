@@ -122,5 +122,3 @@ internal static class PrototypeHuntingKnowledgeTests
         finally{patch.UnpatchAll(patch.Id);}
     }
 }
-
-

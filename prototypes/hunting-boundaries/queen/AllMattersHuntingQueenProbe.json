@@ -1,0 +1,7 @@
+{
+  "id":"AllMattersHuntingQueenProbe","name":"AllMatters Queen Torch PROTOTYPE",
+  "author":"Endercloud001","version":"0.0.1-prototype",
+  "description":"仅当前女王战斗的重燃/火炬头/左槽布局实验。作者PCK需单独取得；不提供保存恢复或完整追猎。",
+  "has_pck":false,"has_dll":true,"affects_gameplay":true,
+  "dependencies":[{"id":"STS2-RitsuLib"}]
+}

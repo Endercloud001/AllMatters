@@ -1,4 +1,4 @@
-param([string]$Run = 'combined-r6')
+param([string]$Run = 'combined-r10')
 # Report only. Does not approve requirements, enforce a gate or mutate game data.
 $ErrorActionPreference = 'Stop'
 $log = Join-Path $PSScriptRoot "evidence/$Run.log"
@@ -12,12 +12,13 @@ $matrix = Get-Content -LiteralPath $matrixPath -Raw | ConvertFrom-Json
 for ($index=0; $index -lt $lines.Count; $index++) {
     $line = $lines[$index]
     if ($line -match '^Testing ([^:]+) : ([^ ]+)') { $version = "$($Matches[1]) $($Matches[2])" }
-    if ($line -notmatch '^(EVIDENCE |SPAWN|COMPANION |MODEL |RANDOM|LAST_SPORE |STAGE|QUEEN players|SHOP|REST|TREASURE|TABLE|CLOCK |KNOWLEDGE |MOVES |FATAL |MASK|VISIT|VISUAL |SCENE |COVERAGE |COVERAGE_SUMMARY|RESOURCE_|UI_|HUD_)') { continue }
+    if ($line -notmatch '^(EVIDENCE |SPAWN|LIVE_FIVE|LIVE_QUEEN|COMPANION |MODEL |RANDOM|LAST_SPORE |NATIVE_|COMBAT_END|STAGE|QUEEN players|SHOP|REST|TREASURE|TABLE|CLOCK |KNOWLEDGE |MOVES |FATAL |MASK|VISIT|VISUAL |SCENE |COVERAGE |COVERAGE_SUMMARY|RESOURCE_|UI_|HUD_)') { continue }
     $players = $null
     if ($line -match 'players=(\d+)') { $players = [int]$Matches[1] }
     $kind = ($line -split ' ')[0]
     $group = switch -Regex ($kind) {
-        '^SPAWN|^COMPANION|^VISUAL' { @(1,3,8); break }
+        '^SPAWN|^LIVE_FIVE|^COMPANION|^VISUAL' { @(1,3,8); break }
+        '^LIVE_QUEEN' { @(1,6,8); break }
         '^COVERAGE' { @(1,8); break }
         '^RESOURCE_|^SCENE' { @(1); break }
         '^UI_REST' { @(10); break }
@@ -25,6 +26,8 @@ for ($index=0; $index -lt $lines.Count; $index++) {
         '^UI_CHOICE' { @(4); break }
         '^HUD_' { @(13); break }
         '^MODEL|^RANDOM|^LAST_SPORE' { @(2,8); break }
+        '^NATIVE_' { @(2,8); break }
+        '^COMBAT_END' { @(2,8,12); break }
         '^STAGE' { @(5); break }
         '^QUEEN' { @(6); break }
         '^SHOP' { @(9); break }
@@ -47,6 +50,7 @@ for ($index=0; $index -lt $lines.Count; $index++) {
         '^HUD_' { '四态提示明确区分最后一步/本房安全/面具生效/按时Boss；示例输入须明示，Godot容器在给定分辨率内且不抢既有焦点；独立DLL实际注册钩子，不据此宣称原生游戏UI通过。'; break }
         '^UI_REST|^REST' { '保留原禁用条件和Heal/Mend效果/额外次数，其余选项禁用且不记历史；public/beta完成时序分别观测。'; break }
         '^MODEL|^RANDOM|^LAST_SPORE' { '真菌兽首咬/两咬必生长/40%条件与孢子2；神秘术士三状态、每存活玩家六选一、随机受伤目标治疗12/随机活敌力量2；火炬头攻击10循环。'; break }
+        '^NATIVE_|^COMBAT_END' { '真实原生结束检测下最后死亡效果先结算，阻止死亡不触发、人工制品按原生抵挡；默认暂缓接缝在死亡移除后释放；原生清理在胜利/奖励前，最终面具移除、首Boss/事件Boss保留。负例开关/原型遭遇/IO隔离范围须明示。'; break }
         '^SPAWN|^COMPANION|^VISUAL' { '五虫真实召唤并按1至5排序，出生空过后奇攻偶寄生；墨宝普通敌，指定睡眠/随从及Minion语义保持；资源/Marker独立报告。'; break }
         '^QUEEN' { '任意当前意图覆盖一次重燃；新怪不进入当前快照，下个敌方阶段直接攻；声明左槽行动顺序，激怒只增存活火炬头力量2。'; break }
         '^STAGE' { '二次复生完成后清除胆小吮吸并启动完整玩家方回合计数；3/6/9限制额外抽牌，正常起手和直接入手放行，回合末移除。'; break }
@@ -68,6 +72,8 @@ for ($index=0; $index -lt $lines.Count; $index++) {
         input = "原生测试宿主固定输入及操作顺序见src/Tests/PrototypeHunting*Tests.cs；记录类型=$kind，版本=$version，人数=$players；观测行包含本分支种子/目标/状态输入。"
         expected = $expected
         actual = $line
+        verdict = $(if($line -match 'negativeControl=True'){'negative control: native ending rejects last-death power without hold'}elseif($kind -match 'NEGATIVE'){'confirmed-gap: actual direct grants bypass cleared list'}elseif($kind -eq 'TREASURE_RETURN' -and $line -match 'hookCounterActual=0'){'confirmed-gap: cancelled receipt interrupts this caller nonreward continuation'}elseif($kind -eq 'TREASURE_RETURN'){'bounded observation: contextual carrier only; production strategy not selected'}else{'scoped runtime observation; not whole-requirement approval'})
+        requirementSatisfied = $(if($line -match 'negativeControl=True' -or $kind -match 'NEGATIVE' -or ($kind -eq 'TREASURE_RETURN' -and $line -match 'hookCounterActual=0')){$false}else{$null})
         command = './tools/Test.ps1 -Branch All -Filter PrototypeHunting -SkipResourceExport'
         exitStatus = $exitStatus
         log = "evidence/$Run.log"

@@ -10,9 +10,11 @@
 
 ## 运行
 
-工作树根：`./tools/Test.ps1 -Branch All -Filter PrototypeHunting`。后续仅C#改动可加 `-SkipResourceExport`。配置使用本工作树忽略的 `Paths.local.props`，全部为已有绝对开发依赖路径。两目标必须顺序运行。全组前需先运行 `./prototypes/hunting-boundaries/presentation/Build.ps1`，准备独立显示DLL；资源实验还需按RESOURCE-SEARCH.md下载作者0.13.0的PCK到忽略目录，不能用缺少输入时跳过的结果冒充通过。
+准备好RESOURCE-SEARCH.md所述精确作者PCK及本机路径后，一条命令运行：`./prototypes/hunting-boundaries/Run.ps1 -Branch All`。它先构建三个独立探针，再调用既有Godot测试宿主；后续可加 `-SkipResourceExport`。不安装、不启动游戏或Steam、不接触真实存档。
 
-探针入口为 `src/Tests/PrototypeHunting*Tests.cs` 与原创 `PrototypeHuntingModels.cs`，接入一次性Godot测试宿主。局部玩法Harmony适配限于测试期间并释放；另有独立只显示四态示例的游戏内HUD包，见 `presentation/ACCEPTANCE.md`，没有正式追猎实现。记录刷新命令：`./prototypes/hunting-boundaries/RefreshEvidence.ps1 -Run combined-r6`；它只整理日志，不批准完成状态。
+工作树根：`./tools/Test.ps1 -Branch All -Filter PrototypeHunting`。后续仅C#改动可加 `-SkipResourceExport`。配置使用本工作树忽略的 `Paths.local.props`，全部为已有绝对开发依赖路径。两目标必须顺序运行。全组前需先运行 `./prototypes/hunting-boundaries/presentation/Build.ps1` 和 `./prototypes/hunting-boundaries/five-worm/Build.ps1`，准备各自的独立DLL；资源实验还需按RESOURCE-SEARCH.md下载作者0.13.0的PCK到忽略目录，不能用缺少输入时跳过的结果冒充通过。
+
+探针入口为 `src/Tests/PrototypeHunting*Tests.cs` 与原创规则模型，接入一次性Godot测试宿主。局部玩法Harmony适配限于测试期间并释放；独立HUD、五虫、女王游戏包分别见presentation/、five-worm/、queen/的ACCEPTANCE.md，没有正式追猎实现。全组前还需运行queen/Build.ps1。记录刷新命令：`./prototypes/hunting-boundaries/RefreshEvidence.ps1 -Run combined-r10`；它只整理日志，不批准完成状态。宝箱反例/返回值测量即使退出0，仍明确记录requirementSatisfied=false或未定，不计为规则通过。真实结束检测/原生结算补验及其IO隔离范围见BATCH-RESULTS.md。
 
 ## 已运行范围与限制
 
@@ -23,8 +25,8 @@
 
 ## 后续依赖批次
 
-1. 逐项核对已运行子实验与13组完整要求，补齐BATCH-RESULTS中仍可自动执行的分支。遭遇添加接口穷举、混合随机目标、服务节点/输入处理器/跨店计价、原生房间奖励链已补跑；完整原生战斗/选择屏/开箱动画与槽位布局仍不能由此推定。
-2. 资源可加载已有实证，发布许可仍待明确；继续构造回答剩余显示问题所需的最小验收资产，不扩成完整追猎系统。已交HUD显示包，其余真实游戏场景入口仍未交付。
+1. 逐项核对已运行子实验与13组完整要求，补齐BATCH-RESULTS中仍可自动执行的分支。添加接口穷举、随机目标、服务节点/输入处理器/计价、房间奖励链已补跑；真实结束检测/胜利清理也已补验并发现修正孢子接缝。原型遭遇和IO隔离不等于原版完整战斗/选择屏/开箱动画与槽位布局通过。
+2. 资源可加载已有实证，发布许可仍待明确；继续构造回答剩余显示问题所需的最小验收资产，不扩成完整追猎系统。HUD、五虫、女王已有独立包，服务/选择屏/开箱等入口仍需继续。集成可消费的部分输入见INTEGRATION-INPUTS.md。
 3. 真实HUD四态、焦点/分辨率/遮挡和战斗布局由用户实机确认。当前无用户结果，不把未做的自动工作转交用户，也不把共享beta资源当public原版资源验证。
 
 全部13组仍开放；不发布resolution、不关闭票、不更新地图Decisions so far、不选择集成架构。

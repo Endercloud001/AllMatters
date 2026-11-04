@@ -207,4 +207,3 @@ internal static class PrototypeHuntingServiceTests
         finally{patch.UnpatchAll(patch.Id);}
     }
 }
-

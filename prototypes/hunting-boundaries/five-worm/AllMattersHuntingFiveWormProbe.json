@@ -1,0 +1,7 @@
+{
+  "id":"AllMattersHuntingFiveWormProbe","name":"AllMatters Five Worm Layout PROTOTYPE",
+  "author":"Endercloud001","version":"0.0.1-prototype",
+  "description":"仅异蛙五虫死亡/槽位/布局实验。新测试跑局使用；没有完整追猎系统。",
+  "has_pck":false,"has_dll":true,"affects_gameplay":true,
+  "dependencies":[{"id":"STS2-RitsuLib"}]
+}

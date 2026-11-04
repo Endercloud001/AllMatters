@@ -115,6 +115,3 @@ internal static class PrototypeHuntingStageTests
         }
     }
 }
-
-
-

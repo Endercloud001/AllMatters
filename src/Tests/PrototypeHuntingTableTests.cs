@@ -118,7 +118,3 @@ internal static class PrototypeHuntingTableTests
         }
     }
 }
-
-
-
-

@@ -2525,5 +2525,3 @@ Line |
   45 |  … DE -ne 0) { throw "Tests failed for $targetBranch (exit $LASTEXITCODE …
      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      | Tests failed for public-beta (exit 1).
-
-

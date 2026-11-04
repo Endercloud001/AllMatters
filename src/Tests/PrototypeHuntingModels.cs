@@ -36,11 +36,17 @@ public sealed class PrototypeHuntingFungus : MonsterModel
 
 public sealed class PrototypeHuntingSpores : PowerModel
 {
+    public bool? NativeEndingAtDeath{get;private set;}
+    // Same native seam as InfestedPower: keep ending detection suspended while
+    // this death effect is still present. False is an explicit negative input.
+    public bool HoldNativeEnding{get;set;}=true;
+    public override bool ShouldStopCombatFromEnding()=>HoldNativeEnding;
     public override PowerType Type => PowerType.Buff;
     public override PowerStackType StackType => PowerStackType.Counter;
     public override async Task AfterDeath(PlayerChoiceContext context, Creature target, bool prevented, float length)
     {
         if (prevented || target != Owner) return;
+        NativeEndingAtDeath=CombatManager.Instance.IsEnding;
         foreach (var player in CombatState.Players.Where(p => p.Creature.IsAlive))
             await PowerCmd.Apply<VulnerablePower>(context, player.Creature, Amount, Owner, null);
     }
@@ -95,29 +101,3 @@ public sealed class PrototypeHuntingMystic : MonsterModel
         return new MonsterMoveStateMachine([cast, heal, buff], cast);
     }
 }
-
-public sealed class PrototypeHuntingTorch : MonsterModel
-{
-    protected override string VisualsPath=>"res://ActsFromThePast/monsters/torch_head/torch_head.tscn";
-    public override CreatureAnimator GenerateAnimator(MegaSprite controller)=>PrototypeHuntingVisualAnimator.Create(controller,"idle","halberd_slam","idle");
-    public override int MinInitialHp => 50;
-    public override int MaxInitialHp => 50;
-    protected override MonsterMoveStateMachine GenerateMoveStateMachine()
-    {
-        var hit = new MoveState("HIT", async _ => await DamageCmd.Attack(10).FromMonster(this).Execute(null), new SingleAttackIntent(10));
-        hit.FollowUpState = hit;
-        return new MonsterMoveStateMachine([hit], hit);
-    }
-}
-
-// Only resolves the case-sensitive original animation names for this probe.
-internal static class PrototypeHuntingVisualAnimator
-{
-    internal static CreatureAnimator Create(MegaSprite sprite,string idleName,string attackName,string hitName)
-    {
-        var idle=new AnimState(idleName,true);var attack=new AnimState(attackName){NextState=idle};var hit=new AnimState(hitName){NextState=idle};
-        var animator=new CreatureAnimator(idle,sprite);animator.AddAnyState("Idle",idle);animator.AddAnyState("Attack",attack);animator.AddAnyState("Hit",hit);animator.AddAnyState("Cast",attack);
-        return animator;
-    }
-}
-

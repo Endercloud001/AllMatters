@@ -1,6 +1,5 @@
 // THROWAWAY experiment: scoped runtime changes, never production patches.
 using System.Reflection;
-using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Combat;
@@ -20,7 +19,67 @@ internal static class PrototypeHuntingSpawnTests
     internal static readonly (string Name, Func<Task> Test)[] Cases =
     [("PrototypeHuntingSpawn actual phrog death five spawns and first actions", FiveWorms),
      ("PrototypeHuntingSpawn Inklets Lagavulin and SoulFysh companions native addition", Companions),
-     ("PrototypeHuntingSpawn actual native visual resources and five marker prototype", Visuals)];
+     ("PrototypeHuntingSpawn actual native visual resources and five marker prototype", Visuals),
+     ("PrototypeHuntingSpawn five-loop change only applies to Phrog owner",OtherOwner),
+     ("PrototypeHuntingSpawn separately built live DLL native death and scene",LiveEntry)];
+    private static async Task LiveEntry()
+    {
+#if STS2_PUBLIC
+        const string target="public";
+#else
+        const string target="public-beta";
+#endif
+        string pack=Assembly.GetExecutingAssembly().GetCustomAttributes<AssemblyMetadataAttribute>().Single(a=>a.Key=="ModResourcePack").Value!;
+        string path=Path.GetFullPath(Path.Combine(Path.GetDirectoryName(pack)!,target,"AllMattersHuntingFiveWormProbe","AllMattersHuntingFiveWormProbe.dll"));
+        var assembly=System.Runtime.Loader.AssemblyLoadContext.GetLoadContext(typeof(TestRunner).Assembly)!.LoadFromAssemblyPath(path);
+        const string id="AllMattersHuntingFiveWormProbe";
+        try
+        {
+            assembly.GetType("PrototypeHuntingFiveWormMod",true)!.GetMethod("Initialize")!.Invoke(null,null);
+            for(int n=1;n<=4;n++)
+            {
+                var run=HeadlessTestSetup.Run("HUNTING70_BUILT_FIVE",Enumerable.Repeat(ModelDb.Character<Ironclad>(),n).ToArray());
+                using var battle=new HeadlessTestSetup.EncounterCombatScope(run,ModelDb.Encounter<PhrogParasiteElite>().ToMutable());
+                await battle.Monster.AfterAddedToRoom();
+                using(var scene=battle.Combat.Encounter!.CreateScene())
+                {
+                    NativeEventTests.Check(scene.HasNode("wriggler5")&&scene.GetNode<Godot.Marker2D>("wriggler5").Position.X==1620,"Built DLL modifies actual native scene at runtime");scene.Free();
+                }
+                await CreatureCmd.Kill(battle.Monster.Creature);
+                NativeEventTests.Check(battle.Combat.Enemies.Count(c=>c.Monster is Wriggler)==5&&battle.Combat.Enemies.Where(c=>c.Monster is Wriggler).Select(c=>c.SlotName).SequenceEqual(Enumerable.Range(1,5).Select(i=>"wriggler"+i)),"Built DLL native death/slot order equals shared probe");
+                foreach(var worm in battle.Combat.Enemies.Where(c=>c.Monster is Wriggler))
+                {
+                    var model=worm.Monster!;if(model.NextMove.Id!="SPAWNED_MOVE")model.RollMove(battle.Combat.PlayerCreatures);
+                    await model.NextMove.PerformMove(battle.Combat.PlayerCreatures);model.MoveStateMachine.OnMovePerformed(model.NextMove);model.RollMove(battle.Combat.PlayerCreatures);
+                }
+                NativeEventTests.Check(battle.Combat.Enemies.Single(c=>c.SlotName=="wriggler5").Monster!.NextMove.Id=="NASTY_BITE_MOVE","Built DLL fifth branch runs after actual spawn empty action");
+                Console.WriteLine($"LIVE_FIVE players={n} target={target} actualBuiltInitializer=true nativeDeathCount=5 nativeSceneMarker5=true nativeOrder=1/2/3/4/5 fifthFirstAction=NASTY_BITE_MOVE; actual game rendering/music/full turn loop/user acceptance untested");
+            }
+            string encounter=ModelDb.Encounter<PhrogParasiteElite>().Id.Entry;
+            var lookup=ModelDb.GetById<EncounterModel>(new ModelId(ModelId.SlugifyCategory<EncounterModel>(),encounter));
+            NativeEventTests.Check(lookup is PhrogParasiteElite,"Exact ID resolves through the same native lookup used by fight command");
+            Console.WriteLine($"LIVE_FIVE_COMMAND target={target} actualNativeModelLookup=true manualCommand=fight {encounter}; command execution and room jump not executed by Agent");
+        }
+        finally{new Harmony(id).UnpatchAll(id);}
+    }
+    private static async Task OtherOwner()
+    {
+        var patch=new Harmony("allmatters.prototype70.five-owner-scope");PrototypeHuntingFiveWormProbe.Install(patch);
+        try
+        {
+            for(int n=1;n<=4;n++)
+            {
+                var run=HeadlessTestSetup.Run("HUNTING70_NON_PHROG",Enumerable.Repeat(ModelDb.Character<Ironclad>(),n).ToArray());
+                using var battle=new HeadlessTestSetup.EncounterCombatScope(run,ModelDb.Encounter<VantomBoss>().ToMutable());
+                var owner=await CreatureCmd.Add<Seapunk>(battle.Combat,"prototype_scope_owner");
+                await PowerCmd.Apply<InfestedPower>(new ThrowingPlayerChoiceContext(),owner,1,null,null);
+                await CreatureCmd.Kill(owner);
+                NativeEventTests.Check(battle.Combat.Enemies.Count(c=>c.Monster is Wriggler)==4&&!battle.Combat.Enemies.Any(c=>c.SlotName=="wriggler5"),"Non-Phrog native Infested retains original four-worm bound");
+                Console.WriteLine($"SPAWN_SCOPE players={n} suppliedNonPhrogInfestedOwner=Seapunk actualNativeSpawn=4 fifth=false; owner guard of live probe, not a new gameplay rule");
+            }
+        }
+        finally{patch.UnpatchAll(patch.Id);}
+    }
 
     private static async Task Companions()
     {
@@ -30,6 +89,7 @@ internal static class PrototypeHuntingSpawnTests
             {
                 var run = HeadlessTestSetup.Run("HUNTING70_COMPANIONS", Enumerable.Repeat(ModelDb.Character<Ironclad>(), n).ToArray());
                 using var battle = new HeadlessTestSetup.EncounterCombatScope(run, encounter);
+                using var native=HeadlessCombatInProgress.EnterNativeLifecycle();PrototypeHuntingNativeEndingTests.SupplyActiveInput();
                 var combat = battle.Combat;
                 foreach (var p in run.Players) { p.Creature.SetMaxHpInternal(1000); p.Creature.SetCurrentHpInternal(1000); }
                 await battle.Monster.AfterAddedToRoom();
@@ -42,7 +102,7 @@ internal static class PrototypeHuntingSpawnTests
                         int hp = run.Players.Sum(p => p.Creature.CurrentHp);
                         await ink.Monster.NextMove.PerformMove(combat.PlayerCreatures);
                         NativeEventTests.Check(run.Players.Sum(p => p.Creature.CurrentHp) < hp, "Inklet really attacks immediately");
-                        Console.WriteLine($"COMPANION players={n} type=Inklet slot={slot} hp={ink.MaxHp} slippery={ink.GetPowerAmount<SlipperyPower>()} first={ink.Monster.NextMove.Id} primary={ink.IsPrimaryEnemy}");
+                        Console.WriteLine($"COMPANION players={n} nativeGetters=true type=Inklet slot={slot} hp={ink.MaxHp} slippery={ink.GetPowerAmount<SlipperyPower>()} first={ink.Monster.NextMove.Id} primary={ink.IsPrimaryEnemy}");
                     }
                     await CreatureCmd.Kill(battle.Monster.Creature);
                     NativeEventTests.Check(combat.Enemies.Count(c=>c.Monster is Inklet&&c.IsAlive)==2&&!await CombatManager.Instance.CheckWinCondition(),"Ordinary additional Inklets must survive main enemy death and block victory");
@@ -57,7 +117,7 @@ internal static class PrototypeHuntingSpawnTests
                     NativeEventTests.Check(!matriarch.IsAwake && !matriarch.IsShellAwake && matriarch.Creature.CurrentHp == before / 2, "Matriarch remains full/sleeping after companion addition");
                     await CreatureCmd.Kill(matriarch.Creature);
                     NativeEventTests.Check(lag.IsDead, "Actual native last-primary kill also kills designated Minion");
-                    Console.WriteLine($"COMPANION players={n} type=Lagavulin hp={lag.MaxHp} sleepingOnEntry=true minion=true diesWithPrimary=true");
+                    Console.WriteLine($"COMPANION players={n} nativeGetters=true type=Lagavulin hp={lag.MaxHp} sleepingOnEntry=true minion=true diesWithPrimary=true");
                 }
                 else
                 {
@@ -69,7 +129,7 @@ internal static class PrototypeHuntingSpawnTests
                     NativeEventTests.Check(left.IsSecondaryEnemy && right.IsSecondaryEnemy, "Both explicit companions are Minions");
                     await CreatureCmd.Kill(battle.Monster.Creature);
                     NativeEventTests.Check(left.IsDead && right.IsDead, "Both die on last-primary death");
-                    Console.WriteLine($"COMPANION players={n} types=Toadpole/SludgeSpinner hp={left.MaxHp}/{right.MaxHp} first=WHIRL_MOVE/OIL_SPRAY_MOVE minions=true dieWithPrimary=true");
+                    Console.WriteLine($"COMPANION players={n} nativeGetters=true types=Toadpole/SludgeSpinner hp={left.MaxHp}/{right.MaxHp} first=WHIRL_MOVE/OIL_SPRAY_MOVE minions=true dieWithPrimary=true");
                 }
             }
         }
@@ -102,31 +162,10 @@ internal static class PrototypeHuntingSpawnTests
         root.Free();
     }
 
-    private static IEnumerable<CodeInstruction> FiveLoop(IEnumerable<CodeInstruction> instructions)
-    {
-        var code = instructions.ToList();
-        var bounds = code.Where(c => c.opcode == OpCodes.Ldc_I4_4).ToArray();
-        if (bounds.Length != 1) throw new Exception($"Expected one loop bound, found {bounds.Length}");
-        bounds[0].opcode = OpCodes.Ldc_I4_5;
-        return code;
-    }
-
-    private static void FifthBranch(Wriggler __instance, MonsterMoveStateMachine __result)
-    {
-        ((ConditionalBranchState)__result.States["INIT_MOVE"]).AddState(
-            __result.States["NASTY_BITE_MOVE"], () => __instance.Creature.SlotName == "wriggler5");
-    }
-    private static void FiveSlots(ref IReadOnlyList<string> __result)=>__result=["phrog","wriggler1","wriggler2","wriggler3","wriggler4","wriggler5"];
-
     private static async Task FiveWorms()
     {
         var patch = new Harmony("allmatters.prototype70.five-worms");
-        var moveNext = typeof(InfestedPower).GetMethod(nameof(InfestedPower.AfterDeath))!
-            .GetCustomAttribute<AsyncStateMachineAttribute>()!.StateMachineType.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance)!;
-        var generate = AccessTools.Method(typeof(Wriggler), "GenerateMoveStateMachine");
-        patch.Patch(moveNext, transpiler: new HarmonyMethod(typeof(PrototypeHuntingSpawnTests), nameof(FiveLoop)));
-        patch.Patch(generate, postfix: new HarmonyMethod(typeof(PrototypeHuntingSpawnTests), nameof(FifthBranch)));
-        patch.Patch(AccessTools.PropertyGetter(typeof(PhrogParasiteElite),nameof(EncounterModel.Slots)),postfix:new HarmonyMethod(typeof(PrototypeHuntingSpawnTests),nameof(FiveSlots)));
+        PrototypeHuntingFiveWormProbe.Install(patch);
         try
         {
             for (int n = 1; n <= 4; n++)
@@ -136,6 +175,11 @@ internal static class PrototypeHuntingSpawnTests
                 var combat = battle.Combat;
                 foreach (var p in run.Players) { p.Creature.SetMaxHpInternal(1000); p.Creature.SetCurrentHpInternal(1000); }
                 await battle.Monster.AfterAddedToRoom();
+                using(var scene=battle.Combat.Encounter!.CreateScene())
+                {
+                    NativeEventTests.Check(scene.HasNode("wriggler5")&&scene.GetNode<Godot.Marker2D>("wriggler5").Position.X==1620,"Shared live probe actually patches native CreateScene and fifth position");
+                    scene.Free();
+                }
                 var infested = battle.Monster.Creature.GetPower<InfestedPower>()!;
                 await infested.AfterDeath(new ThrowingPlayerChoiceContext(), battle.Monster.Creature, true, 0);
                 NativeEventTests.Check(combat.Enemies.Count == 1, "Prevented death must not spawn");

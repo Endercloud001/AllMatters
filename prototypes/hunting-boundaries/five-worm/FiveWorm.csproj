@@ -1,0 +1,20 @@
+<Project Sdk="Godot.NET.Sdk/4.5.1">
+  <Import Project="../../../Paths.local.props" />
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework><AssemblyName>AllMattersHuntingFiveWormProbe</AssemblyName>
+    <ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <GameBranch Condition="'$(GameBranch)' == ''">public-beta</GameBranch>
+    <GameDataDir Condition="'$(GameBranch)' == 'public'">$(PublicGameDataDir)</GameDataDir>
+    <GameDataDir Condition="'$(GameBranch)' == 'public-beta'">$(BetaGameDataDir)</GameDataDir>
+    <RitsuLibReferenceTarget Condition="'$(GameBranch)' == 'public'">0.107.1</RitsuLibReferenceTarget>
+    <RitsuLibReferenceTarget Condition="'$(GameBranch)' == 'public-beta'">0.111.0</RitsuLibReferenceTarget>
+    <DefineConstants>$(DefineConstants);HUNTING_FIVE_WORM_MOD</DefineConstants>
+    <OutputPath>bin/$(GameBranch)/$(Configuration)/</OutputPath><NoWarn>$(NoWarn);MSB3270</NoWarn>
+  </PropertyGroup>
+  <Import Project="$(RitsuLibDir)/RitsuLib.References.props" />
+  <ItemGroup>
+    <Compile Include="../../../src/Tests/PrototypeHuntingFiveWormProbe.cs" Link="PrototypeHuntingFiveWormProbe.cs" />
+    <Reference Include="sts2" HintPath="$(GameDataDir)/sts2.dll" Private="false" />
+    <Reference Include="0Harmony" HintPath="$(GameDataDir)/0Harmony.dll" Private="false" />
+  </ItemGroup>
+</Project>

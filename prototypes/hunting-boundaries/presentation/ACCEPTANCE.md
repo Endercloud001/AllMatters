@@ -9,7 +9,7 @@
 - beta v0.111.0：`E:/Godot_v4.5.1-stable_mono_win64/sts2mod/AllMatters_prototype70/dist/public-beta/AllMattersHuntingPresentationProbe/`
 - public v0.107.1：`E:/Godot_v4.5.1-stable_mono_win64/sts2mod/AllMatters_prototype70/dist/public/AllMattersHuntingPresentationProbe/`
 
-各目录必须有同名 `.dll` 和 `.json` 两个文件，无PCK。依赖为项目既定 [RitsuLib作者发布](https://github.com/BAKAOLC/STS2-RitsuLib/releases)中的0.6.7完整包（与现有AllMatters相同依赖；保留variants/shared内容，不能只取编译引用DLL）。依赖本机来源见 `Paths.local.props` 的RitsuLibDir；不要把游戏/测试输出中的GodotSharp复制入mods。
+各目录必须有同名 `.dll` 和 `.json` 两个文件，无PCK。依赖为项目既定 [RitsuLib作者发布](https://github.com/BAKAOLC/STS2-RitsuLib/releases)中的0.6.7完整包（与现有AllMatters相同依赖；保留compat/shared内容，不能只取编译引用DLL）。依赖本机来源见 `Paths.local.props` 的RitsuLibDir；不要把游戏/测试输出中的GodotSharp复制入mods。
 
 两个目标已经实际在Godot宿主加载这个独立DLL、调用初始化、完成Ritsu原生脚本注册及安装NGlobalUi._Ready后缀钩子。共享显示代码已在1280×720、1920×1080、2560×1440、3440×1440的真实Godot子视口运行四态，检查矩形范围、原有控件焦点保持和MouseFilter=Ignore。没有启动游戏，不把上述运行冒充完整NGlobalUi.Ready或实机显示通过。
 
@@ -24,6 +24,6 @@
 
 ## 尚未交付的其他验收资产
 
-本包没有五虫、女王、原生选择屏或空箱动画的游戏内场景操控入口。不能要求用户仅靠它完成这些验收。其对应的最小场景实验资产和必要Agent补验仍需继续准备；不把“装此包看HUD”写成整票完成条件已满足。
+本HUD包没有战斗操控入口。另已准备独立五虫包，见 `../five-worm/ACCEPTANCE.md`；女王、原生选择屏或空箱动画的最小场景资产仍需继续准备，不能要求用户仅靠HUD或五虫包完成这些验收。
 
 用户结果：待回填。此记录不替代多人验证票的原生联网/检查点恢复结果。

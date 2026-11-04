@@ -37,6 +37,10 @@ internal static class HelloWorldTests
             await ModManager.Initialize(null!, null, null);
             SaveManager.Instance.SettingsSave.Language = "eng";
             LocManager.Initialize();
+            // Native resource scenes reference game C# scripts. Register their
+            // real assembly before any presentation test, not halfway through.
+            STS2RitsuLib.RitsuLibFramework.EnsureGodotScriptsRegistered(typeof(CardModel).Assembly,
+                STS2RitsuLib.RitsuLibFramework.CreateLogger("AllMattersTestHostNativeScenes"));
             foreach (Type type in ReflectionHelper.GetSubtypes<AbstractModel>()
                 .Concat(typeof(ModEntry).Assembly.GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(AbstractModel)))))
             {
@@ -75,6 +79,8 @@ internal static class HelloWorldTests
                 .Concat(PrototypeHuntingHudTests.Cases)
                 .Concat(PrototypeHuntingSpawnTests.Cases)
                 .Concat(PrototypeHuntingModelTests.Cases)
+                .Concat(PrototypeHuntingNativeEndingTests.Cases)
+                .Concat(PrototypeHuntingCombatEndTests.Cases)
                 .Concat(PrototypeHuntingStageTests.Cases)
                 .Concat(PrototypeHuntingQueenTests.Cases)
                 .Concat(PrototypeHuntingServiceTests.Cases)
