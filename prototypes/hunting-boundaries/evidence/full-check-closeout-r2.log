@@ -16265,13 +16265,13 @@ Development build packaged at E:\Godot_v4.5.1-stable_mono_win64\sts2mod\AllMatte
 
 Check             Status Detail
 -----             ------ ------
-PowerShell syntax PASS   
-Workflow scripts  PASS   
-Git whitespace    PASS   
-Resources         PASS   
-Tests public-beta PASS   
-Tests public      PASS   
-Build public-beta PASS   
-Build public      PASS   
+PowerShell syntax PASS
+Workflow scripts  PASS
+Git whitespace    PASS
+Resources         PASS
+Tests public-beta PASS
+Tests public      PASS
+Build public-beta PASS
+Build public      PASS
 
 AllMatters checks PASSED.
