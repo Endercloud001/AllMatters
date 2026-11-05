@@ -105,7 +105,7 @@ public sealed class JigsawNativeSession
         }
         screen.Show();
     }
-    internal JigsawScreen CreateScreen(IJigsawTutorialProfile? profile=null) => screen=JigsawScreen.Create(Map!,Native.Players[0].NetId,OnEdited,Inspect,Continue,Enter,Pause,profile,Automatic,id=>Native.Players.FirstOrDefault(p=>p.NetId==id)?.Character.IconTexture,AbandonEntry);
+    internal JigsawScreen CreateScreen(IJigsawTutorialProfile? profile=null) => screen=JigsawScreen.Create(Map!,Native.Players[0].NetId,OnEdited,Inspect,Continue,Enter,Pause,profile,Automatic,id=>Native.Players.FirstOrDefault(p=>p.NetId==id)?.Character.IconTexture,AbandonEntry,Native.Act);
     private void ReleaseHotkeys()
     {
         if (!blockingHotkeys) return;
@@ -120,10 +120,13 @@ public sealed class JigsawNativeSession
 
     private void Pause()
     {
-        paused = true;
-        screen?.SetProcessInput(false);
+        SuspendForNativePause();
         var menu = (NPauseMenu)NRun.Instance.GlobalUi.SubmenuStack.ShowScreen(CapstoneSubmenuType.PauseMenu);
         menu.Initialize(Native);
+    }
+    internal void SuspendForNativePause()
+    {
+        paused=true; screen?.SetProcessInput(false); ReleaseHotkeys();
     }
     public void ResumeInput()
     {
@@ -131,6 +134,7 @@ public sealed class JigsawNativeSession
         if (screen == null || !GodotObject.IsInstanceValid(screen)) return;
         screen.SetProcessInput(true);
         screen.ResumeFromPause();
+        if (Map != null && screen.Visible && !blockingHotkeys) { NHotkeyManager.Instance?.AddBlockingScreen(screen); blockingHotkeys=true; }
     }
     public void OnEdited()
     {

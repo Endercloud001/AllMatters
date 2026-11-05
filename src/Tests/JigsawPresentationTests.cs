@@ -5,12 +5,15 @@ using MegaCrit.Sts2.Core.ControllerInput;
 internal static class JigsawPresentationTests
 {
  public static readonly (string Name, Func<Task> Test)[] Cases = [
+  ("Jigsaw presentation keyboard hints follow the actual device", KeyboardHints),
+  ("Jigsaw presentation native art and paused input ownership", NativeArtAndPause),
   ("Jigsaw presentation first sentence is complete and profile resumes", FirstSentence),
   ("Jigsaw presentation actual input does not leak and help cancels preserves votes", InputHelp),
   ("Jigsaw presentation focus reaches isolated dense nodes and responsive layouts", NavigationLayout),
   ("Jigsaw presentation manual errors retain both five second segments", FailureTiming),
   ("Jigsaw presentation routed input is isolated and mode action toggles", RoutedInput),
   ("Jigsaw presentation entrance stays visible with native root sizing", NativeEntranceLayout),
+  ("Jigsaw presentation exploring removes editing surface", ExploringSurface),
   ("Jigsaw presentation pending entry retry receives engine input", RetryInput),
   ("Jigsaw presentation pending entry abandon receives engine input", ()=>EntryActionInput(true)),
   ("Jigsaw presentation rejected take does not add a holding prompt", RejectedTake),
@@ -24,6 +27,57 @@ internal static class JigsawPresentationTests
   return JigsawScreen.Create(map,1,()=>{},()=>Task.CompletedTask,()=>Task.CompletedTask,_=>Task.CompletedTask,pause??(()=>{}),profile);
  }
  private static void Require(bool ok,string message) { if(!ok)throw new Exception(message); }
+ private static async Task KeyboardHints()
+ {
+  var view=View(JigsawRun.Create(74),new(){Sentence=6});
+  try {
+  await HeadlessUiHost.Mount(view);
+  Require(Input.GetConnectedJoypads().Count==0,"This regression requires the keyboard/mouse host, without an emulated controller.");
+  Require(!view.ControllerHints.Visible && view.MouseHints.Visible,"Keyboard/mouse must never display controller glyphs as its active instructions.");
+  Require(new JigsawPreferencesData().Enabled,"New global settings enable the mode by default.");
+  } finally {view.Free();}
+ }
+ private static async Task NativeArtAndPause()
+ {
+  using var atlases=HeadlessTestSetup.LoadAtlases("ui_atlas","compressed");
+  var native=MegaCrit.Sts2.Core.Runs.RunState.CreateForTest(players:[MegaCrit.Sts2.Core.Entities.Players.Player.CreateForNewRun(
+   MegaCrit.Sts2.Core.Models.ModelDb.Character<MegaCrit.Sts2.Core.Models.Characters.Ironclad>(),MegaCrit.Sts2.Core.Unlocks.UnlockState.all,1)],
+   acts:[MegaCrit.Sts2.Core.Models.ModelDb.Act<MegaCrit.Sts2.Core.Models.Acts.Overgrowth>()],seed:"JIGSAW_UI_FEEDBACK");
+  var manager=MegaCrit.Sts2.Core.Runs.RunManager.Instance;
+  manager.SetUpTest(native,new MegaCrit.Sts2.Core.Multiplayer.NetSingleplayerGameService());
+  JigsawScreen? view=null;var probe=new JigsawUnhandledInputProbe();
+  try
+  {
+   manager.GenerateRooms();await manager.GenerateMap();
+   var session=JigsawNativeSession.Enable(native);await session.StartAct();
+   var art=new JigsawNativeArt(native.Act);
+   Require(native.Act.MapTopBg!=null && native.Act.MapMidBg!=null && native.Act.MapBotBg!=null,"All three parchment sections come from the active native act.");
+   foreach(var room in Enum.GetValues<JigsawRoom>())Require(art.Icon(room)!=null,"Every room uses a loadable native icon: "+room);
+   var boss=art.Boss(JigsawRoom.Boss);try {Require(boss is { } && boss.GetChildCount()>0,"The production boss renders its native visual subtree.");}finally{boss?.Free();}
+   view=session.CreateScreen(new MemoryJigsawTutorialProfile{Sentence=6});await HeadlessUiHost.Mount(probe,view);
+   session.SuspendForNativePause();
+   Require(!view.IsProcessingInput(),"Opening the native pause menu must relinquish editor input ownership.");
+   int before=probe.Events;
+   Input.ParseInputEvent(new InputEventAction{Action=MegaInput.select,Pressed=true});
+   var tree=(SceneTree)Engine.GetMainLoop();await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
+   Require(probe.Events>before,"Native menu confirmation can pass through the suspended overlay.");
+   session.ResumeInput();Require(view.IsProcessingInput(),"Closing native menus restores editor input ownership.");
+   var explored=JigsawRun.Create(74);explored.Take(1,0);explored.Drop(1,new(3,0));explored.AddEdge(1,0,1);explored.ChooseEnd(1,EndChoice.Manual);explored.Inspect();explored.CompleteAncient(1);explored.Continue(1);
+   int bossId=explored.Nodes.Single(n=>n.Room==JigsawRoom.Boss).Id;
+   while(!explored.AvailableDestinations.Contains(bossId))
+   {
+    int destination=explored.AvailableDestinations.First();var attempt=explored.BeginEnter(destination)!;
+    Require(explored.ConfirmEnter(attempt.Id).Success && explored.CompleteRoom(attempt.Id).Success,"Prepare an available Boss through completed logical rooms.");
+   }
+   view.SetMap(explored);
+   await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
+   var renderedBoss=view.MapControl.GetChildren().OfType<Node2D>().Single();
+   var scales=new List<float>();
+   for(int i=0;i<3;i++) {await tree.ToSignal(tree.CreateTimer(.15),SceneTreeTimer.SignalName.Timeout);scales.Add(renderedBoss.Scale.X);}
+   Require(scales.Max()-scales.Min()>.0001f,"The actual native Boss visual must pulse while it is an available destination.");
+  }
+  finally {view?.Free();probe.Free();manager.CleanUp(false);}
+ }
  private static Task FirstSentence()
  {
   var profile=new MemoryJigsawTutorialProfile(); var view=View(JigsawRun.Create(74),profile);
@@ -68,6 +122,7 @@ internal static class JigsawPresentationTests
     tree.Root.Size=(Vector2I)size; view.Size=size;
     await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame); await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
     Require(view.PoolControl.Size.X>100&&view.MapControl.Size.X>size.X*.4f,"Pool/map usable at supported size");
+    Require(view.PoolControl.GetGlobalRect().Position.Y>=size.Y*.09f,"The editor must leave the native top HUD clear.");
     Require(view.DialogControl.GetGlobalRect().End.Y<=size.Y+1&&view.DecisionControl.GetGlobalRect().End.Y<=size.Y+1,"Footer must fit supported viewport");
     view.ShowNotice(new string('长',500)); await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
     Require(view.DialogControl.Size.X<size.X&&view.DecisionControl.GetGlobalRect().End.X<=size.X+1,"Long text must remain scrollable without obscuring decisions");
@@ -86,6 +141,14 @@ internal static class JigsawPresentationTests
    view.AdvanceTime(5); Require(view.DialogText!="（提示：从先古之民不可到达Boss）","Second segment lasts 5 seconds");
   } finally {view.Free();}
   return Task.CompletedTask;
+ }
+ private static async Task ExploringSurface()
+ {
+  var map=JigsawRun.Create(74);
+  map.Take(1,0); map.Drop(1,new(3,0)); map.AddEdge(1,0,1); map.ChooseEnd(1,EndChoice.Manual); map.Inspect();map.CompleteAncient(1);map.Continue(1);
+  var view=View(map,new(){Sentence=6});try {await HeadlessUiHost.Mount(view);
+  Require(!view.PoolControl.Visible,"The exploration map must not retain the editor piece pool.");
+  } finally {view.Free();}
  }
  private static Task RetryInput()=>EntryActionInput(false);
  private static async Task EntryActionInput(bool abandon)
@@ -126,9 +189,11 @@ internal static class JigsawPresentationTests
   var tree=(SceneTree)Engine.GetMainLoop();
   var rect=choice.GetGlobalRect();
   Require(rect.Position.Y>=0 && rect.End.Y<=tree.Root.Size.Y && rect.Size.Y>0,"The production entrance must appear inside the viewport even when native screen root has zero size.");
+  bool initial=choice.ButtonPressed;
   Input.ParseInputEvent(new InputEventAction{Action=MegaInput.viewDrawPile,Pressed=true});
   await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
-  Require(choice.ButtonPressed && JigsawNativeSession.SelectedForNewRun,"Visible entrance receives engine input and selects the production run mode.");
+  Require(choice.ButtonPressed!=initial && JigsawNativeSession.SelectedForNewRun==choice.ButtonPressed && JigsawPreferences.Enabled==choice.ButtonPressed,"Visible entrance receives engine input and persists the selected production run mode.");
+  JigsawPreferences.Enabled=true;
   JigsawNativeSession.SelectedForNewRun=false;
  }
 

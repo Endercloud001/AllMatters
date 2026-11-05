@@ -56,5 +56,17 @@ public partial class JigsawSaveErrorDialog : AcceptDialog
 [HarmonyPatch(typeof(NPauseMenu), nameof(NPauseMenu.OnSubmenuClosed))]
 internal static class JigsawResumeInput
 {
-    private static void Postfix() => JigsawNativeSession.Current?.ResumeInput();
+    private static void Postfix() { if(JigsawNativeSession.Current is {} session) _=AfterFrame(session); }
+    private static async Task AfterFrame(JigsawNativeSession session)
+    {
+        var tree=(SceneTree)Engine.GetMainLoop();
+        await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
+        if(JigsawNativeSession.Current==session && MegaCrit.Sts2.Core.Nodes.NRun.Instance?.GlobalUi.SubmenuStack.Stack?.SubmenusOpen!=true)session.ResumeInput();
+    }
+}
+
+[HarmonyPatch(typeof(NPauseMenu), nameof(NPauseMenu.OnSubmenuOpened))]
+internal static class JigsawSuspendNativePause
+{
+    private static void Postfix()=>JigsawNativeSession.Current?.SuspendForNativePause();
 }

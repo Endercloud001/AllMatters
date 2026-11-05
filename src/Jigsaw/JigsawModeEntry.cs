@@ -1,6 +1,7 @@
 using Godot;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Nodes.Screens.CharacterSelect;
+using AllMatters.Jigsaw.Presentation;
 
 namespace AllMatters.Jigsaw;
 
@@ -12,20 +13,21 @@ internal static class JigsawModeEntry
         => Attach(__instance);
     internal static JigsawModeChoice Attach(Control __instance)
     {
-        JigsawNativeSession.SelectedForNewRun = false;
+        JigsawNativeSession.SelectedForNewRun = JigsawPreferences.Enabled;
         var choice = __instance.GetNodeOrNull<JigsawModeChoice>("AllMattersJigsawMode");
         if (choice == null)
         {
             choice = new JigsawModeChoice
             {
                 Name = "AllMattersJigsawMode", Text = "拼图模式",
-                TopLevel = true, ZIndex = 100, Size = new(300, 64),
+                TopLevel = true, ZIndex = 100, Size = new(400, 72),
                 FocusMode = Control.FocusModeEnum.All
             };
-            choice.Toggled += selected => JigsawNativeSession.SelectedForNewRun = selected;
+            choice.AddThemeFontSizeOverride("font_size", 28);
+            choice.Toggled += selected => { JigsawNativeSession.SelectedForNewRun = selected; JigsawPreferences.Enabled = selected; };
             __instance.AddChild(choice);
         }
-        choice.ButtonPressed = false;
+        choice.ButtonPressed = JigsawPreferences.Enabled;
         choice.Show();
         return choice;
     }
@@ -49,6 +51,7 @@ public partial class JigsawModeChoice : CheckButton
     public override void _Process(double delta)
     {
         PositionEntrance();
+        hotkey.Visible = JigsawInputPresentation.UsingController;
 #if STS2_PUBLIC
         hotkey.Texture = MegaCrit.Sts2.Core.Nodes.CommonUi.NControllerManager.Instance?.GetHotkeyIcon(MegaCrit.Sts2.Core.ControllerInput.MegaInput.viewDrawPile);
 #else
