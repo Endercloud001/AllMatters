@@ -13,7 +13,8 @@ using System.Text.Json.Nodes;
 internal static class JigsawNativeTests
 {
     public static readonly (string Name, Func<Task> Test)[] Cases =
-    [ ("Jigsaw native backup restores the exact pool and native player from one source", BackupSource),
+    [ ("Jigsaw native checkpoint recovery fault matrix", CheckpointFaultMatrix),
+      ("Jigsaw native backup restores the exact pool and native player from one source", BackupSource),
       ("Jigsaw native act enters real map room before Ancient rewards", EditingBeforeAncient),
       ("Jigsaw native automatic enters actual Ancient from saved authorized operation", Automatic),
       ("Jigsaw native automatic routed input remains responsive and recovers worker exception", ()=>AutomaticUi()),
@@ -28,7 +29,8 @@ internal static class JigsawNativeTests
       ("Jigsaw native partial Ancient restores complete prereward player and map", PartialAncient),
       ("Jigsaw native finished Ancient restore preserves rewards without replay", FinishedAncient),
       ("Jigsaw native failed memory save prevents successful wait until retry", FailedSave),
-      ("Jigsaw native missing mode payload rejects a marked native save", MissingModeData),
+      ("Jigsaw native missing mode payload rejects a marked native save", ()=>MissingModeData()),
+      ("Jigsaw native missing phase rejects incomplete checkpoint", ()=>MissingModeData("Phase")),
       ("Jigsaw native console discovery and editable phase reset", ConsoleReset),
       ("Jigsaw native later acts start a fresh pool before preserved Ancient and Boss", LaterAct) ];
 
@@ -235,7 +237,7 @@ internal static class JigsawNativeTests
         finally { JigsawNativeSaveHost.Save=null; RunManager.Instance.CleanUp(false); }
     }
 
-    private static async Task MissingModeData()
+    private static async Task MissingModeData(string? missingField=null)
     {
         var native=RunState.CreateForTest(players:[MegaCrit.Sts2.Core.Entities.Players.Player.CreateForNewRun(
             ModelDb.Character<MegaCrit.Sts2.Core.Models.Characters.Ironclad>(),MegaCrit.Sts2.Core.Unlocks.UnlockState.all,1)],
@@ -256,7 +258,16 @@ internal static class JigsawNativeTests
                 if(node is JsonObject obj)
                 {
                     foreach(var property in obj.ToArray())
-                        if(property.Key=="jigsaw") { obj.Remove(property.Key); removed=true; }
+                        if (property.Key == "jigsaw")
+                        {
+                            if (missingField == null) obj.Remove(property.Key);
+                            else
+                            {
+                                var map = property.Value!["data"]!["Map"]!.AsObject();
+                                Require(map.Remove(missingField), "Preparation removes actual persisted field.");
+                            }
+                            removed = true;
+                        }
                         else if(property.Value!=null) removed|=RemoveJigsaw(property.Value);
                 }
                 else if(node is JsonArray array) foreach(var item in array) if(item!=null) removed|=RemoveJigsaw(item);
@@ -518,6 +529,64 @@ internal static class JigsawNativeTests
         finally { JigsawNativeSaveHost.Save=null; RunManager.Instance.CleanUp(false); }
     }
 
+    private static async Task CheckpointFaultMatrix()
+    {
+        foreach (bool multiplayer in new[] { false, true })
+        foreach (bool synchronous in new[] { false, true })
+        foreach (string scenario in new[] { "normal", "missing", "corrupt", "rename-fails", "write-fails" })
+        {
+            var native = (RunState)HeadlessTestSetup.PlayerWithRun("CHECKPOINT_76").RunState;
+            RunManager.Instance.SetUpTest(native, new NetSingleplayerGameService());
+            try
+            {
+                var io = new MockGodotFileIo("checkpoint-76-isolated");
+                var manager = new RunSaveManager(76, io, new MigrationManager(io), forceSynchronous: synchronous);
+                string path = RunSaveManager.GetRunSavePath(76, multiplayer ? "current_run_mp.save" : "current_run.save");
+                var first = JigsawRun.Create(76);
+                native.Players[0].Gold = 111;
+                JigsawCheckpoint.Capture(native, first);
+                await manager.SaveRun(RunManager.Instance.ToSave(null), multiplayer);
+                var second = JigsawRun.Create(77);
+                native.Players[0].Gold = 222;
+                JigsawCheckpoint.Capture(native, second);
+                await manager.SaveRun(RunManager.Instance.ToSave(null), multiplayer);
+                string main = io.ReadFile(path), backup = io.ReadFile(path + ".backup");
+                if (scenario == "missing") io.DeleteFile(path);
+                if (scenario is "corrupt" or "rename-fails")
+                {
+                    var invalid = JsonNode.Parse(main)!;
+                    invalid["schema_version"] = new JsonObject { ["invalid"] = true };
+                    io.SetFileContent(path, invalid.ToJsonString());
+                    if (scenario == "rename-fails") io.RenameFileAction = (_, _) => throw new IOException("Injected preservation failure");
+                }
+                if (scenario == "write-fails")
+                {
+                    native.Players[0].Gold = 333;
+                    JigsawCheckpoint.Capture(native, JigsawRun.Create(78));
+                    int saved = 0;
+                    manager.Saved += () => saved++;
+                    io.ShouldFailWrites = true;
+                    bool rejected = false;
+                    try { await manager.SaveRun(RunManager.Instance.ToSave(null), multiplayer); }
+                    catch (Exception) { rejected = true; }
+                    finally { io.ShouldFailWrites = false; }
+                    Require(rejected && saved == 0 && io.ReadFile(path) == main && io.ReadFile(path + ".backup") == backup,
+                        "Failed native write cannot signal success or change either complete checkpoint.");
+                }
+                var loaded = multiplayer ? manager.LoadMultiplayerRunSave() : manager.LoadRunSave();
+                Require(loaded.Success && loaded.SaveData != null, "Native recovery must return an actual parsed object.");
+                var restored = RunState.FromSerializable(loaded.SaveData!);
+                bool fromBackup = scenario is "missing" or "corrupt" or "rename-fails";
+                var expected = fromBackup ? first : second;
+                Require(restored.Players[0].Gold == (fromBackup ? 111 : 222) &&
+                    JigsawCheckpoint.Slot.TryGet(restored, out var data) &&
+                    System.Text.Json.JsonSerializer.Serialize(data.Map) == System.Text.Json.JsonSerializer.Serialize(expected.CreateSave()),
+                    "Native player and complete production map must come from the same successfully parsed checkpoint.");
+                Console.WriteLine($"CHECKPOINT_76 scenario={scenario}; multiplayerPath={multiplayer}; synchronous={synchronous}; source={(fromBackup ? "backup" : "main")}; nativePlayers=1; host=isolated-IO");
+            }
+            finally { RunManager.Instance.CleanUp(false); }
+        }
+    }
     private static async Task BackupSource()
     {
         var native = (RunState)HeadlessTestSetup.PlayerWithRun("JIGSAW_CHECKPOINT").RunState;
