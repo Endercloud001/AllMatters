@@ -34,6 +34,9 @@ internal static class JigsawPool
             {
                 if (counts[k] == 0) continue;
                 var room = kinds[k];
+                // Construct the pool with six distinct rest-bearing pieces. The
+                // accompanying six-piece spatial witness uses these identities.
+                if ((p < 6 && n == (p==0?1:0)) != (room == JigsawRoom.Rest)) continue;
                 if (p == 0 && n >= (doubleBoss ? 2 : 3) && room is JigsawRoom.Shop or JigsawRoom.Rest or JigsawRoom.Treasure) continue;
                 if (room == JigsawRoom.Rest && Enumerable.Range(p*4,n).Any(i => rooms[i] == room)) continue;
                 if (n == 3 && Enumerable.Range(p*4,3).All(i => rooms[i] == room)) continue;

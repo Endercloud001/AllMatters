@@ -14,6 +14,9 @@ public sealed class JigsawRun
     private readonly HashSet<int> visited = [0], completed = [0];
     private long nextEntry;
     private long? currentEntry;
+    public JigsawLayout? AutomaticWitness { get; private set; }
+    public JigsawAutomaticOperation? AutomaticOperation { get; private set; }
+    private ulong generationRandomState=1;
     public IReadOnlyList<JigsawPiece> Pool { get; }
     public IReadOnlyList<JigsawPlacement> Placements => placements.Values.ToArray();
     public IReadOnlyDictionary<ulong,JigsawHolding> Holdings => new System.Collections.ObjectModel.ReadOnlyDictionary<ulong,JigsawHolding>(holdings);
@@ -30,7 +33,13 @@ public sealed class JigsawRun
     public IReadOnlyCollection<int> Completed => completed.ToArray();
     public IReadOnlyList<JigsawNode> Nodes => BuildNodes(placements);
     public IReadOnlyList<JigsawEdge> Edges => BuildEdges(placements,external);
-    public static JigsawRun Create(int seed, int budget = 15, bool doubleBoss = false, IEnumerable<ulong>? players = null) => new(JigsawPool.Create(seed,doubleBoss),budget,players);
+    public static JigsawRun Create(int seed, int budget = 15, bool doubleBoss = false, IEnumerable<ulong>? players = null)
+    {
+        var run=new JigsawRun(JigsawPool.Create(seed,doubleBoss),budget,players);
+        run.generationRandomState=(ulong)(uint)seed+1;
+        run.AutomaticWitness=JigsawAutomatic.Witness(run);
+        return run;
+    }
     public JigsawRun(IEnumerable<JigsawPiece> pool, int budget = 15, IEnumerable<ulong>? players = null)
     {
         if (budget < 0) throw new ArgumentOutOfRangeException(nameof(budget));
@@ -131,11 +140,44 @@ public sealed class JigsawRun
     {
         if (Phase != JigsawPhase.Editing || !players.Contains(player) || holdings.ContainsKey(player) || endpoints.ContainsKey(player)) return JigsawResult.Reject(JigsawFailure.EditIncomplete);
         if (choice == null || choices.GetValueOrDefault(player) == choice && choices.ContainsKey(player)) choices.Remove(player); else choices[player] = choice.Value;
+        AuthorizeIfUnanimous();return JigsawResult.Ok;
+    }
+    public void Disconnect(ulong player)
+    {
+        holdings.Remove(player);ClearEndpoint(player);choices.Remove(player);players.Remove(player);
+        if(Phase==JigsawPhase.Editing)AuthorizeIfUnanimous();
+    }
+    private void AuthorizeIfUnanimous()
+    {
         if (players.Count > 0 && choices.Count == players.Count && choices.Values.Distinct().Count() == 1)
         {
             Phase = choices.Values.First() == EndChoice.Manual ? JigsawPhase.Inspecting : JigsawPhase.Generating;
+            if(Phase==JigsawPhase.Inspecting)AutomaticOperation=null;
+            if(Phase==JigsawPhase.Generating)
+            {
+                ulong initial=generationRandomState;
+                var order=Pool.Select(p=>p.Id).Order().ToArray();
+                for(int i=order.Length-1;i>0;i--)
+                {
+                    generationRandomState^=generationRandomState<<13;generationRandomState^=generationRandomState>>7;generationRandomState^=generationRandomState<<17;
+                    int j=(int)(generationRandomState%(ulong)(i+1));(order[i],order[j])=(order[j],order[i]);
+                }
+                AutomaticOperation=new(JigsawAutomatic.Algorithm,2000,order,initial);
+            }
         }
-        return JigsawResult.Ok;
+    }
+    public JigsawResult FinishAutomatic(JigsawAutomaticOperation operation,JigsawLayout? result)
+    {
+        if(Phase!=JigsawPhase.Generating || !ReferenceEquals(operation,AutomaticOperation))return JigsawResult.Reject("旧自动任务不能提交。");
+        var check=result==null?JigsawResult.Reject("预算内未找到合格布局；不能判断无解。"):JigsawAutomatic.Validate(this,result);
+        if(check.Success)
+        {
+            placements.Clear();foreach(var p in result!.Placements)placements.Add(p.PieceId,p);
+            external.Clear();external.AddRange(result.Edges);
+        }
+        choices.Clear(); holdings.Clear();endpoints.Clear();blankClicks.Clear();
+        Phase=check.Success?JigsawPhase.Ancient:JigsawPhase.Editing;
+        return check;
     }
     public JigsawResult Inspect()
     {
@@ -214,12 +256,14 @@ public sealed class JigsawRun
         if (Phase != JigsawPhase.Exploring || CurrentNode == null || currentEntry != attempt) return JigsawResult.Reject(JigsawFailure.StaleCompletion);
         completed.Add(CurrentNode.Value); CurrentNode = null; currentEntry = null; return JigsawResult.Ok;
     }
-    public JigsawSave CreateSave() => new(Pool.Select(p => p with { Nodes = p.Nodes.ToArray(), InternalEdges = p.InternalEdges.ToArray() }).ToArray(),placements.Values.ToArray(),external.ToArray(),Phase,Budget,players.ToArray(),Steps,FirstProgress,visited.ToArray(),completed.ToArray(),CurrentNode,PendingEntry,nextEntry,ancientCompleted.ToArray());
+    public JigsawSave CreateSave() => new(Pool.Select(p => p with { Nodes = p.Nodes.ToArray(), InternalEdges = p.InternalEdges.ToArray() }).ToArray(),placements.Values.ToArray(),external.ToArray(),Phase,Budget,players.ToArray(),Steps,FirstProgress,visited.ToArray(),completed.ToArray(),CurrentNode,PendingEntry,nextEntry,ancientCompleted.ToArray()) { AutomaticWitness=AutomaticWitness is {} witness ? new(witness.Placements.ToArray(),witness.Edges.ToArray()) : null, AutomaticOperation=AutomaticOperation is {} operation ? operation with { CandidateOrder=operation.CandidateOrder.ToArray() } : null, GenerationRandomState=generationRandomState };
     public static JigsawRun Restore(JigsawSave save)
     {
         JigsawSaveValidation.Validate(save);
         var run = new JigsawRun(save.Pool,save.Budget,save.Players) { Phase=save.Phase,Steps=save.Steps,FirstProgress=save.FirstProgress,CurrentNode=save.CurrentNode,PendingEntry=save.PendingEntry,nextEntry=save.NextEntry,currentEntry=save.CurrentNode == null ? null : save.NextEntry };
         foreach (var p in save.Placements) run.placements.Add(p.PieceId,p); run.external.AddRange(save.ExternalEdges);
+        run.generationRandomState=save.GenerationRandomState; run.AutomaticWitness=save.AutomaticWitness; run.AutomaticOperation=save.AutomaticOperation;
+        if(run.AutomaticWitness is {} witness && !JigsawAutomatic.Validate(run,witness).Success)throw new ArgumentException("Saved automatic witness is invalid.",nameof(save));
         run.visited.UnionWith(save.Visited); run.completed.UnionWith(save.Completed); run.ancientCompleted.UnionWith(save.AncientCompleted);
         var valid = JigsawGeometry.Validate(run.Nodes,run.Edges); if (!valid.Success) throw new ArgumentException(valid.Reason,nameof(save));
         if (save.Phase is JigsawPhase.Ancient or JigsawPhase.Exploring)
@@ -228,6 +272,8 @@ public sealed class JigsawRun
             var inspected=run.Inspect();
             if(!inspected.Success || run.placements.Count!=save.Placements.Length) throw new ArgumentException("Finalized checkpoint map is invalid: "+inspected.Reason,nameof(save));
             run.Phase=save.Phase;
+            if(run.AutomaticOperation!=null && !JigsawAutomatic.Validate(run,new(save.Placements,save.ExternalEdges)).Success)
+                throw new ArgumentException("Finalized automatic checkpoint does not satisfy automatic requirements.",nameof(save));
         }
         return run;
     }

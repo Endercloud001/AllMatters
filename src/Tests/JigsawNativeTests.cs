@@ -15,6 +15,14 @@ internal static class JigsawNativeTests
     public static readonly (string Name, Func<Task> Test)[] Cases =
     [ ("Jigsaw native backup restores the exact pool and native player from one source", BackupSource),
       ("Jigsaw native act enters real map room before Ancient rewards", EditingBeforeAncient),
+      ("Jigsaw native automatic enters actual Ancient from saved authorized operation", Automatic),
+      ("Jigsaw native automatic routed input remains responsive and recovers worker exception", ()=>AutomaticUi()),
+      ("Jigsaw native automatic late old session cannot commit", ()=>AutomaticUi(stale:true)),
+      ("Jigsaw native automatic late final success save cannot enter replacement run", ()=>LateFinalSave(false)),
+      ("Jigsaw native automatic late final failure save cannot alter replacement run", ()=>LateFinalSave(true)),
+      ("Jigsaw native automatic failed final save preserves accepted map and retries", ()=>LateFinalSave(false,failWrite:true)),
+      ("Jigsaw native authorized process producer", AuthorizedProducer),
+      ("Jigsaw native authorized process consumer", AuthorizedConsumer),
       ("Jigsaw native manual map reaches actual Ancient and first room checkpoint", FullFirstRoom),
       ("Jigsaw native treasure rewards complete before map checkpoint", CompletedTreasure),
       ("Jigsaw native partial Ancient restores complete prereward player and map", PartialAncient),
@@ -23,6 +31,171 @@ internal static class JigsawNativeTests
       ("Jigsaw native missing mode payload rejects a marked native save", MissingModeData),
       ("Jigsaw native console discovery and editable phase reset", ConsoleReset),
       ("Jigsaw native later acts start a fresh pool before preserved Ancient and Boss", LaterAct) ];
+
+    private static async Task Automatic()
+    {
+        using var atlases=HeadlessTestSetup.LoadAtlases("card_atlas","relic_atlas");
+        var native=RunState.CreateForTest(players:[MegaCrit.Sts2.Core.Entities.Players.Player.CreateForNewRun(ModelDb.Character<MegaCrit.Sts2.Core.Models.Characters.Ironclad>(),MegaCrit.Sts2.Core.Unlocks.UnlockState.all,1)],acts:[ModelDb.Act<Overgrowth>()],seed:"AUTOMATIC_75");
+        RunManager.Instance.SetUpTest(native,new NetSingleplayerGameService(),shouldSave:true);
+        var io=new MockGodotFileIo("automatic-75-memory-only");
+        var manager=new RunSaveManager(75,io,new MigrationManager(io),forceSynchronous:true);
+        JigsawNativeSaveHost.Save=room=>manager.SaveRun(RunManager.Instance.ToSave(room),false);
+        try
+        {
+            native.ExtraFields.StartedWithNeow=true;RunManager.Instance.GenerateRooms();
+            await RunManager.Instance.GenerateMap();
+            var session=JigsawNativeSession.Enable(native);
+            await RunManager.Instance.EnterMapCoord(native.Map.StartingMapPoint.coord);
+            var original=System.Text.Json.JsonSerializer.Serialize(session.Map!.Pool);
+            var watch=System.Diagnostics.Stopwatch.StartNew();
+            var generation=session.Automatic();int frames=0;
+            var tree=(Godot.SceneTree)Godot.Engine.GetMainLoop();
+            while(!generation.IsCompleted) {await tree.ToSignal(tree,Godot.SceneTree.SignalName.ProcessFrame);frames++;}
+            await generation;
+            Require(frames>0,"The Godot scene tree continues processing frames during actual C# generation.");
+            Require(session.Map.Phase==JigsawPhase.Ancient && native.CurrentRoom is EventRoom,"Automatic accepted map reaches the actual native Ancient callback.");
+            Require(System.Text.Json.JsonSerializer.Serialize(session.Map.Pool)==original && session.Map.Steps==0,"Automatic neither rerolls the original pool nor charges entry.");
+            var loaded=manager.LoadRunSave();
+            Require(loaded.Success && loaded.SaveData!=null,"Automatic native save parses.");
+            Console.WriteLine($"AUTOMATIC_75 native elapsed={watch.ElapsedMilliseconds}ms; frames={frames}; pieces={session.Map.Placements.Count}; algorithm={session.Map.AutomaticOperation?.Algorithm}; budget={session.Map.AutomaticOperation?.ExpansionBudget}; host=Godot/shared-beta-resources");
+        }
+        finally { JigsawNativeSaveHost.Save=null;RunManager.Instance.CleanUp(false); }
+    }
+    private static string RecoveryExchange => Environment.GetEnvironmentVariable("ALLMATTERS_75_RECOVERY")??Path.Combine(Path.GetTempPath(),$"AllMatters-75-{Environment.ProcessId}.json");
+    private static async Task LateFinalSave(bool failure,bool failWrite=false)
+    {
+        var native=RunState.CreateForTest(players:[MegaCrit.Sts2.Core.Entities.Players.Player.CreateForNewRun(ModelDb.Character<MegaCrit.Sts2.Core.Models.Characters.Ironclad>(),MegaCrit.Sts2.Core.Unlocks.UnlockState.all,1)],acts:[ModelDb.Act<Overgrowth>()],seed:"FINAL_SAVE_75");
+        RunManager.Instance.SetUpTest(native,new NetSingleplayerGameService(),shouldSave:true);
+        var io=new MockGodotFileIo("final-save-memory-only");
+        var manager=new RunSaveManager(75,io,new MigrationManager(io),forceSynchronous:true);
+        var reached=new TaskCompletionSource();var release=new TaskCompletionSource();
+        var session=JigsawNativeSession.Enable(native);
+        JigsawAutomaticWorker.TestOverride=(map,_)=>Task.FromResult(failure?null:map.AutomaticWitness);
+        JigsawNativeSaveHost.Save=async room=>
+        {
+            var captured=RunManager.Instance.ToSave(room);
+            if(session.Map is { AutomaticOperation:not null, Phase:not JigsawPhase.Generating })
+            {reached.TrySetResult();await release.Task;}
+            await manager.SaveRun(captured,false);
+        };
+        try
+        {
+            native.ExtraFields.StartedWithNeow=true;RunManager.Instance.GenerateRooms();await RunManager.Instance.GenerateMap();
+            await RunManager.Instance.EnterMapCoord(native.Map.StartingMapPoint.coord);
+            var generation=session.Automatic();await reached.Task;
+            if(failWrite)
+            {
+                io.ShouldFailWrites=true;release.SetResult();
+                bool rejected=false;try {await generation;} catch {rejected=true;}
+                Require(rejected && session.Map!.Phase==JigsawPhase.Ancient && native.CurrentRoom is MapRoom,"Failed final save retains the accepted map and does not enter rewards.");
+                var layout=session.Map!.Placements.ToArray();io.ShouldFailWrites=false;
+                await session.Continue();
+                Require(native.CurrentRoom is EventRoom && session.Map.Placements.SequenceEqual(layout),"Retry saves the same accepted map and enters actual Ancient without regenerating.");
+                return;
+            }
+            RunManager.Instance.CleanUp(false);
+            var replacement=(RunState)HeadlessTestSetup.PlayerWithRun("REPLACEMENT_FINAL_SAVE_75").RunState;
+            RunManager.Instance.SetUpTest(replacement,new NetSingleplayerGameService());
+            var current=JigsawNativeSession.Enable(replacement);
+            release.SetResult();await generation;
+            Require(current.Map==null&&replacement.CurrentRoom==null,"A late final save cannot enter Ancient or alter the replacement run.");
+        }
+        finally {release.TrySetResult();JigsawAutomaticWorker.TestOverride=null;JigsawNativeSaveHost.Save=null;RunManager.Instance.CleanUp(false);}
+    }
+    private static async Task AuthorizedProducer()
+    {
+        var native=RunState.CreateForTest(players:[MegaCrit.Sts2.Core.Entities.Players.Player.CreateForNewRun(ModelDb.Character<MegaCrit.Sts2.Core.Models.Characters.Ironclad>(),MegaCrit.Sts2.Core.Unlocks.UnlockState.all,1)],acts:[ModelDb.Act<Overgrowth>()],seed:"PROCESS_RECOVERY_75");
+        RunManager.Instance.SetUpTest(native,new NetSingleplayerGameService());
+        var io=new MockGodotFileIo("authorized-process-memory-only");
+        var manager=new RunSaveManager(75,io,new MigrationManager(io),forceSynchronous:true);
+        try
+        {
+            native.ExtraFields.StartedWithNeow=true;RunManager.Instance.GenerateRooms();await RunManager.Instance.GenerateMap();
+            var session=JigsawNativeSession.Enable(native);await RunManager.Instance.EnterMapCoord(native.Map.StartingMapPoint.coord);
+            Require(session.Map!.ChooseEnd(1,EndChoice.Automatic).Success,"Authorize before the process boundary.");
+            JigsawCheckpoint.Capture(native,session.Map);
+            await manager.SaveRun(RunManager.Instance.ToSave(null),false);
+            File.WriteAllText(RecoveryExchange,io.ReadFile(RunSaveManager.GetRunSavePath(75,"current_run.save"))!);
+            Console.WriteLine($"AUTHORIZED_PRODUCER process={Environment.ProcessId}; target={RecoveryExchange}");
+        }
+        finally {RunManager.Instance.CleanUp(false);}
+    }
+    private static async Task AuthorizedConsumer()
+    {
+        using var atlases=HeadlessTestSetup.LoadAtlases("card_atlas","relic_atlas");
+        var io=new MockGodotFileIo("authorized-process-memory-only");
+        var manager=new RunSaveManager(75,io,new MigrationManager(io),forceSynchronous:true);
+        var nativePath=RunSaveManager.GetRunSavePath(75,"current_run.save");
+        io.WriteFile(nativePath,File.ReadAllText(RecoveryExchange));
+        JigsawNativeSaveHost.Save=room=>manager.SaveRun(RunManager.Instance.ToSave(room),false);
+        try
+        {
+            var save=manager.LoadRunSave();Require(save.Success && save.SaveData!=null,"New process parses the actual native container.");
+            var restored=RunState.FromSerializable(save.SaveData!);
+            await RunManager.Instance.SetUpSavedSingleplayer(restored,save.SaveData!);
+            MegaCrit.Sts2.Core.Context.LocalContext.NetId=restored.Players[0].NetId;
+            var session=JigsawNativeSession.Current!;var map=session.Map!;
+            Require(map.Phase==JigsawPhase.Generating && map.AutomaticOperation!=null,"Saved authorization is restored without another vote.");
+            var expected=JigsawAutomatic.Solve(map,map.AutomaticOperation!.ExpansionBudget)!;
+            await RunManager.Instance.GenerateMap();await RunManager.Instance.LoadIntoLatestMapCoord(null);
+            Require(map.Phase==JigsawPhase.Ancient && map.Placements.SequenceEqual(expected.Placements) && restored.CurrentRoom is EventRoom,"Actual native load reruns the exact saved operation and enters Ancient.");
+            Console.WriteLine($"AUTHORIZED_CONSUMER process={Environment.ProcessId}; pieces={map.Placements.Count}; algorithm={map.AutomaticOperation.Algorithm}");
+        }
+        finally {JigsawNativeSaveHost.Save=null;RunManager.Instance.CleanUp(false);File.Delete(RecoveryExchange);}
+    }
+    private static async Task AutomaticUi(bool stale=false)
+    {
+        using var atlases=HeadlessTestSetup.LoadAtlases("card_atlas","relic_atlas","ui_atlas");
+        var native=RunState.CreateForTest(players:[MegaCrit.Sts2.Core.Entities.Players.Player.CreateForNewRun(ModelDb.Character<MegaCrit.Sts2.Core.Models.Characters.Ironclad>(),MegaCrit.Sts2.Core.Unlocks.UnlockState.all,1)],acts:[ModelDb.Act<Overgrowth>()],seed:"AUTOMATIC_UI_75");
+        RunManager.Instance.SetUpTest(native,new NetSingleplayerGameService());
+        var worker=new TaskCompletionSource<JigsawLayout?>();
+        var tree=(Godot.SceneTree)Godot.Engine.GetMainLoop();
+        AllMatters.Jigsaw.Presentation.JigsawScreen? view=null;
+        var probe=new JigsawUnhandledInputProbe();
+        var priorModal=MegaCrit.Sts2.Core.Nodes.CommonUi.NModalContainer.Instance;
+        var modal=new MegaCrit.Sts2.Core.Nodes.CommonUi.NModalContainer();
+        modal.AddChild(new Godot.ColorRect{Name="Backstop"});
+        try
+        {
+            var session=JigsawNativeSession.Enable(native);
+            native.ExtraFields.StartedWithNeow=true;RunManager.Instance.GenerateRooms();
+            await RunManager.Instance.GenerateMap();await RunManager.Instance.EnterMapCoord(native.Map.StartingMapPoint.coord);
+            var map=session.Map!;
+            var original=map.CreateSave();
+            JigsawAutomaticWorker.TestOverride=(_,_)=>worker.Task;
+            HeadlessUiHost.EnsureInputActions();
+            view=session.CreateScreen(new AllMatters.Jigsaw.Presentation.MemoryJigsawTutorialProfile{Sentence=6});
+            await HeadlessUiHost.Mount(modal,probe,view);
+            view.SwitchZone(-1);view.Navigate(1);
+            Godot.Input.ParseInputEvent(new Godot.InputEventAction{Action=MegaCrit.Sts2.Core.ControllerInput.MegaInput.select,Pressed=true});
+            for(int i=0;i<4;i++)await tree.ToSignal(tree,Godot.SceneTree.SignalName.ProcessFrame);
+            Require(map.Phase==JigsawPhase.Generating && view.IsGenerating,"Engine input enters the production automatic callback and shows the waiting screen.");
+            var pending=session.ResumeAutomatic();
+            int before=probe.Events;
+            Godot.Input.ParseInputEvent(new Godot.InputEventAction{Action=MegaCrit.Sts2.Core.ControllerInput.MegaInput.cancel,Pressed=true});
+            for(int i=0;i<4;i++)await tree.ToSignal(tree,Godot.SceneTree.SignalName.ProcessFrame);
+            Require(map.Phase==JigsawPhase.Generating && probe.Events==before,"Frames and engine input continue while the worker waits, with no underlying input leak.");
+            if(stale)
+            {
+                RunManager.Instance.CleanUp(false);
+                var replacement=(RunState)HeadlessTestSetup.PlayerWithRun("NEW_SESSION_75").RunState;
+                RunManager.Instance.SetUpTest(replacement,new NetSingleplayerGameService());
+                var current=JigsawNativeSession.Enable(replacement);
+                worker.SetResult(JigsawAutomatic.Solve(map,0));await pending;
+                Require(current.Map==null && map.Phase==JigsawPhase.Generating && map.Placements.SequenceEqual(original.Placements),"Late old-session success cannot alter either the current session or the old original map.");
+                return;
+            }
+            worker.SetException(new InvalidOperationException("injected worker failure"));
+            await pending;
+            Require(map.Phase==JigsawPhase.Editing && map.Choices.Count==0 && !view.IsGenerating && view.DialogText.Contains("已保留原布局"),"Exception clears the waiting cover and votes and presents the recovery sentence.");
+            Require(map.Placements.SequenceEqual(original.Placements)&&map.Edges.SequenceEqual(original.ExternalEdges),"Worker exception preserves the original layout.");
+        }
+        finally
+        {
+            JigsawAutomaticWorker.TestOverride=null;RunManager.Instance.CleanUp(false);view?.Free();probe.Free();modal.Free();
+            AccessTools.Property(typeof(MegaCrit.Sts2.Core.Nodes.CommonUi.NModalContainer),"Instance").SetValue(null,priorModal);
+        }
+    }
 
     private static async Task LaterAct()
     {

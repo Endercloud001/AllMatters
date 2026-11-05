@@ -6,6 +6,8 @@ internal static class JigsawSaveValidation
     {
         void Require(bool condition,string reason) { if(!condition) throw new ArgumentException(reason,nameof(save)); }
         Require(Enum.IsDefined(save.Phase),"Unknown phase.");
+        if(save.AutomaticOperation!=null || save.Phase==JigsawPhase.Generating)
+            Require(save.GenerationRandomState!=0 && save.AutomaticOperation is { Algorithm:JigsawAutomatic.Algorithm, ExpansionBudget:>=0, RandomState:>0 } operation && operation.CandidateOrder.Order().SequenceEqual(save.Pool.Select(p=>p.Id).Order()),"Unsupported or incomplete authorized generation input.");
         Require(save.Pool.Length==14 && Enum.GetValues<JigsawShape>().All(s=>save.Pool.Count(p=>p.Shape==s)==2),"Checkpoint must preserve the fourteen-piece pool.");
         Require(save.Pool.All(p=>p.Nodes.Count==4),"Each piece must have four nodes.");
         var all=save.Pool.SelectMany(p=>p.Nodes).ToArray();

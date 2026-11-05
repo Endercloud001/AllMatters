@@ -17,6 +17,7 @@ using MegaCrit.Sts2.Core.Saves;
 using MegaCrit.Sts2.Core.Saves.Runs;
 using MegaCrit.Sts2.Core.TestSupport;
 
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("AllMatters.Tests")]
 namespace AllMatters.Jigsaw;
 
 /// <summary>Owns the single-player native lifecycle. Logical coordinates never become native floors.</summary>
@@ -82,12 +83,7 @@ public sealed class JigsawNativeSession
         if (Map == null || act != Native.CurrentActIndex || TestMode.IsOn || NRun.Instance == null) return;
         if (screen == null || !GodotObject.IsInstanceValid(screen))
         {
-            screen = JigsawScreen.Create(Map, Native.Players[0].NetId,
-                OnEdited, Inspect, Continue, Enter, Pause, automaticRequested: () =>
-                {
-                    screen?.ShowNotice("自动拼图尚不可用，请手动拼图后交由先古之民审视。");
-                    return Task.CompletedTask;
-                }, avatar: id => Native.Players.FirstOrDefault(p => p.NetId == id)?.Character.IconTexture);
+            screen=CreateScreen();
             var parent = NRun.Instance.GlobalUi;
             parent.AddChild(screen);
             parent.MoveChild(screen, parent.SubmenuStack.GetIndex());
@@ -102,6 +98,7 @@ public sealed class JigsawNativeSession
         }
         screen.Show();
     }
+    internal JigsawScreen CreateScreen(IJigsawTutorialProfile? profile=null) => screen=JigsawScreen.Create(Map!,Native.Players[0].NetId,OnEdited,Inspect,Continue,Enter,Pause,profile,Automatic,id=>Native.Players.FirstOrDefault(p=>p.NetId==id)?.Character.IconTexture);
     private void ReleaseHotkeys()
     {
         if (!blockingHotkeys) return;
@@ -160,6 +157,64 @@ public sealed class JigsawNativeSession
         catch (Exception error) { saveFailure = error; throw; }
     }
 
+    private Task? automaticTask;
+    public Task Automatic()
+    {
+        if(Map==null)return Task.CompletedTask;
+        var chosen=Map.ChooseEnd(Native.Players[0].NetId,EndChoice.Automatic);
+        if(!chosen.Success) { screen?.ShowResult(chosen);return Task.CompletedTask; }
+        OnEdited();screen?.Refresh();
+        return Map.Phase==JigsawPhase.Generating?ResumeAutomatic():Task.CompletedTask;
+    }
+    public Task ResumeAutomatic() => automaticTask is { IsCompleted:false } ? automaticTask : automaticTask=GenerateAutomatic();
+    private async Task GenerateAutomatic()
+    {
+        var map=Map;
+        if(map?.Phase!=JigsawPhase.Generating || map.AutomaticOperation is not {} operation)return;
+        bool Active()=>ReferenceEquals(Map,map)&&Current==this&&ReferenceEquals(map.AutomaticOperation,operation)&&map.Phase==JigsawPhase.Generating;
+        if(!Active())return;
+        JigsawLayout? result=null;
+        string? failureReason=null;
+        try
+        {
+            OnEdited();await WaitForSave();if(!Active())return;
+            if(!TestMode.IsOn && NGame.Instance!=null)
+                await NGame.Instance.Transition.FadeOut(.8f,Native.Players[0].Character.CharacterSelectTransitionPath);
+            if(!Active())return;
+            screen?.SetGenerating(true);
+            if(!TestMode.IsOn && NGame.Instance!=null)await NGame.Instance.Transition.FadeIn(.4f);
+            if(!Active())return;
+            result=await JigsawAutomaticWorker.Run(map,operation.ExpansionBudget);
+            if(!Active())return;
+            if(!TestMode.IsOn && NGame.Instance!=null)await NGame.Instance.Transition.FadeOut(.4f);
+        }
+        catch(Exception error)
+        {
+            result=null;
+            failureReason="自动拼图未能完成，请稍后重试。";
+            Godot.GD.PushError("Automatic jigsaw failed: "+error);
+            if(Active() && !TestMode.IsOn && NGame.Instance!=null)
+                try { await NGame.Instance.Transition.FadeIn(.4f); }
+                catch(Exception fadeError) { Godot.GD.PushError("Automatic jigsaw fade recovery failed: "+fadeError); }
+        }
+        if(!Active())return;
+        var accepted=map.FinishAutomatic(operation,result);
+        screen?.SetGenerating(false);
+        OnEdited();
+        if(!accepted.Success)screen?.ShowAutomaticFailure(failureReason??accepted.Reason);
+        bool saved=false;
+        try { await WaitForSave();saved=true; }
+        finally
+        {
+            if((!accepted.Success || !saved) && Current==this && ReferenceEquals(Map,map) && !TestMode.IsOn && NGame.Instance!=null)
+                await NGame.Instance.Transition.FadeIn(.4f);
+        }
+        if(Current!=this || !ReferenceEquals(Map,map) || !ReferenceEquals(map.AutomaticOperation,operation))return;
+        if(!accepted.Success)return;
+        BeforeAncient=RunManager.Instance.ToSave(null);
+        await EnterAncient();
+    }
+
     public async Task Inspect()
     {
         if (Map == null) return;
@@ -196,6 +251,12 @@ public sealed class JigsawNativeSession
 
     public async Task Continue()
     {
+        if(Map is { Phase:JigsawPhase.Ancient } waiting && !AncientReady && Native.CurrentRoom is MapRoom)
+        {
+            OnEdited();await WaitForSave();
+            if(Current!=this || !ReferenceEquals(Map,waiting))return;
+            BeforeAncient=RunManager.Instance.ToSave(null);await EnterAncient();return;
+        }
         if (Map == null || !Map.Continue(Native.Players[0].NetId).Success) return;
         OnEdited(); await WaitForSave(); ShowMap();
     }
@@ -248,7 +309,7 @@ public sealed class JigsawNativeSession
 
     public bool ShouldInterceptAncient(MapCoord coord) => !enteringAncient &&
         Native.Map.GetPoint(coord)?.PointType == MapPointType.Ancient &&
-        (Map == null || act != Native.CurrentActIndex || Map.Phase is JigsawPhase.Editing or JigsawPhase.Inspecting);
+          (Map == null || act != Native.CurrentActIndex || Map.Phase is JigsawPhase.Editing or JigsawPhase.Inspecting or JigsawPhase.Generating);
 
     public void ConfirmRestoredEntry()
     {
@@ -258,6 +319,13 @@ public sealed class JigsawNativeSession
             JigsawCheckpoint.Capture(Native, Map);
         }
     }
+}
+
+internal static class JigsawAutomaticWorker
+{
+    internal static Func<JigsawRun,int,Task<JigsawLayout?>>? TestOverride;
+    internal static Task<JigsawLayout?> Run(JigsawRun map,int budget) =>
+        TestMode.IsOn && TestOverride!=null ? TestOverride(map,budget) : Task.Run(()=>JigsawAutomatic.Solve(map,budget));
 }
 
 [HarmonyPatch(typeof(RunManager), nameof(RunManager.SetUpNewSingleplayer))]
@@ -386,7 +454,7 @@ internal static class JigsawResumePhase
         // A completed root room is represented by the logical map. Re-entering
         // native's latest coordinate here would run treasure/shop rewards again.
         if (map.Phase == JigsawPhase.Exploring && map.CurrentNode == null && map.PendingEntry == null ||
-            map.Phase is JigsawPhase.Editing or JigsawPhase.Inspecting ||
+            map.Phase is JigsawPhase.Editing or JigsawPhase.Inspecting or JigsawPhase.Generating ||
             map.Phase == JigsawPhase.Ancient && session.AncientReady)
         {
             __result = RunManager.Instance.EnterRoom(new MapRoom());
@@ -402,7 +470,8 @@ internal static class JigsawResumePhase
     {
         await original;
         session.ConfirmRestoredEntry();
-        if (session.Map!.Phase == JigsawPhase.Inspecting) await session.Inspect();
+        if (session.Map!.Phase == JigsawPhase.Generating) { session.ShowMap(); await session.ResumeAutomatic(); }
+        else if (session.Map.Phase == JigsawPhase.Inspecting) await session.Inspect();
         else if (session.Map.Phase == JigsawPhase.Ancient && !session.AncientReady) await session.EnterAncient();
         else if (session.Map.Phase is JigsawPhase.Editing or JigsawPhase.Ancient ||
                  session.Map.Phase == JigsawPhase.Exploring && session.Map.CurrentNode == null)

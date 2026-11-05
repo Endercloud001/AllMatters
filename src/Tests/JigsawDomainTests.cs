@@ -4,6 +4,8 @@ internal static class JigsawDomainTests
 {
     public static readonly (string Name, Func<Task> Test)[] Cases =
     [
+        ("Jigsaw automatic original pool supplies a six piece fallback", AutomaticWitness),
+        ("Jigsaw automatic failure and authorized restore preserve original input", AutomaticTransaction),
         ("Jigsaw domain full pool quotas precede terminal Boss replacement", Pool),
         ("Jigsaw domain single and double Boss manual inspection accepts partial pool", Manual),
         ("Jigsaw domain reserved movement cancel four rotations and real move preserve transactions", Movement),
@@ -17,6 +19,60 @@ internal static class JigsawDomainTests
         ("Jigsaw domain restore rejects malformed pool layout and exploration state", InvalidSave),
     ];
     private static void Check(bool value,string text) => NativeEventTests.Check(value,text);
+    private static Task AutomaticWitness()
+    {
+        foreach(bool doubled in new[]{false,true}) foreach(int seed in new[]{0,75,9999}) foreach(int budget in new[]{13,14,15})
+        {
+            var run=JigsawRun.Create(seed,budget,doubled);
+            var given=new JigsawRun(run.Pool,15);
+            Check(JigsawAutomatic.Solve(given,0)==null && JigsawAutomatic.Solve(given,1)==null,"An unwitnessed given pool stays UNKNOWN at zero or exhausted expansion budget.");
+            var witness=JigsawAutomatic.Witness(run);
+            Check(witness!=null && witness.Placements.Length==6,
+                "The original pool must supply an independently accepted six-piece fallback.");
+        }
+        return Task.CompletedTask;
+    }
+    private static Task AutomaticTransaction()
+    {
+        var shared=JigsawRun.Create(75,players:[1UL,2UL]);
+        Ok(shared.ChooseEnd(1,EndChoice.Automatic));Ok(shared.ChooseEnd(2,EndChoice.Automatic));
+        var authorized=shared.AutomaticOperation!;shared.Disconnect(2);
+        Check(shared.Phase==JigsawPhase.Generating&&ReferenceEquals(authorized,shared.AutomaticOperation),"Disconnect cannot revoke a fully authorized operation.");
+        Ok(shared.FinishAutomatic(authorized,JigsawAutomatic.Solve(shared,0)));
+        foreach(bool doubled in new[]{false,true})foreach(int seed in new[]{0,75,9999})
+        {
+            var run=JigsawRun.Create(seed,15,doubled);
+            Place(run,0,3,0);Ok(run.AddEdge(1,0,1));
+            var before=run.CreateSave();
+            string original=System.Text.Json.JsonSerializer.Serialize(before);
+            Ok(run.ChooseEnd(1,EndChoice.Automatic));
+            var saved=System.Text.Json.JsonSerializer.Deserialize<JigsawSave>(System.Text.Json.JsonSerializer.Serialize(run.CreateSave()))!;
+            var restored=JigsawRun.Restore(saved);
+            Check(restored.Phase==JigsawPhase.Generating && restored.AutomaticOperation!.CandidateOrder.SequenceEqual(run.AutomaticOperation!.CandidateOrder) && restored.AutomaticOperation.RandomState==run.AutomaticOperation.RandomState,"Authorized operation preserves exact random state and candidate order across a new object graph.");
+            var candidate=JigsawAutomatic.Solve(restored,0);
+            Check(candidate!=null,"Zero expansions retain a qualified same-pool fallback.");
+            var order=JigsawAutomatic.ExplorationOrder(restored,candidate!);
+            Check(order.Length==15 && order.Distinct().Count()==15,"Executable full-budget sequence contains fifteen distinct entries.");
+            var explored=JigsawRun.Restore(restored.CreateSave());
+            Ok(explored.FinishAutomatic(explored.AutomaticOperation!,candidate));Ok(explored.CompleteAncient(1));Ok(explored.Continue(1));
+            foreach(int destination in order)
+            {
+                var attempt=explored.BeginEnter(destination);Check(attempt!=null,"Each generated entry is actually available from the completed region.");
+                Ok(explored.ConfirmEnter(attempt!.Id));Ok(explored.CompleteRoom(attempt.Id));
+            }
+            Check(explored.Steps==15 && explored.Nodes.Single(n=>n.Id==order[^1]).Room==JigsawRoom.Boss,"The first Boss is entered on the budget's final step.");
+            var badRotation=candidate! with { Placements=candidate.Placements.Select((p,i)=>i==0?p with {Rotation=-1}:p).ToArray() };
+            Check(!JigsawAutomatic.Validate(restored,badRotation).Success,"Independent acceptance rejects negative rotations rather than normalizing them.");
+            Check(!JigsawAutomatic.Validate(restored,candidate with { Edges=[..candidate.Edges,candidate.Edges[0]] }).Success,"Independent acceptance rejects duplicate edges before committing the original candidate.");
+            Check(!restored.FinishAutomatic(run.AutomaticOperation!,candidate).Success,"An old execution cannot commit into the restored run.");
+            Ok(restored.FinishAutomatic(restored.AutomaticOperation!,candidate));
+            var success=JigsawRun.Restore(restored.CreateSave());
+            Check(success.Phase==JigsawPhase.Ancient && success.Placements.SequenceEqual(restored.Placements),"Successful checkpoint restores the exact accepted map.");
+            Check(!run.FinishAutomatic(run.AutomaticOperation!,new([],[])).Success,"Bad candidate is rejected independently.");
+            Check(run.Phase==JigsawPhase.Editing && run.Choices.Count==0 && System.Text.Json.JsonSerializer.Serialize(run.CreateSave() with {AutomaticOperation=null,GenerationRandomState=before.GenerationRandomState})==original,"Rejected output preserves the original pool, placements and edges and clears votes.");
+        }
+        return Task.CompletedTask;
+    }
     private static void Ok(JigsawResult result) => Check(result.Success,result.Reason);
     private static JigsawPiece Piece(int id,params (int X,int Y,JigsawRoom Room)[] nodes) => new(id,JigsawShape.I,nodes.Select((n,i) => new JigsawPieceNode(id*10+i+1,new(n.X,n.Y),n.Room)).ToArray(),[]);
     private static JigsawRun Fixture(params JigsawPiece[] pieces) => new(pieces,15,[1UL,2UL]);

@@ -45,6 +45,26 @@ public partial class JigsawScreen : Control
  private bool dragging;
  private double errorRemaining;
  private string recent = "", secondError = "";
+ private ColorRect? generationCover;
+ public bool IsGenerating => generationCover is { Visible:true };
+ public void SetGenerating(bool active)
+ {
+  if(generationCover==null)
+  {
+   generationCover=new ColorRect { Color=Colors.Black, MouseFilter=MouseFilterEnum.Stop };
+   AddChild(generationCover);generationCover.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+   var caption=new Label { Text=L("先古之民的意志正在影响高塔"),HorizontalAlignment=HorizontalAlignment.Center,VerticalAlignment=VerticalAlignment.Center,AutowrapMode=TextServer.AutowrapMode.WordSmart,MouseFilter=MouseFilterEnum.Ignore };
+   generationCover.AddChild(caption);caption.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+  }
+  generationCover.Visible=active;
+  Refresh();
+ }
+ public void ShowAutomaticFailure(string reason)
+ {
+  ShowNotice("已保留原布局，可再次手动调整拼图。");
+  var popup=NErrorPopup.Create(L("自动拼图失败"),L(reason),false);
+  if(popup!=null) { popup.TreeExiting+=RestoreFocus;NModalContainer.Instance?.Add(popup); }
+ }
 
  private readonly HashSet<string> tips = [];
  public string DialogText => dialog.Text;
@@ -194,7 +214,16 @@ public partial class JigsawScreen : Control
   if(result.Success && map.Phase==JigsawPhase.Inspecting)RunAsync(inspected());
   if(result.Success && map.Phase==JigsawPhase.Generating)ShowNotice("将重塑尖塔的一部分");
  }
- private async void RunAsync(Task task) { try { await task; Refresh(); } catch(Exception e) { ShowResult(JigsawResult.Reject(e.Message)); } }
+ private async void RunAsync(Task task)
+ {
+  try { await task; Refresh(); }
+  catch(Exception e)
+  {
+   if(map.Phase==JigsawPhase.Editing && map.AutomaticOperation!=null)ShowNotice("已保留原布局，可再次手动调整拼图。");
+   else if(map.Phase==JigsawPhase.Ancient && map.AutomaticOperation!=null)ShowNotice("布局已保留，保存未完成。请再次继续以重试。");
+   else ShowResult(JigsawResult.Reject(e.Message));
+  }
+ }
  public void ShowNotice(string text) { recent=L(text); dialog.Text=recent; errorRemaining=5; secondError=""; }
  public void ShowResult(JigsawResult result,bool manual=false)
  {
@@ -300,6 +329,8 @@ public partial class JigsawScreen : Control
  public override void _Input(InputEvent ev)
  {
   if(!IsVisibleInTree())return;
+  if(NModalContainer.Instance?.OpenModal!=null)return;
+  if(IsGenerating) { GetViewport()?.SetInputAsHandled();return; }
   // This dedicated screen consumes map drawing/erasing before native unhandled input.
   if(ev is InputEventMouseButton mouse)
   {

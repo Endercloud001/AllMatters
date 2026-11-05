@@ -40,4 +40,10 @@ public sealed record JigsawHolding(int PieceId, int Rotation);
 public sealed record JigsawEnterAttempt(long Id, int NodeId);
 public sealed record JigsawSave(JigsawPiece[] Pool, JigsawPlacement[] Placements, JigsawEdge[] ExternalEdges,
     JigsawPhase Phase, int Budget, ulong[] Players, int Steps, int FirstProgress, int[] Visited, int[] Completed,
-    int? CurrentNode, JigsawEnterAttempt? PendingEntry, long NextEntry, ulong[] AncientCompleted);
+    int? CurrentNode, JigsawEnterAttempt? PendingEntry, long NextEntry, ulong[] AncientCompleted)
+{
+    public JigsawLayout? AutomaticWitness { get; init; }
+    public JigsawAutomaticOperation? AutomaticOperation { get; init; }
+    public ulong GenerationRandomState { get; init; } = 1;
+}
+public sealed record JigsawAutomaticOperation(string Algorithm,int ExpansionBudget,int[] CandidateOrder,ulong RandomState);
