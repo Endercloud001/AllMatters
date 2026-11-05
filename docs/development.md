@@ -80,7 +80,17 @@ Agent 完成适当的自动化测试和两目标构建后，向用户提供 `dis
 
 用户反馈写回对应功能验证记录，分别标明自动化、资源加载和用户实测的证据；本票完成条件按 issue 验收范围判断，完整 public、真实联机或回放等集成工作仅在其确为本票要求时阻塞完成。历史记录中的 Agent 部署只描述当时行为，不作为后续操作流程。
 
+分批人工验收按 [tracker 状态约定](agents/issue-tracker.md) 收尾。交付时明确本票所属批次及成员、统一包是否就绪、用户现在是否需要操作和尚未执行的场景；包未就绪时提供后续清单，不要求逐票安装。拼图第 1 批的成员与当前交接见 [单人拼图基本流程](jigsaw-batch-1.md)。
+
 测试宿主接入 RitsuLib 时，沿用 `src/Tests/HelloWorldTests.cs` 的已验证初始化顺序；变更宿主后先复验受影响的既有行为。牧师接入中曾因宿主生命周期替代安装晚于框架预备方法而导致 public 回归失败，证据见 牧师验证记录（本地记录：`docs/testing/cleric.md`，不随仓库分发）。
+
+### 正式 UI 与原生流程的最小切片
+
+新增正式 UI 时，先打通生产节点入树、引擎派发输入、可见状态变化和下层输入隔离，再扩展布局与操作。复用 `src/Tests/HeadlessUiHost.cs` 准备缺失的原生 action 名称、等待真实节点树；它不模拟回调或设备绑定。示例为 `JigsawPresentationTests.RoutedInput`，通过 `Input.ParseInputEvent` 进入生产节点。直接调用 `_Input` 的用例只证明局部逻辑；生产程序集的 Godot 回调生成由真实路由回归覆盖。
+
+接入奖励、进入房间或保存时，复用 `JigsawNativeTests.FirstRoomFlow` 中的真实原生命令、隔离保存管理器和加载生命周期。该用例覆盖 Ancient 正常选项、首房实际就绪、原生奖励身份与 RNG 保留，以及只读操作不覆盖进入前保存点；完整备份恢复示例为同文件的 `BackupSource` 用例。选择其中所需的最小场景，不把整套拼图流程复制为通用宿主。新增模式身份也要观察原生分支：保存标记不能无意改变运行时 modifiers 或奖励条件。
+
+局部查询用 `./tools/Test.ps1 -Branch All -Filter 'Jigsaw presentation routed input' -SkipResourceExport`；原生首房用例名称从 `src/Tests/JigsawNativeTests.cs` 的 `Cases` 查询。测试共享 beta 资源、缺少正式 Mod 元数据及真实设备的范围仍按用例说明记录，不把宿主通过解释为正式加载或设备验收。
 
 ## API 查询
 
@@ -107,6 +117,8 @@ Agent 完成适当的自动化测试和两目标构建后，向用户提供 `dis
 ```
 
 日志目录读取 `Paths.local.props` 的 `GameLogDir`，未填写时使用 `%APPDATA%/SlayTheSpire2/logs`；可用 `-LogDir` 临时覆盖，`-ModId` 指定其他模组。脚本只读，按文件修改时间选择最新 `.log`，输出来源和原始行号；无匹配不代表加载失败。需要排查更早的启动过程时，直接读取输出中的来源文件。分享日志前检查其中的本机路径和个人信息。
+
+`Test.ps1` 将本次每个目标的编译与宿主原始输出留在 `.local/tests/<目标>-last.log`，再次运行该目标会覆盖，需留证时复制到本票目录。使用 `./tools/ReadTestLog.ps1 -Path .local/tests/public-beta-last.log` 获取版本、编译/宿主退出码、完整通过数、首个异常位置及诊断数量；未执行的宿主结果为空，编译或资源准备失败不算行为 red。缺少 Mod 关联的既有提示单独计数，其余引擎错误仍报告；摘要不替代原始日志，也不改变测试退出状态。进一步读取具体位置使用 `ReadTextSlice.ps1 -Path <日志> -StartLine <行号> -Count 12`，长行可用 `-Pattern` 定位，不重复打印整份日志。
 
 脚本读取 props 中的字面值，不展开 MSBuild 表达式；工具路径可相对仓库根目录填写，游戏程序集目录建议使用绝对路径。配置仅保存在本机忽略文件。
 

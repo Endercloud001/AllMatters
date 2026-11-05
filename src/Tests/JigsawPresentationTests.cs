@@ -17,7 +17,7 @@ internal static class JigsawPresentationTests
   ("Jigsaw presentation error priority does not consume unseen teaching", DeferredTeaching)];
  private static JigsawScreen View(JigsawRun map,MemoryJigsawTutorialProfile profile,Action? pause=null)
  {
-  foreach(var action in MegaInput.AllInputs)if(!InputMap.HasAction(action))InputMap.AddAction(action);
+  HeadlessUiHost.EnsureInputActions();
   return JigsawScreen.Create(map,1,()=>{},()=>Task.CompletedTask,()=>Task.CompletedTask,_=>Task.CompletedTask,pause??(()=>{}),profile);
  }
  private static void Require(bool ok,string message) { if(!ok)throw new Exception(message); }
@@ -38,8 +38,9 @@ internal static class JigsawPresentationTests
  private static async Task InputHelp()
  {
   var tree=(SceneTree)Engine.GetMainLoop(); var map=JigsawRun.Create(74,players:[1UL,2UL]); var profile=new MemoryJigsawTutorialProfile(); int pauses=0;
-  var view=View(map,profile,()=>pauses++); tree.Root.CallDeferred(Node.MethodName.AddChild,view); await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame); await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
+  var view=View(map,profile,()=>pauses++);
   try {
+   await HeadlessUiHost.Mount(view);
    view._Input(new InputEventAction {Action=MegaInput.select,Pressed=true});
    Require(profile.Sentence==1&&map.Placements.Count==0&&map.Holdings.Count==0,"Advance consumes entire confirmation");
    while(profile.Sentence<6)view.AdvanceDialog();
@@ -53,8 +54,9 @@ internal static class JigsawPresentationTests
  {
   var tree=(SceneTree)Engine.GetMainLoop(); var map=JigsawRun.Create(74);
   foreach(var p in map.Pool.Take(5)) { Require(map.Take(1,p.Id).Success,"Take fixture"); Require(map.Drop(1,new GridPoint(p.Id*14,7)).Success,"Place isolated fixture"); }
-  var view=View(map,new(){Sentence=6}); tree.Root.CallDeferred(Node.MethodName.AddChild,view); await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame); await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
+  var view=View(map,new(){Sentence=6});
   try {
+   await HeadlessUiHost.Mount(view);
    view.SwitchZone(1); var visited=new HashSet<int>();
    for(int i=0;i<map.Nodes.Count;i++) {visited.Add(view.FocusedNodeId!.Value); view._Input(new InputEventAction{Action=MegaInput.right,Pressed=true});}
    Require(visited.SetEquals(map.Nodes.Select(n=>n.Id)),"Every isolated and same-direction node must be reachable");
@@ -88,18 +90,14 @@ internal static class JigsawPresentationTests
   var profile=new MemoryJigsawTutorialProfile();
   var view=View(JigsawRun.Create(74),profile);
   var probe=new JigsawUnhandledInputProbe();
-  tree.Root.CallDeferred(Node.MethodName.AddChild,probe);
-  tree.Root.CallDeferred(Node.MethodName.AddChild,view);
-  await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
-  await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
   try {
+   await HeadlessUiHost.Mount(probe,view);
    Input.ParseInputEvent(new InputEventAction{Action=MegaInput.select,Pressed=true});
    await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
    Require(profile.Sentence==1 && probe.Events==0,$"Godot routes confirmation to tutorial and consumes it before underlying input (sentence={profile.Sentence}, unhandled={probe.Events}).");
    view.Hide();
    using var choice=new JigsawModeChoice();
-   tree.Root.CallDeferred(Node.MethodName.AddChild,choice);
-   await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
+   await HeadlessUiHost.Mount(choice);
    Input.ParseInputEvent(new InputEventAction{Action=MegaInput.viewDrawPile,Pressed=true});
    await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
    Require(choice.ButtonPressed,"Bound mode action toggles the actual entrance control.");

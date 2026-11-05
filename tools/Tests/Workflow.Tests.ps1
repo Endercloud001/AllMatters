@@ -66,14 +66,23 @@ exit $LASTEXITCODE
     "PASS: Check $scenario"
 }
 
-foreach ($scenario in @('compile-failure', 'fresh', 'reuse', 'missing-pack')) {
+foreach ($scenario in @('compile-failure', 'host-failure', 'fresh', 'reuse', 'missing-pack')) {
     New-Fixture "test-$scenario"
     Copy-Item -LiteralPath (Join-Path $repoDir 'tools/Test.ps1') -Destination (Join-Path $fixture 'tools/Test.ps1')
+    if (Test-Path (Join-Path $repoDir 'tools/ReadTestLog.ps1')) {
+        Copy-Item -LiteralPath (Join-Path $repoDir 'tools/ReadTestLog.ps1') -Destination (Join-Path $fixture 'tools/ReadTestLog.ps1')
+    }
     Write-FixtureFile 'failure.txt' $scenario
     if ($scenario -eq 'reuse') { Write-FixtureFile 'dist/AllMatters.pck' 'existing fixture pack' }
     Write-FixtureFile 'godot.ps1' @'
 Add-Content (Join-Path $PSScriptRoot 'calls.txt') 'godot'
-$global:LASTEXITCODE = 0
+if ((Get-Content (Join-Path $PSScriptRoot 'failure.txt')) -eq 'host-failure') {
+    'System.Exception: injected behavior failure'
+    $global:LASTEXITCODE = 7
+} else {
+    'Passed 2 tests against fixture.'
+    $global:LASTEXITCODE = 0
+}
 '@
     Write-FixtureFile 'tools/ReadLocalPaths.ps1' @'
 @{ GodotPath = Join-Path (Split-Path -Parent $PSScriptRoot) 'godot.ps1' }
@@ -90,14 +99,60 @@ exit $LASTEXITCODE
     Run-Fixture
     $expected = switch ($scenario) {
         'compile-failure' { 'compile' }
+        'host-failure' { 'compile,export,godot' }
         'fresh' { 'compile,export,godot,compile,godot' }
         'reuse' { 'compile,godot,compile,godot' }
         'missing-pack' { '' }
     }
-    Assert ($code -eq $(if ($scenario -in @('compile-failure', 'missing-pack')) { 1 } else { 0 })) "Test must preserve $scenario exit status; see $fixture/output.log"
+    Assert ($code -eq $(if ($scenario -in @('compile-failure', 'host-failure', 'missing-pack')) { 1 } else { 0 })) "Test must preserve $scenario exit status; see $fixture/output.log"
     Assert (($calls -join ',') -eq $expected) "Test $scenario must compile before export and reuse only an existing pack. Calls: $calls"
+    if ($scenario -ne 'missing-pack') {
+        $summary = & (Join-Path $repoDir 'tools/ReadTestLog.ps1') -Path (Join-Path $fixture '.local/tests/public-beta-last.log')
+        if ($scenario -eq 'compile-failure') {
+            Assert ($summary.BuildExit -eq 1 -and $null -eq $summary.HostExit) 'Runner must log failed compilation without a host exit.'
+        } elseif ($scenario -eq 'host-failure') {
+            Assert ($summary.HostExit -eq 7 -and $summary.FirstException.Text -match 'injected behavior failure') 'Runner must preserve the actual host exit and assertion.'
+        } else {
+            Assert ($summary.HostExit -eq 0 -and $summary.Passed -eq 2) 'Runner must capture actual completed host output.'
+        }
+    }
     "PASS: Test $scenario"
 }
+
+New-Fixture 'test-log-summary'
+$testLog = Join-Path $fixture 'host.log'
+Write-FixtureFile 'host.log' @'
+Testing public : 0.107.1 [isolated/sts2.dll]
+Test build exit: 0
+[ERROR] Attempting to register type Example, but it is not associated with any mod!
+PASS: An earlier case
+ERROR: The InputMap action "example" doesn't exist.
+System.Exception: Input was not routed.
+Host exit: 1
+'@
+$summary = & (Join-Path $repoDir 'tools/ReadTestLog.ps1') -Path $testLog
+Assert ($summary.Target -eq 'public' -and $summary.Version -eq '0.107.1') 'Summary must identify the actual target version.'
+Assert ($summary.BuildExit -eq 0 -and $summary.HostExit -eq 1 -and $null -eq $summary.Passed) 'Partial passes cannot turn an incomplete run into success.'
+Assert ($summary.FirstException.Line -eq 6 -and $summary.FirstException.Text -match 'Input was not routed') 'Summary must preserve assertion source location.'
+Assert ($summary.EngineErrors -eq 1 -and $summary.ModMetadataErrors -eq 1) 'Summary must report engine errors and known host metadata noise separately.'
+Assert ($summary.Source -eq $testLog) 'Summary must point to the original full log.'
+Write-FixtureFile 'host.log' @'
+Testing public-beta : 0.111.0 [isolated/sts2.dll]
+Test build exit: 1
+Preparation failed: compile failure
+'@
+$summary = & (Join-Path $repoDir 'tools/ReadTestLog.ps1') -Path $testLog
+Assert ($summary.BuildExit -eq 1 -and $null -eq $summary.HostExit -and $null -eq $summary.Passed) 'Compile failure must remain preparation failure, with no host result.'
+Write-FixtureFile 'host.log' @'
+Testing public-beta : 0.111.0 [isolated/sts2.dll]
+Test build exit: 0
+Passed 31 tests against 0.1.0.0.
+Host exit: 0
+'@
+$summary = & (Join-Path $repoDir 'tools/ReadTestLog.ps1') -Path $testLog
+Assert ($summary.Passed -eq 31 -and $summary.HostExit -eq 0) 'Completed host run must retain its pass count and exit code.'
+"PASS: Test log summary keeps preparation, behavior, diagnostics and version separate"
+
 foreach ($scenario in @('fresh', 'reuse', 'missing-pack')) {
     New-Fixture "build-$scenario"
     Copy-Item -LiteralPath (Join-Path $repoDir 'tools/Build.ps1') -Destination (Join-Path $fixture 'tools/Build.ps1')
