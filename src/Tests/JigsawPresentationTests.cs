@@ -10,6 +10,7 @@ internal static class JigsawPresentationTests
   ("Jigsaw presentation focus reaches isolated dense nodes and responsive layouts", NavigationLayout),
   ("Jigsaw presentation manual errors retain both five second segments", FailureTiming),
   ("Jigsaw presentation routed input is isolated and mode action toggles", RoutedInput),
+  ("Jigsaw presentation entrance stays visible with native root sizing", NativeEntranceLayout),
   ("Jigsaw presentation pending entry retry receives engine input", RetryInput),
   ("Jigsaw presentation pending entry abandon receives engine input", ()=>EntryActionInput(true)),
   ("Jigsaw presentation rejected take does not add a holding prompt", RejectedTake),
@@ -106,6 +107,29 @@ internal static class JigsawPresentationTests
    Require(probe.Events==0 && (abandon ? abandons==1 && retries==0 && map.PendingEntry==null : retries==1 && abandons==0 && map.PendingEntry?.NodeId==1),"Engine input reaches only the chosen entry action once, without leaking.");
   }
   finally {view.Free();probe.Free();}
+ }
+
+ private static async Task NativeEntranceLayout()
+ {
+  var state=ResourceLoader.Load<PackedScene>("res://scenes/screens/character_select_screen.tscn").GetState();
+  float right=0,bottom=0;
+  for(int i=0;i<state.GetNodePropertyCount(0);i++)
+  {
+   string key=state.GetNodePropertyName(0,i);
+   if(key=="offset_right")right=(float)state.GetNodePropertyValue(0,i).AsDouble();
+   if(key=="offset_bottom")bottom=(float)state.GetNodePropertyValue(0,i).AsDouble();
+  }
+  Console.WriteLine($"NATIVE_ENTRANCE root offsets={right},{bottom}");
+  using var host=new Control {Size=new(right,bottom)};
+  var choice=JigsawModeEntry.Attach(host); HeadlessUiHost.EnsureInputActions();
+  await HeadlessUiHost.Mount(host);
+  var tree=(SceneTree)Engine.GetMainLoop();
+  var rect=choice.GetGlobalRect();
+  Require(rect.Position.Y>=0 && rect.End.Y<=tree.Root.Size.Y && rect.Size.Y>0,"The production entrance must appear inside the viewport even when native screen root has zero size.");
+  Input.ParseInputEvent(new InputEventAction{Action=MegaInput.viewDrawPile,Pressed=true});
+  await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
+  Require(choice.ButtonPressed && JigsawNativeSession.SelectedForNewRun,"Visible entrance receives engine input and selects the production run mode.");
+  JigsawNativeSession.SelectedForNewRun=false;
  }
 
  private static async Task RoutedInput()

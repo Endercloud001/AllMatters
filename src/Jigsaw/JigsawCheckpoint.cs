@@ -46,7 +46,10 @@ internal static class JigsawSaveSource
     public static void Observe(string content, ReadSaveResult<SerializableRun> result)
     {
         if (!result.Success || result.SaveData is not { } save) return;
-        using var json = JsonDocument.Parse(content);
+        JsonDocument parsed;
+        try { parsed = JsonDocument.Parse(content); }
+        catch (JsonException) { return; } // Native recovery may salvage non-JSON saves; do not break that result.
+        using var json = parsed;
         bool hasJigsaw = json.RootElement.TryGetProperty("_ritsulib", out var root) &&
             root.ValueKind == JsonValueKind.Object && root.TryGetProperty("run_saved_data", out var data) &&
             data.ValueKind == JsonValueKind.Object && data.TryGetProperty(ModEntry.ModId, out var mod) &&
@@ -81,13 +84,51 @@ internal static class JigsawSaveSource
         attachDocument.Invoke(null, [save, build.Invoke(null, [native])]);
 }
 
+// Never detour a closed generic parser: reference-type instantiations share CLR
+// code. A Run-only detour can corrupt Profile/Prefs/Progress generic contexts.
 [HarmonyPatch]
 internal static class JigsawObserveNativeSaveSource
 {
-    private static MethodBase TargetMethod() => AccessTools.Method(typeof(MigrationManager),
-        "LoadWithAggressiveRecovery").MakeGenericMethod(typeof(SerializableRun));
-    private static void Postfix(string content, ReadSaveResult<SerializableRun> __result) =>
-        JigsawSaveSource.Observe(content, __result);
+    internal sealed class ReadScope
+    {
+        public ReadScope? Previous;
+        public string? Content;
+    }
+    [ThreadStatic] internal static ReadScope? Current;
+    private static IEnumerable<MethodBase> TargetMethods()
+    {
+        yield return AccessTools.Method(typeof(MegaCrit.Sts2.Core.Saves.Managers.RunSaveManager), "LoadRunSave");
+        yield return AccessTools.Method(typeof(MegaCrit.Sts2.Core.Saves.Managers.RunSaveManager), "LoadMultiplayerRunSave");
+    }
+    private static void Prefix(out ReadScope __state) => Current = __state = new() { Previous = Current };
+    [HarmonyPriority(Priority.Last)]
+    private static void Postfix(ReadSaveResult<SerializableRun> __result, ReadScope __state)
+    {
+        if (__state.Content is {} json && __result.Success && __result.SaveData is {} save)
+        {
+            JigsawSaveSource.Observe(json, __result);
+            JigsawSaveSource.Attach(save);
+        }
+    }
+    private static void Finalizer(ReadScope __state) => Current = __state.Previous;
+}
+
+[HarmonyPatch]
+internal static class JigsawObserveNativeRead
+{
+    private static IEnumerable<MethodBase> TargetMethods()
+    {
+        foreach (var type in new[] { typeof(GodotFileIo), typeof(CloudSaveStore), typeof(MegaCrit.Sts2.Core.Saves.Test.MockGodotFileIo) })
+            yield return AccessTools.Method(type, "ReadFile", [typeof(string)]);
+    }
+    private static void Postfix(string __result)
+    {
+        if (JigsawObserveNativeSaveSource.Current is not {} scope || string.IsNullOrWhiteSpace(__result)) return;
+        // Ignore library post-load primary rereads. Only native migration reads
+        // determine the source of the successfully returned run object.
+        if (new System.Diagnostics.StackTrace().GetFrames().Any(f => f.GetMethod()?.DeclaringType == typeof(MigrationManager)))
+            scope.Content = __result;
+    }
 }
 
 [HarmonyPatch(typeof(RunState), nameof(RunState.FromSerializable))]

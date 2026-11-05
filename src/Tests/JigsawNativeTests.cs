@@ -14,7 +14,8 @@ internal static class JigsawNativeTests
 {
     private enum EntryFailureKind { None, BeforeReady, RestoredBeforeReady, AfterReady, RetryAfterReady, BeforeSave, Abandon, AbandonBeforeSave, AbandonRestored, AbandonWriteFailure, AfterCompletedAbandon }
     public static readonly (string Name, Func<Task> Test)[] Cases =
-    [ ("Jigsaw native saves serialize pending native writes and exit waits latest", SerializedWrites),
+    [ ("Jigsaw native profile and progress schemas stay independent", IndependentSaveSchemas),
+      ("Jigsaw native saves serialize pending native writes and exit waits latest", SerializedWrites),
       ("Jigsaw native queued successful save recovers prior write failure", ()=>SerializedWrites(true)),
       ("Jigsaw native pending edits merge while in-flight checkpoint stays intact", CoalescedEdits),
       ("Jigsaw native pending editor retry survives earlier edit write failure", ()=>CoalescedEdits(false, failFirst:true)),
@@ -52,6 +53,27 @@ internal static class JigsawNativeTests
       ("Jigsaw native missing checkpoint fields reject partial documents", MissingCheckpointFields),
       ("Jigsaw native console discovery and editable phase reset", ConsoleReset),
       ("Jigsaw native later acts start a fresh pool before preserved Ancient and Boss", LaterAct) ];
+
+    private static Task IndependentSaveSchemas()
+    {
+        var io = new MockGodotFileIo("independent-schemas-isolated");
+        var migration = new MigrationManager(io);
+        void Check<T>(string path) where T : MegaCrit.Sts2.Core.Saves.ISaveSchema, new()
+        {
+            var data = new T { SchemaVersion = migration.GetLatestVersion<T>() };
+            string? fixtures = Environment.GetEnvironmentVariable("ALLMATTERS_SAVE_REPRO_DIR");
+            string json = fixtures != null ? File.ReadAllText(Path.Combine(fixtures, path)) :
+                System.Text.Json.JsonSerializer.Serialize(data, MegaCrit.Sts2.Core.Saves.JsonSerializationUtility.GetTypeInfo<T>());
+            io.WriteFile(path, json);
+            var loaded = migration.LoadSave<T>(path);
+            Require(loaded.Success && loaded.SaveData != null && loaded.SaveData.SchemaVersion == data.SchemaVersion && io.FileExists(path),
+                $"Loading {path} uses its own schema, never the run schema, and must not move a valid save to corrupt.");
+        }
+        Check<MegaCrit.Sts2.Core.Saves.PrefsSave>("prefs.save");
+        Check<MegaCrit.Sts2.Core.Saves.ProfileSave>("profile.save");
+        Check<MegaCrit.Sts2.Core.Saves.SerializableProgress>("progress.save");
+        return Task.CompletedTask;
+    }
 
     private static async Task Automatic()
     {

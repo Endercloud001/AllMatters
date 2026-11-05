@@ -9,6 +9,8 @@ namespace AllMatters.Jigsaw;
 internal static class JigsawModeEntry
 {
     private static void Postfix(NCharacterSelectScreen __instance)
+        => Attach(__instance);
+    internal static JigsawModeChoice Attach(Control __instance)
     {
         JigsawNativeSession.SelectedForNewRun = false;
         var choice = __instance.GetNodeOrNull<JigsawModeChoice>("AllMattersJigsawMode");
@@ -17,8 +19,7 @@ internal static class JigsawModeEntry
             choice = new JigsawModeChoice
             {
                 Name = "AllMattersJigsawMode", Text = "拼图模式",
-                AnchorTop = 1, AnchorBottom = 1,
-                OffsetLeft = 40, OffsetRight = 340, OffsetTop = -150, OffsetBottom = -90,
+                TopLevel = true, ZIndex = 100, Size = new(300, 64),
                 FocusMode = Control.FocusModeEnum.All
             };
             choice.Toggled += selected => JigsawNativeSession.SelectedForNewRun = selected;
@@ -26,6 +27,7 @@ internal static class JigsawModeEntry
         }
         choice.ButtonPressed = false;
         choice.Show();
+        return choice;
     }
 }
 
@@ -39,9 +41,14 @@ public partial class JigsawModeChoice : CheckButton
         MouseFilter = MouseFilterEnum.Ignore,
         Position = new(250, 12), Size = new(32, 32)
     };
-    public override void _Ready() => AddChild(hotkey);
+    public override void _Ready() { AddChild(hotkey); PositionEntrance(); }
+    private void PositionEntrance()
+    {
+        if (TopLevel) Position = new Vector2(40, Math.Max(0, GetViewportRect().Size.Y - 190));
+    }
     public override void _Process(double delta)
     {
+        PositionEntrance();
 #if STS2_PUBLIC
         hotkey.Texture = MegaCrit.Sts2.Core.Nodes.CommonUi.NControllerManager.Instance?.GetHotkeyIcon(MegaCrit.Sts2.Core.ControllerInput.MegaInput.viewDrawPile);
 #else
