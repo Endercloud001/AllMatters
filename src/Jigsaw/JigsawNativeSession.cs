@@ -34,6 +34,9 @@ public sealed class JigsawNativeSession
     private int act = -1;
     private JigsawScreen? screen;
     private Task saveTask = Task.CompletedTask;
+    private Task nativeSaveTask = Task.CompletedTask;
+    private bool savingEdits;
+    private bool pendingEditSave;
     private Exception? saveFailure;
     private bool blockingHotkeys;
     private bool paused;
@@ -132,25 +135,59 @@ public sealed class JigsawNativeSession
         // Keep native's pre-roll checkpoint until a native reward save or completion.
         if (Map.CurrentNode != null || Map.PendingEntry != null) { Changed?.Invoke(); return; }
         JigsawCheckpoint.Capture(Native, Map);
-        // Capture happens synchronously before yielding; writes retain acceptance order.
-        saveTask = SaveAfter(saveTask);
+        pendingEditSave = true;
+        if (!savingEdits)
+        {
+            savingEdits = true;
+            saveTask = SaveEdits();
+        }
         Changed?.Invoke();
     }
-    private async Task SaveAfter(Task previous)
+    private async Task SaveEdits()
     {
-        try { await previous; } catch { /* A new accepted edit retries the latest complete point. */ }
-        if (RunManager.Instance.ShouldSave)
+        try
         {
-            await SaveManager.Instance.SaveRun(Native.CurrentRoom is { IsPreFinished: true } finished ? finished : null);
-            if (saveFailure != null) throw new IOException("拼图保存失败，请重试保存后再退出。", saveFailure);
+            while (pendingEditSave && Current == this)
+            {
+                pendingEditSave = false;
+                if (!RunManager.Instance.ShouldSave) continue;
+                try
+                {
+                    await SaveManager.Instance.SaveRun(Native.CurrentRoom is { IsPreFinished: true } finished ? finished : null);
+                }
+                catch (Exception error) { saveFailure = error; }
+                // Keep draining already accepted newer edits after a failed write.
+                // The final outcome belongs to the native write chain, so a later
+                // native retry can also supersede this editor attempt's failure.
+            }
         }
+        finally { savingEdits = false; }
     }
     public async Task WaitForSave()
     {
-        await saveTask;
-        if (SaveManager.Instance.CurrentRunSaveTask is { } nativeSave) await nativeSave;
-        if (saveFailure != null) throw new IOException("拼图保存失败，请重试保存后再退出。", saveFailure);
+        try
+        {
+            while (true)
+            {
+                var edits = saveTask; var writes = nativeSaveTask;
+                Exception? failure = null;
+                try
+                {
+                    await edits;
+                    await writes;
+                    if (SaveManager.Instance.CurrentRunSaveTask is { } nativeSave) await nativeSave;
+                }
+                catch (Exception error) { failure = error; }
+                // A retry accepted while exit was waiting supersedes the older outcome.
+                if (edits != saveTask || writes != nativeSaveTask) continue;
+                if (failure != null) throw failure;
+                break;
+            }
+            if (saveFailure != null) throw saveFailure;
+        }
+        catch (Exception error) { throw new IOException("拼图保存失败，请重试保存后再退出。", error); }
     }
+    internal Task TrackNativeSave(Task write) => nativeSaveTask = ObserveSave(write);
     public async Task ObserveSave(Task write)
     {
         try { await write; saveFailure = null; }

@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Runs;
@@ -12,9 +13,9 @@ namespace AllMatters.Jigsaw;
 
 public sealed class JigsawCheckpointData
 {
-    public int Version { get; set; }
-    public int Act { get; set; }
-    public JigsawSave? Map { get; set; }
+    [JsonRequired] public int Version { get; set; }
+    [JsonRequired] public int Act { get; set; }
+    [JsonRequired] public JigsawSave? Map { get; set; }
 }
 
 /// <summary>Run data lives inside the native save, never in a second run file.</summary>

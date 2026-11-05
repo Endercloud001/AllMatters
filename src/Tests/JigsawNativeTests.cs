@@ -13,7 +13,13 @@ using System.Text.Json.Nodes;
 internal static class JigsawNativeTests
 {
     public static readonly (string Name, Func<Task> Test)[] Cases =
-    [ ("Jigsaw native checkpoint recovery fault matrix", CheckpointFaultMatrix),
+    [ ("Jigsaw native saves serialize pending native writes and exit waits latest", SerializedWrites),
+      ("Jigsaw native queued successful save recovers prior write failure", ()=>SerializedWrites(true)),
+      ("Jigsaw native pending edits merge while in-flight checkpoint stays intact", CoalescedEdits),
+      ("Jigsaw native pending editor retry survives earlier edit write failure", ()=>CoalescedEdits(false, failFirst:true)),
+      ("Jigsaw native successful native retry supersedes failed editor save", ()=>CoalescedEdits(false, failFirst:true, nativeRetry:true)),
+      ("Jigsaw native old pending edits cannot save a replacement run", ()=>CoalescedEdits(true)),
+      ("Jigsaw native checkpoint recovery fault matrix", CheckpointFaultMatrix),
       ("Jigsaw native backup restores the exact pool and native player from one source", BackupSource),
       ("Jigsaw native act enters real map room before Ancient rewards", EditingBeforeAncient),
       ("Jigsaw native automatic enters actual Ancient from saved authorized operation", Automatic),
@@ -27,10 +33,12 @@ internal static class JigsawNativeTests
       ("Jigsaw native manual map reaches actual Ancient and first room checkpoint", FullFirstRoom),
       ("Jigsaw native treasure rewards complete before map checkpoint", CompletedTreasure),
       ("Jigsaw native partial Ancient restores complete prereward player and map", PartialAncient),
+      ("Jigsaw native actual Ancient reward callback rolls back then replays once", ()=>FirstRoomFlow(false, actualPartial:true)),
       ("Jigsaw native finished Ancient restore preserves rewards without replay", FinishedAncient),
       ("Jigsaw native failed memory save prevents successful wait until retry", FailedSave),
       ("Jigsaw native missing mode payload rejects a marked native save", ()=>MissingModeData()),
       ("Jigsaw native missing phase rejects incomplete checkpoint", ()=>MissingModeData("Phase")),
+      ("Jigsaw native missing checkpoint fields reject partial documents", MissingCheckpointFields),
       ("Jigsaw native console discovery and editable phase reset", ConsoleReset),
       ("Jigsaw native later acts start a fresh pool before preserved Ancient and Boss", LaterAct) ];
 
@@ -237,7 +245,15 @@ internal static class JigsawNativeTests
         finally { JigsawNativeSaveHost.Save=null; RunManager.Instance.CleanUp(false); }
     }
 
-    private static async Task MissingModeData(string? missingField=null)
+    private static async Task MissingCheckpointFields()
+    {
+        foreach (string field in new[] { "Budget", "Steps", "FirstProgress", "CurrentNode", "PendingEntry", "NextEntry", "AncientCompleted", "Players", "Pool", "Placements", "ExternalEdges", "Visited", "Completed", "GenerationRandomState" })
+            await MissingModeData(field);
+        foreach (string field in new[] { "Version", "Act", "Map" }) await MissingModeData(field, header: true);
+        await MissingModeData("Version", header: true, unsupportedVersion: true);
+    }
+
+    private static async Task MissingModeData(string? missingField=null, bool header=false, bool unsupportedVersion=false)
     {
         var native=RunState.CreateForTest(players:[MegaCrit.Sts2.Core.Entities.Players.Player.CreateForNewRun(
             ModelDb.Character<MegaCrit.Sts2.Core.Models.Characters.Ironclad>(),MegaCrit.Sts2.Core.Unlocks.UnlockState.all,1)],
@@ -263,8 +279,9 @@ internal static class JigsawNativeTests
                             if (missingField == null) obj.Remove(property.Key);
                             else
                             {
-                                var map = property.Value!["data"]!["Map"]!.AsObject();
-                                Require(map.Remove(missingField), "Preparation removes actual persisted field.");
+                                var data = property.Value!["data"]!.AsObject();
+                                if (unsupportedVersion) data["Version"] = 999;
+                                else Require((header ? data : data["Map"]!.AsObject()).Remove(missingField), "Preparation removes actual persisted field.");
                             }
                             removed = true;
                         }
@@ -278,7 +295,7 @@ internal static class JigsawNativeTests
             var loaded=manager.LoadRunSave();
             Require(loaded.Success && loaded.SaveData!=null,"A missing extension still leaves structurally valid native JSON.");
             bool rejected=false;
-            try { RunState.FromSerializable(loaded.SaveData!); } catch(InvalidDataException) { rejected=true; }
+            try { RunState.FromSerializable(loaded.SaveData!); } catch(Exception error) when(error is InvalidDataException or ArgumentException) { rejected=true; }
             Require(rejected,"A marked jigsaw run missing its map payload must reject restoration, never silently become a vanilla run.");
         }
         finally { RunManager.Instance.CleanUp(false); }
@@ -383,7 +400,7 @@ internal static class JigsawNativeTests
         finally { RunManager.Instance.CleanUp(false); }
     }
 
-    private static async Task FirstRoomFlow(bool completeTreasure,bool partialAncient=false,bool finishedAncient=false)
+    private static async Task FirstRoomFlow(bool completeTreasure,bool partialAncient=false,bool finishedAncient=false,bool actualPartial=false)
     {
         using var atlases=HeadlessTestSetup.LoadAtlases("card_atlas","relic_atlas");
         using var eventScope=HeadlessCombatInProgress.EnterEvent();
@@ -438,6 +455,16 @@ internal static class JigsawNativeTests
                 Require(JigsawCheckpoint.Slot.TryGet(rollback,out var partialMap) && partialMap.Map is {Phase:JigsawPhase.Ancient,Steps:0} && partialMap.Map.AncientCompleted.Length==0 && partialMap.Map.Placements.Length==1,"Partial Ancient rollback keeps the successful layout and incomplete reward phase.");
                 return;
             }
+            string beforeReward = System.Text.Json.JsonSerializer.Serialize(native.Players[0].ToSerializable());
+            MegaCrit.Sts2.Core.Saves.SerializableRun? interrupted = null;
+            if (actualPartial) JigsawAncientRewardBoundaryHost.BeforeDone = current =>
+            {
+                if (!ReferenceEquals(current, ancient)) return;
+                Require(!current.IsFinished && !session.AncientReady &&
+                    System.Text.Json.JsonSerializer.Serialize(native.Players[0].ToSerializable()) != beforeReward,
+                    "The actual native option has applied effects before event completion.");
+                interrupted = RunManager.Instance.ToSave(null);
+            };
             var option=ancient.CurrentOptions.Single(o=>o.Relic?.Id.Entry==
 #if STS2_PUBLIC
                 "FISHING_ROD"
@@ -446,7 +473,38 @@ internal static class JigsawNativeTests
 #endif
             );
             using(MegaCrit.Sts2.Core.Commands.CardSelectCmd.UseSelector(new NativeEventTests.Select(native.Players[0].Deck.Cards.First()))) await option.Chosen();
+            JigsawAncientRewardBoundaryHost.BeforeDone = null;
             Require(ancient.IsFinished && session.AncientReady,"Real native option completion, rather than a direct domain completion call, authorizes Continue.");
+            if (actualPartial)
+            {
+                Require(interrupted != null, "The real Ancient Done callback exposes the partial reward checkpoint.");
+                string completeReward = System.Text.Json.JsonSerializer.Serialize(native.Players[0].ToSerializable());
+                string choice = option.Relic!.Id.Entry;
+                await manager.SaveRun(interrupted!, false);
+                var partial = manager.LoadRunSave();
+                RunManager.Instance.CleanUp(false);
+                var rollback = RunState.FromSerializable(partial.SaveData!);
+                Require(System.Text.Json.JsonSerializer.Serialize(rollback.Players[0].ToSerializable()) == beforeReward,
+                    "Actual option relic and card side effects roll back to the complete prereward player.");
+                await RunManager.Instance.SetUpSavedSingleplayer(rollback, partial.SaveData!);
+                MegaCrit.Sts2.Core.Context.LocalContext.NetId = rollback.Players[0].NetId;
+                await RunManager.Instance.GenerateMap(); await RunManager.Instance.LoadIntoLatestMapCoord(null);
+                var recovered = JigsawNativeSession.Current!;
+                Require(recovered.Map!.Placements.SequenceEqual(map.Placements) && !recovered.AncientReady,
+                    "Native reload preserves the accepted map and reopens the unfinished Ancient choice.");
+                var restoredAncient = RunManager.Instance.EventSynchronizer.GetLocalEvent();
+                using (MegaCrit.Sts2.Core.Commands.CardSelectCmd.UseSelector(new NativeEventTests.Select(rollback.Players[0].Deck.Cards.First())))
+                    await restoredAncient.CurrentOptions.Single(o => o.Relic?.Id.Entry == choice).Chosen();
+                var actualPlayer = System.Text.Json.JsonSerializer.Serialize(rollback.Players[0].ToSerializable());
+                var expected = JsonNode.Parse(completeReward)!.AsObject(); var actual = JsonNode.Parse(actualPlayer)!.AsObject();
+                // User clarification of #67: profile discoveries remain native and monotonic.
+                // This run's newly-discovered list can differ after rollback/reselection.
+                Require(expected.Remove("discovered_relics") && actual.Remove("discovered_relics"), "Compare the actual native discovery field separately.");
+                Require(MegaCrit.Sts2.Core.Saves.SaveManager.Instance.IsRelicSeen(option.Relic!), "Native profile discovery survives reward rollback.");
+                Require(recovered.AncientReady && JsonNode.DeepEquals(expected, actual),
+                    "Replaying the real choice applies all remaining native player effects exactly once.");
+                return;
+            }
             if(finishedAncient)
             {
                 string expectedPlayer=System.Text.Json.JsonSerializer.Serialize(native.Players[0].ToSerializable());
@@ -526,7 +584,7 @@ internal static class JigsawNativeTests
                 Require(completedRun.CurrentRoom is MapRoom && JigsawNativeSession.Current?.Map is {Steps:1,CurrentNode:null},"Actual completed-room reload returns to MapRoom without rerolling treasure or rewarding twice.");
             }
         }
-        finally { JigsawNativeSaveHost.Save=null; RunManager.Instance.CleanUp(false); }
+        finally { JigsawAncientRewardBoundaryHost.BeforeDone = null; JigsawNativeSaveHost.Save=null; RunManager.Instance.CleanUp(false); }
     }
 
     private static async Task CheckpointFaultMatrix()
@@ -587,6 +645,123 @@ internal static class JigsawNativeTests
             finally { RunManager.Instance.CleanUp(false); }
         }
     }
+    private static Task CoalescedEdits() => CoalescedEdits(false);
+    private static async Task CoalescedEdits(bool stale, bool failFirst=false, bool nativeRetry=false)
+    {
+        var native = RunState.CreateForTest(players: [MegaCrit.Sts2.Core.Entities.Players.Player.CreateForNewRun(ModelDb.Character<MegaCrit.Sts2.Core.Models.Characters.Ironclad>(), MegaCrit.Sts2.Core.Unlocks.UnlockState.all, 1)], acts: [ModelDb.Act<Overgrowth>()], seed: "COALESCED_EDITS_76");
+        RunManager.Instance.SetUpTest(native, new NetSingleplayerGameService(), shouldSave: true);
+        var release = new TaskCompletionSource();
+        var io = new MockGodotFileIo("coalesced-76-memory-only");
+        var manager = new RunSaveManager(76, io, new MigrationManager(io));
+        int writes = 0;
+        try
+        {
+            RunManager.Instance.GenerateRooms(); await RunManager.Instance.GenerateMap();
+            var session = JigsawNativeSession.Enable(native); await session.StartAct();
+            JigsawNativeSaveHost.Save = room => manager.SaveRun(RunManager.Instance.ToSave(room), false);
+            JigsawDelayedIoHost.Write = async (target, path, bytes) =>
+            {
+                if (++writes == 1)
+                {
+                    await release.Task;
+                    if (failFirst) throw new IOException("Injected editor write failure");
+                }
+                target.WriteFile(path, bytes);
+            };
+            session.OnEdited();
+            Require(writes == 1, "First edit has entered actual native IO.");
+            var exit = session.WaitForSave();
+            if (nativeRetry)
+            {
+                release.SetResult();
+                bool failed = false; try { await exit; } catch (IOException) { failed = true; }
+                Require(failed, "The latest failed editor point must refuse exit before retry.");
+                await manager.SaveRun(RunManager.Instance.ToSave(null), false);
+                await session.WaitForSave();
+                Require(writes == 2, "A later successful native complete point supersedes the old editor failure.");
+                return;
+            }
+            Require(session.Map!.Take(1, 0).Success && session.Map.Drop(1, new(3, 0)).Success, "Prepare a later accepted placement.");
+            session.OnEdited();
+            native.Players[0].Gold = 222;
+            session.OnEdited();
+            Require(!exit.IsCompleted && writes == 1, "Exit waits while newer edits remain pending.");
+            if (stale)
+            {
+                RunManager.Instance.CleanUp(false);
+                var replacement = (RunState)HeadlessTestSetup.PlayerWithRun("REPLACEMENT_PENDING_SAVE_76").RunState;
+                RunManager.Instance.SetUpTest(replacement, new NetSingleplayerGameService(), shouldSave: true);
+                JigsawNativeSession.Enable(replacement);
+                release.SetResult(); await exit;
+                Require(writes == 1, "Old queued edits cannot capture or write a replacement run after the in-flight save completes.");
+                return;
+            }
+            release.SetResult();
+            await exit;
+            Require(writes == 2, "Only not-yet-started edits merge into one latest complete checkpoint.");
+            var loaded = manager.LoadRunSave();
+            var restored = RunState.FromSerializable(loaded.SaveData!);
+            Require(restored.Players[0].Gold == 222 && JigsawCheckpoint.Slot.TryGet(restored, out var data) && data.Map!.Placements.Length == 1,
+                "Exit includes the newest accepted native and map state.");
+            if (failFirst) return;
+            string path = RunSaveManager.GetRunSavePath(76, "current_run.save");
+            io.DeleteFile(path);
+            var backup = RunState.FromSerializable(manager.LoadRunSave().SaveData!);
+            Require(JigsawCheckpoint.Slot.TryGet(backup, out var old) && old.Map!.Placements.Length == 0,
+                "A checkpoint already being written retains its original complete map.");
+        }
+        finally { release.TrySetResult(); JigsawDelayedIoHost.Write = null; JigsawNativeSaveHost.Save = null; RunManager.Instance.CleanUp(false); }
+    }
+
+    private static Task SerializedWrites() => SerializedWrites(false);
+    private static async Task SerializedWrites(bool failFirst)
+    {
+        var native = (RunState)HeadlessTestSetup.PlayerWithRun("SERIAL_SAVE_76").RunState;
+        RunManager.Instance.SetUpTest(native, new NetSingleplayerGameService());
+        var release = new TaskCompletionSource();
+        var reached = new TaskCompletionSource();
+        var io = new MockGodotFileIo("serial-76-memory-only");
+        var manager = new RunSaveManager(76, io, new MigrationManager(io));
+        int writes = 0;
+        JigsawDelayedIoHost.Write = async (target, path, bytes) =>
+        {
+            if (!ReferenceEquals(target, io)) throw new InvalidOperationException("Unexpected IO owner");
+            if (++writes == 1)
+            {
+                reached.SetResult(); await release.Task;
+                if (failFirst) throw new IOException("Injected failure of the first queued write");
+            }
+            target.WriteFile(path, bytes);
+        };
+        try
+        {
+            var session = JigsawNativeSession.Enable(native);
+            native.Players[0].Gold = 111;
+            JigsawCheckpoint.Capture(native, JigsawRun.Create(76));
+            var first = manager.SaveRun(RunManager.Instance.ToSave(null), false);
+            await reached.Task;
+            Task? earlyExit = failFirst ? session.WaitForSave() : null;
+            native.Players[0].Gold = 222;
+            var secondMap = JigsawRun.Create(77);
+            JigsawCheckpoint.Capture(native, secondMap);
+            var second = manager.SaveRun(RunManager.Instance.ToSave(null), false);
+            var exit = earlyExit ?? session.WaitForSave();
+            bool serialized = writes == 1 && !second.IsCompleted && !exit.IsCompleted;
+            release.SetResult();
+            bool failed = false;
+            try { await first; } catch (IOException) { failed = true; }
+            await Task.WhenAll(second, exit);
+            Require(failed == failFirst, "Native caller observes the real write outcome while the later complete save can retry.");
+            Require(serialized, "Only one native write may start, and exit must wait for both accepted saves.");
+            var loaded = manager.LoadRunSave();
+            var restored = RunState.FromSerializable(loaded.SaveData!);
+            Require(restored.Players[0].Gold == 222 && JigsawCheckpoint.Slot.TryGet(restored, out var saved) &&
+                System.Text.Json.JsonSerializer.Serialize(saved.Map) == System.Text.Json.JsonSerializer.Serialize(secondMap.CreateSave()),
+                "A delayed older write cannot replace the latest complete native and map checkpoint.");
+        }
+        finally { release.TrySetResult(); JigsawDelayedIoHost.Write = null; RunManager.Instance.CleanUp(false); }
+    }
+
     private static async Task BackupSource()
     {
         var native = (RunState)HeadlessTestSetup.PlayerWithRun("JIGSAW_CHECKPOINT").RunState;
@@ -620,6 +795,27 @@ internal static class JigsawNativeTests
 
     private static void Require(bool condition, string message)
     { if (!condition) throw new Exception(message); }
+}
+
+[HarmonyPatch(typeof(MockGodotFileIo), nameof(MockGodotFileIo.WriteFileAsync), [typeof(string), typeof(byte[])])]
+internal static class JigsawDelayedIoHost
+{
+    internal static Func<MockGodotFileIo, string, byte[], Task>? Write;
+    private static bool Prefix(MockGodotFileIo __instance, string path, byte[] bytes, ref Task __result)
+    {
+        if (Write == null) return true;
+        __result = Write(__instance, path, bytes);
+        return false;
+    }
+}
+
+// Observe a real option after Obtain/AfterObtained but before native completion.
+// The callback captures a save; it neither suppresses nor synthesizes rewards.
+[HarmonyPatch(typeof(AncientEventModel), "Done")]
+internal static class JigsawAncientRewardBoundaryHost
+{
+    internal static Action<AncientEventModel>? BeforeDone;
+    private static void Prefix(AncientEventModel __instance) => BeforeDone?.Invoke(__instance);
 }
 
 [HarmonyPatch(typeof(MegaCrit.Sts2.Core.Saves.SaveManager),nameof(MegaCrit.Sts2.Core.Saves.SaveManager.SaveRun))]

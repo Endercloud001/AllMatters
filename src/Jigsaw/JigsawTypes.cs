@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace AllMatters.Jigsaw;
 
 public readonly record struct GridPoint(int X, int Y)
@@ -38,12 +40,24 @@ public sealed record JigsawNode(int Id, int? PieceId, JigsawRoom Room, GridPoint
 }
 public sealed record JigsawHolding(int PieceId, int Rotation);
 public sealed record JigsawEnterAttempt(long Id, int NodeId);
-public sealed record JigsawSave(JigsawPiece[] Pool, JigsawPlacement[] Placements, JigsawEdge[] ExternalEdges,
-    [property: System.Text.Json.Serialization.JsonRequired] JigsawPhase Phase, int Budget, ulong[] Players, int Steps, int FirstProgress, int[] Visited, int[] Completed,
-    int? CurrentNode, JigsawEnterAttempt? PendingEntry, long NextEntry, ulong[] AncientCompleted)
+public sealed record JigsawSave(
+    [property: JsonRequired] JigsawPiece[] Pool,
+    [property: JsonRequired] JigsawPlacement[] Placements,
+    [property: JsonRequired] JigsawEdge[] ExternalEdges,
+    [property: JsonRequired] JigsawPhase Phase,
+    [property: JsonRequired] int Budget,
+    [property: JsonRequired] ulong[] Players,
+    [property: JsonRequired] int Steps,
+    [property: JsonRequired] int FirstProgress,
+    [property: JsonRequired] int[] Visited,
+    [property: JsonRequired] int[] Completed,
+    [property: JsonRequired] int? CurrentNode,
+    [property: JsonRequired] JigsawEnterAttempt? PendingEntry,
+    [property: JsonRequired] long NextEntry,
+    [property: JsonRequired] ulong[] AncientCompleted)
 {
     public JigsawLayout? AutomaticWitness { get; init; }
     public JigsawAutomaticOperation? AutomaticOperation { get; init; }
-    public ulong GenerationRandomState { get; init; } = 1;
+    [JsonRequired] public ulong GenerationRandomState { get; init; } = 1;
 }
 public sealed record JigsawAutomaticOperation(string Algorithm,int ExpansionBudget,int[] CandidateOrder,ulong RandomState);
