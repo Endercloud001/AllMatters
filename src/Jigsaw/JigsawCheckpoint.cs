@@ -40,6 +40,8 @@ internal static class JigsawSaveSource
         .GetType("STS2RitsuLib.RunData.RunSavedDataRegistry", true)!
         .GetMethod("AttachDocumentFromJson")!;
     private static readonly MethodInfo inject = attach.DeclaringType!.GetMethod("InjectIntoUtf8Json")!;
+    private static readonly MethodInfo build = attach.DeclaringType!.GetMethod("BuildDocumentFromRun")!;
+    private static readonly MethodInfo attachDocument = attach.DeclaringType!.GetMethod("AttachDocument")!;
 
     public static void Observe(string content, ReadSaveResult<SerializableRun> result)
     {
@@ -74,6 +76,9 @@ internal static class JigsawSaveSource
         attach.Invoke(null, [copy, json]);
         return copy;
     }
+
+    public static void CaptureDocument(SerializableRun save, RunState native) =>
+        attachDocument.Invoke(null, [save, build.Invoke(null, [native])]);
 }
 
 [HarmonyPatch]

@@ -13,6 +13,7 @@ public partial class JigsawScreen : Control
  private Func<Task> inspected = null!, continued = null!;
  private Func<int,Task> enter = null!;
  private Func<Task>? automaticRequested;
+ private Func<Task>? abandonRequested;
  private Func<ulong,Texture2D?>? avatar;
  private readonly HBoxContainer manualVoters=new(), autoVoters=new();
  private int helpIndex;
@@ -26,7 +27,7 @@ public partial class JigsawScreen : Control
  private readonly HBoxContainer root = new();
  private readonly VBoxContainer main = new(), footer = new(), decisions = new();
  private readonly HBoxContainer bottom = new(), top = new();
- private readonly Button next = new(), manual = new(), automatic = new(), resume = new(), help = new();
+ private readonly Button next = new(), manual = new(), automatic = new(), resume = new(), abandon = new(), help = new();
  private readonly PanelContainer helpPanel = new();
  private readonly VBoxContainer helpContent = new();
  private readonly Label helpText = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart };
@@ -75,9 +76,9 @@ public partial class JigsawScreen : Control
  public Control PoolControl => pool;
  public Control DialogControl => dialogScroll;
  public Control DecisionControl => decisions;
- public static JigsawScreen Create(JigsawRun map, ulong player, Action changed, Func<Task> inspected, Func<Task> continued, Func<int,Task> enter, Action pause, IJigsawTutorialProfile? profile = null, Func<Task>? automaticRequested = null, Func<ulong,Texture2D?>? avatar = null)
+ public static JigsawScreen Create(JigsawRun map, ulong player, Action changed, Func<Task> inspected, Func<Task> continued, Func<int,Task> enter, Action pause, IJigsawTutorialProfile? profile = null, Func<Task>? automaticRequested = null, Func<ulong,Texture2D?>? avatar = null, Func<Task>? abandonRequested = null)
  {
-  var view = new JigsawScreen { map=map, player=player, changed=changed, inspected=inspected, continued=continued, enter=enter, pause=pause, profile=profile ?? new JigsawTutorialProfile(), previousPhase=map.Phase, automaticRequested=automaticRequested, avatar=avatar };
+  var view = new JigsawScreen { map=map, player=player, changed=changed, inspected=inspected, continued=continued, enter=enter, pause=pause, profile=profile ?? new JigsawTutorialProfile(), previousPhase=map.Phase, automaticRequested=automaticRequested, avatar=avatar, abandonRequested=abandonRequested };
   view.Build(); view.Refresh(); return view;
  }
  private static string L(string text) => TranslationServer.Translate(text);
@@ -105,8 +106,9 @@ public partial class JigsawScreen : Control
   manual.FocusEntered += ExplainEnding; automatic.FocusEntered += ExplainEnding;
   resume.Text=L("继续前行"); resume.Pressed += ()=>RunAsync(map.PendingEntry is {} pending ? enter(pending.NodeId) : continued());
   decisions.AddChild(manualVoters); decisions.AddChild(manual); decisions.AddChild(autoVoters); decisions.AddChild(automatic); decisions.AddChild(resume);
+  abandon.Text=L("放弃进入"); abandon.Pressed+=()=>{if(abandonRequested!=null)RunAsync(abandonRequested());}; decisions.AddChild(abandon);
   var back=MakeButton("暂停",Back); decisions.AddChild(back);
-  actionButtons.AddRange([manual,automatic,resume,help,back]);
+  actionButtons.AddRange([manual,automatic,resume,abandon,help,back]);
   var returnButton=MakeButton("归还碎块",ReturnHeld); cards.AddChild(returnButton);
   var hints=new HBoxContainer(); footer.AddChild(hints);
   foreach(var pair in new[]{(MegaInput.select,"拿放"),(MegaInput.cancel,"返回"),(MegaInput.viewDiscardPile,"旋转／连拆线"),(MegaInput.viewDrawPile,"归还"),(MegaInput.viewDeckAndTabLeft,"切换区域"),(MegaInput.pauseAndBack,"帮助")})
@@ -151,6 +153,7 @@ public partial class JigsawScreen : Control
   manual.Text=L("由先古之民审视"); automatic.Text=L("令先古之民决定"); UpdateVoters(manualVoters,EndChoice.Manual); UpdateVoters(autoVoters,EndChoice.Automatic);
   resume.Visible=map.Phase==JigsawPhase.Ancient || map.PendingEntry!=null; resume.Disabled=Reading;
   resume.Text=L(map.PendingEntry!=null ? "重试进入" : "继续前行");
+  abandon.Visible=map.PendingEntry!=null && abandonRequested!=null; abandon.Disabled=Reading;
   next.Visible=(!tutorialPaused && profile.Sentence<Opening.Length)||replay!=null;
   if(next.Visible) dialog.Text=L(Opening[replay??Math.Clamp(profile.Sentence,0,5)]);
   else if(errorRemaining<=0) dialog.Text=CurrentInstruction();
@@ -223,7 +226,7 @@ public partial class JigsawScreen : Control
    if(!GodotObject.IsInstanceValid(this))return;
    if(map.Phase==JigsawPhase.Editing && map.AutomaticOperation!=null)ShowNotice("已保留原布局，可再次手动调整拼图。");
    else if(map.Phase==JigsawPhase.Ancient && map.AutomaticOperation!=null)ShowNotice("布局已保留，保存未完成。请再次继续以重试。");
-   else if(map.PendingEntry!=null)ShowNotice("进入未完成，目的地已保留。请选择“重试进入”。");
+   else if(map.PendingEntry!=null)ShowNotice("进入未完成，目的地已保留。可重试进入，或放弃进入后重新选择。");
    else ShowResult(JigsawResult.Reject(e.Message));
   }
  }

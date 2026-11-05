@@ -105,7 +105,7 @@ public sealed class JigsawNativeSession
         }
         screen.Show();
     }
-    internal JigsawScreen CreateScreen(IJigsawTutorialProfile? profile=null) => screen=JigsawScreen.Create(Map!,Native.Players[0].NetId,OnEdited,Inspect,Continue,Enter,Pause,profile,Automatic,id=>Native.Players.FirstOrDefault(p=>p.NetId==id)?.Character.IconTexture);
+    internal JigsawScreen CreateScreen(IJigsawTutorialProfile? profile=null) => screen=JigsawScreen.Create(Map!,Native.Players[0].NetId,OnEdited,Inspect,Continue,Enter,Pause,profile,Automatic,id=>Native.Players.FirstOrDefault(p=>p.NetId==id)?.Character.IconTexture,AbandonEntry);
     private void ReleaseHotkeys()
     {
         if (!blockingHotkeys) return;
@@ -309,6 +309,42 @@ public sealed class JigsawNativeSession
         return enteringTask = EnterCore(node);
     }
 
+    public Task AbandonEntry()
+    {
+        if (Current != this || enteringTask is { IsCompleted: false }) return Task.CompletedTask;
+        return enteringTask = AbandonEntryCore();
+    }
+
+    private async Task AbandonEntryCore()
+    {
+        if (!entryFailed || Map?.PendingEntry is not { } attempt || entryCheckpoint == null) return;
+        var checkpoint = JigsawSaveSource.Copy(entryCheckpoint);
+        await WaitForSave();
+        if (Current != this) return;
+        // The before-roll point contains a provisional coordinate, but not its
+        // history or rewards. Earlier failures have no provisional coordinate.
+        int row = Math.Max(0, (checkpoint.MapPointHistory.ElementAtOrDefault(checkpoint.CurrentActIndex)?.Count ?? 1) - 1);
+        if (checkpoint.VisitedMapCoords.Count > 0 && checkpoint.VisitedMapCoords[^1] == new MapCoord(0, row))
+            checkpoint.VisitedMapCoords.RemoveAt(checkpoint.VisitedMapCoords.Count - 1);
+        var restored = RunState.FromSerializable(checkpoint);
+        var selection = sessions.GetValue(restored, state => new(state));
+        if (selection.Map == null || !selection.Map.AbandonEntry(attempt.Id).Success)
+            throw new InvalidDataException("不能从完整进入点恢复目的地选择。");
+        selection.entryCheckpoint = null;
+        JigsawCheckpoint.Capture(restored, selection.Map);
+        JigsawSaveSource.CaptureDocument(checkpoint, restored);
+        HideMap();
+        await LoadCheckpoint(checkpoint, restored);
+        if (Current != selection) return;
+        selection.OnEdited();
+        try { await selection.WaitForSave(); }
+        catch
+        {
+            if (Current == selection) selection.screen?.ShowNotice("本次变更尚未保存，请稍后重试。");
+            throw;
+        }
+    }
+
     private async Task EnterCore(int node)
     {
         if (Map == null) return;
@@ -375,6 +411,11 @@ public sealed class JigsawNativeSession
         // Reuse native recovery of the whole before-roll point. Do not splice RNG,
         // encounter bags, players or history from a partly loaded room into it.
         var restored = RunState.FromSerializable(checkpoint);
+        await LoadCheckpoint(checkpoint, restored);
+    }
+
+    private static async Task LoadCheckpoint(SerializableRun checkpoint, RunState restored)
+    {
         RunManager.Instance.CleanUp(false);
         try
         {
@@ -553,6 +594,7 @@ internal static class JigsawResumePhase
         var map = session.Map;
         if (map.PendingEntry != null && !session.HasNativeEntryCoordinate)
         {
+            session.Native.ActFloor = map.FirstProgress;
             __result = RunManager.Instance.EnterRoom(new MapRoom());
             return false;
         }
@@ -568,6 +610,7 @@ internal static class JigsawResumePhase
             map.Phase is JigsawPhase.Editing or JigsawPhase.Inspecting or JigsawPhase.Generating ||
             map.Phase == JigsawPhase.Ancient && session.AncientReady)
         {
+            session.Native.ActFloor = map.FirstProgress;
             __result = RunManager.Instance.EnterRoom(new MapRoom());
             return false;
         }

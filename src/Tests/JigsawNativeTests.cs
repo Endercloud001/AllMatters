@@ -12,7 +12,7 @@ using System.Text.Json.Nodes;
 
 internal static class JigsawNativeTests
 {
-    private enum EntryFailureKind { None, BeforeReady, RestoredBeforeReady, AfterReady, RetryAfterReady, BeforeSave }
+    private enum EntryFailureKind { None, BeforeReady, RestoredBeforeReady, AfterReady, RetryAfterReady, BeforeSave, Abandon, AbandonBeforeSave, AbandonRestored, AbandonWriteFailure, AfterCompletedAbandon }
     public static readonly (string Name, Func<Task> Test)[] Cases =
     [ ("Jigsaw native saves serialize pending native writes and exit waits latest", SerializedWrites),
       ("Jigsaw native queued successful save recovers prior write failure", ()=>SerializedWrites(true)),
@@ -40,6 +40,11 @@ internal static class JigsawNativeTests
       ("Jigsaw native failure after readiness retains confirmed entry once", ()=>FirstRoomFlow(false, entryFailure:EntryFailureKind.AfterReady)),
       ("Jigsaw native retried readiness survives a later native callback failure", ()=>FirstRoomFlow(false, entryFailure:EntryFailureKind.RetryAfterReady)),
       ("Jigsaw native entry failure before native save retries uncharged destination", ()=>FirstRoomFlow(false, entryFailure:EntryFailureKind.BeforeSave)),
+      ("Jigsaw native abandon failed entry returns to selection and invalidates identity", ()=>FirstRoomFlow(false, entryFailure:EntryFailureKind.Abandon)),
+      ("Jigsaw native abandon early failed entry preserves completed native history", ()=>FirstRoomFlow(false, entryFailure:EntryFailureKind.AbandonBeforeSave)),
+      ("Jigsaw native abandon restored failed entry persists complete selection point", ()=>FirstRoomFlow(false, entryFailure:EntryFailureKind.AbandonRestored)),
+      ("Jigsaw native abandon write failure preserves last checkpoint and rejects exit", ()=>FirstRoomFlow(false, entryFailure:EntryFailureKind.AbandonWriteFailure)),
+      ("Jigsaw native later abandon preserves completed progress and native floor", ()=>FirstRoomFlow(true, entryFailure:EntryFailureKind.AfterCompletedAbandon)),
       ("Jigsaw native finished Ancient restore preserves rewards without replay", FinishedAncient),
       ("Jigsaw native failed memory save prevents successful wait until retry", FailedSave),
       ("Jigsaw native missing mode payload rejects a marked native save", ()=>MissingModeData()),
@@ -532,10 +537,11 @@ internal static class JigsawNativeTests
             }
             await session.Continue();
             Require(map.Phase==JigsawPhase.Exploring && map.Steps==0,"Continue begins exploration without charging Ancient.");
-            if (entryFailure != EntryFailureKind.None)
+            if (entryFailure is not (EntryFailureKind.None or EntryFailureKind.AfterCompletedAbandon))
             {
-                JigsawEntryFailureHost.Early = entryFailure == EntryFailureKind.BeforeSave;
-                JigsawEntryFailureHost.Fail = entryFailure is not (EntryFailureKind.AfterReady or EntryFailureKind.BeforeSave);
+                bool early = entryFailure is EntryFailureKind.BeforeSave or EntryFailureKind.AbandonBeforeSave;
+                JigsawEntryFailureHost.Early = early;
+                JigsawEntryFailureHost.Fail = entryFailure != EntryFailureKind.AfterReady && !early;
                 JigsawEntryFailureHost.Late = entryFailure == EntryFailureKind.AfterReady;
                 bool failed = false;
                 try { await session.Enter(1); } catch (IOException) { failed = true; }
@@ -544,10 +550,12 @@ internal static class JigsawNativeTests
                     Require(failed && map.PendingEntry == null && map.Steps == 1 && map.FirstProgress == 1 && map.CurrentNode == 1,
                         "A failure after actual RoomEntered cannot roll back the confirmed entry.");
                     await session.Enter(1);
+                    await session.AbandonEntry();
                     Require(map.Steps == 1 && native.VisitedMapCoords.Count == 2, "A retry after confirmation cannot re-enter or charge twice.");
+                    Require(JigsawNativeSession.Current == session && map.CurrentNode == 1, "Abandon cannot roll back an already confirmed entry.");
                     return;
                 }
-                Require(failed && (entryFailure==EntryFailureKind.BeforeSave || JigsawEntryFailureHost.Relics != null) && map.PendingEntry?.NodeId == 1 && map.Steps == 0 && map.FirstProgress == 0,
+                Require(failed && (early || JigsawEntryFailureHost.Relics != null) && map.PendingEntry?.NodeId == 1 && map.Steps == 0 && map.FirstProgress == 0,
                     "A real native room has rolled contents but failed before readiness, retaining the uncharged destination.");
                 long identity = map.PendingEntry!.Id;
                 if (entryFailure == EntryFailureKind.RetryAfterReady)
@@ -562,7 +570,7 @@ internal static class JigsawNativeTests
                         "A later callback failure after restored readiness cannot re-enter or duplicate native history.");
                     return;
                 }
-                if (entryFailure == EntryFailureKind.RestoredBeforeReady)
+                if (entryFailure is EntryFailureKind.RestoredBeforeReady or EntryFailureKind.AbandonRestored)
                 {
                     await manager.SaveRun(RunManager.Instance.ToSave(null), false);
                     var savedFailure = manager.LoadRunSave();
@@ -576,6 +584,43 @@ internal static class JigsawNativeTests
                     Require(failed && JigsawNativeSession.Current!.Map!.PendingEntry?.Id == identity && JigsawNativeSession.Current.Map.Steps == 0,
                         "A saved failed entry retains its original identity and can fail again without charging.");
                     session = JigsawNativeSession.Current!;
+                }
+                if (entryFailure is EntryFailureKind.Abandon or EntryFailureKind.AbandonBeforeSave or EntryFailureKind.AbandonRestored or EntryFailureKind.AbandonWriteFailure)
+                {
+                    string nativePath = RunSaveManager.GetRunSavePath(74, "current_run.save");
+                    string? prior = io.ReadFile(nativePath);
+                    bool writeFailure = entryFailure == EntryFailureKind.AbandonWriteFailure;
+                    io.ShouldFailWrites = writeFailure;
+                    bool rejected = false;
+                    try { await session.AbandonEntry(); } catch (IOException) { rejected = true; }
+                    Require(rejected == writeFailure, "Abandon reports its actual complete-point write outcome.");
+                    var selection = JigsawNativeSession.Current!; var selectionMap = selection.Map!;
+                    if (writeFailure)
+                    {
+                        Require(io.ReadFile(nativePath) == prior, "A failed abandonment save preserves the last successful native checkpoint.");
+                        rejected = false; try { await selection.WaitForSave(); } catch (IOException) { rejected = true; }
+                        Require(rejected, "Normal exit cannot report an unsaved abandonment as successfully saved.");
+                        io.ShouldFailWrites = false; selection.OnEdited(); await selection.WaitForSave();
+                    }
+                    Require(selectionMap.PendingEntry == null && selectionMap.CurrentNode == null && selectionMap.Steps == 0 && selectionMap.FirstProgress == 0 && selection.Native.CurrentRoom is MapRoom,
+                        "Abandon restores a complete uncharged selection point, not the partially loaded native room.");
+                    Require(selection.Native.VisitedMapCoords.Count == 1 && selection.Native.MapPointHistory[0].Count == 1 && selectionMap.AvailableDestinations.Contains(1),
+                        "Only the completed Ancient remains in native visits/history and destinations can be selected again.");
+                    Require(!selectionMap.ConfirmEnter(identity).Success && selectionMap.CreateSave().NextEntry == identity,
+                        "Abandon invalidates the old pending identity without rewinding its sequence.");
+                    await selection.WaitForSave();
+                    await selection.AbandonEntry();
+                    Require(JigsawNativeSession.Current == selection, "Repeated abandonment at selection does not reload or reset the run.");
+                    var persisted = manager.LoadRunSave(); var savedSelection = RunState.FromSerializable(persisted.SaveData!);
+                    Require(JigsawCheckpoint.Slot.TryGet(savedSelection,out var selectionData) && selectionData.Map is { PendingEntry:null, CurrentNode:null, Steps:0 },
+                        "The native persisted selection point cannot restore the abandoned attempt.");
+                    await session.Enter(1);
+                    Require(selection.Map.PendingEntry == null, "A late old-session request cannot recreate the abandoned entry.");
+                    await selection.Enter(1);
+                    Require(selection.Map is { Steps:1, FirstProgress:1, CurrentNode:1 } && selection.Map.CreateSave().NextEntry == identity + 1 &&
+                        selection.Native.VisitedMapCoords.Count == 2 && selection.Native.MapPointHistory[0].Count == 2,
+                        "A new selection creates a fresh identity and one real entry without duplicating old native history.");
+                    return;
                 }
                 await session.Enter(1);
                 var retry = JigsawNativeSession.Current!;
@@ -647,6 +692,21 @@ internal static class JigsawNativeTests
                 await RunManager.Instance.GenerateMap();
                 await RunManager.Instance.LoadIntoLatestMapCoord(null);
                 Require(completedRun.CurrentRoom is MapRoom && JigsawNativeSession.Current?.Map is {Steps:1,CurrentNode:null},"Actual completed-room reload returns to MapRoom without rerolling treasure or rewarding twice.");
+                if (entryFailure == EntryFailureKind.AfterCompletedAbandon)
+                {
+                    var source = JigsawNativeSession.Current!;
+                    string playerBefore = System.Text.Json.JsonSerializer.Serialize(source.Native.Players[0].ToSerializable());
+                    JigsawEntryFailureHost.Early = true;
+                    bool failed = false; try { await source.Enter(2); } catch (IOException) { failed = true; }
+                    Require(failed, "The next destination fails after native coordinate submission.");
+                    await source.AbandonEntry();
+                    var selection = JigsawNativeSession.Current!;
+                    Require(selection.Map is { Steps:1, FirstProgress:1, PendingEntry:null, CurrentNode:null } && selection.Map.Completed.Contains(1) &&
+                        selection.Native.ActFloor == 1 && selection.Native.VisitedMapCoords.Count == 2 && selection.Native.MapPointHistory[0].Count == 2,
+                        "Later abandonment preserves actual completed progress, native floor and history.");
+                    Require(System.Text.Json.JsonSerializer.Serialize(selection.Native.Players[0].ToSerializable()) == playerBefore,
+                        "Completed reward effects survive later abandonment without replay.");
+                }
             }
         }
         finally { JigsawEntryFailureHost.Reset(); JigsawAncientRewardBoundaryHost.BeforeDone = null; JigsawNativeSaveHost.Save=null; RunManager.Instance.CleanUp(false); }
