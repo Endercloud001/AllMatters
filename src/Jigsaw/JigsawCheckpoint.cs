@@ -39,6 +39,7 @@ internal static class JigsawSaveSource
     private static readonly MethodInfo attach = typeof(RunSavedDataStore).Assembly
         .GetType("STS2RitsuLib.RunData.RunSavedDataRegistry", true)!
         .GetMethod("AttachDocumentFromJson")!;
+    private static readonly MethodInfo inject = attach.DeclaringType!.GetMethod("InjectIntoUtf8Json")!;
 
     public static void Observe(string content, ReadSaveResult<SerializableRun> result)
     {
@@ -57,6 +58,21 @@ internal static class JigsawSaveSource
     {
         if (sources.TryGetValue(save, out var source) && source.IsJigsaw)
             attach.Invoke(null, [save, source.Json]);
+    }
+
+    // Native restoration reuses some mutable history collections from its input.
+    // A retry must keep an independent complete point for another failed load.
+    public static SerializableRun Copy(SerializableRun save)
+    {
+        var type = JsonSerializationUtility.GetTypeInfo<SerializableRun>();
+        var bytes = JsonSerializer.SerializeToUtf8Bytes(save, type);
+        bytes = (byte[])inject.Invoke(null, [bytes, save])!;
+        string json = System.Text.Encoding.UTF8.GetString(bytes);
+        var copy = JsonSerializer.Deserialize(json, type) ?? throw new InvalidDataException("进入检查点无法复制。");
+        var identity = ModelDb.Modifier<AllMattersJigsawMode>();
+        if (!copy.Modifiers.Any(m => m.Id == identity.Id)) copy.Modifiers.Add(identity.ToMutable().ToSerializable());
+        attach.Invoke(null, [copy, json]);
+        return copy;
     }
 }
 

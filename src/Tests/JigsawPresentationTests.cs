@@ -10,6 +10,7 @@ internal static class JigsawPresentationTests
   ("Jigsaw presentation focus reaches isolated dense nodes and responsive layouts", NavigationLayout),
   ("Jigsaw presentation manual errors retain both five second segments", FailureTiming),
   ("Jigsaw presentation routed input is isolated and mode action toggles", RoutedInput),
+  ("Jigsaw presentation pending entry retry receives engine input", RetryInput),
   ("Jigsaw presentation rejected take does not add a holding prompt", RejectedTake),
   ("Jigsaw presentation failed endpoint interrupts consecutive blank clicks", EndpointBlanks),
   ("Jigsaw presentation recent notice ends with the puzzle", NoticeLifetime),
@@ -84,6 +85,27 @@ internal static class JigsawPresentationTests
   } finally {view.Free();}
   return Task.CompletedTask;
  }
+ private static async Task RetryInput()
+ {
+  var map=JigsawRun.Create(74);
+  Require(map.Take(1,0).Success && map.Drop(1,new(3,0)).Success && map.AddEdge(1,0,1).Success && map.ChooseEnd(1,EndChoice.Manual).Success && map.Inspect().Success,"Prepare accepted layout.");
+  map.CompleteAncient(1); map.Continue(1); map.BeginEnter(1);
+  HeadlessUiHost.EnsureInputActions(); int retries=0;
+  var view=JigsawScreen.Create(map,1,()=>{},()=>Task.CompletedTask,()=>Task.CompletedTask,node=>{Require(node==1,"Retry preserves destination.");retries++;return Task.CompletedTask;},()=>{},new MemoryJigsawTutorialProfile{Sentence=6});
+  var probe=new JigsawUnhandledInputProbe(); var tree=(SceneTree)Engine.GetMainLoop();
+  try
+  {
+   await HeadlessUiHost.Mount(probe,view);
+   var button=view.DecisionControl.GetChildren().OfType<Button>().SingleOrDefault(b=>b.Text=="重试进入");
+   Require(button is { Visible:true, Disabled:false },"A pending entry exposes the formal retry action.");
+   view.SwitchZone(1); view.SwitchZone(1); button!.GrabFocus();
+   Input.ParseInputEvent(new InputEventAction{Action=MegaInput.select,Pressed=true});
+   await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
+   Require(retries==1 && probe.Events==0 && map.PendingEntry?.NodeId==1,"Engine input reaches retry once and does not leak or change the accepted destination.");
+  }
+  finally {view.Free();probe.Free();}
+ }
+
  private static async Task RoutedInput()
  {
   var tree=(SceneTree)Engine.GetMainLoop();

@@ -12,6 +12,7 @@ using System.Text.Json.Nodes;
 
 internal static class JigsawNativeTests
 {
+    private enum EntryFailureKind { None, BeforeReady, RestoredBeforeReady, AfterReady, RetryAfterReady, BeforeSave }
     public static readonly (string Name, Func<Task> Test)[] Cases =
     [ ("Jigsaw native saves serialize pending native writes and exit waits latest", SerializedWrites),
       ("Jigsaw native queued successful save recovers prior write failure", ()=>SerializedWrites(true)),
@@ -34,6 +35,11 @@ internal static class JigsawNativeTests
       ("Jigsaw native treasure rewards complete before map checkpoint", CompletedTreasure),
       ("Jigsaw native partial Ancient restores complete prereward player and map", PartialAncient),
       ("Jigsaw native actual Ancient reward callback rolls back then replays once", ()=>FirstRoomFlow(false, actualPartial:true)),
+      ("Jigsaw native failed real room load retries same destination and content once", ()=>FirstRoomFlow(false, entryFailure:EntryFailureKind.BeforeReady)),
+      ("Jigsaw native failed room save and repeated restored failure retain entry", ()=>FirstRoomFlow(false, entryFailure:EntryFailureKind.RestoredBeforeReady)),
+      ("Jigsaw native failure after readiness retains confirmed entry once", ()=>FirstRoomFlow(false, entryFailure:EntryFailureKind.AfterReady)),
+      ("Jigsaw native retried readiness survives a later native callback failure", ()=>FirstRoomFlow(false, entryFailure:EntryFailureKind.RetryAfterReady)),
+      ("Jigsaw native entry failure before native save retries uncharged destination", ()=>FirstRoomFlow(false, entryFailure:EntryFailureKind.BeforeSave)),
       ("Jigsaw native finished Ancient restore preserves rewards without replay", FinishedAncient),
       ("Jigsaw native failed memory save prevents successful wait until retry", FailedSave),
       ("Jigsaw native missing mode payload rejects a marked native save", ()=>MissingModeData()),
@@ -400,7 +406,7 @@ internal static class JigsawNativeTests
         finally { RunManager.Instance.CleanUp(false); }
     }
 
-    private static async Task FirstRoomFlow(bool completeTreasure,bool partialAncient=false,bool finishedAncient=false,bool actualPartial=false)
+    private static async Task FirstRoomFlow(bool completeTreasure,bool partialAncient=false,bool finishedAncient=false,bool actualPartial=false,EntryFailureKind entryFailure=EntryFailureKind.None)
     {
         using var atlases=HeadlessTestSetup.LoadAtlases("card_atlas","relic_atlas");
         using var eventScope=HeadlessCombatInProgress.EnterEvent();
@@ -526,6 +532,65 @@ internal static class JigsawNativeTests
             }
             await session.Continue();
             Require(map.Phase==JigsawPhase.Exploring && map.Steps==0,"Continue begins exploration without charging Ancient.");
+            if (entryFailure != EntryFailureKind.None)
+            {
+                JigsawEntryFailureHost.Early = entryFailure == EntryFailureKind.BeforeSave;
+                JigsawEntryFailureHost.Fail = entryFailure is not (EntryFailureKind.AfterReady or EntryFailureKind.BeforeSave);
+                JigsawEntryFailureHost.Late = entryFailure == EntryFailureKind.AfterReady;
+                bool failed = false;
+                try { await session.Enter(1); } catch (IOException) { failed = true; }
+                if (entryFailure == EntryFailureKind.AfterReady)
+                {
+                    Require(failed && map.PendingEntry == null && map.Steps == 1 && map.FirstProgress == 1 && map.CurrentNode == 1,
+                        "A failure after actual RoomEntered cannot roll back the confirmed entry.");
+                    await session.Enter(1);
+                    Require(map.Steps == 1 && native.VisitedMapCoords.Count == 2, "A retry after confirmation cannot re-enter or charge twice.");
+                    return;
+                }
+                Require(failed && (entryFailure==EntryFailureKind.BeforeSave || JigsawEntryFailureHost.Relics != null) && map.PendingEntry?.NodeId == 1 && map.Steps == 0 && map.FirstProgress == 0,
+                    "A real native room has rolled contents but failed before readiness, retaining the uncharged destination.");
+                long identity = map.PendingEntry!.Id;
+                if (entryFailure == EntryFailureKind.RetryAfterReady)
+                {
+                    JigsawEntryFailureHost.Late = true;
+                    failed = false; try { await session.Enter(1); } catch (IOException) { failed = true; }
+                    var confirmed = JigsawNativeSession.Current!;
+                    Require(failed && confirmed.Map is { Steps:1, FirstProgress:1, CurrentNode:1, PendingEntry:null },
+                        "Restored native RoomEntered confirms before a later callback fails, without rolling back to pending.");
+                    await confirmed.Enter(1);
+                    Require(confirmed.Map.Steps == 1 && confirmed.Native.VisitedMapCoords.Count == 2 && confirmed.Native.MapPointHistory[0].Count == 2,
+                        "A later callback failure after restored readiness cannot re-enter or duplicate native history.");
+                    return;
+                }
+                if (entryFailure == EntryFailureKind.RestoredBeforeReady)
+                {
+                    await manager.SaveRun(RunManager.Instance.ToSave(null), false);
+                    var savedFailure = manager.LoadRunSave();
+                    RunManager.Instance.CleanUp(false);
+                    var recovered = RunState.FromSerializable(savedFailure.SaveData!);
+                    await RunManager.Instance.SetUpSavedSingleplayer(recovered, savedFailure.SaveData!);
+                    MegaCrit.Sts2.Core.Context.LocalContext.NetId = recovered.Players[0].NetId;
+                    await RunManager.Instance.GenerateMap();
+                    JigsawEntryFailureHost.Fail = true;
+                    failed = false; try { await RunManager.Instance.LoadIntoLatestMapCoord(null); } catch (IOException) { failed = true; }
+                    Require(failed && JigsawNativeSession.Current!.Map!.PendingEntry?.Id == identity && JigsawNativeSession.Current.Map.Steps == 0,
+                        "A saved failed entry retains its original identity and can fail again without charging.");
+                    session = JigsawNativeSession.Current!;
+                }
+                await session.Enter(1);
+                var retry = JigsawNativeSession.Current!;
+                var recoveredMap = retry.Map!;
+                Require(recoveredMap.PendingEntry == null && recoveredMap.CurrentNode == 1 && recoveredMap.Steps == 1 &&
+                    recoveredMap.FirstProgress == 1 && recoveredMap.CreateSave().NextEntry == identity && retry.Native.CurrentRoom is TreasureRoom,
+                    "Retry loads the same accepted destination through real native readiness, charging exactly once.");
+                Require(JigsawEntryFailureHost.Relics == null || RunManager.Instance.TreasureRoomRelicSynchronizer.CurrentRelics!.Select(r => r.Id.Entry).SequenceEqual(JigsawEntryFailureHost.Relics),
+                    "Retry restores pre-roll native content state instead of rerolling the treasure.");
+                Require(retry.Native.VisitedMapCoords.Count == 2 && retry.Native.MapPointHistory[0].Count == 2,
+                    "Retry retains only the Ancient and one first-room visit/history entry.");
+                await session.Enter(1); await retry.Enter(1);
+                Require(retry.Map!.Steps == 1 && retry.Native.VisitedMapCoords.Count == 2, "Repeated old or current session requests do not re-enter or charge twice.");
+                return;
+            }
             await session.Enter(1);
             Console.WriteLine("JIGSAW first native room: "+native.CurrentRoom?.GetType().Name+"; logical room: "+map.Nodes.Single(n=>n.Id==1).Room);
             Require(native.CurrentRoom is not (null or MapRoom or EventRoom { CanonicalEvent:AncientEventModel }) && map.Steps==1 && map.FirstProgress==1 && map.CurrentNode==1,"Real native readiness confirms exactly one first-room entry.");
@@ -584,7 +649,7 @@ internal static class JigsawNativeTests
                 Require(completedRun.CurrentRoom is MapRoom && JigsawNativeSession.Current?.Map is {Steps:1,CurrentNode:null},"Actual completed-room reload returns to MapRoom without rerolling treasure or rewarding twice.");
             }
         }
-        finally { JigsawAncientRewardBoundaryHost.BeforeDone = null; JigsawNativeSaveHost.Save=null; RunManager.Instance.CleanUp(false); }
+        finally { JigsawEntryFailureHost.Reset(); JigsawAncientRewardBoundaryHost.BeforeDone = null; JigsawNativeSaveHost.Save=null; RunManager.Instance.CleanUp(false); }
     }
 
     private static async Task CheckpointFaultMatrix()
@@ -805,6 +870,55 @@ internal static class JigsawDelayedIoHost
     {
         if (Write == null) return true;
         __result = Write(__instance, path, bytes);
+        return false;
+    }
+}
+
+[HarmonyPatch(typeof(TreasureRoom), nameof(TreasureRoom.EnterInternal))]
+internal static class JigsawEntryFailureHost
+{
+    internal static bool Early;
+    internal static bool Fail;
+    internal static bool Late;
+    internal static string[]? Relics;
+    private static void Postfix(ref Task __result)
+    {
+        if (Late) { Late = false; __result = InstallLateFailure(__result); return; }
+        if (!Fail) return;
+        Fail = false;
+        __result = FailAfterContents(__result);
+    }
+    private static async Task InstallLateFailure(Task original)
+    {
+        await original;
+        RunManager.Instance.RoomEntered += ThrowAfterReady;
+    }
+    private static void ThrowAfterReady()
+    {
+        RunManager.Instance.RoomEntered -= ThrowAfterReady;
+        throw new IOException("Injected failure after RoomEntered confirmation");
+    }
+    internal static void Reset()
+    {
+        Early = Fail = Late = false; Relics = null;
+        RunManager.Instance.RoomEntered -= ThrowAfterReady;
+    }
+    private static async Task FailAfterContents(Task original)
+    {
+        await original;
+        Relics = RunManager.Instance.TreasureRoomRelicSynchronizer.CurrentRelics!.Select(r => r.Id.Entry).ToArray();
+        throw new IOException("Injected real treasure load failure before RoomEntered");
+    }
+}
+
+[HarmonyPatch(typeof(RunManager), nameof(RunManager.EnterMapPointInternal))]
+internal static class JigsawEarlyEntryFailureHost
+{
+    private static bool Prefix(ref Task __result)
+    {
+        if (!JigsawEntryFailureHost.Early || JigsawNativeSession.Current?.Map?.PendingEntry == null) return true;
+        JigsawEntryFailureHost.Early = false;
+        __result = Task.FromException(new IOException("Injected failure after AddVisitedMapCoord but before native save"));
         return false;
     }
 }

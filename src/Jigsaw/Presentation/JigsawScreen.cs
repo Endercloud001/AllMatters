@@ -103,7 +103,7 @@ public partial class JigsawScreen : Control
   automatic.Text=L("令先古之民决定"); automatic.AutowrapMode=TextServer.AutowrapMode.WordSmart; automatic.Pressed += ()=>Choose(EndChoice.Automatic);
   manual.MouseEntered += ExplainEnding; automatic.MouseEntered += ExplainEnding;
   manual.FocusEntered += ExplainEnding; automatic.FocusEntered += ExplainEnding;
-  resume.Text=L("继续前行"); resume.Pressed += ()=>RunAsync(continued());
+  resume.Text=L("继续前行"); resume.Pressed += ()=>RunAsync(map.PendingEntry is {} pending ? enter(pending.NodeId) : continued());
   decisions.AddChild(manualVoters); decisions.AddChild(manual); decisions.AddChild(autoVoters); decisions.AddChild(automatic); decisions.AddChild(resume);
   var back=MakeButton("暂停",Back); decisions.AddChild(back);
   actionButtons.AddRange([manual,automatic,resume,help,back]);
@@ -149,7 +149,8 @@ public partial class JigsawScreen : Control
   manual.Visible=automatic.Visible=map.Phase is JigsawPhase.Editing or JigsawPhase.Inspecting or JigsawPhase.Generating;
   manual.Disabled=automatic.Disabled=Reading || map.Phase!=JigsawPhase.Editing;
   manual.Text=L("由先古之民审视"); automatic.Text=L("令先古之民决定"); UpdateVoters(manualVoters,EndChoice.Manual); UpdateVoters(autoVoters,EndChoice.Automatic);
-  resume.Visible=map.Phase==JigsawPhase.Ancient; resume.Disabled=Reading;
+  resume.Visible=map.Phase==JigsawPhase.Ancient || map.PendingEntry!=null; resume.Disabled=Reading;
+  resume.Text=L(map.PendingEntry!=null ? "重试进入" : "继续前行");
   next.Visible=(!tutorialPaused && profile.Sentence<Opening.Length)||replay!=null;
   if(next.Visible) dialog.Text=L(Opening[replay??Math.Clamp(profile.Sentence,0,5)]);
   else if(errorRemaining<=0) dialog.Text=CurrentInstruction();
@@ -216,11 +217,13 @@ public partial class JigsawScreen : Control
  }
  private async void RunAsync(Task task)
  {
-  try { await task; Refresh(); }
+  try { await task; if(GodotObject.IsInstanceValid(this))Refresh(); }
   catch(Exception e)
   {
+   if(!GodotObject.IsInstanceValid(this))return;
    if(map.Phase==JigsawPhase.Editing && map.AutomaticOperation!=null)ShowNotice("已保留原布局，可再次手动调整拼图。");
    else if(map.Phase==JigsawPhase.Ancient && map.AutomaticOperation!=null)ShowNotice("布局已保留，保存未完成。请再次继续以重试。");
+   else if(map.PendingEntry!=null)ShowNotice("进入未完成，目的地已保留。请选择“重试进入”。");
    else ShowResult(JigsawResult.Reject(e.Message));
   }
  }

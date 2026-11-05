@@ -40,6 +40,9 @@ public sealed class JigsawNativeSession
     private Exception? saveFailure;
     private bool blockingHotkeys;
     private bool paused;
+    private SerializableRun? entryCheckpoint;
+    private bool entryFailed;
+    private Task? enteringTask;
     public SerializableRun? BeforeAncient { get; private set; }
     public bool AncientReady => Map?.CreateSave().AncientCompleted.Length == Native.Players.Count;
     public bool CanResetLayout => Map?.Phase == JigsawPhase.Editing && Native.CurrentRoom is MapRoom &&
@@ -66,7 +69,7 @@ public sealed class JigsawNativeSession
         Changed?.Invoke();
     }
 
-    public static void Restore(RunState native, bool marked = false)
+    public static void Restore(RunState native, bool marked = false, SerializableRun? checkpoint = null)
     {
         if (!JigsawCheckpoint.Slot.TryGet(native, out var data))
         {
@@ -79,6 +82,7 @@ public sealed class JigsawNativeSession
         var session = Enable(native);
         session.act = data.Act;
         session.Map = JigsawRun.Restore(data.Map);
+        if (session.Map.PendingEntry != null && checkpoint != null) session.entryCheckpoint = JigsawSaveSource.Copy(checkpoint);
     }
 
     public void ShowMap()
@@ -298,14 +302,28 @@ public sealed class JigsawNativeSession
         OnEdited(); await WaitForSave(); ShowMap();
     }
 
-    public async Task Enter(int node)
+    public Task Enter(int node)
+    {
+        if (Current != this) return Task.CompletedTask;
+        if (enteringTask is { IsCompleted: false }) return enteringTask;
+        return enteringTask = EnterCore(node);
+    }
+
+    private async Task EnterCore(int node)
     {
         if (Map == null) return;
+        if (Map.PendingEntry == null) { entryCheckpoint = null; entryFailed = false; }
+        if (entryFailed && Map.PendingEntry?.NodeId == node && entryCheckpoint != null)
+        {
+            await RetryEntry(); return;
+        }
         var attempt = Map.PendingEntry ?? Map.BeginEnter(node);
         if (attempt == null || attempt.NodeId != node) return;
+        // Also retain a complete point before native AddVisited/exit/sync can fail.
+        entryCheckpoint ??= RunManager.Instance.ToSave(null);
         var destination = Map.Nodes.Single(n => n.Id == node);
         var projection = JigsawEntryProjection.Append(Native.Map,
-            Math.Max(0, (Native.MapPointHistory.ElementAtOrDefault(Native.CurrentActIndex)?.Count ?? 1) - 1),
+            NextProjectionRow,
             destination.Room);
         Native.Map = projection.Map;
         JigsawCheckpoint.Capture(Native, Map);
@@ -314,7 +332,7 @@ public sealed class JigsawNativeSession
         AbstractRoom? previous = Native.CurrentRoom;
         void RoomReady()
         {
-            if (Native.CurrentRoom is { } room && room != previous && room is not MapRoom &&
+            if (Current == this && Native.CurrentRoom is { } room && room != previous && room is not MapRoom &&
                 Native.CurrentMapPoint?.coord == projection.Point.coord)
             {
                 // The real native post-EnterInternal event is the confirmation seam.
@@ -325,15 +343,56 @@ public sealed class JigsawNativeSession
         try
         {
             await RunManager.Instance.EnterMapCoord(projection.Point.coord);
+            if (Current != this) return;
             if (!ready) throw new InvalidOperationException("原生房间尚未确认就绪；本次未计步。");
+            entryCheckpoint = null;
             JigsawCheckpoint.Capture(Native, Map);
         }
         catch
         {
-            ShowMap();
+            if (Current == this) { entryFailed = !ready; ShowMap(); }
             throw;
         }
         finally { RunManager.Instance.RoomEntered -= RoomReady; }
+    }
+
+    internal void CapturePendingEntry(SerializableRun checkpoint)
+    {
+        if (Map?.PendingEntry != null && Native.CurrentRoomCount == 0) entryCheckpoint = checkpoint;
+    }
+    private int NextProjectionRow => Math.Max(0, (Native.MapPointHistory.ElementAtOrDefault(Native.CurrentActIndex)?.Count ?? 1) - 1);
+    // Before native entry the latest coordinate is still the completed source;
+    // the before-roll point has the chronological target coordinate but no new history yet.
+    internal bool HasNativeEntryCoordinate => Native.CurrentMapCoord == new MapCoord(0, NextProjectionRow);
+    internal SerializableRun? FailedEntryCheckpoint => entryFailed && Map?.PendingEntry != null ? entryCheckpoint : null;
+
+    private async Task RetryEntry()
+    {
+        var checkpoint = JigsawSaveSource.Copy(entryCheckpoint!);
+        await WaitForSave();
+        if (Current != this) return;
+        HideMap();
+        // Reuse native recovery of the whole before-roll point. Do not splice RNG,
+        // encounter bags, players or history from a partly loaded room into it.
+        var restored = RunState.FromSerializable(checkpoint);
+        RunManager.Instance.CleanUp(false);
+        try
+        {
+            await RunManager.Instance.SetUpSavedSingleplayer(restored, checkpoint);
+            if (!TestMode.IsOn) await NGame.Instance.LoadRun(restored, null);
+            else
+            {
+                // Existing isolated native host omits NGame's asset/scene ownership.
+                await RunManager.Instance.GenerateMap();
+                await RunManager.Instance.LoadIntoLatestMapCoord(null);
+            }
+        }
+        catch { if (Current?.Native == restored) Current.RestoredEntryFailed(); throw; }
+    }
+
+    internal void RestoredEntryFailed()
+    {
+        if (Current == this && Map?.PendingEntry != null) { entryFailed = true; ShowMap(); }
     }
 
     public void CompleteCurrentRoom(bool canTravel)
@@ -350,9 +409,10 @@ public sealed class JigsawNativeSession
 
     public void ConfirmRestoredEntry()
     {
-        if (Map?.PendingEntry is { } pending && Native.CurrentRoom is not (null or MapRoom))
+        if (Current == this && Map?.PendingEntry is { } pending && Native.CurrentRoom is not (null or MapRoom))
         {
             Map.ConfirmEnter(pending.Id);
+            entryCheckpoint = null; entryFailed = false;
             JigsawCheckpoint.Capture(Native, Map);
         }
     }
@@ -453,8 +513,8 @@ internal static class JigsawRestoreSession
         if (__state != null) save.Modifiers = __state.Where(modifier => modifier.Id != identity).ToList();
     }
     [HarmonyPriority(Priority.Last)]
-    private static void Postfix(RunState __result, List<SerializableModifier>? __state) =>
-        JigsawNativeSession.Restore(__result, __state != null);
+    private static void Postfix(RunState __result, List<SerializableModifier>? __state, SerializableRun save) =>
+        JigsawNativeSession.Restore(__result, __state != null, save);
     private static void Finalizer(SerializableRun save, List<SerializableModifier>? __state)
     {
         if (__state != null) save.Modifiers = __state;
@@ -470,11 +530,13 @@ internal static class JigsawCaptureNativePoint
         var identity = ModelDb.Modifier<AllMattersJigsawMode>();
         if (!__result.Modifiers.Any(modifier => modifier.Id == identity.Id))
             __result.Modifiers.Add(identity.ToMutable().ToSerializable());
+        JigsawNativeSession.Current.CapturePendingEntry(__result);
     }
     private static bool Prefix(ref SerializableRun __result)
     {
         if (JigsawNativeSession.Current is not { Map: not null } session) return true;
         JigsawCheckpoint.Capture(session.Native, session.Map);
+        if (session.FailedEntryCheckpoint is { } pending) { __result = pending; return false; }
         if (session.BeforeAncient == null || session.AncientReady) return true;
         __result = session.BeforeAncient;
         return false;
@@ -484,10 +546,22 @@ internal static class JigsawCaptureNativePoint
 [HarmonyPatch(typeof(RunManager), nameof(RunManager.LoadIntoLatestMapCoord))]
 internal static class JigsawResumePhase
 {
-    private static bool Prefix(ref Task __result)
+    private static bool Prefix(ref Task __result, out Action? __state)
     {
+        __state = null;
         if (JigsawNativeSession.Current is not { Map: not null } session) return true;
         var map = session.Map;
+        if (map.PendingEntry != null && !session.HasNativeEntryCoordinate)
+        {
+            __result = RunManager.Instance.EnterRoom(new MapRoom());
+            return false;
+        }
+        if (map.PendingEntry != null)
+        {
+            var coordinate = session.Native.CurrentMapCoord;
+            __state = () => { if (session.Native.CurrentMapCoord == coordinate) session.ConfirmRestoredEntry(); };
+            RunManager.Instance.RoomEntered += __state;
+        }
         // A completed root room is represented by the logical map. Re-entering
         // native's latest coordinate here would run treasure/shop rewards again.
         if (map.Phase == JigsawPhase.Exploring && map.CurrentNode == null && map.PendingEntry == null ||
@@ -499,14 +573,27 @@ internal static class JigsawResumePhase
         }
         return true;
     }
-    private static void Postfix(ref Task __result)
+    private static void Postfix(ref Task __result, Action? __state)
     {
-        if (JigsawNativeSession.Current is { Map: not null } session) __result = Resume(__result, session);
+        if (JigsawNativeSession.Current is { Map: not null } session) __result = Resume(__result, session, __state);
+        else if (__state != null) RunManager.Instance.RoomEntered -= __state;
     }
-    private static async Task Resume(Task original, JigsawNativeSession session)
+    private static async Task Resume(Task original, JigsawNativeSession session, Action? observe)
     {
-        await original;
-        session.ConfirmRestoredEntry();
+        try { await original; }
+        catch { session.RestoredEntryFailed(); throw; }
+        finally { if (observe != null) RunManager.Instance.RoomEntered -= observe; }
+        if (JigsawNativeSession.Current != session) return;
+        if (session.Map?.PendingEntry != null)
+        {
+            if (!session.HasNativeEntryCoordinate)
+            {
+                await session.Enter(session.Map.PendingEntry.NodeId);
+                return;
+            }
+            session.RestoredEntryFailed();
+            throw new InvalidOperationException("原生房间尚未确认就绪；本次未计步。");
+        }
         if (session.Map!.Phase == JigsawPhase.Generating) { session.ShowMap(); await session.ResumeAutomatic(); }
         else if (session.Map.Phase == JigsawPhase.Inspecting) await session.Inspect();
         else if (session.Map.Phase == JigsawPhase.Ancient && !session.AncientReady) await session.EnterAncient();
