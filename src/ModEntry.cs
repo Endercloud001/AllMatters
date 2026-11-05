@@ -13,6 +13,8 @@ public static class ModEntry
 
     public static void Initialize()
     {
+        Jigsaw.JigsawCheckpoint.Initialize();
+        Jigsaw.Presentation.JigsawTutorialProfile.Register();
         Encounters.PersonalCombatRewards.Initialize();
         Events.WhisperingSharedPage.Initialize();
         Events.HolesSharedPage.Initialize();

@@ -70,7 +70,7 @@ internal static class HelloWorldTests
                 .Concat(NativeCounterTests.Cases).Concat(TrashHeapTests.Cases).Concat(TrashHeapDefectTests.Cases).Concat(TrashHeapRedGreenTests.Cases).Concat(TrashHeapColorlessTests.Cases).Concat(OmniscienceTests.Cases).Concat(TrashHeapRelicTests.Cases)
                 .Concat(EventFeedbackTests.Cases).Concat(AmbrosiaTests.Cases)
                 .Concat(JungleMazeAdventureTests.Cases).Concat(WhisperingHollowTests.Cases).Concat(HolesTests.Cases).Concat(TeaTrialTests.Cases)
-                .Concat(NativeLockedOptionTests.Cases).Concat(NativeVegetationTests.Cases)
+                .Concat(NativeLockedOptionTests.Cases).Concat(NativeVegetationTests.Cases).Concat(JigsawDomainTests.Cases).Concat(JigsawNativeTests.Cases).Concat(JigsawPresentationTests.Cases)
                 .Where(test => args.Length == 0 || test.Name.Contains(args[0], StringComparison.OrdinalIgnoreCase)).ToArray();
             Check(selected.Length > 0, "No test matches the supplied filter.");
             foreach (var test in selected)

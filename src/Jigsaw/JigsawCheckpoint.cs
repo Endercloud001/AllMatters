@@ -1,0 +1,76 @@
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Text.Json;
+using HarmonyLib;
+using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.Runs;
+using MegaCrit.Sts2.Core.Saves;
+using MegaCrit.Sts2.Core.Saves.Migrations;
+using STS2RitsuLib.RunData;
+
+namespace AllMatters.Jigsaw;
+
+public sealed class JigsawCheckpointData
+{
+    public int Version { get; set; }
+    public int Act { get; set; }
+    public JigsawSave? Map { get; set; }
+}
+
+/// <summary>Run data lives inside the native save, never in a second run file.</summary>
+public static class JigsawCheckpoint
+{
+    public static RunSavedData<JigsawCheckpointData> Slot { get; } =
+        RunSavedDataStore.For(ModEntry.ModId).Register<JigsawCheckpointData>("jigsaw");
+    public static void Initialize() => _ = Slot;
+
+    public static void Capture(RunState native, JigsawRun map) =>
+        Slot.Set(native, new() { Version = 1, Act = native.CurrentActIndex, Map = map.CreateSave() });
+}
+
+// RitsuLib 0.6.7 otherwise reopens the primary path after native recovery. Bind the
+// extension to native's successfully parsed object instead. Both target parsers
+// have this signature; no independent deserializer decides the recovery source.
+internal static class JigsawSaveSource
+{
+    private sealed record Source(string Json, bool IsJigsaw);
+    private static readonly ConditionalWeakTable<SerializableRun, Source> sources = new();
+    private static readonly MethodInfo attach = typeof(RunSavedDataStore).Assembly
+        .GetType("STS2RitsuLib.RunData.RunSavedDataRegistry", true)!
+        .GetMethod("AttachDocumentFromJson")!;
+
+    public static void Observe(string content, ReadSaveResult<SerializableRun> result)
+    {
+        if (!result.Success || result.SaveData is not { } save) return;
+        using var json = JsonDocument.Parse(content);
+        bool hasJigsaw = json.RootElement.TryGetProperty("_ritsulib", out var root) &&
+            root.ValueKind == JsonValueKind.Object && root.TryGetProperty("run_saved_data", out var data) &&
+            data.ValueKind == JsonValueKind.Object && data.TryGetProperty(ModEntry.ModId, out var mod) &&
+            mod.ValueKind == JsonValueKind.Object && mod.TryGetProperty("jigsaw", out _);
+        bool marked = save.Modifiers.Any(modifier => modifier.Id == ModelDb.Modifier<AllMattersJigsawMode>().Id);
+        sources.Remove(save);
+        sources.Add(save, new(content, hasJigsaw || marked));
+    }
+
+    public static void Attach(SerializableRun save)
+    {
+        if (sources.TryGetValue(save, out var source) && source.IsJigsaw)
+            attach.Invoke(null, [save, source.Json]);
+    }
+}
+
+[HarmonyPatch]
+internal static class JigsawObserveNativeSaveSource
+{
+    private static MethodBase TargetMethod() => AccessTools.Method(typeof(MigrationManager),
+        "LoadWithAggressiveRecovery").MakeGenericMethod(typeof(SerializableRun));
+    private static void Postfix(string content, ReadSaveResult<SerializableRun> __result) =>
+        JigsawSaveSource.Observe(content, __result);
+}
+
+[HarmonyPatch(typeof(RunState), nameof(RunState.FromSerializable))]
+internal static class JigsawRestoreNativeSaveSource
+{
+    [HarmonyPriority(Priority.First)]
+    private static void Prefix(SerializableRun save) => JigsawSaveSource.Attach(save);
+}
