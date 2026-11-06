@@ -7,6 +7,9 @@ namespace AllMatters.Jigsaw.Presentation;
 // References game-owned resources; no extracted game art is shipped in the mod.
 internal sealed class JigsawNativeArt(ActModel? act)
 {
+ private readonly Texture2D paperTop=Load("packed/map/map_bgs/overgrowth/map_top_overgrowth.png");
+ private readonly Texture2D paperMiddle=Load("packed/map/map_bgs/overgrowth/map_middle_overgrowth.png");
+ private readonly Texture2D paperBottom=Load("packed/map/map_bgs/overgrowth/map_bottom_overgrowth.png");
  internal Texture2D Icon(JigsawRoom room) => room==JigsawRoom.Ancient && act!=null ? act.Ancient.MapIcon : Load(room==JigsawRoom.Ancient
   ? "atlases/ui_atlas.sprites/map/ancients/ancient_node_neow.tres"
   : "atlases/ui_atlas.sprites/map/icons/"+(room switch {
@@ -47,11 +50,10 @@ internal sealed class JigsawNativeArt(ActModel? act)
  }
  internal void DrawPaper(CanvasItem target,Vector2 size)
  {
-  if(act==null)return;
   float cap=size.Y*.38f;
-  target.DrawTextureRect(act.MapTopBg,new Rect2(0,0,size.X,cap),false);
-  target.DrawTextureRect(act.MapMidBg,new Rect2(0,cap,size.X,size.Y*.24f),false);
-  target.DrawTextureRect(act.MapBotBg,new Rect2(0,size.Y-cap,size.X,cap),false);
+  target.DrawTextureRect(paperTop,new Rect2(0,0,size.X,cap),false);
+  target.DrawTextureRect(paperMiddle,new Rect2(0,cap,size.X,size.Y*.24f),false);
+  target.DrawTextureRect(paperBottom,new Rect2(0,size.Y-cap,size.X,cap),false);
  }
  internal Node2D? Boss(JigsawRoom room)
  {

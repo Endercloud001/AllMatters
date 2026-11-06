@@ -5,6 +5,8 @@ using MegaCrit.Sts2.Core.ControllerInput;
 internal static class JigsawPresentationTests
 {
  public static readonly (string Name, Func<Task> Test)[] Cases = [
+  ("Jigsaw presentation exploration visit ring and visible pulse", ExplorationVisuals),
+  ("Jigsaw presentation real viewport buttons and Escape", ViewportAndEscape),
   ("Jigsaw presentation approved editor controls and help wheel isolation", ApprovedControls),
   ("Jigsaw presentation keyboard hints follow the actual device", KeyboardHints),
   ("Jigsaw presentation native art and paused input ownership", NativeArtAndPause),
@@ -26,6 +28,73 @@ internal static class JigsawPresentationTests
  {
   HeadlessUiHost.EnsureInputActions();
   return JigsawScreen.Create(map,1,()=>{},()=>Task.CompletedTask,()=>Task.CompletedTask,_=>Task.CompletedTask,pause??(()=>{}),profile);
+ }
+ private static async Task ExplorationVisuals()
+ {
+  using var atlases=HeadlessTestSetup.LoadAtlases("ui_atlas","compressed");
+  var tree=(SceneTree)Engine.GetMainLoop();var original=tree.Root.Size;tree.Root.Size=new(1280,720);
+  var map=JigsawRun.Create(74);map.Take(1,0);map.Drop(1,new(3,0));map.AddEdge(1,0,1);map.ChooseEnd(1,EndChoice.Manual);map.Inspect();map.CompleteAncient(1);map.Continue(1);
+  var view=View(map,new(){Sentence=6});
+  try
+  {
+   await HeadlessUiHost.Mount(view);
+   int entered=map.AvailableDestinations.First();var attempt=map.BeginEnter(entered)!;Require(map.ConfirmEnter(attempt.Id).Success&&map.CompleteRoom(attempt.Id).Success,"Complete one actual logical destination.");view.Refresh();
+   await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
+   Require(view.MapControl.GetNodeOrNull<Sprite2D>($"Room{entered}/Visited") is {Visible:true,Texture:not null},"A completed ordinary destination has a visible native visit ring in the production map.");
+   int available=map.AvailableDestinations.First(id=>map.Nodes.First(n=>n.Id==id).Room is not (JigsawRoom.Boss or JigsawRoom.SecondBoss));
+   var icon=view.MapControl.GetNodeOrNull<Sprite2D>($"Room{available}");Require(icon!=null,"Available ordinary room has a rendered icon.");
+   Require(view.MapControl.GetChildren().OfType<JigsawOverlay>().Single().ZIndex>icon!.ZIndex,"Focus and holding markers render above icons and visit rings.");
+   var scales=new List<float>();for(int i=0;i<12;i++){await tree.ToSignal(tree.CreateTimer(.15),SceneTreeTimer.SignalName.Timeout);scales.Add(icon!.Scale.X);}
+   Require(scales.Max()-scales.Min()>.02f,"The available ordinary icon visibly pulses across rendered frames.");
+   if(System.Environment.GetEnvironmentVariable("ALLMATTERS_UI_CAPTURE") is {} exploreCapture)
+   {
+    await tree.ToSignal(tree.CreateTimer(.3),SceneTreeTimer.SignalName.Timeout);
+    System.GC.Collect();System.GC.WaitForPendingFinalizers();
+    await tree.ToSignal(tree.CreateTimer(.3),SceneTreeTimer.SignalName.Timeout);
+    var frame=tree.Root.GetTexture().GetImage();var sample=view.MapControl.GetGlobalRect().Position+view.MapControl.Size*.1f;
+    var paperColor=frame.GetPixel((int)sample.X,(int)sample.Y);
+    Require(paperColor.R>paperColor.B+.1f,"Parchment remains warm textured art after resource collection, rather than white missing-texture output.");
+    frame.SavePng(System.IO.Path.ChangeExtension(exploreCapture,"explore.png"));
+   }
+  }
+  finally {view.Free();tree.Root.Size=original;}
+ }
+ private static async Task ViewportAndEscape()
+ {
+  var tree=(SceneTree)Engine.GetMainLoop();var original=tree.Root.Size;tree.Root.Size=new(1920,1080);
+  int pauses=0;var example=JigsawRun.Create(74);example.Take(1,0);example.Drop(1,new(3,0));example.AddEdge(1,0,1);var view=View(example,new(){Sentence=6},()=>pauses++);
+  try
+  {
+   await HeadlessUiHost.Mount(view);
+   if(System.Environment.GetEnvironmentVariable("ALLMATTERS_UI_CAPTURE") is {} capture)
+   {
+    await tree.ToSignal(tree.CreateTimer(.3),SceneTreeTimer.SignalName.Timeout);
+    tree.Root.GetTexture().GetImage().SavePng(capture);
+    foreach(var button in view.DecisionControl.GetChildren().OfType<Button>().Where(b=>b.Visible))
+    {
+     Console.WriteLine($"CAPTURE {button.Text}: {button.Size}");
+     foreach(var child in button.GetChildren().OfType<Control>())Console.WriteLine($"CAPTURE child {child.GetType().Name}: {child.Size}");
+    }
+   }
+   foreach(var button in view.DecisionControl.GetChildren().OfType<Button>().Where(b=>b.Visible))
+    Require(button.Size.X>=220 && button.Size.Y<=160,"Ending buttons must have readable horizontal width and bounded height at 1080p.");
+   view.OpenHelp();
+   var markerLayer=view.MapControl.GetChildren().OfType<JigsawOverlay>().Single();
+   var shade=view.GetNode<ColorRect>("JigsawHelpShade");var panel=view.GetChildren().OfType<PanelContainer>().Single();
+   Require(shade.ZIndex>markerLayer.ZIndex&&panel.ZIndex>shade.ZIndex,"Help shade and panel render above map markers.");
+   if(System.Environment.GetEnvironmentVariable("ALLMATTERS_UI_CAPTURE") is {} helpCapture)
+   {
+    await tree.ToSignal(tree.CreateTimer(.3),SceneTreeTimer.SignalName.Timeout);
+    tree.Root.GetTexture().GetImage().SavePng(System.IO.Path.ChangeExtension(helpCapture,"help.png"));
+   }
+   tree.Root.PushInput(new InputEventAction {Action=MegaInput.pauseAndBack,Pressed=true},true);
+   await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
+   Require(!view.Reading && pauses==0,"Native Escape action closes Help before opening pause.");
+   tree.Root.PushInput(new InputEventKey {PhysicalKeycode=Key.Escape,Pressed=true},true);
+   await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
+   Require(pauses==1,"A second physical Escape reaches native pause for save/exit.");
+  }
+  finally {view.Free();tree.Root.Size=original;}
  }
  private static async Task ApprovedControls()
  {
@@ -55,8 +124,7 @@ internal static class JigsawPresentationTests
    var wide=JigsawRun.Create(74);Require(wide.Take(1,0).Success&&wide.Drop(1,new(100,0)).Success,"Prepare a widely spread editable map.");
    view.SetMap(wide);
    await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
-   var safe=new Rect2(view.MapControl.Size*new Vector2(.12f,.24f),view.MapControl.Size*new Vector2(.74f,.61f));
-   foreach(var node in wide.Nodes)Require(safe.HasPoint(view.GridToCanvas(node.Center)),"Every node of a widely spread map must fit inside the paper safe area.");
+   Require(view.GridToCanvas(new(1,0)).DistanceTo(view.GridToCanvas(new(0,0)))>=30,"Wide maps keep readable nodes; panning replaces forced tiny whole-map fitting.");
   }
   finally {view.Free();tree.Root.Size=originalSize;}
  }
@@ -106,7 +174,7 @@ internal static class JigsawPresentationTests
    }
    view.SetMap(explored);
    await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
-   var renderedBoss=view.MapControl.GetChildren().OfType<Node2D>().Single();
+   var renderedBoss=view.MapControl.GetChildren().OfType<Node2D>().Single(n=>n.Name.ToString().StartsWith("JigsawBoss"));
    var scales=new List<float>();
    for(int i=0;i<3;i++) {await tree.ToSignal(tree.CreateTimer(.15),SceneTreeTimer.SignalName.Timeout);scales.Add(renderedBoss.Scale.X);
     var bounds=JigsawNativeArt.BossBounds(renderedBoss);
@@ -160,10 +228,16 @@ internal static class JigsawPresentationTests
     tree.Root.Size=(Vector2I)size; view.Size=size;
     await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame); await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
     Require(view.PoolControl.Size.X>100&&view.MapControl.Size.X>size.X*.4f,"Pool/map usable at supported size");
+    Require(view.PoolControl.GetChild<VBoxContainer>(0).GetChildren().OfType<Button>().Skip(1).All(b=>b.Size.Y>=Math.Max(100,100*size.Y/1080)),"Pool preview rows scale with the viewport rather than retaining their initial tiny height.");
     Require(view.PoolControl.GetGlobalRect().Position.Y>=size.Y*.09f,"The editor must leave the native top HUD clear.");
     Require(view.DialogControl.GetGlobalRect().End.Y<=size.Y+1&&view.DecisionControl.GetGlobalRect().End.Y<=size.Y+1,"Footer must fit supported viewport");
     view.ShowNotice(new string('长',500)); await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
     Require(view.DialogControl.Size.X<size.X&&view.DecisionControl.GetGlobalRect().End.X<=size.X+1,"Long text must remain scrollable without obscuring decisions");
+    if(System.Environment.GetEnvironmentVariable("ALLMATTERS_UI_CAPTURE") is {} layoutCapture)
+    {
+     await tree.ToSignal(tree.CreateTimer(.3),SceneTreeTimer.SignalName.Timeout);
+     tree.Root.GetTexture().GetImage().SavePng(System.IO.Path.ChangeExtension(layoutCapture,$"{size.X}x{size.Y}.png"));
+    }
    }
   } finally {view.Free();tree.Root.Size=new(1280,720);}
  }
@@ -278,9 +352,9 @@ internal static class JigsawPresentationTests
   await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame); await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
   void Click(GridPoint point)=>view._Input(new InputEventMouseButton {ButtonIndex=MouseButton.Right,Pressed=true,Position=view.MapControl.GlobalPosition+view.GridToCanvas(point)});
   try {
-   Click(new(0,0)); Click(new(0,5)); Click(new(6,0)); Click(new(0,5));
+   Click(new(0,0)); Click(new(0,2)); Click(new(6,0)); Click(new(0,2));
    Require(map.SelectedEndpoints.GetValueOrDefault(1UL,-1)==0,"An invalid second endpoint interrupts two consecutive blanks and preserves the first endpoint.");
-   Click(new(0,5)); Require(!map.SelectedEndpoints.ContainsKey(1),"Only consecutive double blanks cancel the first endpoint.");
+   Click(new(0,2)); Require(!map.SelectedEndpoints.ContainsKey(1),"Only consecutive double blanks cancel the first endpoint.");
   } finally {view.Free();}
  }
  private static Task NoticeLifetime()
@@ -292,7 +366,7 @@ internal static class JigsawPresentationTests
    var panel=view.GetChildren().OfType<PanelContainer>().Single();
    var content=panel.GetChild<VBoxContainer>(0);
    content.GetChildren().OfType<Button>().ElementAt(2).EmitSignal(Button.SignalName.Pressed);
-   Require(content.GetChild<ScrollContainer>(3).GetChild<Label>(0).Text=="尚无提示。","A new puzzle cannot display the previous puzzle's recent notice.");
+   Require(content.GetChildren().OfType<ScrollContainer>().Single().GetChild<Label>(0).Text=="尚无提示。","A new puzzle cannot display the previous puzzle's recent notice.");
    view.Back(); view.AdvanceTime(5);
    Require(!view.DialogText.Contains("Boss"),"The previous puzzle's second error segment must not resume.");
   } finally {view.Free();}
