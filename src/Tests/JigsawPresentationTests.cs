@@ -5,6 +5,7 @@ using MegaCrit.Sts2.Core.ControllerInput;
 internal static class JigsawPresentationTests
 {
  public static readonly (string Name, Func<Task> Test)[] Cases = [
+  ("Jigsaw presentation approved editor controls and help wheel isolation", ApprovedControls),
   ("Jigsaw presentation keyboard hints follow the actual device", KeyboardHints),
   ("Jigsaw presentation native art and paused input ownership", NativeArtAndPause),
   ("Jigsaw presentation first sentence is complete and profile resumes", FirstSentence),
@@ -26,6 +27,39 @@ internal static class JigsawPresentationTests
   HeadlessUiHost.EnsureInputActions();
   return JigsawScreen.Create(map,1,()=>{},()=>Task.CompletedTask,()=>Task.CompletedTask,_=>Task.CompletedTask,pause??(()=>{}),profile);
  }
+ private static async Task ApprovedControls()
+ {
+  var view=View(JigsawRun.Create(74),new(){Sentence=6});
+  var tree=(SceneTree)Engine.GetMainLoop();var originalSize=tree.Root.Size;tree.Root.Size=new(1280,720);
+  try
+  {
+   await HeadlessUiHost.Mount(view);
+   Vector2 Spacing()=>view.GridToCanvas(new(1,0))-view.GridToCanvas(new(0,0));
+   void Wheel()=>tree.Root.PushInput(new InputEventMouseButton {Position=view.MapControl.GetGlobalRect().GetCenter(),GlobalPosition=view.MapControl.GetGlobalRect().GetCenter(),ButtonIndex=MouseButton.WheelDown,Pressed=true},true);
+   var before=Spacing(); Wheel();
+   await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
+   await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
+   Require(Spacing()!=before,"Preparation: engine wheel input must reach the production map camera.");
+   var spacing=Spacing();
+   view.OpenHelp();
+   Wheel();
+   await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
+   await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
+   Require(Spacing()==spacing,"Help wheel must leave the underlying map camera unchanged.");
+   view.Back();
+   var cards=view.PoolControl.GetChild<Control>(0);
+   Require(cards.GetChild<Button>(0).Text=="归还碎块","Return remains at the top of the pool after refresh.");
+   Require(!view.DecisionControl.GetChildren().OfType<Button>().Any(b=>b.Text=="暂停"),"Native pause remains available through input without a redundant button.");
+   Require(!view.ControllerHints.Visible&&!view.MouseHints.Visible,"The operation strip is removed for both device modes.");
+   Require(!cards.GetChildren().OfType<Button>().SelectMany(b=>b.GetChildren()).OfType<Label>().Any(),"Pool cards have no shape letters.");
+   var wide=JigsawRun.Create(74);Require(wide.Take(1,0).Success&&wide.Drop(1,new(100,0)).Success,"Prepare a widely spread editable map.");
+   view.SetMap(wide);
+   await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
+   var safe=new Rect2(view.MapControl.Size*new Vector2(.12f,.24f),view.MapControl.Size*new Vector2(.74f,.61f));
+   foreach(var node in wide.Nodes)Require(safe.HasPoint(view.GridToCanvas(node.Center)),"Every node of a widely spread map must fit inside the paper safe area.");
+  }
+  finally {view.Free();tree.Root.Size=originalSize;}
+ }
  private static void Require(bool ok,string message) { if(!ok)throw new Exception(message); }
  private static async Task KeyboardHints()
  {
@@ -33,7 +67,7 @@ internal static class JigsawPresentationTests
   try {
   await HeadlessUiHost.Mount(view);
   Require(Input.GetConnectedJoypads().Count==0,"This regression requires the keyboard/mouse host, without an emulated controller.");
-  Require(!view.ControllerHints.Visible && view.MouseHints.Visible,"Keyboard/mouse must never display controller glyphs as its active instructions.");
+  Require(!view.ControllerHints.Visible && !view.MouseHints.Visible,"The approved UI removes the operation strip for keyboard and controller modes.");
   Require(new JigsawPreferencesData().Enabled,"New global settings enable the mode by default.");
   } finally {view.Free();}
  }
@@ -46,6 +80,7 @@ internal static class JigsawPresentationTests
   var manager=MegaCrit.Sts2.Core.Runs.RunManager.Instance;
   manager.SetUpTest(native,new MegaCrit.Sts2.Core.Multiplayer.NetSingleplayerGameService());
   JigsawScreen? view=null;var probe=new JigsawUnhandledInputProbe();
+  var viewport=(SceneTree)Engine.GetMainLoop();var originalViewportSize=viewport.Root.Size;viewport.Root.Size=new(1280,720);
   try
   {
    manager.GenerateRooms();await manager.GenerateMap();
@@ -73,10 +108,13 @@ internal static class JigsawPresentationTests
    await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
    var renderedBoss=view.MapControl.GetChildren().OfType<Node2D>().Single();
    var scales=new List<float>();
-   for(int i=0;i<3;i++) {await tree.ToSignal(tree.CreateTimer(.15),SceneTreeTimer.SignalName.Timeout);scales.Add(renderedBoss.Scale.X);}
+   for(int i=0;i<3;i++) {await tree.ToSignal(tree.CreateTimer(.15),SceneTreeTimer.SignalName.Timeout);scales.Add(renderedBoss.Scale.X);
+    var bounds=JigsawNativeArt.BossBounds(renderedBoss);
+    float cell=view.GridToCanvas(new(1,0)).DistanceTo(view.GridToCanvas(new(0,0)));
+    Require(Math.Max(bounds.Size.X,bounds.Size.Y)*renderedBoss.Scale.X<=3*cell,"Animated Boss including pulse stays within its assigned three-grid square.");}
    Require(scales.Max()-scales.Min()>.0001f,"The actual native Boss visual must pulse while it is an available destination.");
   }
-  finally {view?.Free();probe.Free();manager.CleanUp(false);}
+  finally {view?.Free();probe.Free();manager.CleanUp(false);viewport.Root.Size=originalViewportSize;}
  }
  private static Task FirstSentence()
  {

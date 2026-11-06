@@ -83,6 +83,9 @@ internal static class JigsawNativeTests
         var io=new MockGodotFileIo("automatic-75-memory-only");
         var manager=new RunSaveManager(75,io,new MigrationManager(io),forceSynchronous:true);
         JigsawNativeSaveHost.Save=room=>manager.SaveRun(RunManager.Instance.ToSave(room),false);
+        int fadeIns=0;
+        Task ObserveFadeIn() {fadeIns++;return Task.CompletedTask;}
+        JigsawNativeSession.TestAutomaticReveal=ObserveFadeIn;
         try
         {
             native.ExtraFields.StartedWithNeow=true;RunManager.Instance.GenerateRooms();
@@ -98,11 +101,12 @@ internal static class JigsawNativeTests
             Require(frames>0,"The Godot scene tree continues processing frames during actual C# generation.");
             Require(session.Map.Phase==JigsawPhase.Ancient && native.CurrentRoom is EventRoom,"Automatic accepted map reaches the actual native Ancient callback.");
             Require(System.Text.Json.JsonSerializer.Serialize(session.Map.Pool)==original && session.Map.Steps==0,"Automatic neither rerolls the original pool nor charges entry.");
+            Require(fadeIns>0,"Automatic success must reveal the Ancient room after its final fade-out.");
             var loaded=manager.LoadRunSave();
             Require(loaded.Success && loaded.SaveData!=null,"Automatic native save parses.");
             Console.WriteLine($"AUTOMATIC_75 native elapsed={watch.ElapsedMilliseconds}ms; frames={frames}; pieces={session.Map.Placements.Count}; algorithm={session.Map.AutomaticOperation?.Algorithm}; budget={session.Map.AutomaticOperation?.ExpansionBudget}; host=Godot/shared-beta-resources");
         }
-        finally { JigsawNativeSaveHost.Save=null;RunManager.Instance.CleanUp(false); }
+        finally { JigsawNativeSession.TestAutomaticReveal=null; JigsawNativeSaveHost.Save=null;RunManager.Instance.CleanUp(false); }
     }
     private static string RecoveryExchange => Environment.GetEnvironmentVariable("ALLMATTERS_75_RECOVERY")??Path.Combine(Path.GetTempPath(),$"AllMatters-75-{Environment.ProcessId}.json");
     private static async Task LateFinalSave(bool failure,bool failWrite=false)

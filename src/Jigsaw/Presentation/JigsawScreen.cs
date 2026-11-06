@@ -15,6 +15,7 @@ public partial class JigsawScreen : Control
  private Func<Task>? automaticRequested;
  private Func<Task>? abandonRequested;
  private Func<ulong,Texture2D?>? avatar;
+ private Func<ulong,Color>? playerColor;
  private readonly HBoxContainer manualVoters=new(), autoVoters=new();
  private int helpIndex;
  private readonly Theme adaptiveTheme=new();
@@ -23,11 +24,15 @@ public partial class JigsawScreen : Control
  private IJigsawTutorialProfile profile = null!;
  private readonly Label dialog = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart, SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill };
  private readonly Label steps = new();
+ private readonly Label explorationNotice = new() {AutowrapMode=TextServer.AutowrapMode.WordSmart};
+ private readonly ColorRect helpShade = new() {Color=new Color(0,0,0,.65f),MouseFilter=MouseFilterEnum.Stop};
  private readonly VBoxContainer cards = new();
+ private readonly PanelContainer poolFrame = new();
  private readonly ScrollContainer pool = new() { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
  private readonly ScrollContainer dialogScroll = new() { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
  private readonly HBoxContainer root = new();
- private readonly VBoxContainer main = new(), footer = new(), decisions = new();
+ private readonly VBoxContainer main = new(), footer = new();
+ private readonly HBoxContainer decisions = new();
  private readonly HBoxContainer bottom = new(), top = new();
  private readonly Button next = new(), manual = new(), automatic = new(), resume = new(), abandon = new(), help = new();
  private readonly PanelContainer helpPanel = new();
@@ -82,10 +87,10 @@ public partial class JigsawScreen : Control
  public Control DecisionControl => decisions;
  internal Control ControllerHints => hints;
  internal Control MouseHints => mouseHints;
- public static JigsawScreen Create(JigsawRun map, ulong player, Action changed, Func<Task> inspected, Func<Task> continued, Func<int,Task> enter, Action pause, IJigsawTutorialProfile? profile = null, Func<Task>? automaticRequested = null, Func<ulong,Texture2D?>? avatar = null, Func<Task>? abandonRequested = null, MegaCrit.Sts2.Core.Models.ActModel? nativeAct=null)
+ public static JigsawScreen Create(JigsawRun map, ulong player, Action changed, Func<Task> inspected, Func<Task> continued, Func<int,Task> enter, Action pause, IJigsawTutorialProfile? profile = null, Func<Task>? automaticRequested = null, Func<ulong,Texture2D?>? avatar = null, Func<Task>? abandonRequested = null, MegaCrit.Sts2.Core.Models.ActModel? nativeAct=null, Func<ulong,Color>? playerColor=null)
  {
   var view = new JigsawScreen { map=map, player=player, changed=changed, inspected=inspected, continued=continued, enter=enter, pause=pause, profile=profile ?? new JigsawTutorialProfile(), previousPhase=map.Phase, automaticRequested=automaticRequested, avatar=avatar, abandonRequested=abandonRequested };
-  view.art=new JigsawNativeArt(nativeAct); view.Build(); view.Refresh(); return view;
+  view.playerColor=playerColor; view.art=new JigsawNativeArt(nativeAct); view.Build(); view.Refresh(); return view;
  }
  private static string L(string text) => TranslationServer.Translate(text);
  private Button MakeButton(string text, Action pressed)
@@ -104,19 +109,33 @@ public partial class JigsawScreen : Control
   adaptiveTheme.SetColor("font_color","Button",new Color("f4dfad"));
   adaptiveTheme.SetColor("font_hover_color","Button",Colors.White);
   adaptiveTheme.SetColor("font_disabled_color","Button",new Color("8f897c"));
-  pool.AddThemeStyleboxOverride("panel",JigsawNativeArt.Panel("packed/common_ui/event_button.png",16));
-  dialogScroll.AddThemeStyleboxOverride("panel",JigsawNativeArt.Panel("packed/common_ui/submenu_panel_short.png",24));
-  dialog.AddThemeColorOverride("font_color",new Color("30271e"));
+  poolFrame.AddThemeStyleboxOverride("panel",JigsawNativeArt.Panel("ui/reward_screen/reward_panel.png",30));
+  dialogScroll.AddThemeStyleboxOverride("panel",JigsawNativeArt.Panel("ui/dialogue_nine_patch.png",27));
+  dialog.AddThemeColorOverride("font_color",new Color("f4eee2"));
+  ((StyleBoxTexture)dialogScroll.GetThemeStylebox("panel")).ModulateColor=new Color("28454f");
   var background=new ColorRect { Color=new Color("17202d"), MouseFilter=MouseFilterEnum.Ignore }; AddChild(background); background.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
   AddChild(root); root.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect); root.AddThemeConstantOverride("separation",16);
-  root.AddChild(pool); pool.AddChild(cards); cards.SizeFlagsHorizontal=SizeFlags.ExpandFill;
+  root.AddChild(poolFrame);
+  var poolColumn=new VBoxContainer();poolFrame.AddChild(poolColumn);
+  var banner=new TextureRect {Texture=JigsawNativeArt.Load("ui/reward_screen/reward_banner.png"),CustomMinimumSize=new(0,55),ExpandMode=TextureRect.ExpandModeEnum.IgnoreSize,StretchMode=TextureRect.StretchModeEnum.KeepAspectCentered,MouseFilter=MouseFilterEnum.Ignore};
+  poolColumn.AddChild(banner);var poolTitle=new Label {Text=L("可用碎块"),HorizontalAlignment=HorizontalAlignment.Center,VerticalAlignment=VerticalAlignment.Center};banner.AddChild(poolTitle);poolTitle.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+  poolColumn.AddChild(pool);pool.SizeFlagsVertical=SizeFlags.ExpandFill;
+  pool.AddChild(cards); cards.SizeFlagsHorizontal=SizeFlags.ExpandFill;
   root.AddChild(main); main.SizeFlagsHorizontal=SizeFlags.ExpandFill; main.SizeFlagsVertical=SizeFlags.ExpandFill;
   main.AddChild(top); top.AddChild(steps); steps.SizeFlagsHorizontal=SizeFlags.ExpandFill;
+  main.AddChild(explorationNotice);
   help.Text=L("帮助"); help.Pressed += OpenHelp; top.AddChild(help);
   canvas=new JigsawCanvas { OwnerScreen=this, FocusMode=FocusModeEnum.All, SizeFlagsHorizontal=SizeFlags.ExpandFill, SizeFlagsVertical=SizeFlags.ExpandFill, ClipContents=true, MouseFilter=MouseFilterEnum.Stop }; main.AddChild(canvas);
-  main.AddChild(bottom); bottom.AddChild(footer); footer.SizeFlagsHorizontal=SizeFlags.ExpandFill; footer.AddChild(dialogScroll); dialogScroll.SizeFlagsVertical=SizeFlags.ExpandFill; dialogScroll.AddChild(dialog);
+  main.AddChild(bottom); bottom.AddChild(footer); footer.SizeFlagsHorizontal=SizeFlags.ExpandFill; var dialogueRow=new HBoxContainer {SizeFlagsVertical=SizeFlags.ExpandFill};footer.AddChild(dialogueRow);
+  dialogueRow.AddChild(new TextureRect {Texture=JigsawNativeArt.Load("ui/dialogue_tail.png"),Modulate=new Color("28454f"),CustomMinimumSize=new(24,0),ExpandMode=TextureRect.ExpandModeEnum.IgnoreSize,StretchMode=TextureRect.StretchModeEnum.KeepAspectCentered,MouseFilter=MouseFilterEnum.Ignore});
+  dialogueRow.AddChild(dialogScroll);dialogScroll.SizeFlagsHorizontal=SizeFlags.ExpandFill; dialogScroll.SizeFlagsVertical=SizeFlags.ExpandFill; dialogScroll.AddChild(dialog);
   next.Text=L("继续"); next.Pressed += AdvanceDialog; footer.AddChild(next);
   bottom.AddChild(decisions);
+  var confirmTexture=JigsawNativeArt.Load("atlases/ui_atlas.sprites/confirm_button.tres");
+  var confirmHalf=new AtlasTexture {Atlas=confirmTexture,Region=new Rect2(Vector2.Zero,new Vector2(confirmTexture.GetWidth()/2f,confirmTexture.GetHeight()))};
+  foreach(var state in new[]{"normal","hover","pressed","disabled"})automatic.AddThemeStyleboxOverride(state,new StyleBoxEmpty {ContentMarginLeft=12,ContentMarginRight=12,ContentMarginTop=12,ContentMarginBottom=12});
+  var confirmArt=new HBoxContainer {MouseFilter=MouseFilterEnum.Ignore,ShowBehindParent=true};automatic.AddChild(confirmArt);confirmArt.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);confirmArt.AddThemeConstantOverride("separation",0);
+  foreach(bool mirrored in new[]{false,true})confirmArt.AddChild(new TextureRect {Texture=confirmHalf,FlipH=mirrored,ExpandMode=TextureRect.ExpandModeEnum.IgnoreSize,StretchMode=TextureRect.StretchModeEnum.Scale,SizeFlagsHorizontal=SizeFlags.ExpandFill,MouseFilter=MouseFilterEnum.Ignore});
   manual.Text=L("由先古之民审视"); manual.AutowrapMode=TextServer.AutowrapMode.WordSmart; manual.Pressed += ()=>Choose(EndChoice.Manual);
   automatic.Text=L("令先古之民决定"); automatic.AutowrapMode=TextServer.AutowrapMode.WordSmart; automatic.Pressed += ()=>Choose(EndChoice.Automatic);
   manual.MouseEntered += ExplainEnding; automatic.MouseEntered += ExplainEnding;
@@ -124,8 +143,7 @@ public partial class JigsawScreen : Control
   resume.Text=L("继续前行"); resume.Pressed += ()=>RunAsync(map.PendingEntry is {} pending ? enter(pending.NodeId) : continued());
   decisions.AddChild(manualVoters); decisions.AddChild(manual); decisions.AddChild(autoVoters); decisions.AddChild(automatic); decisions.AddChild(resume);
   abandon.Text=L("放弃进入"); abandon.Pressed+=()=>{if(abandonRequested!=null)RunAsync(abandonRequested());}; decisions.AddChild(abandon);
-  var back=MakeButton("暂停",Back); decisions.AddChild(back);
-  actionButtons.AddRange([manual,automatic,resume,abandon,help,back]);
+  actionButtons.AddRange([manual,automatic,resume,abandon,help]);
   var returnButton=MakeButton("归还碎块",ReturnHeld); cards.AddChild(returnButton);
   footer.AddChild(hints); footer.AddChild(mouseHints);
   foreach(var pair in new[]{(MegaInput.select,"拿放"),(MegaInput.cancel,"返回"),(MegaInput.viewDiscardPile,"旋转／连拆线"),(MegaInput.viewDrawPile,"归还"),(MegaInput.viewDeckAndTabLeft,"切换区域"),(MegaInput.pauseAndBack,"帮助")})
@@ -133,15 +151,16 @@ public partial class JigsawScreen : Control
    var icon=new TextureRect { CustomMinimumSize=new(22,22), ExpandMode=TextureRect.ExpandModeEnum.IgnoreSize, StretchMode=TextureRect.StretchModeEnum.KeepAspectCentered };
    hints.AddChild(icon); inputIcons.Add((icon,pair.Item1)); hints.AddChild(new Label{Text=L(pair.Item2)});
   }
-  AddChild(helpPanel); helpPanel.AddChild(helpContent); helpPanel.Visible=false; helpPanel.ZIndex=5;
-  helpContent.AddChild(MakeButton("重看开场对白",()=>{ replay=0; helpOpen=false; helpPanel.Hide(); Refresh(); }));
+  AddChild(helpShade); helpShade.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);helpShade.Hide();
+  AddChild(helpPanel); helpPanel.AddThemeStyleboxOverride("panel",JigsawNativeArt.Panel("atlases/ui_atlas.sprites/popup_vertical.tres",40)); helpPanel.AddChild(helpContent); helpPanel.Visible=false; helpPanel.ZIndex=5;
+  helpContent.AddChild(MakeButton("重看开场对白",()=>{ replay=0; helpOpen=false; helpShade.Hide(); helpPanel.Hide(); Refresh(); }));
   helpContent.AddChild(MakeButton("操作与规则",()=>helpText.Text=L(Rules)));
   helpContent.AddChild(MakeButton("最近一次提示",()=>helpText.Text=recent.Length==0?L("尚无提示。"):recent));
   var helpScroll=new ScrollContainer { SizeFlagsVertical=SizeFlags.ExpandFill, HorizontalScrollMode=ScrollContainer.ScrollMode.Disabled }; helpContent.AddChild(helpScroll); helpScroll.AddChild(helpText); helpText.SizeFlagsHorizontal=SizeFlags.ExpandFill;
   helpContent.AddChild(MakeButton("返回",Back));
   Resized += AdaptLayout;
  }
- private const string Rules="左键拿取或放置碎块；持有时右键逆时针旋转90度，空手时右键选两端连线或拆线。Esc先关闭帮助，再取消持有或待连端点，空手时打开暂停。中键拖动地图，滚轮缩放，池底归还碎块。\n\n手柄切换池、地图、操作区；方向输入逐卡、逐节点或逐格移动；拿放、旋转／连拆线、归还、返回均使用下方当前输入图标。地图逐节点导航包括孤立碎块。\n\n从先古之民出发，在本幕步数内到达Boss。已完成区域可免费中转；商店仅在实际可前往时可重访，重访也消耗一步，不刷新库存。普通房不能重进。\n\n两种结束按钮须全员同选，选后本人不可编辑，激活同一按钮撤票。持有或待连时先完成操作。手动审视先撤回孤立块；自动决定将重塑尖塔的一部分。\n\n双Boss以第一场抵达时判断额度；第二场不重判。最后一步进入非Boss房间时本房及内部战斗安全，全队完成后发放面具，之后进入受罚；战胜最后地图Boss解除追猎。帮助不会暂停队友，也不增加共同确认。";
+ private const string Rules="左键拿取或放置碎块；持有时右键逆时针旋转90度，空手时右键选两端连线或拆线。Esc先关闭帮助，再取消持有或待连端点，空手时打开暂停。中键拖动地图，滚轮缩放，池顶归还碎块。\n\n手柄切换池、地图、操作区；方向输入逐卡、逐节点或逐格移动。地图逐节点导航包括孤立碎块。\n\n从先古之民出发，在本幕步数内到达Boss。已完成区域可免费中转；商店仅在实际可前往时可重访，重访也消耗一步，不刷新库存。普通房不能重进。\n\n两种结束按钮须全员同选，选后本人不可编辑，激活同一按钮撤票。持有或待连时先完成操作。手动审视先撤回孤立块；自动决定将重塑尖塔的一部分。\n\n双Boss以第一场抵达时判断额度；第二场不重判。最后一步进入非Boss房间时本房及内部战斗安全，全队完成后发放面具，之后进入受罚；战胜最后地图Boss解除追猎。帮助不会暂停队友，也不增加共同确认。";
  public void SetMap(JigsawRun value)
  {
   if(!ReferenceEquals(map,value)) { ClearRecent(); tips.Clear(); }
@@ -151,11 +170,11 @@ public partial class JigsawScreen : Control
  public void Refresh()
  {
   foreach(var id in bossVisuals.Keys.Where(id=>!map.Nodes.Any(n=>n.Id==id)).ToArray()) {bossVisuals[id].QueueFree();bossVisuals.Remove(id);}
-  pool.Visible=map.Phase is JigsawPhase.Editing or JigsawPhase.Inspecting or JigsawPhase.Generating;
-  hints.Visible=JigsawInputPresentation.UsingController;
-  mouseHints.Visible=!hints.Visible;
+  poolFrame.Visible=pool.Visible=map.Phase is JigsawPhase.Editing or JigsawPhase.Inspecting or JigsawPhase.Generating;
+  hints.Visible=false;
+  mouseHints.Visible=false;
   mouseHints.Text=L(pool.Visible?"左键 拿放 · 右键 旋转／连拆线 · 中键 平移 · 滚轮 缩放 · Esc 取消／暂停":"左键 选择目的地 · 中键 平移 · 滚轮 缩放 · Esc 暂停");
-  if(previousPhase!=map.Phase) { if(map.Phase!=JigsawPhase.Editing)ClearRecent(); replay=null; helpOpen=false; helpPanel.Hide(); previousPhase=map.Phase; zone=FocusRegion.Map; nodeIndex=0; }
+  if(previousPhase!=map.Phase) { if(map.Phase!=JigsawPhase.Editing)ClearRecent(); replay=null; helpOpen=false; helpShade.Hide(); helpPanel.Hide(); previousPhase=map.Phase; zone=FocusRegion.Map; nodeIndex=0; }
   foreach(var b in poolButtons) { cards.RemoveChild(b); b.QueueFree(); } poolButtons.Clear();
   foreach(var p in map.Pool.Where(p=>!map.Placements.Any(x=>x.PieceId==p.Id)))
   {
@@ -163,13 +182,13 @@ public partial class JigsawScreen : Control
    var b=MakeButton("",()=>Take(p.Id)); b.CustomMinimumSize=new(0,100*Math.Max(1,Size.Y/720));
    var preview=new JigsawPiecePreview { Art=art,Piece=p, Position=new(12,8), Size=new(100,80), MouseFilter=MouseFilterEnum.Ignore }; b.AddChild(preview);
    b.Resized += ()=>preview.Size=new Vector2(Math.Max(100,b.Size.X-24),Math.Max(80,b.Size.Y-16));
-   var shape=new Label {Text=p.Shape.ToString(), MouseFilter=MouseFilterEnum.Ignore}; b.AddChild(shape);
-   shape.SetAnchorsAndOffsetsPreset(LayoutPreset.TopRight); shape.OffsetLeft=-32; shape.OffsetRight=-8; shape.OffsetTop=8; shape.OffsetBottom=32;
-   foreach(var holder in holders) { var portrait=Portrait(holder); portrait.Position=new(135,16); b.AddChild(portrait); } cards.AddChild(b); cards.MoveChild(b,poolButtons.Count); poolButtons.Add(b);
+   foreach(var holder in holders) { var portrait=Portrait(holder); portrait.Position=new(135,16); b.AddChild(portrait); } cards.AddChild(b); cards.MoveChild(b,poolButtons.Count+1); poolButtons.Add(b);
    if(holders.Length>0) b.Modulate=new Color(1,1,1,.55f);
   }
   poolIndex=Math.Clamp(poolIndex,0,Math.Max(0,poolButtons.Count-1)); nodeIndex=Math.Clamp(nodeIndex,0,Math.Max(0,NavigableNodeIds.Count-1));
   steps.Text=L("剩余步数")+"  "+map.RemainingSteps+" / "+map.Budget;
+  steps.Visible=!pool.Visible;
+  bottom.Visible=map.Phase!=JigsawPhase.Exploring || map.PendingEntry!=null;
   manual.Visible=automatic.Visible=map.Phase is JigsawPhase.Editing or JigsawPhase.Inspecting or JigsawPhase.Generating;
   manual.Disabled=automatic.Disabled=Reading || map.Phase!=JigsawPhase.Editing;
   manual.Text=L("由先古之民审视"); automatic.Text=L("令先古之民决定"); UpdateVoters(manualVoters,EndChoice.Manual); UpdateVoters(autoVoters,EndChoice.Automatic);
@@ -203,12 +222,12 @@ public partial class JigsawScreen : Control
  }
  public void OpenHelp()
  {
-  map.Cancel(player); changed(); helpOpen=true; helpPanel.Show(); helpText.Text=L(Rules); Refresh(); helpPanel.Show();
+  map.Cancel(player); dragging=false; changed(); helpOpen=true; helpShade.Show(); helpPanel.Show(); helpText.Text=L(Rules); Refresh(); helpPanel.Show();
   helpIndex=0; if(IsInsideTree())helpContent.GetChild<Button>(0).GrabFocus();
  }
  public void Back()
  {
-  if(helpOpen) { helpOpen=false; helpPanel.Hide(); Refresh(); return; }
+  if(helpOpen) { helpOpen=false; helpShade.Hide(); helpPanel.Hide(); Refresh(); return; }
   if(replay!=null) { replay=null; Refresh(); return; }
   if(map.Holdings.ContainsKey(player)||map.SelectedEndpoints.ContainsKey(player)) { Apply(map.Cancel(player)); return; }
   tutorialPaused=true; SetProcessInput(false); pause();
@@ -286,7 +305,9 @@ public partial class JigsawScreen : Control
  public override void _Process(double delta)
  {
   AdvanceTime(delta);
-  hints.Visible=JigsawInputPresentation.UsingController; mouseHints.Visible=!hints.Visible;
+  explorationNotice.Visible=map.Phase==JigsawPhase.Exploring;
+  explorationNotice.Text=errorRemaining>0?dialog.Text:"";
+  hints.Visible=false; mouseHints.Visible=false;
   foreach(var (icon,action) in inputIcons)
   {
 #if STS2_PUBLIC
@@ -309,8 +330,8 @@ public partial class JigsawScreen : Control
   if(Size.X<=0)return;
   float scale=Math.Clamp(Size.Y/720f,1,3); adaptiveTheme.DefaultFontSize=(int)(20*scale);
   root.OffsetTop=Size.Y*.1f;
-  pool.CustomMinimumSize=new(Size.X*.23f,0); decisions.CustomMinimumSize=new(Size.X*.26f,0); bottom.CustomMinimumSize=new(0,Size.Y*.26f);
-  dialog.CustomMinimumSize=new(Math.Max(100,Size.X*.44f),0);
+  poolFrame.CustomMinimumSize=new(Size.X*.23f,0); decisions.CustomMinimumSize=new(Size.X*.26f,0); bottom.CustomMinimumSize=new(0,Size.Y<=720?112:140*scale);
+  dialog.CustomMinimumSize=new(Math.Max(100,Size.X*.38f),0);
   helpPanel.Position=Size*new Vector2(.16f,.08f); helpPanel.Size=Size*new Vector2(.68f,.84f); helpText.CustomMinimumSize=new(Size.X*.63f,0);
  }
  private void RestoreFocus()
@@ -338,11 +359,22 @@ public partial class JigsawScreen : Control
  private void FollowFocused()
  {
   var n=map.Nodes.FirstOrDefault(n=>n.Id==FocusedNodeId); if(n==null)return;
-  pan=-new Vector2(n.Center.X,-n.Center.Y)*Cell;
+  pan=(ContentBounds.GetCenter()-new Vector2(n.Center.X,-n.Center.Y))*Cell;
  }
- private float Cell=>26*Math.Max(1,Size.Y/720)*zoom;
- public Vector2 GridToCanvas(GridPoint p)=>canvas.Size/2+pan+new Vector2(p.X,-p.Y)*Cell;
- private GridPoint CanvasToGrid(Vector2 p)=>GridPoint.Snap((p.X-canvas.Size.X/2-pan.X)/Cell,-(p.Y-canvas.Size.Y/2-pan.Y)/Cell);
+ private Rect2 ContentBounds
+ {
+  get
+  {
+   var nodes=map.Nodes;
+   var min=new Vector2(nodes.Min(n=>n.Center.X-n.Radius-1.6f),nodes.Min(n=>-n.Center.Y-n.Radius-1.6f));
+   var max=new Vector2(nodes.Max(n=>n.Center.X+n.Radius+1.6f),nodes.Max(n=>-n.Center.Y+n.Radius+1.6f));
+   return new Rect2(min,max-min);
+  }
+ }
+ private float Cell=>Math.Max(.01f,Math.Min(26*Math.Max(1,Size.Y/720),Math.Min(Math.Max(1,canvas.Size.X*.74f-48)/ContentBounds.Size.X,Math.Max(1,canvas.Size.Y*.61f-48)/ContentBounds.Size.Y)))*zoom;
+ private Vector2 MapOrigin=>canvas.Size*new Vector2(.49f,.545f)+pan-ContentBounds.GetCenter()*Cell;
+ public Vector2 GridToCanvas(GridPoint p)=>MapOrigin+new Vector2(p.X,-p.Y)*Cell;
+ private GridPoint CanvasToGrid(Vector2 p)=>GridPoint.Snap((p.X-MapOrigin.X)/Cell,-(p.Y-MapOrigin.Y)/Cell);
  private JigsawNode? Hit(Vector2 p)=>map.Nodes.OrderBy(n=>(GridToCanvas(n.Center)-p).LengthSquared()).FirstOrDefault(n=>Math.Abs(GridToCanvas(n.Center).X-p.X)<=Cell*(n.Radius+.55f)&&Math.Abs(GridToCanvas(n.Center).Y-p.Y)<=Cell*(n.Radius+.55f));
  private void ActivateMap(int? id,GridPoint point,bool secondary)
  {
@@ -365,17 +397,18 @@ public partial class JigsawScreen : Control
   // This dedicated screen consumes map drawing/erasing before native unhandled input.
   if(ev is InputEventMouseButton mouse)
   {
+   if(helpOpen) { dragging=false; return; } // Leave wheel/click events to the Help GUI, never the map camera.
    var p=canvas.GetGlobalTransformWithCanvas().AffineInverse()*mouse.Position; bool inMap=new Rect2(Vector2.Zero,canvas.Size).HasPoint(p);
    if(mouse.ButtonIndex==MouseButton.Middle)dragging=mouse.Pressed && inMap && !Reading;
    if(inMap && mouse.Pressed)
    {
-    if(mouse.ButtonIndex is MouseButton.WheelUp or MouseButton.WheelDown)zoom=Math.Clamp(zoom*(mouse.ButtonIndex==MouseButton.WheelUp?1.12f:1/1.12f),.25f,3);
+    if(mouse.ButtonIndex is MouseButton.WheelUp or MouseButton.WheelDown)zoom=Math.Clamp(zoom*(mouse.ButtonIndex==MouseButton.WheelUp?1.12f:1/1.12f),.25f,1);
     else if(mouse.ButtonIndex is MouseButton.Left or MouseButton.Right) { cursor=CanvasToGrid(p); ActivateMap(Hit(p)?.Id,cursor,mouse.ButtonIndex==MouseButton.Right); GetViewport()?.SetInputAsHandled(); }
    }
    if(mouse.ButtonIndex is MouseButton.Right or MouseButton.Middle) GetViewport()?.SetInputAsHandled();
    return;
   }
-  if(ev is InputEventMouseMotion motion) { if(dragging) { pan+=motion.Relative; GetViewport()?.SetInputAsHandled(); } else if(map.Holdings.ContainsKey(player))cursor=CanvasToGrid(canvas.GetLocalMousePosition()); return; }
+  if(ev is InputEventMouseMotion motion) { if(helpOpen)return; if(dragging) { pan+=motion.Relative; GetViewport()?.SetInputAsHandled(); } else if(map.Holdings.ContainsKey(player))cursor=CanvasToGrid(canvas.GetLocalMousePosition()); return; }
   if(ev is InputEventKey {Pressed:true,Keycode:Key.Escape} || ev.IsActionPressed(MegaInput.cancel)) { Back(); GetViewport()?.SetInputAsHandled(); return; }
   if(ev.IsActionPressed(MegaInput.pauseAndBack)) { OpenHelp(); GetViewport()?.SetInputAsHandled(); return; }
   if(ev.IsActionPressed(MegaInput.select))
@@ -406,8 +439,8 @@ public partial class JigsawScreen : Control
   {
    if(axis.Axis==JoyAxis.RightX)pan.X-=axis.AxisValue*18;
    if(axis.Axis==JoyAxis.RightY)pan.Y-=axis.AxisValue*18;
-   if(axis.Axis==JoyAxis.TriggerLeft)zoom=Math.Clamp(zoom-axis.AxisValue*.04f,.25f,3);
-   if(axis.Axis==JoyAxis.TriggerRight)zoom=Math.Clamp(zoom+axis.AxisValue*.04f,.25f,3);
+   if(axis.Axis==JoyAxis.TriggerLeft)zoom=Math.Clamp(zoom-axis.AxisValue*.04f,.25f,1);
+   if(axis.Axis==JoyAxis.TriggerRight)zoom=Math.Clamp(zoom+axis.AxisValue*.04f,.25f,1);
   }
   else return;
   GetViewport()?.SetInputAsHandled(); canvas.QueueRedraw();
@@ -419,16 +452,27 @@ public partial class JigsawScreen : Control
   {
    var a=map.Nodes.First(n=>n.Id==e.First);var b=map.Nodes.First(n=>n.Id==e.Second);
    var start=GridToCanvas(a.Center);var end=GridToCanvas(b.Center);
-   var dot=JigsawNativeArt.Load("atlases/compressed.sprites/map/map_dot.tres");
-   int count=Math.Max(1,(int)(start.DistanceTo(end)/12));
-   for(int i=1;i<count;i++)target.DrawTextureRect(dot,new Rect2(start.Lerp(end,(float)i/count)-Vector2.One*2,Vector2.One*4),false,new Color(e.Internal?"554637":"8f592d"));
+   JigsawNativeArt.DrawPath(target,start,end,Cell,new Color("554637"));
   }
   foreach(var n in map.Nodes)DrawNode(target,n,GridToCanvas(n.Center),false);
   if(map.Holdings.TryGetValue(player,out var held))
   {
    var p=map.Pool.First(p=>p.Id==held.PieceId);
-   foreach(var n in p.Nodes) { var point=n.Offset; for(int r=0;r<held.Rotation;r++)point=point.Rotate(); DrawNode(target,new(n.Id,p.Id,n.Room,point+cursor),GridToCanvas(point+cursor),true); }
+   var nodes=p.Nodes.Select(n=> {var point=n.Offset;for(int r=0;r<held.Rotation;r++)point=point.Rotate();return new JigsawNode(n.Id,p.Id,n.Room,point+cursor);}).ToArray();
+   foreach(var node in nodes)DrawNode(target,node,GridToCanvas(node.Center),true);
+   DrawHolding(target,nodes,player);
   }
+  foreach(var holding in map.Holdings.Where(h=>h.Key!=player))
+   DrawHolding(target,map.Nodes.Where(n=>n.PieceId==holding.Value.PieceId).ToArray(),holding.Key);
+ }
+ private void DrawHolding(JigsawCanvas target,JigsawNode[] nodes,ulong holder)
+ {
+  if(nodes.Length==0)return;
+  var points=nodes.Select(n=>(Point:GridToCanvas(n.Center),Radius:n.Radius+.5f)).ToArray();
+  var min=new Vector2(points.Min(n=>n.Point.X-n.Radius*Cell),points.Min(n=>n.Point.Y-n.Radius*Cell));
+  var max=new Vector2(points.Max(n=>n.Point.X+n.Radius*Cell),points.Max(n=>n.Point.Y+n.Radius*Cell));
+  target.DrawRect(new Rect2(min,max-min).Grow(3),playerColor?.Invoke(holder)??new Color("f4d79a"),false,3);
+  if(avatar?.Invoke(holder) is {} portrait)target.DrawTextureRect(portrait,new Rect2(new Vector2(max.X,min.Y)-new Vector2(24,24),new Vector2(24,24)),false);
  }
  private void DrawNode(JigsawCanvas target,JigsawNode n,Vector2 at,bool preview)
  {
@@ -436,20 +480,28 @@ public partial class JigsawScreen : Control
   bool available=map.AvailableDestinations.Contains(n.Id);
   float pulse=available?1+.04f*(float)Math.Sin(Time.GetTicksMsec()/260d):1;
   rect=new Rect2(rect.GetCenter()-rect.Size*pulse/2,rect.Size*pulse);
-  var fill=new Color(preview?"ddcbaa":"f1dfbc");
-  if(preview||map.Holdings.Values.Any(h=>h.PieceId==n.PieceId))fill.A=.5f;
-  if(map.Phase==JigsawPhase.Editing||preview) {target.DrawRect(rect,fill);target.DrawRect(rect,new Color("806947"),false,1);}
-  if(map.Visited.Contains(n.Id)&&n.Room is not (JigsawRoom.Shop or JigsawRoom.Boss or JigsawRoom.SecondBoss or JigsawRoom.Ancient))target.DrawTextureRect(JigsawNativeArt.Load($"atlases/compressed.sprites/map/map_circle_{n.Id%5}.tres"),rect.Grow(size*.2f),false,new Color("66503a"));
-  if(zone==FocusRegion.Map&&FocusedNodeId==n.Id&&!preview)target.DrawRect(rect.Grow(5),Colors.White,false,3);
+
+
+  if(map.Visited.Contains(n.Id)&&n.Room is not (JigsawRoom.Shop or JigsawRoom.Boss or JigsawRoom.SecondBoss or JigsawRoom.Ancient))target.DrawTextureRect(JigsawNativeArt.Load($"atlases/compressed.sprites/map/map_circle_4.tres"),rect.Grow(size*.2f),false,new Color("66503a"));
+  if(zone==FocusRegion.Map&&FocusedNodeId==n.Id&&!preview)
+  {
+   var focus=rect.Grow(5);float arm=Math.Min(focus.Size.X,focus.Size.Y)*.22f;
+   foreach(var corner in new[]{focus.Position,new Vector2(focus.End.X,focus.Position.Y),focus.End,new Vector2(focus.Position.X,focus.End.Y)})
+   {
+    var inward=new Vector2(corner.X==focus.Position.X?1:-1,corner.Y==focus.Position.Y?1:-1);
+    target.DrawLine(corner,corner+new Vector2(inward.X*arm,0),Colors.White,3);
+    target.DrawLine(corner,corner+new Vector2(0,inward.Y*arm),Colors.White,3);
+   }
+  }
   if(map.SelectedEndpoints.GetValueOrDefault(player,-1)==n.Id)target.DrawRect(rect.Grow(9),new Color("f4d79a"),false,2);
   if(n.Room is JigsawRoom.Boss or JigsawRoom.SecondBoss)
   {
    if(!bossVisuals.TryGetValue(n.Id,out var visual) && art.Boss(n.Room) is {} created) {bossVisuals[n.Id]=visual=created;target.AddChild(visual);}
-   if(visual!=null) {visual.Position=at;visual.Scale=Vector2.One*(size*pulse/180f);visual.Modulate=new Color(1,1,1,preview?.55f:1);}
+   if(visual!=null) {JigsawNativeArt.FitBoss(visual,at,size*pulse);visual.Modulate=new Color(1,1,1,preview?.55f:1);}
    else target.DrawTextureRect(art.Icon(n.Room),rect,false,new Color("433427"));
   }
-  else target.DrawTextureRect(art.Icon(n.Room),rect,false,new Color(1,1,1,preview?.55f:1));
-  foreach(var h in map.Holdings.Where(h=>h.Value.PieceId==n.PieceId)) { var texture=avatar?.Invoke(h.Key); target.DrawRect(rect.Grow(3),new Color("f4d79a"),false,3); if(texture!=null)target.DrawTextureRect(texture,new Rect2(at+new Vector2(size/2,-size/2-22),new Vector2(24,24)),false); }
+  else target.DrawTextureRect(art.Icon(n.Room),rect,false,new Color(1,1,1,preview||map.Holdings.Values.Any(h=>h.PieceId==n.PieceId)?.55f:1));
+
  }
 }
 public partial class JigsawCanvas : Control
@@ -469,7 +521,7 @@ public partial class JigsawPiecePreview : Control
   var max=new Vector2(Piece.Nodes.Max(n=>n.Offset.X),Piece.Nodes.Max(n=>n.Offset.Y));
   float unit=Math.Min(Size.X/(max.X-min.X+4),Size.Y/(max.Y-min.Y+4));
   Vector2 Point(GridPoint p)=>Size/2+new Vector2(p.X-(min.X+max.X)/2,-p.Y+(min.Y+max.Y)/2)*unit;
-  foreach(var edge in Piece.InternalEdges)DrawLine(Point(Piece.Nodes.First(n=>n.Id==edge.First).Offset),Point(Piece.Nodes.First(n=>n.Id==edge.Second).Offset),new Color("b6bdc6"),2,true);
+  foreach(var edge in Piece.InternalEdges)JigsawNativeArt.DrawPath(this,Point(Piece.Nodes.First(n=>n.Id==edge.First).Offset),Point(Piece.Nodes.First(n=>n.Id==edge.Second).Offset),unit,new Color("b6bdc6"));
   foreach(var node in Piece.Nodes)
   {
    float side=unit*(node.Room is JigsawRoom.Boss or JigsawRoom.SecondBoss?3:1);
@@ -478,7 +530,7 @@ public partial class JigsawPiecePreview : Control
    if(node.Room is JigsawRoom.Boss or JigsawRoom.SecondBoss)
    {
     if(!bosses.TryGetValue(node.Id,out var boss)&&Art.Boss(node.Room) is {} created) {bosses[node.Id]=boss=created;AddChild(boss);}
-    if(boss!=null) {boss.Position=Point(node.Offset);boss.Scale=Vector2.One*(side/180f);continue;}
+    if(boss!=null) {JigsawNativeArt.FitBoss(boss,Point(node.Offset),side);continue;}
    }
    DrawTextureRect(Art.Icon(node.Room),new Rect2(Point(node.Offset)-Vector2.One*side/2,Vector2.One*side),false);
   }

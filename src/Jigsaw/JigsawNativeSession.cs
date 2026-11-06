@@ -105,7 +105,7 @@ public sealed class JigsawNativeSession
         }
         screen.Show();
     }
-    internal JigsawScreen CreateScreen(IJigsawTutorialProfile? profile=null) => screen=JigsawScreen.Create(Map!,Native.Players[0].NetId,OnEdited,Inspect,Continue,Enter,Pause,profile,Automatic,id=>Native.Players.FirstOrDefault(p=>p.NetId==id)?.Character.IconTexture,AbandonEntry,Native.Act);
+    internal JigsawScreen CreateScreen(IJigsawTutorialProfile? profile=null) => screen=JigsawScreen.Create(Map!,Native.Players[0].NetId,OnEdited,Inspect,Continue,Enter,Pause,profile,Automatic,id=>Native.Players.FirstOrDefault(p=>p.NetId==id)?.Character.IconTexture,AbandonEntry,Native.Act,id=>Native.Players.FirstOrDefault(p=>p.NetId==id)?.Character.MapDrawingColor??Colors.White);
     private void ReleaseHotkeys()
     {
         if (!blockingHotkeys) return;
@@ -202,6 +202,7 @@ public sealed class JigsawNativeSession
         catch (Exception error) { saveFailure = error; throw; }
     }
 
+    internal static Func<Task>? TestAutomaticReveal;
     private Task? automaticTask;
     public Task Automatic()
     {
@@ -257,7 +258,15 @@ public sealed class JigsawNativeSession
         if(Current!=this || !ReferenceEquals(Map,map) || !ReferenceEquals(map.AutomaticOperation,operation))return;
         if(!accepted.Success)return;
         BeforeAncient=RunManager.Instance.ToSave(null);
-        await EnterAncient();
+        try { await EnterAncient(); }
+        finally
+        {
+            if(Current==this && ReferenceEquals(Map,map))
+            {
+                if(TestMode.IsOn) {if(TestAutomaticReveal!=null)await TestAutomaticReveal();}
+                else if(NGame.Instance!=null)await NGame.Instance.Transition.FadeIn(.4f);
+            }
+        }
     }
 
     public async Task Inspect()

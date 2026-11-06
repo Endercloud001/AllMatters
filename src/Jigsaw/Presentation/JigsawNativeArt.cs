@@ -16,12 +16,41 @@ internal sealed class JigsawNativeArt(ActModel? act)
  internal static StyleBoxTexture Panel(string path,int margin=16)=>new() {
   Texture=Load(path),TextureMarginLeft=margin,TextureMarginRight=margin,TextureMarginTop=margin,TextureMarginBottom=margin,
   ContentMarginLeft=margin,ContentMarginRight=margin,ContentMarginTop=margin,ContentMarginBottom=margin };
+ internal static void DrawPath(CanvasItem target,Vector2 start,Vector2 end,float cell,Color color)
+ {
+  var delta=end-start;
+  if(delta.Length()<1)return;
+  var texture=Load("atlases/compressed.sprites/map/map_dot.tres");
+  int count=Math.Max(2,(int)Math.Ceiling(delta.Length()/(cell*.26f)));
+  var size=new Vector2(cell*.14f,cell*.25f);
+  for(int i=1;i<count;i++)
+  {
+   target.DrawSetTransform(start.Lerp(end,(float)i/count),delta.Angle()-Mathf.Pi/2);
+   target.DrawTextureRect(texture,new Rect2(-size/2,size),false,color);
+  }
+  target.DrawSetTransform(Vector2.Zero);
+ }
+ internal static Rect2 BossBounds(Node2D visual)
+ {
+  var sprite=visual.GetChild<Node2D>(0);
+  return sprite is Sprite2D image ? image.GetRect() : new MegaSprite(sprite).GetSkeleton().GetBounds();
+ }
+ internal static void FitBoss(Node2D visual,Vector2 center,float side)
+ {
+  var bounds=BossBounds(visual);
+  float extent=Math.Max(bounds.Size.X,bounds.Size.Y);
+  if(extent<=0) {visual.Hide();return;}
+  visual.Show();
+  float scale=side*.86f/extent;
+  visual.Scale=Vector2.One*scale;
+  visual.Position=center-bounds.GetCenter()*scale;
+ }
  internal void DrawPaper(CanvasItem target,Vector2 size)
  {
   if(act==null)return;
-  float cap=Math.Min(size.Y*.15f,80);
+  float cap=size.Y*.38f;
   target.DrawTextureRect(act.MapTopBg,new Rect2(0,0,size.X,cap),false);
-  target.DrawTextureRect(act.MapMidBg,new Rect2(0,cap,size.X,size.Y-2*cap),false);
+  target.DrawTextureRect(act.MapMidBg,new Rect2(0,cap,size.X,size.Y*.24f),false);
   target.DrawTextureRect(act.MapBotBg,new Rect2(0,size.Y-cap,size.X,cap),false);
  }
  internal Node2D? Boss(JigsawRoom room)
