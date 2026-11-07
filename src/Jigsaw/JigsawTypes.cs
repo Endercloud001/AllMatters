@@ -56,6 +56,7 @@ public sealed record JigsawSave(
     [property: JsonRequired] long NextEntry,
     [property: JsonRequired] ulong[] AncientCompleted)
 {
+    public ulong[]? OriginalPlayers { get; init; }
     public JigsawLayout? AutomaticWitness { get; init; }
     public JigsawAutomaticOperation? AutomaticOperation { get; init; }
     [JsonRequired] public ulong GenerationRandomState { get; init; } = 1;

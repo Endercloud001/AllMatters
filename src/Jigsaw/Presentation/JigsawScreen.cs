@@ -36,6 +36,11 @@ public partial class JigsawScreen : Control
  private readonly VBoxContainer main = new(), footer = new();
  private readonly HBoxContainer decisions = new();
  private readonly HBoxContainer bottom = new(), top = new();
+ private Action? returnToRoom;
+ private MegaCrit.Sts2.Core.Models.ActModel? nativeAct;
+ private JigsawPaper paper = null!;
+ public bool CanReturnToRoom => returnToRoom!=null;
+ public void SetRoomPreview(Action? close) { returnToRoom=close; Refresh(); }
  private readonly Button next = new(), manual = new(), automatic = new(), resume = new(), abandon = new(), help = new();
  private readonly PanelContainer helpPanel = new();
  private readonly VBoxContainer helpContent = new();
@@ -93,7 +98,7 @@ public partial class JigsawScreen : Control
  public static JigsawScreen Create(JigsawRun map, ulong player, Action changed, Func<Task> inspected, Func<Task> continued, Func<int,Task> enter, Action pause, IJigsawTutorialProfile? profile = null, Func<Task>? automaticRequested = null, Func<ulong,Texture2D?>? avatar = null, Func<Task>? abandonRequested = null, MegaCrit.Sts2.Core.Models.ActModel? nativeAct=null, Func<ulong,Color>? playerColor=null)
  {
   var view = new JigsawScreen { map=map, player=player, changed=changed, inspected=inspected, continued=continued, enter=enter, pause=pause, profile=profile ?? new JigsawTutorialProfile(), previousPhase=map.Phase, automaticRequested=automaticRequested, avatar=avatar, abandonRequested=abandonRequested };
-  view.playerColor=playerColor; view.art=new JigsawNativeArt(nativeAct); view.Build(); view.Refresh(); return view;
+  view.nativeAct=nativeAct;view.playerColor=playerColor; view.art=new JigsawNativeArt(nativeAct); view.Build(); view.Refresh(); return view;
  }
  private static string L(string text) => TranslationServer.Translate(text);
  private Button MakeButton(string text, Action pressed)
@@ -128,7 +133,7 @@ public partial class JigsawScreen : Control
   main.AddChild(top);top.Alignment=BoxContainer.AlignmentMode.End; top.AddChild(steps); steps.SizeFlagsHorizontal=SizeFlags.ExpandFill;
   main.AddChild(explorationNotice);
   help.Text=L("帮助"); help.Pressed += OpenHelp; top.AddChild(help);
-  var paper=new JigsawPaper {Art=art,SizeFlagsHorizontal=SizeFlags.ExpandFill,SizeFlagsVertical=SizeFlags.ExpandFill,MouseFilter=MouseFilterEnum.Ignore};main.AddChild(paper);
+  paper=new JigsawPaper {Art=art,SizeFlagsHorizontal=SizeFlags.ExpandFill,SizeFlagsVertical=SizeFlags.ExpandFill,MouseFilter=MouseFilterEnum.Ignore};main.AddChild(paper);
   canvas=new JigsawCanvas { OwnerScreen=this, FocusMode=FocusModeEnum.All, ClipContents=true, MouseFilter=MouseFilterEnum.Stop };paper.AddChild(canvas);
   canvas.AnchorLeft=.12f;canvas.AnchorTop=.18f;canvas.AnchorRight=.86f;canvas.AnchorBottom=.85f;
   overlay=new JigsawOverlay {OwnerScreen=this,ZIndex=1,MouseFilter=MouseFilterEnum.Ignore};canvas.AddChild(overlay);overlay.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
@@ -176,8 +181,14 @@ public partial class JigsawScreen : Control
   Resized += AdaptLayout;
  }
  private const string Rules="鼠标左键拿取、放置碎块；\n\n持有碎块时右键旋转碎块；\n\n持有碎块时左键点击\"归还碎块\"可放回；\n\n空手连续右键两个碎块连线，重复操作拆除连线；\n\n按住中键可拖动地图，滚轮缩放；\n\n目的是存在至少一条规定步数内从先古之民出发到达Boss的路线，当然玩家也可以选择随机生成。";
- public void SetMap(JigsawRun value)
+ public void SetMap(JigsawRun value,MegaCrit.Sts2.Core.Models.ActModel? currentAct=null)
  {
+  if(currentAct!=null&&!ReferenceEquals(nativeAct,currentAct))
+  {
+   nativeAct=currentAct;art=new JigsawNativeArt(currentAct);paper.Art=art;paper.QueueRedraw();
+   foreach(var visual in bossVisuals.Values) {visual.GetParent()?.RemoveChild(visual);visual.QueueFree();}
+   bossVisuals.Clear();
+  }
   if(!ReferenceEquals(map,value)) { ClearRecent(); tips.Clear(); zoom=1;pan=Vector2.Zero; }
   map=value; Refresh();
  }
@@ -207,7 +218,7 @@ public partial class JigsawScreen : Control
   poolIndex=Math.Clamp(poolIndex,0,Math.Max(0,poolButtons.Count-1)); nodeIndex=Math.Clamp(nodeIndex,0,Math.Max(0,NavigableNodeIds.Count-1));
   steps.Text=L("剩余步数")+"  "+map.RemainingSteps+" / "+map.Budget;
   steps.Visible=false;
-  bottom.Visible=map.Phase!=JigsawPhase.Exploring || map.PendingEntry!=null;
+  bottom.Visible=!CanReturnToRoom && (map.Phase!=JigsawPhase.Exploring || map.PendingEntry!=null);
   manual.Visible=automatic.Visible=map.Phase is JigsawPhase.Editing or JigsawPhase.Inspecting or JigsawPhase.Generating;
   manual.Disabled=automatic.Disabled=Reading || map.Phase!=JigsawPhase.Editing;
   manual.Text=L("由先古之民审视"); automatic.Text=L("令先古之民决定"); UpdateVoters(manualVoters,EndChoice.Manual); UpdateVoters(autoVoters,EndChoice.Automatic);
@@ -250,6 +261,7 @@ public partial class JigsawScreen : Control
   if(helpOpen) { helpOpen=false; helpShade.Hide(); helpPanel.Hide(); Refresh(); return; }
   if(replay!=null) { replay=null; Refresh(); return; }
   if(map.Holdings.ContainsKey(player)||map.SelectedEndpoints.ContainsKey(player)) { Apply(map.Cancel(player)); return; }
+  if(returnToRoom!=null) { returnToRoom(); return; }
   tutorialPaused=true; SetProcessInput(false); pause();
  }
  public void ResumeFromPause() { tutorialPaused=false; SetProcessInput(true); Refresh(); }
@@ -413,6 +425,7 @@ public partial class JigsawScreen : Control
  private void ActivateMap(int? id,GridPoint point,bool secondary)
  {
   if(Reading)return;
+  if(CanReturnToRoom)return;
   if(map.Phase==JigsawPhase.Exploring) { if(id!=null && !secondary)RunAsync(enter(id.Value)); return; }
   if(secondary)
   {
@@ -428,6 +441,7 @@ public partial class JigsawScreen : Control
   if(!IsVisibleInTree())return;
   if(MegaCrit.Sts2.Core.Nodes.NRun.Instance?.GlobalUi.SubmenuStack.Stack?.SubmenusOpen==true)return;
   if(NModalContainer.Instance?.OpenModal!=null)return;
+  if(CanReturnToRoom && ev.IsActionPressed(MegaInput.viewMap)) { returnToRoom!();GetViewport()?.SetInputAsHandled();return; }
   if(IsGenerating) { GetViewport()?.SetInputAsHandled();return; }
   // This dedicated screen consumes map drawing/erasing before native unhandled input.
   if(ev is InputEventMouseButton mouse)

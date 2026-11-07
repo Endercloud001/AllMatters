@@ -44,7 +44,10 @@ internal static class JigsawPresentationTests
   var tree=(SceneTree)Engine.GetMainLoop();var original=tree.Root.Size;tree.Root.Size=new(1280,720);
   var map=JigsawRun.Create(74);map.Take(1,0);map.Drop(1,new(3,0));map.AddEdge(1,0,1);map.ChooseEnd(1,EndChoice.Manual);map.Inspect();map.CompleteAncient(1);map.Continue(1);
   var bar=new Control {Size=new(1280,80)};var boss=new Control {Position=new(500,8),Size=new(48,48)};bar.AddChild(boss);
-  var badge=JigsawStepCounter.Attach(bar,boss,()=>map);var view=View(map,new(){Sentence=6});
+  var secondBoss=new TextureRect {Position=new(34,0),Size=new(46,48),MouseFilter=Control.MouseFilterEnum.Ignore};boss.AddChild(secondBoss);
+  var floor=new Label {Text="11"};floor.AddThemeFontOverride("font",new SystemFont {FontNames=["Arial"]});floor.AddThemeFontSizeOverride("font_size",32);floor.AddThemeConstantOverride("outline_size",3);bar.AddChild(floor);
+  var potions=new Control {Position=new(180,8),Size=new(128,48)};bar.AddChild(potions);
+  var badge=JigsawStepCounter.Attach(bar,boss,()=>map,floor,potions);var view=View(map,new(){Sentence=6});
   var hoverFactory=typeof(NHoverTipSet).GetMethods().Single(m=>m.Name=="CreateAndShow"&&m.GetParameters()[1].ParameterType==typeof(IHoverTip));
   var tipHost=new Harmony("AllMatters.StepTipHost");capturedStepTip=null;
   tipHost.Patch(hoverFactory,prefix:new HarmonyMethod(typeof(JigsawPresentationTests),nameof(CaptureStepTip)));
@@ -63,6 +66,24 @@ internal static class JigsawPresentationTests
    }
    finally {hostPatch.Unpatch(nativeReady,HarmonyLib.HarmonyPatchType.Prefix,"AllMatters.StepCounterHost");nativeBar.Free();nativeBoss.Free();}
    await HeadlessUiHost.Mount(bar,view);
+   foreach(int slots in new[]{2,4,6})
+   {
+    potions.Size=new(slots*64,48);boss.Position=new(500+(slots-2)*64,8);
+    foreach(bool dualBoss in new[]{false,true})
+    {
+     secondBoss.Visible=dualBoss;
+     await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
+     float bossRight=dualBoss?secondBoss.GetGlobalRect().End.X:boss.GetGlobalRect().End.X;
+     Require(badge.GetGlobalRect().Position.X>=Math.Max(bossRight,potions.GetGlobalRect().End.X)+10,"The step badge clears all visible Boss artwork after potion expansion.");
+    }
+   }
+   potions.Size=new(900,48);
+   await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
+   Require(badge.GetGlobalRect().Position.X>=potions.GetGlobalRect().End.X+10,"A larger potion row cannot extend beneath the step badge.");
+   potions.Size=new(128,48);boss.Position=new(500,8);
+   await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
+   var stepNumber=badge.GetChild<Label>(1);
+   Require(stepNumber.GetThemeFont("font")==floor.GetThemeFont("font")&&stepNumber.GetThemeFontSize("font_size")==floor.GetThemeFontSize("font_size")&&stepNumber.GetThemeConstant("outline_size")==floor.GetThemeConstant("outline_size"),"The step number matches the floor number's resolved font, size and outline.");
    Require(badge.Visible&&badge.TooltipText.Length==0,"The native top-bar adapter shows the current budget tooltip.");
    Require(badge.GetChild<TextureRect>(0).Texture==MegaCrit.Sts2.Core.Models.ModelDb.Relic<MegaCrit.Sts2.Core.Models.Relics.WingedBoots>().Icon,"Step icon is the native Winged Boots art.");
    tree.Root.PushInput(new InputEventMouseMotion {Position=badge.GetGlobalRect().GetCenter(),GlobalPosition=badge.GetGlobalRect().GetCenter()},true);

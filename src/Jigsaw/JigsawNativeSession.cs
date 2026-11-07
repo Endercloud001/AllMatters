@@ -78,18 +78,27 @@ public sealed class JigsawNativeSession
         }
         if (data.Version != 1 || data.Map == null || data.Act != native.CurrentActIndex)
             throw new InvalidDataException("拼图检查点不完整，不能恢复为空地图。");
+        var originals=native.Players.Select(p=>p.NetId).ToArray();
+        var mapData=data.Map.OriginalPlayers==null?data.Map with {OriginalPlayers=originals}:data.Map;
+        if(!originals.ToHashSet().SetEquals(mapData.OriginalPlayers!))
+            throw new InvalidDataException("拼图原队员与原生存档角色名单不一致，不能替换角色恢复。");
+        var restoredMap=JigsawRun.Restore(mapData,JigsawLobbyCheckpoint.IsValidating?null:originals);
+        // The native lobby validates/rebuilds saves before a live session exists.
+        // Validate the document here without activating multiplayer gameplay.
+        if(JigsawLobbyCheckpoint.IsValidating)return;
         var session = Enable(native);
         session.act = data.Act;
-        session.Map = JigsawRun.Restore(data.Map);
+        session.Map = restoredMap;
         session.BeginExploration();
         if (session.Map.PendingEntry != null && checkpoint != null) session.entryCheckpoint = JigsawSaveSource.Copy(checkpoint);
     }
 
     public void ShowMap()
     {
-        if (Map == null || act != Native.CurrentActIndex || TestMode.IsOn || NRun.Instance == null) return;
+        if (Map == null || act != Native.CurrentActIndex) return;
         if (screen == null || !GodotObject.IsInstanceValid(screen))
         {
+            if (TestMode.IsOn || NRun.Instance == null) return;
             screen=CreateScreen();
             var parent = NRun.Instance.GlobalUi;
             parent.AddChild(screen);
@@ -97,7 +106,8 @@ public sealed class JigsawNativeSession
             screen.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
             screen.TreeExiting += ReleaseHotkeys;
         }
-        screen.SetMap(Map);
+        screen.SetMap(Map,Native.Act);
+        screen.SetRoomPreview(Map.CurrentNode != null || Map.Phase == JigsawPhase.Ancient && !AncientReady && Native.CurrentRoom is EventRoom ? HideMap : null);
         if (!blockingHotkeys)
         {
             NHotkeyManager.Instance?.AddBlockingScreen(screen);
@@ -106,6 +116,11 @@ public sealed class JigsawNativeSession
         screen.Show();
     }
     internal JigsawScreen CreateScreen(IJigsawTutorialProfile? profile=null) => screen=JigsawScreen.Create(Map!,Native.Players[0].NetId,OnEdited,Inspect,Continue,Enter,Pause,profile,Automatic,id=>Native.Players.FirstOrDefault(p=>p.NetId==id)?.Character.IconTexture,AbandonEntry,Native.Act,id=>Native.Players.FirstOrDefault(p=>p.NetId==id)?.Character.MapDrawingColor??Colors.White);
+    internal bool CloseRoomPreview()
+    {
+        if (!GodotObject.IsInstanceValid(screen) || screen is not { Visible:true, CanReturnToRoom:true }) return false;
+        HideMap(); return true;
+    }
     private void ReleaseHotkeys()
     {
         if (!blockingHotkeys) return;
@@ -536,7 +551,7 @@ internal static class JigsawOpenFormalMap
     private static bool Prefix(NMapScreen __instance, bool isOpenedFromTopBar, ref NMapScreen __result)
     {
         if (JigsawNativeSession.Current is not { Map: not null } session) return true;
-        if (session.Map.Phase == JigsawPhase.Ancient && !session.AncientReady) return true;
+        if (isOpenedFromTopBar && session.CloseRoomPreview()) { __result = __instance; return false; }
         if (!isOpenedFromTopBar && session.Map.CurrentNode != null)
             session.CompleteCurrentRoom(__instance.IsTravelEnabled);
         session.ShowMap(); __result = __instance; return false;
@@ -583,7 +598,7 @@ internal static class JigsawRestoreSession
     }
     [HarmonyPriority(Priority.Last)]
     private static void Postfix(RunState __result, List<SerializableModifier>? __state, SerializableRun save) =>
-        JigsawNativeSession.Restore(__result, __state != null, save);
+        JigsawNativeSession.Restore(__result, __state != null || JigsawSaveSource.IsJigsaw(save), save);
     private static void Finalizer(SerializableRun save, List<SerializableModifier>? __state)
     {
         if (__state != null) save.Modifiers = __state;

@@ -10,6 +10,9 @@ public sealed class JigsawRun
     private readonly HashSet<ulong> blankClicks = [];
     private readonly Dictionary<ulong,EndChoice> choices = [];
     private readonly HashSet<ulong> players;
+    private readonly HashSet<ulong> originalPlayers;
+    public IReadOnlyCollection<ulong> OriginalPlayers => originalPlayers.ToArray();
+    public IReadOnlyCollection<ulong> ActivePlayers => players.ToArray();
     private readonly HashSet<ulong> ancientCompleted = [], continued = [];
     private readonly HashSet<int> visited = [0], completed = [0];
     private long nextEntry;
@@ -46,6 +49,7 @@ public sealed class JigsawRun
         Pool = Array.AsReadOnly(pool.Select(p => p with { Nodes = Array.AsReadOnly(p.Nodes.ToArray()), InternalEdges = Array.AsReadOnly(p.InternalEdges.ToArray()) }).ToArray());
         if (Pool.Select(p => p.Id).Distinct().Count() != Pool.Count || Pool.SelectMany(p => p.Nodes).Select(n => n.Id).Distinct().Count() != Pool.Sum(p => p.Nodes.Count) || Pool.SelectMany(p => p.Nodes).Any(n => n.Id == 0)) throw new ArgumentException("Piece and node IDs must be unique; zero belongs to Ancient.");
         Budget = budget; this.players = (players ?? [1UL]).ToHashSet();
+        originalPlayers = new(this.players);
     }
     private List<JigsawNode> BuildNodes(IReadOnlyDictionary<int,JigsawPlacement> layout)
     {
@@ -256,11 +260,12 @@ public sealed class JigsawRun
         if (Phase != JigsawPhase.Exploring || CurrentNode == null || currentEntry != attempt) return JigsawResult.Reject(JigsawFailure.StaleCompletion);
         completed.Add(CurrentNode.Value); CurrentNode = null; currentEntry = null; return JigsawResult.Ok;
     }
-    public JigsawSave CreateSave() => new(Pool.Select(p => p with { Nodes = p.Nodes.ToArray(), InternalEdges = p.InternalEdges.ToArray() }).ToArray(),placements.Values.ToArray(),external.ToArray(),Phase,Budget,players.ToArray(),Steps,FirstProgress,visited.ToArray(),completed.ToArray(),CurrentNode,PendingEntry,nextEntry,ancientCompleted.ToArray()) { AutomaticWitness=AutomaticWitness is {} witness ? new(witness.Placements.ToArray(),witness.Edges.ToArray()) : null, AutomaticOperation=AutomaticOperation is {} operation ? operation with { CandidateOrder=operation.CandidateOrder.ToArray() } : null, GenerationRandomState=generationRandomState };
-    public static JigsawRun Restore(JigsawSave save)
+    public JigsawSave CreateSave() => new(Pool.Select(p => p with { Nodes = p.Nodes.ToArray(), InternalEdges = p.InternalEdges.ToArray() }).ToArray(),placements.Values.ToArray(),external.ToArray(),Phase,Budget,players.ToArray(),Steps,FirstProgress,visited.ToArray(),completed.ToArray(),CurrentNode,PendingEntry,nextEntry,ancientCompleted.ToArray()) { OriginalPlayers=originalPlayers.ToArray(), AutomaticWitness=AutomaticWitness is {} witness ? new(witness.Placements.ToArray(),witness.Edges.ToArray()) : null, AutomaticOperation=AutomaticOperation is {} operation ? operation with { CandidateOrder=operation.CandidateOrder.ToArray() } : null, GenerationRandomState=generationRandomState };
+    public static JigsawRun Restore(JigsawSave save,IEnumerable<ulong>? activePlayers=null)
     {
         JigsawSaveValidation.Validate(save);
-        var run = new JigsawRun(save.Pool,save.Budget,save.Players) { Phase=save.Phase,Steps=save.Steps,FirstProgress=save.FirstProgress,CurrentNode=save.CurrentNode,PendingEntry=save.PendingEntry,nextEntry=save.NextEntry,currentEntry=save.CurrentNode == null ? null : save.NextEntry };
+        var run = new JigsawRun(save.Pool,save.Budget,save.OriginalPlayers??save.Players) { Phase=save.Phase,Steps=save.Steps,FirstProgress=save.FirstProgress,CurrentNode=save.CurrentNode,PendingEntry=save.PendingEntry,nextEntry=save.NextEntry,currentEntry=save.CurrentNode == null ? null : save.NextEntry };
+        run.players.IntersectWith(save.Players);
         foreach (var p in save.Placements) run.placements.Add(p.PieceId,p); run.external.AddRange(save.ExternalEdges);
         run.generationRandomState=save.GenerationRandomState; run.AutomaticWitness=save.AutomaticWitness; run.AutomaticOperation=save.AutomaticOperation;
         if(run.AutomaticWitness is {} witness && !JigsawAutomatic.Validate(run,witness).Success)throw new ArgumentException("Saved automatic witness is invalid.",nameof(save));
@@ -274,6 +279,14 @@ public sealed class JigsawRun
             run.Phase=save.Phase;
             if(run.AutomaticOperation!=null && !JigsawAutomatic.Validate(run,new(save.Placements,save.ExternalEdges)).Success)
                 throw new ArgumentException("Finalized automatic checkpoint does not satisfy automatic requirements.",nameof(save));
+        }
+        if(activePlayers!=null)
+        {
+            var connected=activePlayers.ToHashSet();
+            if(!connected.IsSubsetOf(run.originalPlayers))throw new ArgumentException("A new player cannot replace an original saved character.",nameof(activePlayers));
+            if(run.Phase==JigsawPhase.Exploring&&!connected.All(run.ancientCompleted.Contains))
+                throw new ArgumentException("Returning players must complete Ancient before exploration can resume.",nameof(activePlayers));
+            run.players.Clear();run.players.UnionWith(connected);
         }
         return run;
     }
