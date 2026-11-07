@@ -14,6 +14,13 @@ public partial class JigsawScreen : Control
  private Func<int,Task> enter = null!;
  private Func<Task>? automaticRequested;
  private Func<Task>? abandonRequested;
+ internal Func<JigsawResult>? CancelRequested {get;set;}
+ internal Func<int,JigsawResult>? ReturnRequested {get;set;}
+ internal Func<int,JigsawResult>? TakeRequested {get;set;}
+ internal Func<JigsawResult>? RotateRequested {get;set;}
+ internal Func<GridPoint,JigsawResult>? DropRequested {get;set;}
+ internal Func<int?,JigsawResult>? EndpointRequested {get;set;}
+ internal Func<EndChoice,JigsawResult>? ChoiceRequested {get;set;}
  private Func<ulong,Texture2D?>? avatar;
  private Func<ulong,Color>? playerColor;
  private readonly HBoxContainer manualVoters=new(), autoVoters=new();
@@ -253,14 +260,14 @@ public partial class JigsawScreen : Control
  public void OpenHelp()
  {
   if(!help.Visible)return;
-  map.Cancel(player); dragging=false; changed(); helpOpen=true; helpShade.Show(); helpPanel.Show(); helpText.Text=L(Rules); Refresh(); helpPanel.Show();
+  var cancelled=CancelRequested?.Invoke()??map.Cancel(player); dragging=false; changed(); helpOpen=true; helpShade.Show(); helpPanel.Show(); helpText.Text=L(Rules); Refresh(); helpPanel.Show();
   helpIndex=0; if(IsInsideTree())helpContent.GetChildren().OfType<Button>().First().GrabFocus();
  }
  public void Back()
  {
   if(helpOpen) { helpOpen=false; helpShade.Hide(); helpPanel.Hide(); Refresh(); return; }
   if(replay!=null) { replay=null; Refresh(); return; }
-  if(map.Holdings.ContainsKey(player)||map.SelectedEndpoints.ContainsKey(player)) { Apply(map.Cancel(player)); return; }
+  if(map.Holdings.ContainsKey(player)||map.SelectedEndpoints.ContainsKey(player)) { Apply(CancelRequested?.Invoke()??map.Cancel(player)); return; }
   if(returnToRoom!=null) { returnToRoom(); return; }
   tutorialPaused=true; SetProcessInput(false); pause();
  }
@@ -272,9 +279,15 @@ public partial class JigsawScreen : Control
  private void Take(int piece)
  {
   if(Reading)return;
-  var result=map.Take(player,piece);
-  if(!result.Success)return;
+  var result=TakeRequested?.Invoke(piece)??map.Take(player,piece);
+  if(!result.Success || TakeRequested!=null)return;
   Apply(result,true); Tip("holding", "放置碎块，旋转，返回取消，或归还碎块。");
+ }
+ internal void EditorResult(JigsawEditorOperation operation,JigsawResult result)
+ {
+  if(operation==JigsawEditorOperation.Take) { if(result.Success)Tip("holding", "放置碎块，旋转，返回取消，或归还碎块。"); }
+  else if(!result.Success)ShowResult(result);
+  Refresh();
  }
  private void Tip(string id,string text) { if(errorRemaining<=0&&tips.Add(id))ShowNotice(text); }
  private void ExplainEnding()
@@ -282,11 +295,12 @@ public partial class JigsawScreen : Control
   if(map.Phase==JigsawPhase.Editing&&!Reading)
    Tip("end", "手动审视会检查你的拼图；自动决定将重新安排布局。两种结束按钮须全员同选，选择后本人禁编辑；激活同一按钮撤票，另一按钮改选。");
  }
- private void ReturnHeld() { if(!Reading && map.Holdings.TryGetValue(player,out var h))Apply(map.ReturnToPool(player,h.PieceId)); }
+ private void ReturnHeld() { if(!Reading && map.Holdings.TryGetValue(player,out var h))Apply(ReturnRequested?.Invoke(h.PieceId)??map.ReturnToPool(player,h.PieceId)); }
  private void Choose(EndChoice choice)
  {
   if(Reading)return;
   if(choice==EndChoice.Automatic && automaticRequested!=null) { RunAsync(automaticRequested()); return; }
+  if(ChoiceRequested!=null) { Apply(ChoiceRequested(choice)); return; }
   var result=map.ChooseEnd(player,choice); Apply(result);
   if(result.Success && map.Phase==JigsawPhase.Inspecting)RunAsync(inspected());
   if(result.Success && map.Phase==JigsawPhase.Generating)ShowNotice("将重塑尖塔的一部分");
@@ -429,10 +443,10 @@ public partial class JigsawScreen : Control
   if(map.Phase==JigsawPhase.Exploring) { if(id!=null && !secondary)RunAsync(enter(id.Value)); return; }
   if(secondary)
   {
-   if(map.Holdings.ContainsKey(player))Apply(map.Rotate(player));
-   else Apply(map.SelectEndpoint(player,id));
+   if(map.Holdings.ContainsKey(player))Apply(RotateRequested?.Invoke()??map.Rotate(player));
+   else Apply(EndpointRequested?.Invoke(id)??map.SelectEndpoint(player,id));
   }
-  else if(map.Holdings.ContainsKey(player))Apply(map.Drop(player,point));
+  else if(map.Holdings.ContainsKey(player))Apply(DropRequested?.Invoke(point)??map.Drop(player,point));
   else if(id!=null && map.Nodes.First(n=>n.Id==id).PieceId is int piece)Take(piece);
  }
  public override bool _HasPoint(Vector2 point)=>new Rect2(0,Size.Y*.12f,Size.X,Size.Y*.88f).HasPoint(point);

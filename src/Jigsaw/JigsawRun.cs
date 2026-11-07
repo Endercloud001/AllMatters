@@ -36,20 +36,23 @@ public sealed class JigsawRun
     public IReadOnlyCollection<int> Completed => completed.ToArray();
     public IReadOnlyList<JigsawNode> Nodes => BuildNodes(placements);
     public IReadOnlyList<JigsawEdge> Edges => BuildEdges(placements,external);
-    public static JigsawRun Create(int seed, int budget = 15, bool doubleBoss = false, IEnumerable<ulong>? players = null)
+    public static JigsawRun Create(int seed, int budget = 15, bool doubleBoss = false, IEnumerable<ulong>? players = null,IEnumerable<ulong>? originalPlayers=null)
     {
-        var run=new JigsawRun(JigsawPool.Create(seed,doubleBoss),budget,players);
+        var run=new JigsawRun(JigsawPool.Create(seed,doubleBoss),budget,players,originalPlayers);
         run.generationRandomState=(ulong)(uint)seed+1;
         run.AutomaticWitness=JigsawAutomatic.Witness(run);
         return run;
     }
     public JigsawRun(IEnumerable<JigsawPiece> pool, int budget = 15, IEnumerable<ulong>? players = null)
+        :this(pool,budget,players,null) { }
+    private JigsawRun(IEnumerable<JigsawPiece> pool,int budget,IEnumerable<ulong>? players,IEnumerable<ulong>? originalPlayers)
     {
         if (budget < 0) throw new ArgumentOutOfRangeException(nameof(budget));
         Pool = Array.AsReadOnly(pool.Select(p => p with { Nodes = Array.AsReadOnly(p.Nodes.ToArray()), InternalEdges = Array.AsReadOnly(p.InternalEdges.ToArray()) }).ToArray());
         if (Pool.Select(p => p.Id).Distinct().Count() != Pool.Count || Pool.SelectMany(p => p.Nodes).Select(n => n.Id).Distinct().Count() != Pool.Sum(p => p.Nodes.Count) || Pool.SelectMany(p => p.Nodes).Any(n => n.Id == 0)) throw new ArgumentException("Piece and node IDs must be unique; zero belongs to Ancient.");
         Budget = budget; this.players = (players ?? [1UL]).ToHashSet();
-        originalPlayers = new(this.players);
+        this.originalPlayers = (originalPlayers ?? this.players).ToHashSet();
+        if(this.players.Count==0 || !this.players.IsSubsetOf(this.originalPlayers))throw new ArgumentException("Active players must be a non-empty subset of the original roster.",nameof(players));
     }
     private List<JigsawNode> BuildNodes(IReadOnlyDictionary<int,JigsawPlacement> layout)
     {
@@ -150,6 +153,12 @@ public sealed class JigsawRun
     {
         holdings.Remove(player);ClearEndpoint(player);choices.Remove(player);players.Remove(player);
         if(Phase==JigsawPhase.Editing)AuthorizeIfUnanimous();
+        if(Phase==JigsawPhase.Ancient && players.Count>0 && players.All(ancientCompleted.Contains) && players.All(continued.Contains))Phase=JigsawPhase.Exploring;
+    }
+    public JigsawResult Reconnect(ulong player)
+    {
+        if(!originalPlayers.Contains(player))return JigsawResult.Reject(JigsawFailure.UnknownPlayer);
+        players.Add(player);return JigsawResult.Ok;
     }
     private void AuthorizeIfUnanimous()
     {

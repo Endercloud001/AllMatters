@@ -45,14 +45,16 @@ public partial class TestRunner : Node
                 "libspine_godot.windows.template_release.x86_64.dll")).Replace('\\', '/');
             if (!File.Exists(spineLibrary)) throw new Exception("Resource tests require the installed beta Spine library.");
             Directory.CreateDirectory(Path.GetDirectoryName(spineExtension)!);
-            File.WriteAllText(spineExtension, $"""
+            string spineConfiguration = $"""
                 [configuration]
                 entry_symbol = "spine_godot_library_init"
                 compatibility_minimum = "4.5"
                 [libraries]
                 windows.debug.x86_64 = "{spineLibrary}"
                 windows.release.x86_64 = "{spineLibrary}"
-                """);
+                """;
+            if (!File.Exists(spineExtension) || File.ReadAllText(spineExtension) != spineConfiguration)
+                File.WriteAllText(spineExtension, spineConfiguration);
             if (GDExtensionManager.LoadExtension(spineExtension) != GDExtensionManager.LoadStatus.Ok)
                 throw new Exception("Cannot load the installed beta Spine extension for resource tests.");
             if (!ProjectSettings.LoadResourcePack(Path.GetFullPath(modPack), replaceFiles: false))
