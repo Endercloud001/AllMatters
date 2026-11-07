@@ -5,6 +5,7 @@ using MegaCrit.Sts2.Core.ControllerInput;
 internal static class JigsawPresentationTests
 {
  public static readonly (string Name, Func<Task> Test)[] Cases = [
+  ("Jigsaw presentation top bar step badge and hover", StepBadge),
   ("Jigsaw presentation exploration visit ring and visible pulse", ExplorationVisuals),
   ("Jigsaw presentation real viewport buttons and Escape", ViewportAndEscape),
   ("Jigsaw presentation approved editor controls and help wheel isolation", ApprovedControls),
@@ -29,6 +30,46 @@ internal static class JigsawPresentationTests
   HeadlessUiHost.EnsureInputActions();
   return JigsawScreen.Create(map,1,()=>{},()=>Task.CompletedTask,()=>Task.CompletedTask,_=>Task.CompletedTask,pause??(()=>{}),profile);
  }
+ private static async Task StepBadge()
+ {
+  using var atlases=HeadlessTestSetup.LoadAtlases("relic_atlas");
+  var tree=(SceneTree)Engine.GetMainLoop();var original=tree.Root.Size;tree.Root.Size=new(1280,720);
+  var map=JigsawRun.Create(74);map.Take(1,0);map.Drop(1,new(3,0));map.AddEdge(1,0,1);map.ChooseEnd(1,EndChoice.Manual);map.Inspect();map.CompleteAncient(1);map.Continue(1);
+  var bar=new Control {Size=new(1280,80)};var boss=new Control {Position=new(500,8),Size=new(48,48)};bar.AddChild(boss);
+  var badge=JigsawStepCounter.Attach(bar,boss,()=>map);var view=View(map,new(){Sentence=6});
+  try
+  {
+   var nativeReady=HarmonyLib.AccessTools.Method(typeof(MegaCrit.Sts2.Core.Nodes.CommonUi.NTopBar),"_Ready");
+   var hostPatch=new HarmonyLib.Harmony("AllMatters.StepCounterHost");
+   var nativeBar=new MegaCrit.Sts2.Core.Nodes.CommonUi.NTopBar {Name="JigsawCounterHost"};
+   var nativeBoss=new MegaCrit.sts2.Core.Nodes.TopBar.NTopBarBossIcon();
+   HarmonyLib.AccessTools.Property(typeof(MegaCrit.Sts2.Core.Nodes.CommonUi.NTopBar),"BossIcon").SetValue(nativeBar,nativeBoss);
+   try
+   {
+    hostPatch.Patch(nativeReady,prefix:new HarmonyLib.HarmonyMethod(typeof(JigsawPresentationTests),nameof(SkipNativeTopBarSetup)));
+    await HeadlessUiHost.Mount(nativeBar);
+    Require(nativeBar.GetNodeOrNull<JigsawStepCounter>("AllMattersSteps")!=null,"The engine's actual native Ready callback invokes the production top-bar hook.");
+   }
+   finally {hostPatch.Unpatch(nativeReady,HarmonyLib.HarmonyPatchType.Prefix,"AllMatters.StepCounterHost");nativeBar.Free();nativeBoss.Free();}
+   await HeadlessUiHost.Mount(bar,view);
+   Require(badge.Visible&&badge.TooltipText=="剩余步数 15/15","The native top-bar adapter shows the current budget tooltip.");
+   Require(badge.GetChild<TextureRect>(0).Texture==MegaCrit.Sts2.Core.Models.ModelDb.Relic<MegaCrit.Sts2.Core.Models.Relics.WingedBoots>().Icon,"Step icon is the native Winged Boots art.");
+   tree.Root.PushInput(new InputEventMouseMotion {Position=badge.GetGlobalRect().GetCenter(),GlobalPosition=badge.GetGlobalRect().GetCenter()},true);
+   await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
+   Require(tree.Root.GuiGetHoveredControl()==badge,"The map overlay leaves native top-bar hover reachable.");
+   var attempt=map.BeginEnter(map.AvailableDestinations.First())!;map.ConfirmEnter(attempt.Id);map.CompleteRoom(attempt.Id);
+   await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
+   Require(badge.GetChild<Label>(1).Text=="14"&&badge.TooltipText=="剩余步数 14/15","Step number and hover text update together after confirmed entry.");
+   if(System.Environment.GetEnvironmentVariable("ALLMATTERS_UI_CAPTURE") is {} capture)
+   {
+    tree.Root.MoveChild(bar,tree.Root.GetChildCount()-1); // Native run.tscn also draws TopBar after the map screen.
+    await tree.ToSignal(tree.CreateTimer(.3),SceneTreeTimer.SignalName.Timeout);
+    tree.Root.GetTexture().GetImage().SavePng(System.IO.Path.ChangeExtension(capture,"topbar.png"));
+   }
+  }
+  finally {view.Free();bar.Free();tree.Root.Size=original;}
+ }
+ private static bool SkipNativeTopBarSetup(MegaCrit.Sts2.Core.Nodes.CommonUi.NTopBar __instance)=>__instance.Name!="JigsawCounterHost";
  private static async Task ExplorationVisuals()
  {
   using var atlases=HeadlessTestSetup.LoadAtlases("ui_atlas","compressed");
@@ -45,8 +86,9 @@ internal static class JigsawPresentationTests
    int available=map.AvailableDestinations.First(id=>map.Nodes.First(n=>n.Id==id).Room is not (JigsawRoom.Boss or JigsawRoom.SecondBoss));
    var icon=view.MapControl.GetNodeOrNull<Sprite2D>($"Room{available}");Require(icon!=null,"Available ordinary room has a rendered icon.");
    Require(view.MapControl.GetChildren().OfType<JigsawOverlay>().Single().ZIndex>icon!.ZIndex,"Focus and holding markers render above icons and visit rings.");
-   tree.Paused=true;
+   tree.Paused=true;view.SetProcess(false);
    var scales=new List<float>();for(int i=0;i<12;i++){await tree.ToSignal(tree.CreateTimer(.15),SceneTreeTimer.SignalName.Timeout);scales.Add(icon!.Scale.X);}
+   view.SetProcess(true);
    Require(scales.Max()-scales.Min()>.02f,"The available ordinary icon visibly pulses across rendered frames.");
    if(System.Environment.GetEnvironmentVariable("ALLMATTERS_UI_CAPTURE") is {} exploreCapture)
    {

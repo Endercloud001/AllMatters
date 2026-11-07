@@ -21,7 +21,7 @@ public partial class JigsawScreen : Control
  private readonly Theme adaptiveTheme=new();
  private JigsawNativeArt art=null!;
  private readonly Dictionary<int,Node2D> bossVisuals=[];
- private readonly Dictionary<int,Sprite2D> roomVisuals=[];
+ private readonly Dictionary<int,JigsawRoomPulse> roomVisuals=[];
  private IJigsawTutorialProfile profile = null!;
  private readonly Label dialog = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart, SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill };
  private readonly Label steps = new();
@@ -130,7 +130,7 @@ public partial class JigsawScreen : Control
   help.Text=L("帮助"); help.Pressed += OpenHelp; top.AddChild(help);
   var paper=new JigsawPaper {Art=art,SizeFlagsHorizontal=SizeFlags.ExpandFill,SizeFlagsVertical=SizeFlags.ExpandFill,MouseFilter=MouseFilterEnum.Ignore};main.AddChild(paper);
   canvas=new JigsawCanvas { OwnerScreen=this, FocusMode=FocusModeEnum.All, ClipContents=true, MouseFilter=MouseFilterEnum.Stop };paper.AddChild(canvas);
-  canvas.AnchorLeft=.12f;canvas.AnchorTop=.24f;canvas.AnchorRight=.86f;canvas.AnchorBottom=.85f;
+  canvas.AnchorLeft=.12f;canvas.AnchorTop=.18f;canvas.AnchorRight=.86f;canvas.AnchorBottom=.85f;
   overlay=new JigsawOverlay {OwnerScreen=this,ZIndex=1,MouseFilter=MouseFilterEnum.Ignore};canvas.AddChild(overlay);overlay.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
   main.AddChild(bottom); bottom.AddChild(footer); footer.SizeFlagsHorizontal=SizeFlags.ExpandFill; var dialogueRow=new HBoxContainer {SizeFlagsVertical=SizeFlags.ExpandFill};footer.AddChild(dialogueRow);
   dialogueRow.AddThemeConstantOverride("separation",-12);
@@ -175,7 +175,7 @@ public partial class JigsawScreen : Control
   helpContent.AddChild(MakeButton("返回",Back));
   Resized += AdaptLayout;
  }
- private const string Rules="左键拿取或放置碎块；持有时右键逆时针旋转90度，空手时右键选两端连线或拆线。Esc先关闭帮助，再取消持有或待连端点，空手时打开暂停。中键拖动地图，滚轮缩放，池顶归还碎块。\n\n手柄切换池、地图、操作区；方向输入逐卡、逐节点或逐格移动。地图逐节点导航包括孤立碎块。\n\n从先古之民出发，在本幕步数内到达Boss。已完成区域可免费中转；商店仅在实际可前往时可重访，重访也消耗一步，不刷新库存。普通房不能重进。\n\n两种结束按钮须全员同选，选后本人不可编辑，激活同一按钮撤票。持有或待连时先完成操作。手动审视先撤回孤立块；自动决定将重塑尖塔的一部分。\n\n双Boss以第一场抵达时判断额度；第二场不重判。最后一步进入非Boss房间时本房及内部战斗安全，全队完成后发放面具，之后进入受罚；战胜最后地图Boss解除追猎。帮助不会暂停队友，也不增加共同确认。";
+ private const string Rules="鼠标左键拿取、放置碎块；\n\n持有碎块时右键旋转碎块；\n\n持有碎块时左键点击\"归还碎块\"可放回；\n\n空手连续右键两个碎块连线，重复操作拆除连线；\n\n按住中键可拖动地图，滚轮缩放；\n\n目的是存在至少一条规定步数内从先古之民出发到达Boss的路线，当然玩家也可以选择随机生成。";
  public void SetMap(JigsawRun value)
  {
   if(!ReferenceEquals(map,value)) { ClearRecent(); tips.Clear(); zoom=1;pan=Vector2.Zero; }
@@ -206,7 +206,7 @@ public partial class JigsawScreen : Control
   }
   poolIndex=Math.Clamp(poolIndex,0,Math.Max(0,poolButtons.Count-1)); nodeIndex=Math.Clamp(nodeIndex,0,Math.Max(0,NavigableNodeIds.Count-1));
   steps.Text=L("剩余步数")+"  "+map.RemainingSteps+" / "+map.Budget;
-  steps.Visible=!pool.Visible;
+  steps.Visible=false;
   bottom.Visible=map.Phase!=JigsawPhase.Exploring || map.PendingEntry!=null;
   manual.Visible=automatic.Visible=map.Phase is JigsawPhase.Editing or JigsawPhase.Inspecting or JigsawPhase.Generating;
   manual.Disabled=automatic.Disabled=Reading || map.Phase!=JigsawPhase.Editing;
@@ -422,6 +422,7 @@ public partial class JigsawScreen : Control
   else if(map.Holdings.ContainsKey(player))Apply(map.Drop(player,point));
   else if(id!=null && map.Nodes.First(n=>n.Id==id).PieceId is int piece)Take(piece);
  }
+ public override bool _HasPoint(Vector2 point)=>new Rect2(0,Size.Y*.12f,Size.X,Size.Y*.88f).HasPoint(point);
  public override void _Input(InputEvent ev)
  {
   if(!IsVisibleInTree())return;
@@ -546,12 +547,12 @@ public partial class JigsawScreen : Control
   {
    if(!roomVisuals.TryGetValue(n.Id,out var icon))
    {
-    icon=new Sprite2D {Name=$"Room{n.Id}"};
+    icon=new JigsawRoomPulse {Name=$"Room{n.Id}"};
     icon.AddChild(new Sprite2D {Name="Visited",Texture=JigsawNativeArt.Load("atlases/compressed.sprites/map/map_circle_4.tres"),ShowBehindParent=true,Modulate=Colors.Black});
     roomVisuals[n.Id]=icon;target.AddChild(icon);
    }
    icon.Show();icon.Texture=art.Icon(n.Room);icon.Position=at;
-   icon.Scale=Vector2.One*pulse*size/Math.Max(icon.Texture.GetWidth(),icon.Texture.GetHeight());
+   icon.BaseScale=size/Math.Max(icon.Texture.GetWidth(),icon.Texture.GetHeight());icon.Available=available;
    icon.Modulate=new Color(1,1,1,preview||map.Holdings.Values.Any(h=>h.PieceId==n.PieceId)?.55f:1);
    var ring=icon.GetChild<Sprite2D>(0);
    ring.Visible=!preview&&map.Visited.Contains(n.Id)&&n.Room is not (JigsawRoom.Shop or JigsawRoom.Ancient);
@@ -619,4 +620,17 @@ public partial class JigsawOverlay : Control
 {
  public JigsawScreen OwnerScreen {get;set;}=null!;
  public override void _Draw()=>OwnerScreen.DrawMarkers(this);
+}
+
+public partial class JigsawRoomPulse : Sprite2D
+{
+ public float BaseScale {get;set;}=1;
+ public bool Available {get;set;}
+ public JigsawRoomPulse() {ProcessMode=ProcessModeEnum.Always;}
+ public override void _Process(double delta)
+ {
+  if(!IsVisibleInTree())return;
+  float pulse=Available?1.2f+.25f*(float)Math.Sin(Time.GetTicksMsec()/250d):1;
+  Scale=Vector2.One*BaseScale*pulse;
+ }
 }
