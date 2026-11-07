@@ -1,6 +1,9 @@
 using AllMatters.Jigsaw;
 using AllMatters.Jigsaw.Presentation;
 using Godot;
+using MegaCrit.Sts2.Core.HoverTips;
+using MegaCrit.Sts2.Core.Nodes.HoverTips;
+using HarmonyLib;
 using MegaCrit.Sts2.Core.ControllerInput;
 internal static class JigsawPresentationTests
 {
@@ -15,8 +18,7 @@ internal static class JigsawPresentationTests
   ("Jigsaw presentation actual input does not leak and help cancels preserves votes", InputHelp),
   ("Jigsaw presentation focus reaches isolated dense nodes and responsive layouts", NavigationLayout),
   ("Jigsaw presentation manual errors retain both five second segments", FailureTiming),
-  ("Jigsaw presentation routed input is isolated and mode action toggles", RoutedInput),
-  ("Jigsaw presentation entrance stays visible with native root sizing", NativeEntranceLayout),
+  ("Jigsaw presentation routed tutorial input is isolated", RoutedInput),
   ("Jigsaw presentation exploring removes editing surface", ExploringSurface),
   ("Jigsaw presentation pending entry retry receives engine input", RetryInput),
   ("Jigsaw presentation pending entry abandon receives engine input", ()=>EntryActionInput(true)),
@@ -30,6 +32,12 @@ internal static class JigsawPresentationTests
   HeadlessUiHost.EnsureInputActions();
   return JigsawScreen.Create(map,1,()=>{},()=>Task.CompletedTask,()=>Task.CompletedTask,_=>Task.CompletedTask,pause??(()=>{}),profile);
  }
+ private static HoverTip? capturedStepTip;
+ private static bool CaptureStepTip(Control owner,IHoverTip hoverTip,ref NHoverTipSet? __result)
+ {
+  if(owner is not JigsawStepCounter)return true;
+  capturedStepTip=(HoverTip)hoverTip;__result=null;return false;
+ }
  private static async Task StepBadge()
  {
   using var atlases=HeadlessTestSetup.LoadAtlases("relic_atlas");
@@ -37,6 +45,9 @@ internal static class JigsawPresentationTests
   var map=JigsawRun.Create(74);map.Take(1,0);map.Drop(1,new(3,0));map.AddEdge(1,0,1);map.ChooseEnd(1,EndChoice.Manual);map.Inspect();map.CompleteAncient(1);map.Continue(1);
   var bar=new Control {Size=new(1280,80)};var boss=new Control {Position=new(500,8),Size=new(48,48)};bar.AddChild(boss);
   var badge=JigsawStepCounter.Attach(bar,boss,()=>map);var view=View(map,new(){Sentence=6});
+  var hoverFactory=typeof(NHoverTipSet).GetMethods().Single(m=>m.Name=="CreateAndShow"&&m.GetParameters()[1].ParameterType==typeof(IHoverTip));
+  var tipHost=new Harmony("AllMatters.StepTipHost");capturedStepTip=null;
+  tipHost.Patch(hoverFactory,prefix:new HarmonyMethod(typeof(JigsawPresentationTests),nameof(CaptureStepTip)));
   try
   {
    var nativeReady=HarmonyLib.AccessTools.Method(typeof(MegaCrit.Sts2.Core.Nodes.CommonUi.NTopBar),"_Ready");
@@ -52,14 +63,15 @@ internal static class JigsawPresentationTests
    }
    finally {hostPatch.Unpatch(nativeReady,HarmonyLib.HarmonyPatchType.Prefix,"AllMatters.StepCounterHost");nativeBar.Free();nativeBoss.Free();}
    await HeadlessUiHost.Mount(bar,view);
-   Require(badge.Visible&&badge.TooltipText=="剩余步数 15/15","The native top-bar adapter shows the current budget tooltip.");
+   Require(badge.Visible&&badge.TooltipText.Length==0,"The native top-bar adapter shows the current budget tooltip.");
    Require(badge.GetChild<TextureRect>(0).Texture==MegaCrit.Sts2.Core.Models.ModelDb.Relic<MegaCrit.Sts2.Core.Models.Relics.WingedBoots>().Icon,"Step icon is the native Winged Boots art.");
    tree.Root.PushInput(new InputEventMouseMotion {Position=badge.GetGlobalRect().GetCenter(),GlobalPosition=badge.GetGlobalRect().GetCenter()},true);
    await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
    Require(tree.Root.GuiGetHoveredControl()==badge,"The map overlay leaves native top-bar hover reachable.");
+   Require(capturedStepTip!=null,"Engine hover invokes the same native hover-tip factory used by the Boss icon.");
    var attempt=map.BeginEnter(map.AvailableDestinations.First())!;map.ConfirmEnter(attempt.Id);map.CompleteRoom(attempt.Id);
    await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
-   Require(badge.GetChild<Label>(1).Text=="14"&&badge.TooltipText=="剩余步数 14/15","Step number and hover text update together after confirmed entry.");
+   Require(badge.GetChild<Label>(1).Text=="14"&&capturedStepTip?.Description.Contains("14/15")==true,"Step number and hover text update together after confirmed entry.");
    if(System.Environment.GetEnvironmentVariable("ALLMATTERS_UI_CAPTURE") is {} capture)
    {
     tree.Root.MoveChild(bar,tree.Root.GetChildCount()-1); // Native run.tscn also draws TopBar after the map screen.
@@ -67,7 +79,7 @@ internal static class JigsawPresentationTests
     tree.Root.GetTexture().GetImage().SavePng(System.IO.Path.ChangeExtension(capture,"topbar.png"));
    }
   }
-  finally {view.Free();bar.Free();tree.Root.Size=original;}
+  finally {view.Free();bar.Free();tipHost.Unpatch(hoverFactory,HarmonyPatchType.Prefix,"AllMatters.StepTipHost");capturedStepTip=null;tree.Root.Size=original;}
  }
  private static bool SkipNativeTopBarSetup(MegaCrit.Sts2.Core.Nodes.CommonUi.NTopBar __instance)=>__instance.Name!="JigsawCounterHost";
  private static async Task ExplorationVisuals()
@@ -328,31 +340,6 @@ internal static class JigsawPresentationTests
   finally {view.Free();probe.Free();}
  }
 
- private static async Task NativeEntranceLayout()
- {
-  var state=ResourceLoader.Load<PackedScene>("res://scenes/screens/character_select_screen.tscn").GetState();
-  float right=0,bottom=0;
-  for(int i=0;i<state.GetNodePropertyCount(0);i++)
-  {
-   string key=state.GetNodePropertyName(0,i);
-   if(key=="offset_right")right=(float)state.GetNodePropertyValue(0,i).AsDouble();
-   if(key=="offset_bottom")bottom=(float)state.GetNodePropertyValue(0,i).AsDouble();
-  }
-  Console.WriteLine($"NATIVE_ENTRANCE root offsets={right},{bottom}");
-  using var host=new Control {Size=new(right,bottom)};
-  var choice=JigsawModeEntry.Attach(host); HeadlessUiHost.EnsureInputActions();
-  await HeadlessUiHost.Mount(host);
-  var tree=(SceneTree)Engine.GetMainLoop();
-  var rect=choice.GetGlobalRect();
-  Require(rect.Position.Y>=0 && rect.End.Y<=tree.Root.Size.Y && rect.Size.Y>0,"The production entrance must appear inside the viewport even when native screen root has zero size.");
-  bool initial=choice.ButtonPressed;
-  Input.ParseInputEvent(new InputEventAction{Action=MegaInput.viewDrawPile,Pressed=true});
-  await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
-  Require(choice.ButtonPressed!=initial && JigsawNativeSession.SelectedForNewRun==choice.ButtonPressed && JigsawPreferences.Enabled==choice.ButtonPressed,"Visible entrance receives engine input and persists the selected production run mode.");
-  JigsawPreferences.Enabled=true;
-  JigsawNativeSession.SelectedForNewRun=false;
- }
-
  private static async Task RoutedInput()
  {
   var tree=(SceneTree)Engine.GetMainLoop();
@@ -365,15 +352,7 @@ internal static class JigsawPresentationTests
    await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
    Require(profile.Sentence==1 && probe.Events==0,$"Godot routes confirmation to tutorial and consumes it before underlying input (sentence={profile.Sentence}, unhandled={probe.Events}).");
    view.Hide();
-   using var choice=new JigsawModeChoice();
-   await HeadlessUiHost.Mount(choice);
-   Input.ParseInputEvent(new InputEventAction{Action=MegaInput.viewDrawPile,Pressed=true});
-   await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
-   Require(choice.ButtonPressed,"Bound mode action toggles the actual entrance control.");
-   choice.Hide();
-   Input.ParseInputEvent(new InputEventAction{Action=MegaInput.viewDrawPile,Pressed=true});
-   await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
-   Require(choice.ButtonPressed,"Hidden mode entrance cannot consume or toggle another screen's input.");
+
   } finally {view.Free();probe.Free();}
  }
  private static Task RejectedTake()

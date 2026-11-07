@@ -12,9 +12,32 @@ using System.Text.Json.Nodes;
 
 internal static class JigsawNativeTests
 {
+    private static Task SettingsAndNeow()
+    {
+        bool original=JigsawPreferences.Enabled;
+        try
+        {
+            foreach(bool enabled in new[]{false,true})
+            {
+                JigsawPreferences.Enabled=enabled;
+                var native=RunState.CreateForTest(players:[MegaCrit.Sts2.Core.Entities.Players.Player.CreateForNewRun(ModelDb.Character<MegaCrit.Sts2.Core.Models.Characters.Ironclad>(),MegaCrit.Sts2.Core.Unlocks.UnlockState.all,1)],acts:[ModelDb.Act<Overgrowth>()],seed:"JIGSAW_SETTINGS");
+                try
+                {
+                    RunManager.Instance.SetUpNewSingleplayer(native,false);
+                    Require((JigsawNativeSession.Current!=null)==enabled,"New single-player run reads the current mod setting without a character-selection switch.");
+                    bool boots=ModelDb.Relic<MegaCrit.Sts2.Core.Models.Relics.WingedBoots>().IsAllowedAtNeow(native.Players[0]);
+                    Require(boots!=enabled,"Winged Boots remains available at ordinary Neow, but is excluded for jigsaw Neow.");
+                }
+                finally {RunManager.Instance.CleanUp(false);}
+            }
+        }
+        finally {JigsawPreferences.Enabled=original;}
+        return Task.CompletedTask;
+    }
     private enum EntryFailureKind { None, BeforeReady, RestoredBeforeReady, AfterReady, RetryAfterReady, BeforeSave, Abandon, AbandonBeforeSave, AbandonRestored, AbandonWriteFailure, AfterCompletedAbandon }
     public static readonly (string Name, Func<Task> Test)[] Cases =
-    [ ("Jigsaw native profile and progress schemas stay independent", IndependentSaveSchemas),
+    [ ("Jigsaw native settings own new runs and exclude Neow boots", SettingsAndNeow),
+      ("Jigsaw native profile and progress schemas stay independent", IndependentSaveSchemas),
       ("Jigsaw native saves serialize pending native writes and exit waits latest", SerializedWrites),
       ("Jigsaw native queued successful save recovers prior write failure", ()=>SerializedWrites(true)),
       ("Jigsaw native pending edits merge while in-flight checkpoint stays intact", CoalescedEdits),
@@ -471,6 +494,7 @@ internal static class JigsawNativeTests
                 $"Manual success enters the real native Ancient reward room. Actual room={native.CurrentRoom?.GetType().Name}, phase={map.Phase}, ready={session.AncientReady}, eventFinished={RunManager.Instance.EventSynchronizer.GetLocalEvent()?.IsFinished}, options={RunManager.Instance.EventSynchronizer.GetLocalEvent()?.CurrentOptions.Count}.");
             var ancient=RunManager.Instance.EventSynchronizer.GetLocalEvent();
             Require(ancient is AncientEventModel && ancient.CurrentOptions.Count>0,"Native Ancient exposes real personal reward options.");
+            Require(ancient.CurrentOptions.All(o=>o.Relic is not MegaCrit.Sts2.Core.Models.Relics.WingedBoots),"Actual jigsaw Ancient reward options exclude Winged Boots before selection.");
             Console.WriteLine("JIGSAW Ancient options: "+string.Join(",",ancient.CurrentOptions.Select(o=>o.Relic?.Id.Entry ?? o.TextKey)));
             if(partialAncient)
             {
@@ -504,7 +528,7 @@ internal static class JigsawNativeTests
             };
             var option=ancient.CurrentOptions.Single(o=>o.Relic?.Id.Entry==
 #if STS2_PUBLIC
-                "FISHING_ROD"
+                "PRECISE_SCISSORS"
 #else
                 "POMANDER"
 #endif

@@ -24,7 +24,6 @@ namespace AllMatters.Jigsaw;
 public sealed class JigsawNativeSession
 {
     private static readonly ConditionalWeakTable<RunState, JigsawNativeSession> sessions = new();
-    public static bool SelectedForNewRun { get; set; }
     public static JigsawNativeSession? Current => RunManager.Instance.DebugOnlyGetState() is { } state &&
         sessions.TryGetValue(state, out var session) ? session : null;
     public RunState Native { get; }
@@ -484,9 +483,8 @@ internal static class JigsawEnableNewRun
 {
     private static void Postfix(RunState state, DateTimeOffset? dailyTime)
     {
-        if (JigsawNativeSession.SelectedForNewRun && dailyTime == null && state.GameMode == GameMode.Standard)
+        if (JigsawPreferences.Enabled && dailyTime == null && state.GameMode == GameMode.Standard)
             JigsawNativeSession.Enable(state);
-        JigsawNativeSession.SelectedForNewRun = false;
     }
 }
 
