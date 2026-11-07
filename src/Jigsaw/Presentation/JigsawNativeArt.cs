@@ -7,9 +7,9 @@ namespace AllMatters.Jigsaw.Presentation;
 // References game-owned resources; no extracted game art is shipped in the mod.
 internal sealed class JigsawNativeArt(ActModel? act)
 {
- private readonly Texture2D paperTop=Load("packed/map/map_bgs/overgrowth/map_top_overgrowth.png");
- private readonly Texture2D paperMiddle=Load("packed/map/map_bgs/overgrowth/map_middle_overgrowth.png");
- private readonly Texture2D paperBottom=Load("packed/map/map_bgs/overgrowth/map_bottom_overgrowth.png");
+ private readonly Texture2D paperTop=act?.MapTopBg ?? Load("packed/map/map_bgs/overgrowth/map_top_overgrowth.png");
+ private readonly Texture2D paperMiddle=act?.MapMidBg ?? Load("packed/map/map_bgs/overgrowth/map_middle_overgrowth.png");
+ private readonly Texture2D paperBottom=act?.MapBotBg ?? Load("packed/map/map_bgs/overgrowth/map_bottom_overgrowth.png");
  internal Texture2D Icon(JigsawRoom room) => room==JigsawRoom.Ancient && act!=null ? act.Ancient.MapIcon : Load(room==JigsawRoom.Ancient
   ? "atlases/ui_atlas.sprites/map/ancients/ancient_node_neow.tres"
   : "atlases/ui_atlas.sprites/map/icons/"+(room switch {
@@ -71,7 +71,8 @@ internal sealed class JigsawNativeArt(ActModel? act)
     var name=state.GetNodePropertyName(index,i);
     if(name!="script")sprite.Set(name,state.GetNodePropertyValue(index,i));
    }
-   visual.AddChild(sprite);sprite.Position=Vector2.Zero;sprite.Show();
+   // FitBoss works in raw skeleton coordinates and owns the complete scale.
+   visual.AddChild(sprite);sprite.Position=Vector2.Zero;sprite.Scale=Vector2.One;sprite.Show();
    var animation=new MegaSprite(sprite);animation.SetSkeletonDataRes(encounter.BossNodeSpineResource);animation.GetAnimationState().AddAnimation("animation");
   }
   else visual.AddChild(new Sprite2D {Texture=ResourceLoader.Load<Texture2D>(encounter.BossNodePath+".png")});

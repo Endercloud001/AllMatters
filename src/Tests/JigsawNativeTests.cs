@@ -282,7 +282,7 @@ internal static class JigsawNativeTests
 
     private static async Task LaterAct()
     {
-        using var atlases=HeadlessTestSetup.LoadAtlases("card_atlas","relic_atlas");
+        using var atlases=HeadlessTestSetup.LoadAtlases("card_atlas","relic_atlas","ui_atlas","compressed");
         var native=RunState.CreateForTest(players:[MegaCrit.Sts2.Core.Entities.Players.Player.CreateForNewRun(
             ModelDb.Character<MegaCrit.Sts2.Core.Models.Characters.Ironclad>(),MegaCrit.Sts2.Core.Unlocks.UnlockState.all,1)],
             seed:"JIGSAW_THREE_NATIVE_ACTS");
@@ -290,6 +290,7 @@ internal static class JigsawNativeTests
         var io=new MockGodotFileIo("Jigsaw-later-acts-memory-only");
         var manager=new RunSaveManager(74,io,new MigrationManager(io),forceSynchronous:true);
         JigsawNativeSaveHost.Save=room=>manager.SaveRun(RunManager.Instance.ToSave(room),false);
+        AllMatters.Jigsaw.Presentation.JigsawScreen? view=null;
         try
         {
             native.ExtraFields.StartedWithNeow=true;
@@ -300,11 +301,17 @@ internal static class JigsawNativeTests
             var session=JigsawNativeSession.Enable(native);
             await RunManager.Instance.EnterAct(0,false);
             var first=session.Map!;
+            view=session.CreateScreen(new AllMatters.Jigsaw.Presentation.MemoryJigsawTutorialProfile{Sentence=6});
+            await HeadlessUiHost.Mount(view);
+            var priorBoss=await CheckActArt(session,view,null);
+            var priorArt=view.FindChildren("*","Control",true,false).OfType<AllMatters.Jigsaw.Presentation.JigsawPaper>().Single().Art;
             Require(native.CurrentRoom is MapRoom && first.Phase==JigsawPhase.Editing,"First native EnterAct is intercepted before Neow reward.");
             for(int act=1;act<3;act++)
             {
                 await RunManager.Instance.EnterAct(act,false);
                 var map=session.Map!;
+                priorBoss=await CheckActArt(session,view,priorArt,priorBoss);
+                priorArt=view.FindChildren("*","Control",true,false).OfType<AllMatters.Jigsaw.Presentation.JigsawPaper>().Single().Art;
                 Require(native.CurrentActIndex==act && native.CurrentRoom is MapRoom && map.Phase==JigsawPhase.Editing && map.Steps==0 && map.Placements.Count==0,"Later native EnterAct starts an empty editable puzzle before Ancient rewards.");
                 var expected=JigsawRun.Create(unchecked((int)native.Rng.Seed+act*7919),15-act,players:[1UL]);
                 Require(map.Budget==15-act && !ReferenceEquals(first,map) && map.Pool.SelectMany(p=>p.Nodes).SequenceEqual(expected.Pool.SelectMany(p=>p.Nodes)),"Later act uses its own deterministic full pool and act budget.");
@@ -315,7 +322,37 @@ internal static class JigsawNativeTests
                 first=map;
             }
         }
-        finally { JigsawNativeSaveHost.Save=null; RunManager.Instance.CleanUp(false); }
+        finally {view?.Free(); JigsawNativeSaveHost.Save=null; RunManager.Instance.CleanUp(false); }
+    }
+
+    private static async Task<Godot.Node2D> CheckActArt(JigsawNativeSession session,AllMatters.Jigsaw.Presentation.JigsawScreen view,AllMatters.Jigsaw.Presentation.JigsawNativeArt? previous,Godot.Node2D? previousBoss=null)
+    {
+        session.ShowMap();
+        var paper=view.FindChildren("*","Control",true,false).OfType<AllMatters.Jigsaw.Presentation.JigsawPaper>().Single();
+        var art=paper.Art;
+        Require(art.Icon(JigsawRoom.Ancient).ResourcePath==session.Native.Act.Ancient.MapIcon.ResourcePath,"Each native act transition updates the rendered Ancient icon.");
+        Require(previous==null||!ReferenceEquals(art,previous),"The next act rebinds the existing paper and map artwork.");
+        foreach(var section in new[]{("paperTop",session.Native.Act.MapTopBg),("paperMiddle",session.Native.Act.MapMidBg),("paperBottom",session.Native.Act.MapBotBg)})
+        {
+            var texture=(Godot.Texture2D)AccessTools.Field(typeof(AllMatters.Jigsaw.Presentation.JigsawNativeArt),section.Item1).GetValue(art)!;
+            Require(texture.ResourcePath==section.Item2.ResourcePath,"The production paper section uses the current native act: "+section.Item1);
+        }
+        var bossPiece=session.Map!.Pool.Single(p=>p.Nodes.Any(n=>n.Room==JigsawRoom.Boss));
+        Require(session.Map.Take(1,bossPiece.Id).Success&&session.Map.Drop(1,new(4,0)).Success,"Place the actual current act's boss piece.");
+        view.Refresh();var tree=(Godot.SceneTree)Godot.Engine.GetMainLoop();
+        await tree.ToSignal(tree,Godot.SceneTree.SignalName.ProcessFrame);await tree.ToSignal(tree,Godot.SceneTree.SignalName.ProcessFrame);
+        var boss=view.MapControl.GetChildren().OfType<Godot.Node2D>().Single(n=>n.Name.ToString().StartsWith("JigsawBoss"));
+        Require(boss.GetChildCount()>0&&!ReferenceEquals(boss,previousBoss),"Each act mounts a fresh Boss visual instead of retaining the previous act's node.");
+        if(Environment.GetEnvironmentVariable("ALLMATTERS_UI_CAPTURE") is {} capture)
+        {
+            await tree.ToSignal(tree.CreateTimer(.4),Godot.SceneTreeTimer.SignalName.Timeout);
+            Console.WriteLine($"ACT_ART {session.Native.CurrentActIndex+1}: {session.Native.Act.Ancient.Id} / {session.Native.Act.BossEncounter.Id}; boss visible={boss.Visible}, bounds={AllMatters.Jigsaw.Presentation.JigsawNativeArt.BossBounds(boss)}, scale={boss.Scale}");
+            tree.Root.GetTexture().GetImage().SavePng(Path.ChangeExtension(capture,$"act{session.Native.CurrentActIndex+1}.png"));
+        }
+        Require(boss.GetChild<Godot.Node2D>(0).Scale==Godot.Vector2.One,"Boss fitting uses raw skeleton bounds; native authored child scaling must not shrink it a second time.");
+        if(boss.GetChild(0) is Godot.Sprite2D image)Require(image.Texture.ResourcePath==session.Native.Act.BossEncounter.BossNodePath+".png","Static Boss artwork comes from this act's selected encounter.");
+        Require(session.Map.Take(1,bossPiece.Id).Success&&session.Map.ReturnToPool(1,bossPiece.Id).Success,"Restore the empty later-act fixture after visual verification.");
+        return boss;
     }
 
     private static async Task MissingCheckpointFields()
@@ -821,6 +858,7 @@ internal static class JigsawNativeTests
             nativeMap.Open(true);
             Require(JigsawMapPreviewHost.FallThrough==0,"Ancient map request must intercept the native route screen.");
             Require(view.IsVisibleInTree(),"Native map request shows the accepted puzzle map.");
+            Require(!view.FindChildren("*","Button",true,false).OfType<Godot.Button>().Any(b=>b.Text=="返回"&&b.IsVisibleInTree()),"Room preview uses M/Escape without a redundant Return button.");
             Require(!view.DecisionControl.IsVisibleInTree()&&!view.DialogControl.IsVisibleInTree(),"Room preview has no reward continuation or dialogue footer.");
             Godot.Input.ParseInputEvent(new Godot.InputEventAction{Action=MegaCrit.Sts2.Core.ControllerInput.MegaInput.viewMap,Pressed=true});
             await tree.ToSignal(tree,Godot.SceneTree.SignalName.ProcessFrame);

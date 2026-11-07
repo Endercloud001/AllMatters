@@ -37,7 +37,8 @@ public partial class JigsawScreen : Control
  private readonly HBoxContainer decisions = new();
  private readonly HBoxContainer bottom = new(), top = new();
  private Action? returnToRoom;
- private Button roomBack = null!;
+ private MegaCrit.Sts2.Core.Models.ActModel? nativeAct;
+ private JigsawPaper paper = null!;
  public bool CanReturnToRoom => returnToRoom!=null;
  public void SetRoomPreview(Action? close) { returnToRoom=close; Refresh(); }
  private readonly Button next = new(), manual = new(), automatic = new(), resume = new(), abandon = new(), help = new();
@@ -97,7 +98,7 @@ public partial class JigsawScreen : Control
  public static JigsawScreen Create(JigsawRun map, ulong player, Action changed, Func<Task> inspected, Func<Task> continued, Func<int,Task> enter, Action pause, IJigsawTutorialProfile? profile = null, Func<Task>? automaticRequested = null, Func<ulong,Texture2D?>? avatar = null, Func<Task>? abandonRequested = null, MegaCrit.Sts2.Core.Models.ActModel? nativeAct=null, Func<ulong,Color>? playerColor=null)
  {
   var view = new JigsawScreen { map=map, player=player, changed=changed, inspected=inspected, continued=continued, enter=enter, pause=pause, profile=profile ?? new JigsawTutorialProfile(), previousPhase=map.Phase, automaticRequested=automaticRequested, avatar=avatar, abandonRequested=abandonRequested };
-  view.playerColor=playerColor; view.art=new JigsawNativeArt(nativeAct); view.Build(); view.Refresh(); return view;
+  view.nativeAct=nativeAct;view.playerColor=playerColor; view.art=new JigsawNativeArt(nativeAct); view.Build(); view.Refresh(); return view;
  }
  private static string L(string text) => TranslationServer.Translate(text);
  private Button MakeButton(string text, Action pressed)
@@ -131,9 +132,8 @@ public partial class JigsawScreen : Control
   root.AddChild(main); main.SizeFlagsHorizontal=SizeFlags.ExpandFill; main.SizeFlagsVertical=SizeFlags.ExpandFill;
   main.AddChild(top);top.Alignment=BoxContainer.AlignmentMode.End; top.AddChild(steps); steps.SizeFlagsHorizontal=SizeFlags.ExpandFill;
   main.AddChild(explorationNotice);
-  roomBack=MakeButton("返回",()=>returnToRoom?.Invoke());top.AddChild(roomBack);actionButtons.Add(roomBack);
   help.Text=L("帮助"); help.Pressed += OpenHelp; top.AddChild(help);
-  var paper=new JigsawPaper {Art=art,SizeFlagsHorizontal=SizeFlags.ExpandFill,SizeFlagsVertical=SizeFlags.ExpandFill,MouseFilter=MouseFilterEnum.Ignore};main.AddChild(paper);
+  paper=new JigsawPaper {Art=art,SizeFlagsHorizontal=SizeFlags.ExpandFill,SizeFlagsVertical=SizeFlags.ExpandFill,MouseFilter=MouseFilterEnum.Ignore};main.AddChild(paper);
   canvas=new JigsawCanvas { OwnerScreen=this, FocusMode=FocusModeEnum.All, ClipContents=true, MouseFilter=MouseFilterEnum.Stop };paper.AddChild(canvas);
   canvas.AnchorLeft=.12f;canvas.AnchorTop=.18f;canvas.AnchorRight=.86f;canvas.AnchorBottom=.85f;
   overlay=new JigsawOverlay {OwnerScreen=this,ZIndex=1,MouseFilter=MouseFilterEnum.Ignore};canvas.AddChild(overlay);overlay.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
@@ -181,8 +181,14 @@ public partial class JigsawScreen : Control
   Resized += AdaptLayout;
  }
  private const string Rules="鼠标左键拿取、放置碎块；\n\n持有碎块时右键旋转碎块；\n\n持有碎块时左键点击\"归还碎块\"可放回；\n\n空手连续右键两个碎块连线，重复操作拆除连线；\n\n按住中键可拖动地图，滚轮缩放；\n\n目的是存在至少一条规定步数内从先古之民出发到达Boss的路线，当然玩家也可以选择随机生成。";
- public void SetMap(JigsawRun value)
+ public void SetMap(JigsawRun value,MegaCrit.Sts2.Core.Models.ActModel? currentAct=null)
  {
+  if(currentAct!=null&&!ReferenceEquals(nativeAct,currentAct))
+  {
+   nativeAct=currentAct;art=new JigsawNativeArt(currentAct);paper.Art=art;paper.QueueRedraw();
+   foreach(var visual in bossVisuals.Values) {visual.GetParent()?.RemoveChild(visual);visual.QueueFree();}
+   bossVisuals.Clear();
+  }
   if(!ReferenceEquals(map,value)) { ClearRecent(); tips.Clear(); zoom=1;pan=Vector2.Zero; }
   map=value; Refresh();
  }
@@ -212,7 +218,6 @@ public partial class JigsawScreen : Control
   poolIndex=Math.Clamp(poolIndex,0,Math.Max(0,poolButtons.Count-1)); nodeIndex=Math.Clamp(nodeIndex,0,Math.Max(0,NavigableNodeIds.Count-1));
   steps.Text=L("剩余步数")+"  "+map.RemainingSteps+" / "+map.Budget;
   steps.Visible=false;
-  roomBack.Visible=CanReturnToRoom;
   bottom.Visible=!CanReturnToRoom && (map.Phase!=JigsawPhase.Exploring || map.PendingEntry!=null);
   manual.Visible=automatic.Visible=map.Phase is JigsawPhase.Editing or JigsawPhase.Inspecting or JigsawPhase.Generating;
   manual.Disabled=automatic.Disabled=Reading || map.Phase!=JigsawPhase.Editing;
@@ -371,7 +376,6 @@ public partial class JigsawScreen : Control
   bottom.CustomMinimumSize=new(0,Size.Y<=800?112:140*scale);
   bottom.SizeFlagsVertical=SizeFlags.ShrinkEnd;
   dialog.CustomMinimumSize=Vector2.Zero;
-  roomBack.CustomMinimumSize=new(100*scale,48*scale);
   help.CustomMinimumSize=new(80*scale,48*scale);help.SizeFlagsVertical=SizeFlags.ShrinkCenter;
   helpPanel.Size=new Vector2(Math.Min(Size.X-40,522*scale),Math.Min(Size.Y*.8f,600*scale));helpPanel.Position=(Size-helpPanel.Size)/2; helpText.CustomMinimumSize=new(Math.Max(100,helpPanel.Size.X-100),0);
 

@@ -98,7 +98,7 @@ public sealed class JigsawNativeSession
             screen.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
             screen.TreeExiting += ReleaseHotkeys;
         }
-        screen.SetMap(Map);
+        screen.SetMap(Map,Native.Act);
         screen.SetRoomPreview(Map.CurrentNode != null || Map.Phase == JigsawPhase.Ancient && !AncientReady && Native.CurrentRoom is EventRoom ? HideMap : null);
         if (!blockingHotkeys)
         {
