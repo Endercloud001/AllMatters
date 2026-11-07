@@ -36,6 +36,10 @@ public partial class JigsawScreen : Control
  private readonly VBoxContainer main = new(), footer = new();
  private readonly HBoxContainer decisions = new();
  private readonly HBoxContainer bottom = new(), top = new();
+ private Action? returnToRoom;
+ private Button roomBack = null!;
+ public bool CanReturnToRoom => returnToRoom!=null;
+ public void SetRoomPreview(Action? close) { returnToRoom=close; Refresh(); }
  private readonly Button next = new(), manual = new(), automatic = new(), resume = new(), abandon = new(), help = new();
  private readonly PanelContainer helpPanel = new();
  private readonly VBoxContainer helpContent = new();
@@ -127,6 +131,7 @@ public partial class JigsawScreen : Control
   root.AddChild(main); main.SizeFlagsHorizontal=SizeFlags.ExpandFill; main.SizeFlagsVertical=SizeFlags.ExpandFill;
   main.AddChild(top);top.Alignment=BoxContainer.AlignmentMode.End; top.AddChild(steps); steps.SizeFlagsHorizontal=SizeFlags.ExpandFill;
   main.AddChild(explorationNotice);
+  roomBack=MakeButton("返回",()=>returnToRoom?.Invoke());top.AddChild(roomBack);actionButtons.Add(roomBack);
   help.Text=L("帮助"); help.Pressed += OpenHelp; top.AddChild(help);
   var paper=new JigsawPaper {Art=art,SizeFlagsHorizontal=SizeFlags.ExpandFill,SizeFlagsVertical=SizeFlags.ExpandFill,MouseFilter=MouseFilterEnum.Ignore};main.AddChild(paper);
   canvas=new JigsawCanvas { OwnerScreen=this, FocusMode=FocusModeEnum.All, ClipContents=true, MouseFilter=MouseFilterEnum.Stop };paper.AddChild(canvas);
@@ -207,7 +212,8 @@ public partial class JigsawScreen : Control
   poolIndex=Math.Clamp(poolIndex,0,Math.Max(0,poolButtons.Count-1)); nodeIndex=Math.Clamp(nodeIndex,0,Math.Max(0,NavigableNodeIds.Count-1));
   steps.Text=L("剩余步数")+"  "+map.RemainingSteps+" / "+map.Budget;
   steps.Visible=false;
-  bottom.Visible=map.Phase!=JigsawPhase.Exploring || map.PendingEntry!=null;
+  roomBack.Visible=CanReturnToRoom;
+  bottom.Visible=!CanReturnToRoom && (map.Phase!=JigsawPhase.Exploring || map.PendingEntry!=null);
   manual.Visible=automatic.Visible=map.Phase is JigsawPhase.Editing or JigsawPhase.Inspecting or JigsawPhase.Generating;
   manual.Disabled=automatic.Disabled=Reading || map.Phase!=JigsawPhase.Editing;
   manual.Text=L("由先古之民审视"); automatic.Text=L("令先古之民决定"); UpdateVoters(manualVoters,EndChoice.Manual); UpdateVoters(autoVoters,EndChoice.Automatic);
@@ -250,6 +256,7 @@ public partial class JigsawScreen : Control
   if(helpOpen) { helpOpen=false; helpShade.Hide(); helpPanel.Hide(); Refresh(); return; }
   if(replay!=null) { replay=null; Refresh(); return; }
   if(map.Holdings.ContainsKey(player)||map.SelectedEndpoints.ContainsKey(player)) { Apply(map.Cancel(player)); return; }
+  if(returnToRoom!=null) { returnToRoom(); return; }
   tutorialPaused=true; SetProcessInput(false); pause();
  }
  public void ResumeFromPause() { tutorialPaused=false; SetProcessInput(true); Refresh(); }
@@ -364,6 +371,7 @@ public partial class JigsawScreen : Control
   bottom.CustomMinimumSize=new(0,Size.Y<=800?112:140*scale);
   bottom.SizeFlagsVertical=SizeFlags.ShrinkEnd;
   dialog.CustomMinimumSize=Vector2.Zero;
+  roomBack.CustomMinimumSize=new(100*scale,48*scale);
   help.CustomMinimumSize=new(80*scale,48*scale);help.SizeFlagsVertical=SizeFlags.ShrinkCenter;
   helpPanel.Size=new Vector2(Math.Min(Size.X-40,522*scale),Math.Min(Size.Y*.8f,600*scale));helpPanel.Position=(Size-helpPanel.Size)/2; helpText.CustomMinimumSize=new(Math.Max(100,helpPanel.Size.X-100),0);
 
@@ -413,6 +421,7 @@ public partial class JigsawScreen : Control
  private void ActivateMap(int? id,GridPoint point,bool secondary)
  {
   if(Reading)return;
+  if(CanReturnToRoom)return;
   if(map.Phase==JigsawPhase.Exploring) { if(id!=null && !secondary)RunAsync(enter(id.Value)); return; }
   if(secondary)
   {
@@ -428,6 +437,7 @@ public partial class JigsawScreen : Control
   if(!IsVisibleInTree())return;
   if(MegaCrit.Sts2.Core.Nodes.NRun.Instance?.GlobalUi.SubmenuStack.Stack?.SubmenusOpen==true)return;
   if(NModalContainer.Instance?.OpenModal!=null)return;
+  if(CanReturnToRoom && ev.IsActionPressed(MegaInput.viewMap)) { returnToRoom!();GetViewport()?.SetInputAsHandled();return; }
   if(IsGenerating) { GetViewport()?.SetInputAsHandled();return; }
   // This dedicated screen consumes map drawing/erasing before native unhandled input.
   if(ev is InputEventMouseButton mouse)

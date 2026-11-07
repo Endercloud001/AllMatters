@@ -59,6 +59,7 @@ internal static class JigsawNativeTests
       ("Jigsaw native treasure rewards complete before map checkpoint", CompletedTreasure),
       ("Jigsaw native partial Ancient restores complete prereward player and map", PartialAncient),
       ("Jigsaw native legacy completed Ancient save explores without replay", ()=>FirstRoomFlow(false,finishedAncient:true,legacyAncient:true)),
+      ("Jigsaw native map previews Ancient and unfinished rooms return safely", ()=>FirstRoomFlow(false,preview:true)),
       ("Jigsaw native map covers previous room until destination ready", ()=>FirstRoomFlow(false,transition:true)),
       ("Jigsaw native actual Ancient reward callback rolls back then replays once", ()=>FirstRoomFlow(false, actualPartial:true)),
       ("Jigsaw native failed real room load retries same destination and content once", ()=>FirstRoomFlow(false, entryFailure:EntryFailureKind.BeforeReady)),
@@ -160,6 +161,16 @@ internal static class JigsawNativeTests
                 io.ShouldFailWrites=true;release.SetResult();
                 bool rejected=false;try {await generation;} catch {rejected=true;}
                 Require(rejected && session.Map!.Phase==JigsawPhase.Ancient && native.CurrentRoom is MapRoom,"Failed final save retains the accepted map and does not enter rewards.");
+                using(var retryAtlases=HeadlessTestSetup.LoadAtlases("ui_atlas","compressed"))
+                {
+                    var retryView=session.CreateScreen(new AllMatters.Jigsaw.Presentation.MemoryJigsawTutorialProfile{Sentence=6});
+                    try
+                    {
+                        await HeadlessUiHost.Mount(retryView);session.ShowMap();
+                        Require(!retryView.CanReturnToRoom && retryView.DecisionControl.IsVisibleInTree(),"Ancient entry save failure retains Continue instead of a dismissible room preview.");
+                    }
+                    finally {retryView.Free();}
+                }
                 var layout=session.Map!.Placements.ToArray();io.ShouldFailWrites=false;
                 await session.Continue();
                 Require(native.CurrentRoom is EventRoom && session.Map.Placements.SequenceEqual(layout),"Retry saves the same accepted map and enters actual Ancient without regenerating.");
@@ -462,7 +473,7 @@ internal static class JigsawNativeTests
         finally { RunManager.Instance.CleanUp(false); }
     }
 
-    private static async Task FirstRoomFlow(bool completeTreasure,bool partialAncient=false,bool finishedAncient=false,bool actualPartial=false,EntryFailureKind entryFailure=EntryFailureKind.None,bool transition=false,bool legacyAncient=false)
+    private static async Task FirstRoomFlow(bool completeTreasure,bool partialAncient=false,bool finishedAncient=false,bool actualPartial=false,EntryFailureKind entryFailure=EntryFailureKind.None,bool transition=false,bool legacyAncient=false,bool preview=false)
     {
         using var atlases=HeadlessTestSetup.LoadAtlases("card_atlas","relic_atlas");
         using var eventScope=HeadlessCombatInProgress.EnterEvent();
@@ -518,6 +529,7 @@ internal static class JigsawNativeTests
                 Require(JigsawCheckpoint.Slot.TryGet(rollback,out var partialMap) && partialMap.Map is {Phase:JigsawPhase.Ancient,Steps:0} && partialMap.Map.AncientCompleted.Length==0 && partialMap.Map.Placements.Length==1,"Partial Ancient rollback keeps the successful layout and incomplete reward phase.");
                 return;
             }
+            if(preview) await PreviewRoom(session);
             string beforeReward = System.Text.Json.JsonSerializer.Serialize(native.Players[0].ToSerializable());
             MegaCrit.Sts2.Core.Saves.SerializableRun? interrupted = null;
             if (actualPartial) JigsawAncientRewardBoundaryHost.BeforeDone = current =>
@@ -595,6 +607,13 @@ internal static class JigsawNativeTests
                 return;
             }
             Require(map.Phase==JigsawPhase.Exploring && map.Steps==0,"Reward completion begins exploration without charging Ancient.");
+            if(preview)
+            {
+                await session.Enter(map.AvailableDestinations.First());
+                await PreviewRoom(session);
+                Require(map.CurrentNode!=null && map.Steps==1,"Preview does not complete or recharge the unfinished room.");
+                return;
+            }
             if(transition)
             {
                 using var uiAtlases=HeadlessTestSetup.LoadAtlases("ui_atlas","compressed");
@@ -784,6 +803,38 @@ internal static class JigsawNativeTests
             }
         }
         finally { JigsawEntryFailureHost.Reset(); JigsawAncientRewardBoundaryHost.BeforeDone = null; JigsawNativeSaveHost.Save=null; RunManager.Instance.CleanUp(false); }
+    }
+
+    private static async Task PreviewRoom(JigsawNativeSession session)
+    {
+        HeadlessUiHost.EnsureInputActions();
+        using var atlases=HeadlessTestSetup.LoadAtlases("ui_atlas","compressed");
+        var view=session.CreateScreen(new AllMatters.Jigsaw.Presentation.MemoryJigsawTutorialProfile{Sentence=6});
+        var nativeMap=new MegaCrit.Sts2.Core.Nodes.Screens.Map.NMapScreen {Name="JigsawPreviewHost"};
+        var room=session.Native.CurrentRoom;
+        var before=System.Text.Json.JsonSerializer.Serialize(session.Map!.CreateSave());
+        var tree=(Godot.SceneTree)Godot.Engine.GetMainLoop();
+        try
+        {
+            await HeadlessUiHost.Mount(view);
+            view.Hide();JigsawMapPreviewHost.FallThrough=0;
+            nativeMap.Open(true);
+            Require(JigsawMapPreviewHost.FallThrough==0,"Ancient map request must intercept the native route screen.");
+            Require(view.IsVisibleInTree(),"Native map request shows the accepted puzzle map.");
+            Require(!view.DecisionControl.IsVisibleInTree()&&!view.DialogControl.IsVisibleInTree(),"Room preview has no reward continuation or dialogue footer.");
+            Godot.Input.ParseInputEvent(new Godot.InputEventAction{Action=MegaCrit.Sts2.Core.ControllerInput.MegaInput.viewMap,Pressed=true});
+            await tree.ToSignal(tree,Godot.SceneTree.SignalName.ProcessFrame);
+            Require(!view.IsVisibleInTree(),"The map hotkey returns to the still-open room.");
+            nativeMap.Open(true);
+            nativeMap.Open(true);
+            Require(!view.IsVisibleInTree(),"Clicking the top-bar map again returns to the room.");
+            nativeMap.Open(true);
+            Godot.Input.ParseInputEvent(new Godot.InputEventKey{Keycode=Godot.Key.Escape,Pressed=true});
+            await tree.ToSignal(tree,Godot.SceneTree.SignalName.ProcessFrame);
+            Require(!view.IsVisibleInTree(),"Escape also returns from room preview.");
+            Require(ReferenceEquals(room,session.Native.CurrentRoom)&&before==System.Text.Json.JsonSerializer.Serialize(session.Map.CreateSave()),"Preview and return retain the exact room, rewards, steps and completion state.");
+        }
+        finally {view.Free();nativeMap.Free();}
     }
 
     private static async Task CheckpointFaultMatrix()
@@ -1086,4 +1137,16 @@ internal static class JigsawConsoleHistoryHost
 {
     internal static bool Suppress;
     private static bool Prefix()=>!Suppress;
+}
+
+[HarmonyPatch(typeof(MegaCrit.Sts2.Core.Nodes.Screens.Map.NMapScreen),nameof(MegaCrit.Sts2.Core.Nodes.Screens.Map.NMapScreen.Open))]
+internal static class JigsawMapPreviewHost
+{
+    internal static int FallThrough;
+    [HarmonyPriority(Priority.Last)]
+    private static bool Prefix(MegaCrit.Sts2.Core.Nodes.Screens.Map.NMapScreen __instance,ref MegaCrit.Sts2.Core.Nodes.Screens.Map.NMapScreen __result)
+    {
+        if(__instance.Name!="JigsawPreviewHost")return true;
+        FallThrough++;__result=__instance;return false;
+    }
 }

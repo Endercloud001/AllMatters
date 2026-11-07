@@ -87,9 +87,10 @@ public sealed class JigsawNativeSession
 
     public void ShowMap()
     {
-        if (Map == null || act != Native.CurrentActIndex || TestMode.IsOn || NRun.Instance == null) return;
+        if (Map == null || act != Native.CurrentActIndex) return;
         if (screen == null || !GodotObject.IsInstanceValid(screen))
         {
+            if (TestMode.IsOn || NRun.Instance == null) return;
             screen=CreateScreen();
             var parent = NRun.Instance.GlobalUi;
             parent.AddChild(screen);
@@ -98,6 +99,7 @@ public sealed class JigsawNativeSession
             screen.TreeExiting += ReleaseHotkeys;
         }
         screen.SetMap(Map);
+        screen.SetRoomPreview(Map.CurrentNode != null || Map.Phase == JigsawPhase.Ancient && !AncientReady && Native.CurrentRoom is EventRoom ? HideMap : null);
         if (!blockingHotkeys)
         {
             NHotkeyManager.Instance?.AddBlockingScreen(screen);
@@ -106,6 +108,11 @@ public sealed class JigsawNativeSession
         screen.Show();
     }
     internal JigsawScreen CreateScreen(IJigsawTutorialProfile? profile=null) => screen=JigsawScreen.Create(Map!,Native.Players[0].NetId,OnEdited,Inspect,Continue,Enter,Pause,profile,Automatic,id=>Native.Players.FirstOrDefault(p=>p.NetId==id)?.Character.IconTexture,AbandonEntry,Native.Act,id=>Native.Players.FirstOrDefault(p=>p.NetId==id)?.Character.MapDrawingColor??Colors.White);
+    internal bool CloseRoomPreview()
+    {
+        if (!GodotObject.IsInstanceValid(screen) || screen is not { Visible:true, CanReturnToRoom:true }) return false;
+        HideMap(); return true;
+    }
     private void ReleaseHotkeys()
     {
         if (!blockingHotkeys) return;
@@ -536,7 +543,7 @@ internal static class JigsawOpenFormalMap
     private static bool Prefix(NMapScreen __instance, bool isOpenedFromTopBar, ref NMapScreen __result)
     {
         if (JigsawNativeSession.Current is not { Map: not null } session) return true;
-        if (session.Map.Phase == JigsawPhase.Ancient && !session.AncientReady) return true;
+        if (isOpenedFromTopBar && session.CloseRoomPreview()) { __result = __instance; return false; }
         if (!isOpenedFromTopBar && session.Map.CurrentNode != null)
             session.CompleteCurrentRoom(__instance.IsTravelEnabled);
         session.ShowMap(); __result = __instance; return false;
