@@ -25,6 +25,7 @@ public partial class JigsawScreen : Control
  private IJigsawTutorialProfile profile = null!;
  private readonly Label dialog = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart, SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill };
  private readonly Label steps = new();
+ private readonly Label poolTitle = new() {Text="可用碎块",HorizontalAlignment=HorizontalAlignment.Center,VerticalAlignment=VerticalAlignment.Center};
  private readonly Label explorationNotice = new() {AutowrapMode=TextServer.AutowrapMode.WordSmart};
  private readonly ColorRect helpShade = new() {Name="JigsawHelpShade",Color=new Color(0,0,0,.65f),ZIndex=4,MouseFilter=MouseFilterEnum.Stop};
  private readonly VBoxContainer cards = new();
@@ -104,7 +105,7 @@ public partial class JigsawScreen : Control
  {
   adaptiveTheme.DefaultFont=ResourceLoader.Load<Font>("res://fonts/zhs/SourceHanSerifSC-Medium.otf");
   adaptiveTheme.SetFont("font","Button",ResourceLoader.Load<Font>("res://fonts/zhs/SourceHanSerifSC-Bold.otf"));
-  Theme=adaptiveTheme; Name="AllMattersJigsaw"; MouseFilter=MouseFilterEnum.Stop; SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+  ProcessMode=ProcessModeEnum.Always; Theme=adaptiveTheme; Name="AllMattersJigsaw"; MouseFilter=MouseFilterEnum.Stop; SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
   var buttonStyle=JigsawNativeArt.Panel("packed/common_ui/event_button.png",20);
   foreach(var state in new[]{"normal","hover","pressed","focus","disabled"})adaptiveTheme.SetStylebox(state,"Button",buttonStyle);
   adaptiveTheme.SetStylebox("focus","Button",JigsawNativeArt.Panel("packed/common_ui/event_button_outline.png",20));
@@ -114,15 +115,13 @@ public partial class JigsawScreen : Control
   adaptiveTheme.SetColor("font_hover_color","Button",Colors.White);
   adaptiveTheme.SetColor("font_disabled_color","Button",new Color("8f897c"));
   poolFrame.AddThemeStyleboxOverride("panel",JigsawNativeArt.Panel("ui/reward_screen/reward_panel.png",30));
-  dialogScroll.AddThemeStyleboxOverride("panel",JigsawNativeArt.Panel("ui/dialogue_nine_patch.png",27));
   dialog.AddThemeColorOverride("font_color",new Color("f4eee2"));
-  ((StyleBoxTexture)dialogScroll.GetThemeStylebox("panel")).ModulateColor=new Color("28454f");
   var background=new ColorRect { Color=new Color("17202d"), MouseFilter=MouseFilterEnum.Ignore }; AddChild(background); background.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
   AddChild(root); root.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect); root.AddThemeConstantOverride("separation",16);
   root.AddChild(poolFrame);
   var poolColumn=new VBoxContainer();poolFrame.AddChild(poolColumn);
   var banner=new TextureRect {Texture=JigsawNativeArt.Load("ui/reward_screen/reward_banner.png"),CustomMinimumSize=new(0,55),ExpandMode=TextureRect.ExpandModeEnum.IgnoreSize,StretchMode=TextureRect.StretchModeEnum.KeepAspectCentered,MouseFilter=MouseFilterEnum.Ignore};
-  poolColumn.AddChild(banner);var poolTitle=new Label {Text=L("可用碎块"),HorizontalAlignment=HorizontalAlignment.Center,VerticalAlignment=VerticalAlignment.Center};banner.AddChild(poolTitle);poolTitle.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+  poolColumn.AddChild(banner);poolTitle.Text=L("可用碎块");banner.AddChild(poolTitle);poolTitle.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
   poolColumn.AddChild(pool);pool.SizeFlagsVertical=SizeFlags.ExpandFill;
   pool.AddChild(cards); cards.SizeFlagsHorizontal=SizeFlags.ExpandFill;
   root.AddChild(main); main.SizeFlagsHorizontal=SizeFlags.ExpandFill; main.SizeFlagsVertical=SizeFlags.ExpandFill;
@@ -134,8 +133,15 @@ public partial class JigsawScreen : Control
   canvas.AnchorLeft=.12f;canvas.AnchorTop=.24f;canvas.AnchorRight=.86f;canvas.AnchorBottom=.85f;
   overlay=new JigsawOverlay {OwnerScreen=this,ZIndex=1,MouseFilter=MouseFilterEnum.Ignore};canvas.AddChild(overlay);overlay.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
   main.AddChild(bottom); bottom.AddChild(footer); footer.SizeFlagsHorizontal=SizeFlags.ExpandFill; var dialogueRow=new HBoxContainer {SizeFlagsVertical=SizeFlags.ExpandFill};footer.AddChild(dialogueRow);
-  dialogueRow.AddChild(new TextureRect {Texture=JigsawNativeArt.Load("ui/dialogue_tail.png"),Modulate=new Color("28454f"),SizeFlagsVertical=SizeFlags.ShrinkBegin,CustomMinimumSize=new(24,40),ExpandMode=TextureRect.ExpandModeEnum.IgnoreSize,StretchMode=TextureRect.StretchModeEnum.KeepAspectCentered,MouseFilter=MouseFilterEnum.Ignore});
-  dialogueRow.AddChild(dialogScroll);dialogScroll.SizeFlagsHorizontal=SizeFlags.ExpandFill; dialogScroll.SizeFlagsVertical=SizeFlags.ExpandFill; dialogScroll.AddChild(dialog);
+  dialogueRow.AddThemeConstantOverride("separation",-12);
+  var tail=new TextureRect {Texture=JigsawNativeArt.Load("ui/dialogue_tail.png"),Modulate=new Color("28454f"),CustomMinimumSize=new(28,0),ExpandMode=TextureRect.ExpandModeEnum.IgnoreSize,StretchMode=TextureRect.StretchModeEnum.KeepAspectCentered,MouseFilter=MouseFilterEnum.Ignore};dialogueRow.AddChild(tail);
+  var tailShadow=new TextureRect {Texture=tail.Texture,Modulate=new Color(0,0,0,.25f),ShowBehindParent=true,ExpandMode=TextureRect.ExpandModeEnum.IgnoreSize,StretchMode=TextureRect.StretchModeEnum.KeepAspectCentered,MouseFilter=MouseFilterEnum.Ignore};tail.AddChild(tailShadow);tailShadow.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);tailShadow.OffsetLeft=tailShadow.OffsetRight=2;tailShadow.OffsetTop=tailShadow.OffsetBottom=5;
+  var bubble=new Control {SizeFlagsHorizontal=SizeFlags.ExpandFill,MouseFilter=MouseFilterEnum.Ignore};dialogueRow.AddChild(bubble);
+  NinePatchRect Bubble(Color color)=>new() {Texture=JigsawNativeArt.Load("ui/dialogue_nine_patch.png"),RegionRect=new Rect2(0,0,116,85),PatchMarginLeft=27,PatchMarginRight=27,PatchMarginTop=28,PatchMarginBottom=28,AxisStretchHorizontal=NinePatchRect.AxisStretchMode.Tile,AxisStretchVertical=NinePatchRect.AxisStretchMode.Tile,Modulate=color,MouseFilter=MouseFilterEnum.Ignore};
+  var shadow=Bubble(new Color(0,0,0,.25f));bubble.AddChild(shadow);shadow.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);shadow.OffsetLeft=shadow.OffsetRight=2;shadow.OffsetTop=shadow.OffsetBottom=5;
+  var frame=Bubble(new Color("28454f"));bubble.AddChild(frame);frame.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+  bubble.AddChild(dialogScroll);dialogScroll.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);dialogScroll.OffsetLeft=20;dialogScroll.OffsetRight=-18;dialogScroll.OffsetTop=10;dialogScroll.OffsetBottom=-12;dialogScroll.AddChild(dialog);
+
   next.Text=L("继续"); next.Pressed += AdvanceDialog; footer.AddChild(next);
   bottom.AddChild(decisions);
   var confirmTexture=JigsawNativeArt.Load("atlases/ui_atlas.sprites/confirm_button.tres");
@@ -164,9 +170,7 @@ public partial class JigsawScreen : Control
   popupMaterial.SetShaderParameter("h",.505f);popupMaterial.SetShaderParameter("s",1f);popupMaterial.SetShaderParameter("v",.75f);helpPanel.Material=popupMaterial;
   helpPanel.AddChild(helpContent); helpPanel.Visible=false; helpPanel.ZIndex=5;
   var helpTitle=new Label {Text=L("帮助"),HorizontalAlignment=HorizontalAlignment.Center};helpTitle.AddThemeColorOverride("font_color",new Color("efc851"));helpContent.AddChild(helpTitle);
-  helpContent.AddChild(MakeButton("重看开场对白",()=>{ replay=0; helpOpen=false; helpShade.Hide(); helpPanel.Hide(); Refresh(); }));
   helpContent.AddChild(MakeButton("操作与规则",()=>helpText.Text=L(Rules)));
-  helpContent.AddChild(MakeButton("最近一次提示",()=>helpText.Text=recent.Length==0?L("尚无提示。"):recent));
   var helpScroll=new ScrollContainer { SizeFlagsVertical=SizeFlags.ExpandFill, HorizontalScrollMode=ScrollContainer.ScrollMode.Disabled }; helpContent.AddChild(helpScroll); helpScroll.AddChild(helpText); helpText.SizeFlagsHorizontal=SizeFlags.ExpandFill;
   helpContent.AddChild(MakeButton("返回",Back));
   Resized += AdaptLayout;
@@ -182,6 +186,7 @@ public partial class JigsawScreen : Control
  {
   foreach(var id in bossVisuals.Keys.Where(id=>!map.Nodes.Any(n=>n.Id==id)).ToArray()) {bossVisuals[id].QueueFree();bossVisuals.Remove(id);}
   poolFrame.Visible=pool.Visible=map.Phase is JigsawPhase.Editing or JigsawPhase.Inspecting or JigsawPhase.Generating;
+  help.Visible=pool.Visible;
   hints.Visible=false;
   mouseHints.Visible=false;
   mouseHints.Text=L(pool.Visible?"左键 拿放 · 右键 旋转／连拆线 · 中键 平移 · 滚轮 缩放 · Esc 取消／暂停":"左键 选择目的地 · 中键 平移 · 滚轮 缩放 · Esc 暂停");
@@ -236,6 +241,7 @@ public partial class JigsawScreen : Control
  }
  public void OpenHelp()
  {
+  if(!help.Visible)return;
   map.Cancel(player); dragging=false; changed(); helpOpen=true; helpShade.Show(); helpPanel.Show(); helpText.Text=L(Rules); Refresh(); helpPanel.Show();
   helpIndex=0; if(IsInsideTree())helpContent.GetChildren().OfType<Button>().First().GrabFocus();
  }
@@ -318,6 +324,7 @@ public partial class JigsawScreen : Control
  };
  public override void _Process(double delta)
  {
+  if(!IsVisibleInTree()||tutorialPaused)return;
   AdvanceTime(delta);
   explorationNotice.Visible=map.Phase==JigsawPhase.Exploring;
   explorationNotice.Text=errorRemaining>0?dialog.Text:"";
@@ -342,7 +349,8 @@ public partial class JigsawScreen : Control
  private void AdaptLayout()
  {
   if(Size.X<=0)return;
-  float scale=Math.Max(.75f,Size.Y/1080f); adaptiveTheme.DefaultFontSize=(int)(22*scale);
+  float scale=Math.Max(.75f,Size.Y/1080f);
+  poolTitle.OffsetTop=poolTitle.OffsetBottom=-6*scale; adaptiveTheme.DefaultFontSize=(int)(22*scale);
   root.OffsetTop=Size.Y*.12f; root.OffsetLeft=20*scale;root.OffsetRight=-20*scale;root.OffsetBottom=-20*scale;
   float poolWidth=Size.Y<=800?240:300*scale, buttonWidth=Size.Y<=800?225:300*scale;
   poolFrame.CustomMinimumSize=new(poolWidth,0);
@@ -450,7 +458,7 @@ public partial class JigsawScreen : Control
    if(helpOpen&&(ev.IsActionPressed(MegaInput.up)||ev.IsActionPressed(MegaInput.down)||ev.IsActionPressed(MegaInput.left)||ev.IsActionPressed(MegaInput.right)))
    {
     int delta=ev.IsActionPressed(MegaInput.up)||ev.IsActionPressed(MegaInput.left)?-1:1;
-    helpIndex=Wrap(helpIndex+delta,4); var buttons=helpContent.GetChildren().OfType<Button>().ToArray(); buttons[helpIndex].GrabFocus();
+    var buttons=helpContent.GetChildren().OfType<Button>().ToArray();helpIndex=Wrap(helpIndex+delta,buttons.Length); buttons[helpIndex].GrabFocus();
    }
    GetViewport()?.SetInputAsHandled(); return;
   }
@@ -508,7 +516,7 @@ public partial class JigsawScreen : Control
  }
  private void DrawFocus(CanvasItem target,JigsawNode n,Rect2 rect)
  {
-  if(zone==FocusRegion.Map&&FocusedNodeId==n.Id)
+  if(JigsawInputPresentation.UsingController&&zone==FocusRegion.Map&&FocusedNodeId==n.Id)
   {
    var focus=rect.Grow(5);float arm=Math.Min(focus.Size.X,focus.Size.Y)*.22f;
    foreach(var corner in new[]{focus.Position,new Vector2(focus.End.X,focus.Position.Y),focus.End,new Vector2(focus.Position.X,focus.End.Y)})
@@ -518,7 +526,7 @@ public partial class JigsawScreen : Control
     target.DrawLine(corner,corner+new Vector2(0,inward.Y*arm),Colors.White,3);
    }
   }
-  if(map.SelectedEndpoints.GetValueOrDefault(player,-1)==n.Id)target.DrawRect(rect.Grow(9),new Color("f4d79a"),false,2);
+  if(map.Phase==JigsawPhase.Editing&&map.SelectedEndpoints.GetValueOrDefault(player,-1)==n.Id)target.DrawRect(rect.Grow(9),new Color("f4d79a"),false,2);
  }
  private void DrawNode(JigsawCanvas target,JigsawNode n,Vector2 at,bool preview)
  {

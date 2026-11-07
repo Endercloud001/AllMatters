@@ -34,16 +34,18 @@ internal static class JigsawPresentationTests
   using var atlases=HeadlessTestSetup.LoadAtlases("ui_atlas","compressed");
   var tree=(SceneTree)Engine.GetMainLoop();var original=tree.Root.Size;tree.Root.Size=new(1280,720);
   var map=JigsawRun.Create(74);map.Take(1,0);map.Drop(1,new(3,0));map.AddEdge(1,0,1);map.ChooseEnd(1,EndChoice.Manual);map.Inspect();map.CompleteAncient(1);map.Continue(1);
-  var view=View(map,new(){Sentence=6});
+  var view=View(map,new(){Sentence=6});var originalPause=tree.Paused;
   try
   {
    await HeadlessUiHost.Mount(view);
+   Require(!view.GetChildren().SelectMany(n=>n is Control c?c.FindChildren("*","Button",true,false):new Godot.Collections.Array<Node>()).OfType<Button>().Any(b=>b.Text=="帮助"&&b.IsVisibleInTree()),"Exploration hides the redundant Help entry.");
    int entered=map.AvailableDestinations.First();var attempt=map.BeginEnter(entered)!;Require(map.ConfirmEnter(attempt.Id).Success&&map.CompleteRoom(attempt.Id).Success,"Complete one actual logical destination.");view.Refresh();
    await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
    Require(view.MapControl.GetNodeOrNull<Sprite2D>($"Room{entered}/Visited") is {Visible:true,Texture:not null},"A completed ordinary destination has a visible native visit ring in the production map.");
    int available=map.AvailableDestinations.First(id=>map.Nodes.First(n=>n.Id==id).Room is not (JigsawRoom.Boss or JigsawRoom.SecondBoss));
    var icon=view.MapControl.GetNodeOrNull<Sprite2D>($"Room{available}");Require(icon!=null,"Available ordinary room has a rendered icon.");
    Require(view.MapControl.GetChildren().OfType<JigsawOverlay>().Single().ZIndex>icon!.ZIndex,"Focus and holding markers render above icons and visit rings.");
+   tree.Paused=true;
    var scales=new List<float>();for(int i=0;i<12;i++){await tree.ToSignal(tree.CreateTimer(.15),SceneTreeTimer.SignalName.Timeout);scales.Add(icon!.Scale.X);}
    Require(scales.Max()-scales.Min()>.02f,"The available ordinary icon visibly pulses across rendered frames.");
    if(System.Environment.GetEnvironmentVariable("ALLMATTERS_UI_CAPTURE") is {} exploreCapture)
@@ -57,7 +59,7 @@ internal static class JigsawPresentationTests
     frame.SavePng(System.IO.Path.ChangeExtension(exploreCapture,"explore.png"));
    }
   }
-  finally {view.Free();tree.Root.Size=original;}
+  finally {tree.Paused=originalPause;view.Free();tree.Root.Size=original;}
  }
  private static async Task ViewportAndEscape()
  {
@@ -365,8 +367,7 @@ internal static class JigsawPresentationTests
    view.SetMap(JigsawRun.Create(75)); view.OpenHelp();
    var panel=view.GetChildren().OfType<PanelContainer>().Single();
    var content=panel.GetChild<VBoxContainer>(0);
-   content.GetChildren().OfType<Button>().ElementAt(2).EmitSignal(Button.SignalName.Pressed);
-   Require(content.GetChildren().OfType<ScrollContainer>().Single().GetChild<Label>(0).Text=="尚无提示。","A new puzzle cannot display the previous puzzle's recent notice.");
+   Require(content.GetChildren().OfType<Button>().Select(b=>b.Text).SequenceEqual(new[]{"操作与规则","返回"}),"Help contains only the requested rules and return controls.");
    view.Back(); view.AdvanceTime(5);
    Require(!view.DialogText.Contains("Boss"),"The previous puzzle's second error segment must not resume.");
   } finally {view.Free();}
