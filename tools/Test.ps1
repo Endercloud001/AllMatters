@@ -24,25 +24,43 @@ try {
     if ($DotNetRoot) { $DotNetRoot = (Resolve-Path -LiteralPath $DotNetRoot).Path }
     $branches = if ($Branch -eq 'All') { @('public-beta', 'public') } else { @($Branch) }
     foreach ($targetBranch in $branches) {
-        # Build with the system SDK; only the Godot process uses the selected runtime root.
-        $env:DOTNET_ROOT = $previousDotNetRoot
-        $dataDir = if ($targetBranch -eq 'public') { $paths['PublicGameDataDir'] } else { $paths['BetaGameDataDir'] }
-        if ($dataDir) {
-            if (![IO.Path]::IsPathRooted($dataDir)) { $dataDir = Join-Path $repoDir $dataDir }
-            $assembly = Get-Item -LiteralPath (Join-Path $dataDir 'sts2.dll')
-            Write-Output "Testing $targetBranch : $($assembly.VersionInfo.ProductVersion) [$($assembly.FullName)]"
+        $logDir = Join-Path $repoDir '.local/tests'
+        New-Item -ItemType Directory -Path $logDir -Force | Out-Null
+        $logPath = Join-Path $logDir "$targetBranch-last.log"
+        Set-Content -LiteralPath $logPath -Value "Testing $targetBranch : unknown"
+        $hostStarted = $false
+        try {
+            # Build with the system SDK; only the Godot process uses the selected runtime root.
+            $env:DOTNET_ROOT = $previousDotNetRoot
+            $dataDir = if ($targetBranch -eq 'public') { $paths['PublicGameDataDir'] } else { $paths['BetaGameDataDir'] }
+            if ($dataDir) {
+                if (![IO.Path]::IsPathRooted($dataDir)) { $dataDir = Join-Path $repoDir $dataDir }
+                $assembly = Get-Item -LiteralPath (Join-Path $dataDir 'sts2.dll')
+                "Testing $targetBranch : $($assembly.VersionInfo.ProductVersion) [$($assembly.FullName)]" | Tee-Object -FilePath $logPath -Append
+            }
+            & dotnet build (Join-Path $testDir 'AllMatters.Tests.csproj') "-p:GameBranch=$targetBranch" --nologo 2>&1 | Tee-Object -FilePath $logPath -Append
+            $buildExit = $LASTEXITCODE
+            Add-Content -LiteralPath $logPath -Value "Test build exit: $buildExit"
+            if ($buildExit -ne 0) { throw "Test build failed for $targetBranch (exit $buildExit)." }
+            if (!$resourcesReady) {
+                & (Join-Path $PSScriptRoot 'ExportResources.ps1') -GodotPath $godotExecutable 2>&1 | Tee-Object -FilePath $logPath -Append
+                $resourcesReady = $true
+            }
+            if ($DotNetRoot) { $env:DOTNET_ROOT = $DotNetRoot }
+            $arguments = @('--headless', '--path', $testDir)
+            if ($Filter) { $arguments += '--', $Filter }
+            $hostStarted = $true
+            & $godotExecutable @arguments 2>&1 | Tee-Object -FilePath $logPath -Append
+            $hostExit = $LASTEXITCODE
+            Add-Content -LiteralPath $logPath -Value "Host exit: $hostExit"
+            if ($hostExit -ne 0) { throw "Tests failed for $targetBranch (exit $hostExit)." }
+        } catch {
+            $stage = if ($hostStarted) { 'Host invocation failed' } else { 'Preparation failed' }
+            Add-Content -LiteralPath $logPath -Value "${stage}: $_"
+            throw
+        } finally {
+            Write-Output "Test log: $logPath (summarize with tools/ReadTestLog.ps1 -Path <log>)"
         }
-        & dotnet build (Join-Path $testDir 'AllMatters.Tests.csproj') "-p:GameBranch=$targetBranch" --nologo
-        if ($LASTEXITCODE -ne 0) { throw "Test build failed for $targetBranch (exit $LASTEXITCODE)." }
-        if (!$resourcesReady) {
-            & (Join-Path $PSScriptRoot 'ExportResources.ps1') -GodotPath $godotExecutable
-            $resourcesReady = $true
-        }
-        if ($DotNetRoot) { $env:DOTNET_ROOT = $DotNetRoot }
-        $arguments = @('--headless', '--path', $testDir)
-        if ($Filter) { $arguments += '--', $Filter }
-        & $godotExecutable @arguments
-        if ($LASTEXITCODE -ne 0) { throw "Tests failed for $targetBranch (exit $LASTEXITCODE)." }
     }
 }
 finally {

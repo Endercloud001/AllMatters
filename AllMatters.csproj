@@ -21,6 +21,7 @@
   </PropertyGroup>
   <Import Project="$(RitsuLibDir)/RitsuLib.References.props" />
   <ItemGroup>
+    <PackageReference Include="Godot.SourceGenerators" Version="4.5.1" PrivateAssets="all" />
     <Compile Include="src/**/*.cs" />
     <Compile Remove="src/Tests/**/*.cs" />
     <Compile Remove="src/Tooling/**/*.cs" />
