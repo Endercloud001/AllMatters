@@ -58,6 +58,8 @@ internal static class JigsawNativeTests
       ("Jigsaw native manual map reaches actual Ancient and first room checkpoint", FullFirstRoom),
       ("Jigsaw native treasure rewards complete before map checkpoint", CompletedTreasure),
       ("Jigsaw native partial Ancient restores complete prereward player and map", PartialAncient),
+      ("Jigsaw native legacy completed Ancient save explores without replay", ()=>FirstRoomFlow(false,finishedAncient:true,legacyAncient:true)),
+      ("Jigsaw native map covers previous room until destination ready", ()=>FirstRoomFlow(false,transition:true)),
       ("Jigsaw native actual Ancient reward callback rolls back then replays once", ()=>FirstRoomFlow(false, actualPartial:true)),
       ("Jigsaw native failed real room load retries same destination and content once", ()=>FirstRoomFlow(false, entryFailure:EntryFailureKind.BeforeReady)),
       ("Jigsaw native failed room save and repeated restored failure retain entry", ()=>FirstRoomFlow(false, entryFailure:EntryFailureKind.RestoredBeforeReady)),
@@ -460,7 +462,7 @@ internal static class JigsawNativeTests
         finally { RunManager.Instance.CleanUp(false); }
     }
 
-    private static async Task FirstRoomFlow(bool completeTreasure,bool partialAncient=false,bool finishedAncient=false,bool actualPartial=false,EntryFailureKind entryFailure=EntryFailureKind.None)
+    private static async Task FirstRoomFlow(bool completeTreasure,bool partialAncient=false,bool finishedAncient=false,bool actualPartial=false,EntryFailureKind entryFailure=EntryFailureKind.None,bool transition=false,bool legacyAncient=false)
     {
         using var atlases=HeadlessTestSetup.LoadAtlases("card_atlas","relic_atlas");
         using var eventScope=HeadlessCombatInProgress.EnterEvent();
@@ -535,7 +537,7 @@ internal static class JigsawNativeTests
             );
             using(MegaCrit.Sts2.Core.Commands.CardSelectCmd.UseSelector(new NativeEventTests.Select(native.Players[0].Deck.Cards.First()))) await option.Chosen();
             JigsawAncientRewardBoundaryHost.BeforeDone = null;
-            Require(ancient.IsFinished && session.AncientReady,"Real native option completion, rather than a direct domain completion call, authorizes Continue.");
+            Require(ancient.IsFinished && session.AncientReady && map.Phase==JigsawPhase.Exploring,"Real native option completion directly begins exploration without a Continue click.");
             if (actualPartial)
             {
                 Require(interrupted != null, "The real Ancient Done callback exposes the partial reward checkpoint.");
@@ -562,31 +564,53 @@ internal static class JigsawNativeTests
                 // This run's newly-discovered list can differ after rollback/reselection.
                 Require(expected.Remove("discovered_relics") && actual.Remove("discovered_relics"), "Compare the actual native discovery field separately.");
                 Require(MegaCrit.Sts2.Core.Saves.SaveManager.Instance.IsRelicSeen(option.Relic!), "Native profile discovery survives reward rollback.");
-                Require(recovered.AncientReady && JsonNode.DeepEquals(expected, actual),
+                Require(recovered.AncientReady && recovered.Map!.Phase==JigsawPhase.Exploring && JsonNode.DeepEquals(expected, actual),
                     "Replaying the real choice applies all remaining native player effects exactly once.");
                 return;
             }
             if(finishedAncient)
             {
                 string expectedPlayer=System.Text.Json.JsonSerializer.Serialize(native.Players[0].ToSerializable());
-                await JigsawNativeSaveHost.Save(native.CurrentRoom);
+                if(legacyAncient)
+                {
+                    // Serialize a genuine completed native event with the old logical phase.
+                    var legacy=RunManager.Instance.ToSave(native.CurrentRoom);
+                    JigsawCheckpoint.Slot.Set(native,new(){Version=1,Act=native.CurrentActIndex,Map=map.CreateSave() with {Phase=JigsawPhase.Ancient}});
+                    JigsawSaveSource.CaptureDocument(legacy,native);
+                    await manager.SaveRun(legacy,false);
+                }
+                else await JigsawNativeSaveHost.Save(native.CurrentRoom);
                 var finished=manager.LoadRunSave();
                 Require(finished.Success && finished.SaveData!=null,"Finished Ancient checkpoint parses.");
                 RunManager.Instance.CleanUp(false);
                 var finishedRun=RunState.FromSerializable(finished.SaveData!);
+                Require(JigsawCheckpoint.Slot.TryGet(finishedRun,out var savedPhase) && savedPhase.Map?.Phase==(legacyAncient?JigsawPhase.Ancient:JigsawPhase.Exploring),"The fixture retains its actual legacy/new saved phase before normalization is persisted.");
                 await RunManager.Instance.SetUpSavedSingleplayer(finishedRun,finished.SaveData!);
                 MegaCrit.Sts2.Core.Context.LocalContext.NetId=finishedRun.Players[0].NetId;
                 await RunManager.Instance.GenerateMap();
                 await RunManager.Instance.LoadIntoLatestMapCoord(null);
                 var finishedSession=JigsawNativeSession.Current!;
-                Require(finishedSession.AncientReady && finishedSession.Map?.Phase==JigsawPhase.Ancient && System.Text.Json.JsonSerializer.Serialize(finishedRun.Players[0].ToSerializable())==expectedPlayer,"Actual finished Ancient restore keeps native rewards and does not replay them.");
+                Require(finishedSession.AncientReady && finishedSession.Map?.Phase==JigsawPhase.Exploring && System.Text.Json.JsonSerializer.Serialize(finishedRun.Players[0].ToSerializable())==expectedPlayer,"Actual finished Ancient restore keeps native rewards and does not replay them.");
                 Require(finishedRun.CurrentRoom is not EventRoom finishedEvent || finishedEvent.LocalMutableEvent.IsFinished,"Finished Ancient restore cannot expose fresh reward choices.");
-                await finishedSession.Continue();
-                Require(finishedSession.Map?.Phase==JigsawPhase.Exploring,"Restored Ancient rewards require a fresh Continue then allow exploration.");
                 return;
             }
-            await session.Continue();
-            Require(map.Phase==JigsawPhase.Exploring && map.Steps==0,"Continue begins exploration without charging Ancient.");
+            Require(map.Phase==JigsawPhase.Exploring && map.Steps==0,"Reward completion begins exploration without charging Ancient.");
+            if(transition)
+            {
+                using var uiAtlases=HeadlessTestSetup.LoadAtlases("ui_atlas","compressed");
+                var view=session.CreateScreen(new AllMatters.Jigsaw.Presentation.MemoryJigsawTutorialProfile{Sentence=6});
+                try
+                {
+                    await HeadlessUiHost.Mount(view);
+                    Require(!view.FindChildren("*","Button",true,false).OfType<Godot.Button>().Any(b=>b.Text=="继续前行"&&b.IsVisibleInTree()),"Reward completion hides Continue in the production screen.");
+                    bool observed=false;
+                    JigsawEntryFailureHost.Loading=()=>{observed=true;Require(view.IsVisibleInTree(),"The puzzle map must cover the old background while the next native room loads.");};
+                    await session.Enter(map.AvailableDestinations.First());
+                    Require(observed && !view.IsVisibleInTree() && map.Steps==1,"The map uncovers the ready destination and charges exactly one step.");
+                }
+                finally {JigsawEntryFailureHost.Loading=null;view.Free();}
+                return;
+            }
             if (entryFailure is not (EntryFailureKind.None or EntryFailureKind.AfterCompletedAbandon))
             {
                 bool early = entryFailure is EntryFailureKind.BeforeSave or EntryFailureKind.AbandonBeforeSave;
@@ -987,12 +1011,14 @@ internal static class JigsawDelayedIoHost
 [HarmonyPatch(typeof(TreasureRoom), nameof(TreasureRoom.EnterInternal))]
 internal static class JigsawEntryFailureHost
 {
+    internal static Action? Loading;
     internal static bool Early;
     internal static bool Fail;
     internal static bool Late;
     internal static string[]? Relics;
     private static void Postfix(ref Task __result)
     {
+        Loading?.Invoke();
         if (Late) { Late = false; __result = InstallLateFailure(__result); return; }
         if (!Fail) return;
         Fail = false;
@@ -1010,7 +1036,7 @@ internal static class JigsawEntryFailureHost
     }
     internal static void Reset()
     {
-        Early = Fail = Late = false; Relics = null;
+        Early = Fail = Late = false; Relics = null; Loading = null;
         RunManager.Instance.RoomEntered -= ThrowAfterReady;
     }
     private static async Task FailAfterContents(Task original)

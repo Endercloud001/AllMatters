@@ -81,6 +81,7 @@ public sealed class JigsawNativeSession
         var session = Enable(native);
         session.act = data.Act;
         session.Map = JigsawRun.Restore(data.Map);
+        session.BeginExploration();
         if (session.Map.PendingEntry != null && checkpoint != null) session.entryCheckpoint = JigsawSaveSource.Copy(checkpoint);
     }
 
@@ -299,7 +300,16 @@ public sealed class JigsawNativeSession
         if (Map?.Phase != JigsawPhase.Ancient) return;
         Map.CompleteAncient(Native.Players[0].NetId);
         BeforeAncient = null;
+        BeginExploration();
         JigsawCheckpoint.Capture(Native, Map);
+    }
+
+    // Native reward completion owns this transition so its normal save already
+    // contains exploration. Also accepts completed Ancient saves from older builds.
+    private void BeginExploration()
+    {
+        if (Map?.Phase == JigsawPhase.Ancient && AncientReady)
+            Map.Continue(Native.Players[0].NetId);
     }
 
     public async Task Continue()
@@ -375,7 +385,9 @@ public sealed class JigsawNativeSession
             destination.Room);
         Native.Map = projection.Map;
         JigsawCheckpoint.Capture(Native, Map);
-        HideMap();
+        // Keep the opaque map over the previous room until native has mounted
+        // the destination. Hiding it before EnterMapCoord exposed stale scenery.
+        if (GodotObject.IsInstanceValid(screen)) screen?.SetProcessInput(false);
         bool ready = false;
         AbstractRoom? previous = Native.CurrentRoom;
         void RoomReady()
@@ -385,6 +397,7 @@ public sealed class JigsawNativeSession
             {
                 // The real native post-EnterInternal event is the confirmation seam.
                 ready = Map.ConfirmEnter(attempt.Id).Success;
+                if (ready) HideMap();
             }
         }
         RunManager.Instance.RoomEntered += RoomReady;
@@ -401,7 +414,11 @@ public sealed class JigsawNativeSession
             if (Current == this) { entryFailed = !ready; ShowMap(); }
             throw;
         }
-        finally { RunManager.Instance.RoomEntered -= RoomReady; }
+        finally
+        {
+            RunManager.Instance.RoomEntered -= RoomReady;
+            if (Current == this && GodotObject.IsInstanceValid(screen)) screen?.SetProcessInput(!paused);
+        }
     }
 
     internal void CapturePendingEntry(SerializableRun checkpoint)

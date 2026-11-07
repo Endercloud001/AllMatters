@@ -316,6 +316,8 @@ internal static class JigsawPresentationTests
   map.Take(1,0); map.Drop(1,new(3,0)); map.AddEdge(1,0,1); map.ChooseEnd(1,EndChoice.Manual); map.Inspect();map.CompleteAncient(1);map.Continue(1);
   var view=View(map,new(){Sentence=6});try {await HeadlessUiHost.Mount(view);
   Require(!view.PoolControl.Visible,"The exploration map must not retain the editor piece pool.");
+  Require(!view.FindChildren("*","Button",true,false).OfType<Button>().Any(b=>b.Text=="继续前行"&&b.IsVisibleInTree()),"Exploration has no redundant Continue button.");
+  Require(!view.FindChildren("*","Label",true,false).OfType<Label>().Any(l=>l.Text.Contains("你的愿望实现了")&&l.IsVisibleInTree()),"Exploration hides the completed Ancient dialogue.");
   } finally {view.Free();}
  }
  private static Task RetryInput()=>EntryActionInput(false);
