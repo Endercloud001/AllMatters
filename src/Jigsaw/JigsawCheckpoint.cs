@@ -59,6 +59,10 @@ internal static class JigsawSaveSource
         sources.Add(save, new(content, hasJigsaw || marked));
     }
 
+    internal static bool IsJigsaw(SerializableRun save) =>
+        save.Modifiers.Any(m=>m.Id==ModelDb.Modifier<AllMattersJigsawMode>().Id) ||
+        sources.TryGetValue(save,out var source) && source.IsJigsaw;
+
     public static void Attach(SerializableRun save)
     {
         if (sources.TryGetValue(save, out var source) && source.IsJigsaw)

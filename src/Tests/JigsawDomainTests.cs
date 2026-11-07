@@ -15,6 +15,7 @@ internal static class JigsawDomainTests
         ("Jigsaw domain reset clears editing transients and preserves exact pool", Reset),
         ("Jigsaw domain failed inspection retracts isolated pieces and clears votes", FailedInspection),
         ("Jigsaw domain exploration waits for success and counts each entry once", Exploration),
+        ("Jigsaw domain absent Ancient recipient survives checkpoint restore", AbsentRecipient),
         ("Jigsaw domain save copy cancels preview without mutating live holding", Save),
         ("Jigsaw domain restore rejects malformed pool layout and exploration state", InvalidSave),
     ];
@@ -174,6 +175,29 @@ internal static class JigsawDomainTests
         ((JigsawPieceNode[])save.Pool[0].Nodes)[0] = new JigsawPieceNode(999,new(0,0),JigsawRoom.Rest);
         Check(run.Pool[0].Nodes[0].Id==1,"Save DTO has its own collection copy."); return Task.CompletedTask;
     }
+    private static Task AbsentRecipient()
+    {
+        var run=JigsawRun.Create(74,players:[1UL,2UL]);Place(run,0,3,0);Ok(run.AddEdge(1,0,1));
+        Ok(run.ChooseEnd(1,EndChoice.Manual));Ok(run.ChooseEnd(2,EndChoice.Manual));Ok(run.Inspect());
+        Ok(run.CompleteAncient(2));run.Disconnect(2);
+        var saved=run.CreateSave();var restored=JigsawRun.Restore(saved);
+        Check(saved.OriginalPlayers!.Order().SequenceEqual(new[]{1UL,2UL}),"Disconnect preserves the original saved roster.");
+        Check(saved.Players.SequenceEqual(new[]{1UL})&&restored.CreateSave().AncientCompleted.Contains(2UL),"The inactive recipient is excluded from current decisions but keeps saved completion.");
+        Check(!restored.CompleteAncient(2).Success,"An absent original player cannot submit a live completion.");
+        var rejoined=JigsawRun.Restore(saved,[1UL,2UL]);
+        Check(rejoined.ActivePlayers.Order().SequenceEqual(new[]{1UL,2UL})&&rejoined.CreateSave().AncientCompleted.Contains(2UL),"A new lobby session reselects active original players without replaying completed rewards.");
+        Ok(rejoined.CompleteAncient(1));Ok(rejoined.Continue(1));
+        Check(rejoined.Phase==JigsawPhase.Ancient,"A rejoined original participant must submit a fresh continuation.");
+        Ok(rejoined.Continue(2));Check(rejoined.Phase==JigsawPhase.Exploring,"The rejoined roster can finish continuation without another reward completion.");
+        bool stranger=false;try {JigsawRun.Restore(saved,[1UL,3UL]);}catch(ArgumentException){stranger=true;}
+        Check(stranger,"A new player cannot take over an absent saved role.");
+        var legacy=Ready().CreateSave() with {OriginalPlayers=null};
+        Check(JigsawRun.Restore(legacy).OriginalPlayers.SequenceEqual(new[]{1UL}),"Old single-player checkpoints retain their saved roster without migration guesses.");
+        Ok(restored.CompleteAncient(1));Ok(restored.Continue(1));
+        Check(restored.Phase==JigsawPhase.Exploring&&restored.Steps==0,"Only currently active players are required to continue.");
+        return Task.CompletedTask;
+    }
+
     private static Task InvalidSave()
     {
         var save=JigsawRun.Create(74).CreateSave();

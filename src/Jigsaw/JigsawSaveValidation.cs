@@ -52,7 +52,8 @@ internal static class JigsawSaveValidation
         Require(save.Visited.Contains(0) && save.Completed.Contains(0) && save.Visited.All(placedIds.Contains) && save.Completed.All(save.Visited.Contains),"Invalid explored node IDs.");
         Require(save.Visited.Distinct().Count()==save.Visited.Length && save.Completed.Distinct().Count()==save.Completed.Length && save.FirstProgress==save.Visited.Length-1,"Invalid first-entry progress.");
         Require(save.ExternalEdges.All(e=>!e.Internal),"External edge collection cannot contain internal paths.");
-        Require(save.Players.Distinct().Count()==save.Players.Length && save.AncientCompleted.All(save.Players.Contains),"Invalid player completion.");
+        var originals=save.OriginalPlayers??save.Players;
+        Require(originals.Distinct().Count()==originals.Length && save.Players.Distinct().Count()==save.Players.Length && save.Players.All(originals.Contains) && save.AncientCompleted.All(originals.Contains),"Invalid player completion.");
         Require(save.CurrentNode==null || save.Phase==JigsawPhase.Exploring && save.Visited.Contains(save.CurrentNode.Value) && save.CurrentNode!=0,"Invalid active room.");
         Require(save.PendingEntry==null || save.Phase==JigsawPhase.Exploring && save.CurrentNode==null && placedIds.Contains(save.PendingEntry.NodeId) && save.PendingEntry.NodeId!=0 && save.PendingEntry.Id>0 && save.PendingEntry.Id==save.NextEntry,"Invalid pending entry.");
         if(save.Phase==JigsawPhase.Exploring) Require(save.Players.All(save.AncientCompleted.Contains),"Exploration requires complete Ancient rewards.");

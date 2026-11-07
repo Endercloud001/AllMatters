@@ -12,6 +12,78 @@ using System.Text.Json.Nodes;
 
 internal static class JigsawNativeTests
 {
+    private static async Task CanonicalLobby(bool twoPlayers=false,bool invalidRoster=false)
+    {
+        var participants=Enumerable.Range(1,twoPlayers?2:1).Select(id=>MegaCrit.Sts2.Core.Entities.Players.Player.CreateForNewRun(ModelDb.Character<MegaCrit.Sts2.Core.Models.Characters.Ironclad>(),MegaCrit.Sts2.Core.Unlocks.UnlockState.all,(ulong)id)).ToArray();
+        var native=RunState.CreateForTest(players:participants,acts:[ModelDb.Act<Overgrowth>()],seed:"LOBBY_CHECKPOINT_76");
+        RunManager.Instance.SetUpTest(native,new NetSingleplayerGameService());
+        var io=new MockGodotFileIo("jigsaw-lobby-memory-only");
+        var manager=new RunSaveManager(76,io,new MigrationManager(io),forceSynchronous:true);
+        try
+        {
+            RunManager.Instance.GenerateRooms();await RunManager.Instance.GenerateMap();
+            JigsawRun map;
+            if(twoPlayers)map=JigsawRun.Create(76,players:invalidRoster?[1UL,3UL]:participants.Select(p=>p.NetId));
+            else {var session=JigsawNativeSession.Enable(native);await session.StartAct();map=session.Map!;}
+            Require(map.Take(1,0).Success&&map.Drop(1,new(3,0)).Success,"Prepare accepted layout for native lobby canonicalization.");
+            if(twoPlayers)
+            {
+                map.Disconnect(2);
+                await MegaCrit.Sts2.Core.Commands.PlayerCmd.GainGold(27,native.Players[1]);
+            }
+            if(!twoPlayers)map.Disconnect(1); // The next session must not inherit the old connected set.
+            JigsawCheckpoint.Capture(native,map);
+            var initial=RunManager.Instance.ToSave(null);
+            var identity=ModelDb.Modifier<AllMattersJigsawMode>();
+            if(!initial.Modifiers.Any(m=>m.Id==identity.Id))initial.Modifiers.Add(identity.ToMutable().ToSerializable());
+            JigsawSaveSource.CaptureDocument(initial,native);
+            await manager.SaveRun(initial,true);
+            string savePath=RunSaveManager.GetRunSavePath(76,"current_run_mp.save");
+            var expectedExtension=JsonNode.Parse(io.ReadFile(savePath))!["_ritsulib"]!.DeepClone();
+            var loaded=manager.LoadAndCanonicalizeMultiplayerRunSave(1);
+            if(invalidRoster)
+            {
+                Require(!loaded.Success,"A checkpoint naming a player outside the native saved roster is rejected during lobby canonicalization.");
+                return;
+            }
+            Require(loaded.Success&&loaded.SaveData!=null,"The native multiplayer save canonicalization succeeds.");
+            var canonical=loaded.SaveData!;
+            Require(canonical.Modifiers.Any(m=>m.Id==ModelDb.Modifier<AllMattersJigsawMode>().Id),"Lobby canonicalization retains the jigsaw identity so missing extension data cannot become an ordinary run.");
+            var outgoing=new MegaCrit.Sts2.Core.Multiplayer.Messages.Lobby.ClientLoadJoinResponseMessage {serializableRun=canonical,playersAlreadyConnected=[]};
+            var writer=new MegaCrit.Sts2.Core.Multiplayer.Serialization.PacketWriter();outgoing.Serialize(writer);
+            var reader=new MegaCrit.Sts2.Core.Multiplayer.Serialization.PacketReader();reader.Reset(writer.Buffer);
+            var incoming=new MegaCrit.Sts2.Core.Multiplayer.Messages.Lobby.ClientLoadJoinResponseMessage();incoming.Deserialize(reader);
+            await manager.SaveRun(incoming.serializableRun,true);
+            var receivedJson=JsonNode.Parse(io.ReadFile(savePath))!;
+            Require(JsonNode.DeepEquals(expectedExtension,receivedJson["_ritsulib"]),"The real lobby response and native writer preserve the entire shared extension document.");
+            Require(incoming.serializableRun.Players.Count==participants.Length,"The lobby packet retains every original saved character.");
+            foreach(var originalPlayer in native.Players)
+            {
+            // Compare with native's player packet roundtrip, including its own
+            // unlock-set ordering and packed run-count representation.
+            var playerWriter=new MegaCrit.Sts2.Core.Multiplayer.Serialization.PacketWriter();playerWriter.Write(originalPlayer.ToSerializable());
+            var playerReader=new MegaCrit.Sts2.Core.Multiplayer.Serialization.PacketReader();playerReader.Reset(playerWriter.Buffer);
+            var expectedPlayer=playerReader.Read<MegaCrit.Sts2.Core.Saves.Runs.SerializablePlayer>();
+            var beforePlayer=JsonNode.Parse(System.Text.Json.JsonSerializer.Serialize(expectedPlayer))!.AsObject();
+            var afterPlayer=JsonNode.Parse(System.Text.Json.JsonSerializer.Serialize(incoming.serializableRun.Players.Single(p=>p.NetId==originalPlayer.NetId)))!.AsObject();
+            Require(JsonNode.DeepEquals(beforePlayer,afterPlayer),"Native lobby canonicalization preserves actual player contents.");
+            }
+            if(!twoPlayers)
+            {
+                var resumed=RunState.FromSerializable(incoming.serializableRun);
+                Require(JigsawNativeSession.Enable(resumed).Map!.Take(1,1).Success,"A new native single-player session restores its current original player instead of inheriting the prior session's disconnected roster.");
+            }
+            if(twoPlayers)
+            {
+                bool invalidOwner=false;try {RunManager.CanonicalizeSave(canonical,999);}catch(InvalidOperationException){invalidOwner=true;}
+                Require(invalidOwner,"Native canonicalization rejects callers outside the original save roster.");
+                bool gated=false;try {RunState.FromSerializable(incoming.serializableRun);}catch(InvalidOperationException e) when(e.Message.Contains("仅用于单人")){gated=true;}
+                Require(gated,"Lobby-only validation cannot leak into unsupported multiplayer gameplay activation after success or failure.");
+            }
+        }
+        finally {RunManager.Instance.CleanUp(false);}
+    }
+
     private static Task SettingsAndNeow()
     {
         bool original=JigsawPreferences.Enabled;
@@ -36,7 +108,11 @@ internal static class JigsawNativeTests
     }
     private enum EntryFailureKind { None, BeforeReady, RestoredBeforeReady, AfterReady, RetryAfterReady, BeforeSave, Abandon, AbandonBeforeSave, AbandonRestored, AbandonWriteFailure, AfterCompletedAbandon }
     public static readonly (string Name, Func<Task> Test)[] Cases =
-    [ ("Jigsaw native settings own new runs and exclude Neow boots", SettingsAndNeow),
+    [ ("Jigsaw native known lobby document rejects lost identity and incomplete data", ()=>MissingModeData("Budget",identityLost:true)),
+      ("Jigsaw native lobby canonicalization and response preserve checkpoint", ()=>CanonicalLobby()),
+      ("Jigsaw native lobby rejects a substituted saved player", ()=>CanonicalLobby(true,true)),
+      ("Jigsaw native two-player lobby canonicalization preserves full save", ()=>CanonicalLobby(true)),
+      ("Jigsaw native settings own new runs and exclude Neow boots", SettingsAndNeow),
       ("Jigsaw native profile and progress schemas stay independent", IndependentSaveSchemas),
       ("Jigsaw native saves serialize pending native writes and exit waits latest", SerializedWrites),
       ("Jigsaw native queued successful save recovers prior write failure", ()=>SerializedWrites(true)),
@@ -363,7 +439,7 @@ internal static class JigsawNativeTests
         await MissingModeData("Version", header: true, unsupportedVersion: true);
     }
 
-    private static async Task MissingModeData(string? missingField=null, bool header=false, bool unsupportedVersion=false)
+    private static async Task MissingModeData(string? missingField=null, bool header=false, bool unsupportedVersion=false,bool identityLost=false)
     {
         var native=RunState.CreateForTest(players:[MegaCrit.Sts2.Core.Entities.Players.Player.CreateForNewRun(
             ModelDb.Character<MegaCrit.Sts2.Core.Models.Characters.Ironclad>(),MegaCrit.Sts2.Core.Unlocks.UnlockState.all,1)],
@@ -401,6 +477,11 @@ internal static class JigsawNativeTests
                 return removed;
             }
             Require(RemoveJigsaw(json),"Preparation must remove the actual jigsaw extension entry from a real native save.");
+            if(identityLost)
+            {
+                Require(json["modifiers"]!.AsArray().Count==1,"The fixture has only the saved jigsaw identity to remove.");
+                json["modifiers"]=new JsonArray();
+            }
             io.SetFileContent(path,json.ToJsonString());
             var loaded=manager.LoadRunSave();
             Require(loaded.Success && loaded.SaveData!=null,"A missing extension still leaves structurally valid native JSON.");
