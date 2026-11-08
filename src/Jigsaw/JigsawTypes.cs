@@ -60,5 +60,6 @@ public sealed record JigsawSave(
     public JigsawLayout? AutomaticWitness { get; init; }
     public JigsawAutomaticOperation? AutomaticOperation { get; init; }
     [JsonRequired] public ulong GenerationRandomState { get; init; } = 1;
+    public Dictionary<string, object>? ShopStates { get; init; }
 }
 public sealed record JigsawAutomaticOperation(string Algorithm, int ExpansionBudget, int[] CandidateOrder, ulong RandomState);

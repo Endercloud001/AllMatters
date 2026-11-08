@@ -25,6 +25,7 @@ internal static class JigsawDomainTests
         ("Jigsaw domain movement respects adjacency and forbids unexplored crossings", MovementBoundaries),
         ("Jigsaw domain multi-player completion requires all entries confirmed", MultiPlayerCompletion),
         ("Jigsaw domain save and restore preserve visit history without duplication", SaveRestoreVisitHistory),
+        ("Jigsaw domain shop inventory tracks per node and player across revisits", ShopInventoryTracking),
     ];
     private static void Check(bool value,string text) => NativeEventTests.Check(value,text);
     private static Task AutomaticWitness()
@@ -425,6 +426,58 @@ internal static class JigsawDomainTests
         Ok(restored.CompleteRoom(e2.Id));
         var e4 = restored.BeginEnter(13)!; Ok(restored.ConfirmEnter(e4.Id));
         Check(restored.Steps == 3 && restored.FirstProgress == 3, "New node after restore increments FirstProgress.");
+
+        return Task.CompletedTask;
+    }
+
+    private static Task ShopInventoryTracking()
+    {
+        // Test: Shop inventory tracked per node and player, persists across save/restore
+        var piece1 = Piece(1, (0,0,JigsawRoom.Shop), (1,0,JigsawRoom.Shop));
+        var piece2 = Piece(2, (0,0,JigsawRoom.Combat));
+        var run = Fixture(piece1, piece2);
+        Place(run, 1, 3, 0); Place(run, 2, 5, 0);
+        Ok(run.AddEdge(1, 0, 11)); Ok(run.AddEdge(1, 12, 21));
+        Ok(run.ChooseEnd(1, EndChoice.Manual)); Ok(run.ChooseEnd(2, EndChoice.Manual));
+        Ok(run.Inspect());
+
+        Ok(run.CompleteAncient(1)); Ok(run.CompleteAncient(2));
+        Ok(run.Continue(1)); Ok(run.Continue(2));
+
+        // Enter first shop for player 1
+        var shop1Player1 = run.BeginEnter(11)!;
+        Ok(run.ConfirmEnter(shop1Player1.Id));
+
+        // Mark that player 1 has inventory state for shop node 11
+        run.RecordShopState(11, 1, new { Item = "Potion", Price = 50 });
+        Check(run.GetShopState(11, 1) != null, "Shop state recorded for player 1 at node 11.");
+
+        Ok(run.CompleteRoom(shop1Player1.Id));
+
+        // Enter second shop for player 1
+        var shop2Player1 = run.BeginEnter(12)!;
+        Ok(run.ConfirmEnter(shop2Player1.Id));
+
+        // Different inventory for second shop
+        run.RecordShopState(12, 1, new { Item = "Relic", Price = 150 });
+        Check(run.GetShopState(12, 1) != null, "Shop state recorded for player 1 at node 12.");
+        Check(run.GetShopState(11, 1) != null, "Previous shop state preserved.");
+
+        Ok(run.CompleteRoom(shop2Player1.Id));
+
+        // Revisit first shop - inventory should be retrievable
+        var revisitShop1 = run.BeginEnter(11)!;
+        Ok(run.ConfirmEnter(revisitShop1.Id));
+        Check(run.GetShopState(11, 1) != null, "Shop state retrieved on revisit.");
+        Ok(run.CompleteRoom(revisitShop1.Id));
+
+        // Save and restore
+        var save = run.CreateSave();
+        var restored = JigsawRun.Restore(save);
+
+        Check(restored.GetShopState(11, 1) != null, "Shop state for node 11 player 1 restored.");
+        Check(restored.GetShopState(12, 1) != null, "Shop state for node 12 player 1 restored.");
+        Check(restored.GetShopState(11, 2) == null, "No shop state for player 2 at node 11.");
 
         return Task.CompletedTask;
     }

@@ -15,6 +15,7 @@ public sealed class JigsawRun
     public IReadOnlyCollection<ulong> ActivePlayers => players.ToArray();
     private readonly HashSet<ulong> ancientCompleted = [], continued = [];
     private readonly HashSet<int> visited = [0], completed = [0];
+    private readonly Dictionary<(int nodeId, ulong playerId), object> shopStates = [];
     private long nextEntry;
     private long? currentEntry;
     public JigsawLayout? AutomaticWitness { get; private set; }
@@ -388,7 +389,15 @@ public sealed class JigsawRun
         currentEntry = null;
         return JigsawResult.Ok;
     }
-    public JigsawSave CreateSave() => new(Pool.Select(p => p with { Nodes = p.Nodes.ToArray(), InternalEdges = p.InternalEdges.ToArray() }).ToArray(), placements.Values.ToArray(), external.ToArray(), Phase, Budget, players.ToArray(), Steps, FirstProgress, visited.ToArray(), completed.ToArray(), CurrentNode, PendingEntry, nextEntry, ancientCompleted.ToArray()) { OriginalPlayers = originalPlayers.ToArray(), AutomaticWitness = AutomaticWitness is { } witness ? new(witness.Placements.ToArray(), witness.Edges.ToArray()) : null, AutomaticOperation = AutomaticOperation is { } operation ? operation with { CandidateOrder = operation.CandidateOrder.ToArray() } : null, GenerationRandomState = generationRandomState };
+    public void RecordShopState(int nodeId, ulong playerId, object state)
+    {
+        shopStates[(nodeId, playerId)] = state;
+    }
+    public object? GetShopState(int nodeId, ulong playerId)
+    {
+        return shopStates.TryGetValue((nodeId, playerId), out var state) ? state : null;
+    }
+    public JigsawSave CreateSave() => new(Pool.Select(p => p with { Nodes = p.Nodes.ToArray(), InternalEdges = p.InternalEdges.ToArray() }).ToArray(), placements.Values.ToArray(), external.ToArray(), Phase, Budget, players.ToArray(), Steps, FirstProgress, visited.ToArray(), completed.ToArray(), CurrentNode, PendingEntry, nextEntry, ancientCompleted.ToArray()) { OriginalPlayers = originalPlayers.ToArray(), AutomaticWitness = AutomaticWitness is { } witness ? new(witness.Placements.ToArray(), witness.Edges.ToArray()) : null, AutomaticOperation = AutomaticOperation is { } operation ? operation with { CandidateOrder = operation.CandidateOrder.ToArray() } : null, GenerationRandomState = generationRandomState, ShopStates = shopStates.Count > 0 ? shopStates.ToDictionary(kv => $"{kv.Key.nodeId}_{kv.Key.playerId}", kv => kv.Value) : null };
     public static JigsawRun Restore(JigsawSave save, IEnumerable<ulong>? activePlayers = null)
     {
         JigsawSaveValidation.Validate(save);
@@ -405,6 +414,15 @@ public sealed class JigsawRun
         run.visited.UnionWith(save.Visited);
         run.completed.UnionWith(save.Completed);
         run.ancientCompleted.UnionWith(save.AncientCompleted);
+        if (save.ShopStates != null)
+        {
+            foreach (var kv in save.ShopStates)
+            {
+                var parts = kv.Key.Split('_');
+                if (parts.Length == 2 && int.TryParse(parts[0], out var nodeId) && ulong.TryParse(parts[1], out var playerId))
+                    run.shopStates[(nodeId, playerId)] = kv.Value;
+            }
+        }
         var valid = JigsawGeometry.Validate(run.Nodes, run.Edges);
         if (!valid.Success)
             throw new ArgumentException(valid.Reason, nameof(save));
