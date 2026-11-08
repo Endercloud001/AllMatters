@@ -68,8 +68,8 @@ internal static class NativeSelfHelpBook
     private static async Task Read(SelfHelpBook model, Reading reading)
     {
         var selected = await CardSelectCmd.FromDeckForEnchantment(model.Owner!, reading.Enchantment, reading.Amount,
-            c => c.Type == reading.Type, new CardSelectorPrefs(CardSelectorPrefs.EnchantSelectionPrompt, 1));
-        foreach (var card in selected) CardCmd.Enchant(reading.Enchantment.ToMutable(), card, reading.Amount);
+            c => c!.Type == reading.Type, new CardSelectorPrefs(CardSelectorPrefs.EnchantSelectionPrompt, 1));
+        foreach (var card in selected) CardCmd.Enchant(reading.Enchantment!.ToMutable(), card, reading.Amount);
         NativeEventActions.Finish(model, "SELF_HELP_BOOK.pages." + reading.Key + ".description");
     }
 }

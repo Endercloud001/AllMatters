@@ -87,7 +87,7 @@ internal static class TrashHeapDive
         if (model.IsFinished) return;
         await NativeEventActions.LoseHp(model, model.DynamicVars.HpLoss.IntValue);
         if (!model.Owner!.Creature.IsDead)
-            await RelicCmd.Obtain(model.Rng.NextItem(TrashHeapCandidates.Relics(model.Owner)).ToMutable(), model.Owner);
+            await RelicCmd.Obtain(model.Rng!.NextItem(TrashHeapCandidates.Relics(model.Owner))!.ToMutable(), model.Owner);
         NativeEventActions.Finish(model, "TRASH_HEAP.pages.DIVE_IN.description");
     }
 }

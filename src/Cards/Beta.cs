@@ -21,7 +21,7 @@ public sealed class Beta : ModCardTemplate
     protected override IEnumerable<IHoverTip> AdditionalHoverTips => HoverTipFactory.FromCardWithCardHoverTips<Omega>();
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        var result = await CardPileCmd.AddGeneratedCardToCombat(CombatState.CreateCard<Omega>(Owner), PileType.Draw, Owner, CardPilePosition.Random);
+        var result = await CardPileCmd.AddGeneratedCardToCombat(CombatState!.CreateCard<Omega>(Owner), PileType.Draw, Owner, CardPilePosition.Random);
         CardCmd.PreviewCardPileAdd(result);
     }
     protected override void OnUpgrade() => EnergyCost.UpgradeBy(-1);

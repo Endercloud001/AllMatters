@@ -277,8 +277,8 @@ public sealed class JigsawNativeSession
     private void Pause()
     {
         SuspendForNativePause();
-        var menu = (NPauseMenu)NRun.Instance.GlobalUi.SubmenuStack.ShowScreen(CapstoneSubmenuType.PauseMenu);
-        menu.Initialize(Native);
+        var menu = (NPauseMenu?)NRun.Instance!.GlobalUi.SubmenuStack.ShowScreen(CapstoneSubmenuType.PauseMenu);
+        menu!.Initialize(Native);
     }
     internal void SuspendForNativePause()
     {
@@ -699,11 +699,11 @@ public sealed class JigsawNativeSession
         try
         {
             await RunManager.Instance.SetUpSavedSingleplayer(restored, checkpoint);
-            if (!TestMode.IsOn) await NGame.Instance.LoadRun(restored, null);
+            if (!TestMode.IsOn) await NGame.Instance!.LoadRun(restored, null);
             else
             {
                 // Existing isolated native host omits NGame's asset/scene ownership.
-                await RunManager.Instance.GenerateMap();
+                await RunManager.Instance.GenerateMap()!;
                 await RunManager.Instance.LoadIntoLatestMapCoord(null);
             }
         }
@@ -823,7 +823,7 @@ internal static class JigsawAncientCompletion
     private static void Prefix(EventModel eventModel)
     {
         if (eventModel is AncientEventModel && eventModel.IsFinished)
-            JigsawNativeSession.Current?.AncientFinished(eventModel.Owner.NetId);
+            JigsawNativeSession.Current?.AncientFinished(eventModel.Owner!.NetId);
     }
 }
 

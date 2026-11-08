@@ -36,7 +36,7 @@ internal sealed class JigsawNativeArt(ActModel? act)
  internal static Rect2 BossBounds(Node2D visual)
  {
   var sprite=visual.GetChild<Node2D>(0);
-  return sprite is Sprite2D image ? image.GetRect() : new MegaSprite(sprite).GetSkeleton().GetBounds();
+  return sprite is Sprite2D image ? image.GetRect() : new MegaSprite(sprite!).GetSkeleton()!.GetBounds();
  }
  internal static void FitBoss(Node2D visual,Vector2 center,float side)
  {
