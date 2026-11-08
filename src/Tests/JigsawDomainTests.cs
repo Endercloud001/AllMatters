@@ -25,6 +25,9 @@ internal static class JigsawDomainTests
         ("Jigsaw domain movement respects adjacency and forbids unexplored crossings", MovementBoundaries),
         ("Jigsaw domain multi-player completion requires all entries confirmed", MultiPlayerCompletion),
         ("Jigsaw domain save and restore preserve visit history without duplication", SaveRestoreVisitHistory),
+        ("Jigsaw domain act transition clears progress but preserves map and players", ActTransition),
+        ("Jigsaw domain dual boss requires first completion before second entry", DualBossSequence),
+        ("Jigsaw domain endgame detected at final boss node", EndgameDetection),
     ];
     private static void Check(bool value,string text) => NativeEventTests.Check(value,text);
     private static Task AutomaticWitness()
@@ -425,6 +428,150 @@ internal static class JigsawDomainTests
         Ok(restored.CompleteRoom(e2.Id));
         var e4 = restored.BeginEnter(13)!; Ok(restored.ConfirmEnter(e4.Id));
         Check(restored.Steps == 3 && restored.FirstProgress == 3, "New node after restore increments FirstProgress.");
+
+        return Task.CompletedTask;
+    }
+
+    private static Task ActTransition()
+    {
+        // Test: Act transition clears progress but preserves map
+        var run = JigsawRun.Create(74, budget: 15);
+        Place(run, 0, 3, 0);
+        Ok(run.AddEdge(1, 0, 1));
+        Ok(run.ChooseEnd(1, EndChoice.Manual));
+        Ok(run.Inspect());
+        Ok(run.CompleteAncient(1));
+        Ok(run.Continue(1));
+
+        // Complete some rooms
+        var e1 = run.BeginEnter(1)!;
+        Ok(run.ConfirmEnter(e1.Id));
+        Ok(run.CompleteRoom(e1.Id));
+        var e2 = run.BeginEnter(2)!;
+        Ok(run.ConfirmEnter(e2.Id));
+        Ok(run.CompleteRoom(e2.Id));
+
+        Check(run.Steps == 2 && run.FirstProgress == 2, "Progress tracked before transition.");
+        Check(run.Visited.Count == 3, "Visited includes Ancient and two rooms.");
+        Check(run.Completed.Count == 3, "Completed includes Ancient and two rooms.");
+
+        var placementsBefore = run.Placements.ToArray();
+        var edgesBefore = run.Edges.ToArray();
+        var playersBefore = run.ActivePlayers.ToArray();
+
+        // Transition to next act
+        Ok(run.TransitionToNextAct());
+
+        // Progress cleared
+        Check(run.Steps == 0, "Steps reset to zero.");
+        Check(run.FirstProgress == 0, "FirstProgress reset to zero.");
+        Check(run.Visited.SequenceEqual(new[] { 0 }), "Visited cleared except Ancient.");
+        Check(run.Completed.SequenceEqual(new[] { 0 }), "Completed cleared except Ancient.");
+        Check(run.CurrentNode == null, "CurrentNode cleared.");
+        Check(run.Phase == JigsawPhase.Ancient, "Phase returns to Ancient for new act rewards.");
+
+        // Map preserved
+        Check(run.Placements.SequenceEqual(placementsBefore), "Placements preserved.");
+        Check(run.Edges.SequenceEqual(edgesBefore), "Edges preserved.");
+        Check(run.ActivePlayers.SequenceEqual(playersBefore), "Players preserved.");
+        Check(run.Budget == 15, "Budget unchanged.");
+
+        return Task.CompletedTask;
+    }
+
+    private static Task DualBossSequence()
+    {
+        // Test: Dual boss requires first completion before second entry
+        var run = JigsawRun.Create(74, budget: 15, doubleBoss: true);
+
+        // Build a dual boss layout
+        Place(run, 0, 3, 0);
+        Place(run, 1, 6, 0);
+        Ok(run.AddEdge(1, 0, 1));
+        Ok(run.AddEdge(1, 0, 2));
+        Ok(run.ChooseEnd(1, EndChoice.Manual));
+        Ok(run.Inspect());
+
+        var boss = run.Nodes.Single(n => n.Room == JigsawRoom.Boss);
+        var secondBoss = run.Nodes.Single(n => n.Room == JigsawRoom.SecondBoss);
+
+        Ok(run.CompleteAncient(1));
+        Ok(run.Continue(1));
+
+        // Complete some rooms
+        var available = run.AvailableDestinations.ToArray();
+        var regularRoom = available.FirstOrDefault(id => run.Nodes.Single(n => n.Id == id).Room is not (JigsawRoom.Boss or JigsawRoom.SecondBoss));
+
+        if (regularRoom != 0)
+        {
+            var e1 = run.BeginEnter(regularRoom);
+            Ok(run.ConfirmEnter(e1!.Id));
+            Ok(run.CompleteRoom(e1.Id));
+        }
+
+        // Second boss should not be available before first boss completion
+        available = run.AvailableDestinations.ToArray();
+        Check(!available.Contains(secondBoss.Id), "Second boss not available before first boss completion.");
+
+        // Enter and complete first boss
+        if (available.Contains(boss.Id))
+        {
+            var bossEntry = run.BeginEnter(boss.Id);
+            Ok(run.ConfirmEnter(bossEntry!.Id));
+            Ok(run.CompleteRoom(bossEntry.Id));
+        }
+
+        // Now second boss should be available
+        available = run.AvailableDestinations.ToArray();
+        Check(available.Contains(secondBoss.Id), "Second boss available after first boss completion.");
+
+        return Task.CompletedTask;
+    }
+
+    private static Task EndgameDetection()
+    {
+        // Test: Endgame detected at final boss node
+
+        // Single boss layout
+        var run1 = JigsawRun.Create(74, budget: 15, doubleBoss: false);
+        Place(run1, 0, 3, 0);
+        Ok(run1.AddEdge(1, 0, 1));
+        Ok(run1.ChooseEnd(1, EndChoice.Manual));
+        Ok(run1.Inspect());
+        Ok(run1.CompleteAncient(1));
+        Ok(run1.Continue(1));
+
+        var boss1 = run1.Nodes.Single(n => n.Room == JigsawRoom.Boss);
+        Check(!run1.IsEndgame, "Not endgame before boss entry.");
+
+        var e1 = run1.BeginEnter(boss1.Id);
+        Ok(run1.ConfirmEnter(e1!.Id));
+        Check(run1.IsEndgame, "Endgame detected at boss node.");
+
+        // Dual boss layout
+        var run2 = JigsawRun.Create(75, budget: 15, doubleBoss: true);
+        Place(run2, 0, 3, 0);
+        Place(run2, 1, 6, 0);
+        Ok(run2.AddEdge(1, 0, 1));
+        Ok(run2.AddEdge(1, 0, 2));
+        Ok(run2.ChooseEnd(1, EndChoice.Manual));
+        Ok(run2.Inspect());
+        Ok(run2.CompleteAncient(1));
+        Ok(run2.Continue(1));
+
+        var boss2 = run2.Nodes.Single(n => n.Room == JigsawRoom.Boss);
+        var secondBoss = run2.Nodes.Single(n => n.Room == JigsawRoom.SecondBoss);
+
+        // Enter first boss
+        var e2 = run2.BeginEnter(boss2.Id);
+        Ok(run2.ConfirmEnter(e2!.Id));
+        Check(!run2.IsEndgame, "Not endgame at first boss in dual boss layout.");
+        Ok(run2.CompleteRoom(e2.Id));
+
+        // Enter second boss
+        var e3 = run2.BeginEnter(secondBoss.Id);
+        Ok(run2.ConfirmEnter(e3!.Id));
+        Check(run2.IsEndgame, "Endgame detected at second boss in dual boss layout.");
 
         return Task.CompletedTask;
     }
