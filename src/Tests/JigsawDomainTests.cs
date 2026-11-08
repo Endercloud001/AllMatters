@@ -26,6 +26,8 @@ internal static class JigsawDomainTests
         ("Jigsaw domain multi-player completion requires all entries confirmed", MultiPlayerCompletion),
         ("Jigsaw domain save and restore preserve visit history without duplication", SaveRestoreVisitHistory),
         ("Jigsaw domain shop inventory tracks per node and player across revisits", ShopInventoryTracking),
+        ("Jigsaw domain shop transaction checkpoint rolls back on exit without commit", ShopTransactionRollback),
+        ("Jigsaw domain shop transaction checkpoint commits on room completion", ShopTransactionCommit),
     ];
     private static void Check(bool value,string text) => NativeEventTests.Check(value,text);
     private static Task AutomaticWitness()
@@ -478,6 +480,111 @@ internal static class JigsawDomainTests
         Check(restored.GetShopState(11, 1) != null, "Shop state for node 11 player 1 restored.");
         Check(restored.GetShopState(12, 1) != null, "Shop state for node 12 player 1 restored.");
         Check(restored.GetShopState(11, 2) == null, "No shop state for player 2 at node 11.");
+
+        return Task.CompletedTask;
+    }
+
+    private static Task ShopTransactionRollback()
+    {
+        // Test: Transaction checkpoint rolls back on explicit rollback
+        var piece1 = Piece(1, (0,0,JigsawRoom.Shop));
+        var run = Fixture(piece1);
+        Place(run, 1, 3, 0);
+        Ok(run.AddEdge(1, 0, 11));
+        Ok(run.ChooseEnd(1, EndChoice.Manual)); Ok(run.ChooseEnd(2, EndChoice.Manual));
+        Ok(run.Inspect());
+
+        Ok(run.CompleteAncient(1)); Ok(run.CompleteAncient(2));
+        Ok(run.Continue(1)); Ok(run.Continue(2));
+
+        // Enter shop
+        var enter = run.BeginEnter(11)!;
+        Ok(run.ConfirmEnter(enter.Id));
+
+        // Create initial inventory
+        var initialInventory = new JigsawShopInventory(
+            [new JigsawShopCard("Strike", 0, false, null, 50)],
+            [new JigsawShopRelic("Lantern", 0, null, 150)],
+            0, true,
+            new Dictionary<string, int> { ["Strike"] = 50, ["Lantern"] = 150 },
+            new Dictionary<string, bool>(),
+            []);
+
+        run.RecordShopInventory(11, 1, initialInventory);
+
+        // Create checkpoint before transaction
+        run.CreateShopTransactionCheckpoint(11, 1);
+
+        // Modify inventory (simulate purchase)
+        var modifiedInventory = initialInventory with
+        {
+            SoldOut = new HashSet<string> { "Strike" },
+            PurgeUsedCount = 1
+        };
+        run.RecordShopInventory(11, 1, modifiedInventory);
+
+        // Rollback transaction (simulating exit during purchase)
+        run.RollbackShopTransaction();
+
+        // Verify inventory was restored to checkpoint
+        var restored = run.GetShopInventory(11, 1);
+        Check(restored != null && restored.PurgeUsedCount == 0, "Inventory rolled back to checkpoint state.");
+        Check(restored != null && !restored.SoldOut.Contains("Strike"), "Sold out state rolled back.");
+
+        Ok(run.CompleteRoom(enter.Id));
+        return Task.CompletedTask;
+    }
+
+    private static Task ShopTransactionCommit()
+    {
+        // Test: Transaction checkpoint commits on room completion
+        var piece1 = Piece(1, (0,0,JigsawRoom.Shop));
+        var run = Fixture(piece1);
+        Place(run, 1, 3, 0);
+        Ok(run.AddEdge(1, 0, 11));
+        Ok(run.ChooseEnd(1, EndChoice.Manual)); Ok(run.ChooseEnd(2, EndChoice.Manual));
+        Ok(run.Inspect());
+
+        Ok(run.CompleteAncient(1)); Ok(run.CompleteAncient(2));
+        Ok(run.Continue(1)); Ok(run.Continue(2));
+
+        // Enter shop
+        var enter = run.BeginEnter(11)!;
+        Ok(run.ConfirmEnter(enter.Id));
+
+        // Create initial inventory
+        var initialInventory = new JigsawShopInventory(
+            [new JigsawShopCard("Strike", 0, false, null, 50)],
+            [],
+            0, true,
+            new Dictionary<string, int> { ["Strike"] = 50 },
+            new Dictionary<string, bool>(),
+            []);
+
+        run.RecordShopInventory(11, 1, initialInventory);
+
+        // Create checkpoint
+        run.CreateShopTransactionCheckpoint(11, 1);
+
+        // Complete purchase
+        var afterPurchase = initialInventory with
+        {
+            SoldOut = new HashSet<string> { "Strike" }
+        };
+        run.RecordShopInventory(11, 1, afterPurchase);
+
+        // Complete room - should commit transaction
+        Ok(run.CompleteRoom(enter.Id));
+
+        // Verify inventory persisted after completion
+        var final = run.GetShopInventory(11, 1);
+        Check(final != null && final.SoldOut.Contains("Strike"), "Purchase committed on room completion.");
+
+        // Save and restore to verify persistence
+        var save = run.CreateSave();
+        var restored = JigsawRun.Restore(save);
+        var restoredInventory = restored.GetShopInventory(11, 1);
+        Check(restoredInventory != null && restoredInventory.SoldOut.Contains("Strike"), "Committed purchase persists across save/restore.");
 
         return Task.CompletedTask;
     }

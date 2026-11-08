@@ -63,3 +63,26 @@ public sealed record JigsawSave(
     public Dictionary<string, object>? ShopStates { get; init; }
 }
 public sealed record JigsawAutomaticOperation(string Algorithm, int ExpansionBudget, int[] CandidateOrder, ulong RandomState);
+
+// Shop inventory per player per node
+public sealed record JigsawShopInventory(
+    JigsawShopCard[] Cards,
+    JigsawShopRelic[] Relics,
+    int PurgeUsedCount,
+    bool PurgeAvailable,
+    Dictionary<string, int> OriginalPrices,
+    Dictionary<string, bool> Promotions,
+    HashSet<string> SoldOut);
+
+public sealed record JigsawShopCard(
+    string ModelId,
+    int SlotIndex,
+    bool IsUpgraded,
+    string? EnchantmentId,
+    int OriginalPrice);
+
+public sealed record JigsawShopRelic(
+    string ModelId,
+    int SlotIndex,
+    Dictionary<string, object>? NativeState,
+    int OriginalPrice);

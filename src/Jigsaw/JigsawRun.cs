@@ -15,7 +15,8 @@ public sealed class JigsawRun
     public IReadOnlyCollection<ulong> ActivePlayers => players.ToArray();
     private readonly HashSet<ulong> ancientCompleted = [], continued = [];
     private readonly HashSet<int> visited = [0], completed = [0];
-    private readonly Dictionary<(int nodeId, ulong playerId), object> shopStates = [];
+    private readonly Dictionary<(int nodeId, ulong playerId), JigsawShopInventory> shopInventories = [];
+    private (int nodeId, ulong playerId, JigsawShopInventory? checkpoint)? shopTransactionCheckpoint;
     private long nextEntry;
     private long? currentEntry;
     public JigsawLayout? AutomaticWitness { get; private set; }
@@ -387,17 +388,51 @@ public sealed class JigsawRun
         completed.Add(CurrentNode.Value);
         CurrentNode = null;
         currentEntry = null;
+        // Commit any pending shop transaction on room completion
+        if (shopTransactionCheckpoint != null)
+            CommitShopTransaction();
         return JigsawResult.Ok;
     }
+    public void RecordShopInventory(int nodeId, ulong playerId, JigsawShopInventory inventory)
+    {
+        shopInventories[(nodeId, playerId)] = inventory;
+    }
+    public JigsawShopInventory? GetShopInventory(int nodeId, ulong playerId)
+    {
+        return shopInventories.TryGetValue((nodeId, playerId), out var inventory) ? inventory : null;
+    }
+    public void CreateShopTransactionCheckpoint(int nodeId, ulong playerId)
+    {
+        var existing = GetShopInventory(nodeId, playerId);
+        shopTransactionCheckpoint = (nodeId, playerId, existing);
+    }
+    public void CommitShopTransaction()
+    {
+        shopTransactionCheckpoint = null;
+    }
+    public void RollbackShopTransaction()
+    {
+        if (shopTransactionCheckpoint is var (nodeId, playerId, checkpoint))
+        {
+            if (checkpoint != null)
+                shopInventories[(nodeId, playerId)] = checkpoint;
+            else
+                shopInventories.Remove((nodeId, playerId));
+        }
+        shopTransactionCheckpoint = null;
+    }
+    // Legacy method for backward compatibility with tests
     public void RecordShopState(int nodeId, ulong playerId, object state)
     {
-        shopStates[(nodeId, playerId)] = state;
+        // Convert generic object to inventory if needed
+        if (state is JigsawShopInventory inventory)
+            RecordShopInventory(nodeId, playerId, inventory);
     }
     public object? GetShopState(int nodeId, ulong playerId)
     {
-        return shopStates.TryGetValue((nodeId, playerId), out var state) ? state : null;
+        return GetShopInventory(nodeId, playerId);
     }
-    public JigsawSave CreateSave() => new(Pool.Select(p => p with { Nodes = p.Nodes.ToArray(), InternalEdges = p.InternalEdges.ToArray() }).ToArray(), placements.Values.ToArray(), external.ToArray(), Phase, Budget, players.ToArray(), Steps, FirstProgress, visited.ToArray(), completed.ToArray(), CurrentNode, PendingEntry, nextEntry, ancientCompleted.ToArray()) { OriginalPlayers = originalPlayers.ToArray(), AutomaticWitness = AutomaticWitness is { } witness ? new(witness.Placements.ToArray(), witness.Edges.ToArray()) : null, AutomaticOperation = AutomaticOperation is { } operation ? operation with { CandidateOrder = operation.CandidateOrder.ToArray() } : null, GenerationRandomState = generationRandomState, ShopStates = shopStates.Count > 0 ? shopStates.ToDictionary(kv => $"{kv.Key.nodeId}_{kv.Key.playerId}", kv => kv.Value) : null };
+    public JigsawSave CreateSave() => new(Pool.Select(p => p with { Nodes = p.Nodes.ToArray(), InternalEdges = p.InternalEdges.ToArray() }).ToArray(), placements.Values.ToArray(), external.ToArray(), Phase, Budget, players.ToArray(), Steps, FirstProgress, visited.ToArray(), completed.ToArray(), CurrentNode, PendingEntry, nextEntry, ancientCompleted.ToArray()) { OriginalPlayers = originalPlayers.ToArray(), AutomaticWitness = AutomaticWitness is { } witness ? new(witness.Placements.ToArray(), witness.Edges.ToArray()) : null, AutomaticOperation = AutomaticOperation is { } operation ? operation with { CandidateOrder = operation.CandidateOrder.ToArray() } : null, GenerationRandomState = generationRandomState, ShopStates = shopInventories.Count > 0 ? shopInventories.ToDictionary(kv => $"{kv.Key.nodeId}_{kv.Key.playerId}", kv => (object)kv.Value) : null };
     public static JigsawRun Restore(JigsawSave save, IEnumerable<ulong>? activePlayers = null)
     {
         JigsawSaveValidation.Validate(save);
@@ -420,7 +455,17 @@ public sealed class JigsawRun
             {
                 var parts = kv.Key.Split('_');
                 if (parts.Length == 2 && int.TryParse(parts[0], out var nodeId) && ulong.TryParse(parts[1], out var playerId))
-                    run.shopStates[(nodeId, playerId)] = kv.Value;
+                {
+                    if (kv.Value is JigsawShopInventory inventory)
+                        run.shopInventories[(nodeId, playerId)] = inventory;
+                    else if (kv.Value is System.Text.Json.JsonElement json && json.ValueKind == System.Text.Json.JsonValueKind.Object)
+                    {
+                        // Deserialize from JSON if needed
+                        var deserialized = System.Text.Json.JsonSerializer.Deserialize<JigsawShopInventory>(json.GetRawText());
+                        if (deserialized != null)
+                            run.shopInventories[(nodeId, playerId)] = deserialized;
+                    }
+                }
             }
         }
         var valid = JigsawGeometry.Validate(run.Nodes, run.Edges);
