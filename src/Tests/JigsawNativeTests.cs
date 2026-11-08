@@ -1,4 +1,4 @@
-using AllMatters.Jigsaw;
+﻿using AllMatters.Jigsaw;
 using MegaCrit.Sts2.Core.Multiplayer;
 using MegaCrit.Sts2.Core.Runs;
 using MegaCrit.Sts2.Core.Saves.Managers;
@@ -12,6 +12,91 @@ using System.Text.Json.Nodes;
 
 internal static class JigsawNativeTests
 {
+    private static int editorRequests;
+    private static void ObserveEditorRequest() => editorRequests++;
+    private static async Task RoutedEditorQueue()
+    {
+        HeadlessUiHost.EnsureInputActions();
+        var native=RunState.CreateForTest(players:[MegaCrit.Sts2.Core.Entities.Players.Player.CreateForNewRun(ModelDb.Character<MegaCrit.Sts2.Core.Models.Characters.Ironclad>(),MegaCrit.Sts2.Core.Unlocks.UnlockState.all,1)],acts:[ModelDb.Act<Overgrowth>()],seed:"EDITOR_QUEUE_80");
+        RunManager.Instance.SetUpTest(native,new NetSingleplayerGameService());
+        var harmony=new Harmony("AllMatters.Tests.EditorQueue80");
+        var tree=(Godot.SceneTree)Godot.Engine.GetMainLoop();var originalSize=tree.Root.Size;tree.Root.Size=new(1280,720);
+        var method=AccessTools.Method(typeof(MegaCrit.Sts2.Core.GameActions.Multiplayer.ActionQueueSynchronizer),"RequestEnqueue");
+        AllMatters.Jigsaw.Presentation.JigsawScreen? view=null;
+        try
+        {
+            RunManager.Instance.GenerateRooms();await RunManager.Instance.GenerateMap();
+            var session=JigsawNativeSession.Enable(native);await session.StartAct();
+            view=session.CreateScreen(new AllMatters.Jigsaw.Presentation.MemoryJigsawTutorialProfile {Sentence=6});
+            await HeadlessUiHost.Mount(view);
+            harmony.Patch(method,prefix:new HarmonyMethod(typeof(JigsawNativeTests),nameof(ObserveEditorRequest)));
+            editorRequests=0;
+            void Press(Godot.StringName action)=>Godot.Input.ParseInputEvent(new Godot.InputEventAction {Action=action,Pressed=true});
+            Press(MegaCrit.Sts2.Core.ControllerInput.MegaInput.down);
+            Press(MegaCrit.Sts2.Core.ControllerInput.MegaInput.select);
+            RunManager.Instance.ActionExecutor.Unpause();
+            await tree.ToSignal(tree,Godot.SceneTree.SignalName.ProcessFrame);
+            Require(editorRequests==1,"Production editor input must submit exactly one native ordered action, including the local player.");
+            Require(session.Map!.Holdings.ContainsKey(1),"The native action callback must visibly apply the take.");
+            Press(MegaCrit.Sts2.Core.ControllerInput.MegaInput.cancel);
+            await tree.ToSignal(tree,Godot.SceneTree.SignalName.ProcessFrame);
+            Require(editorRequests==2 && session.Map.Holdings.Count==0,"Cancel must cross the native queue before releasing the shared holding.");
+            Press(MegaCrit.Sts2.Core.ControllerInput.MegaInput.select);
+            await tree.ToSignal(tree,Godot.SceneTree.SignalName.ProcessFrame);
+            Require(editorRequests==3 && session.Map.Holdings.ContainsKey(1),"A cancelled piece can be taken again through native authority.");            Press(MegaCrit.Sts2.Core.ControllerInput.MegaInput.viewDiscardPile);
+            await tree.ToSignal(tree,Godot.SceneTree.SignalName.ProcessFrame);
+            Require(editorRequests==4 && session.Map.Holdings[1].Rotation==1,"Rotation also crosses the native queue and executes once.");
+            var point=view.MapControl.GlobalPosition+view.GridToCanvas(new(5,0));
+            Godot.Input.ParseInputEvent(new Godot.InputEventMouseButton {Position=point,GlobalPosition=point,ButtonIndex=Godot.MouseButton.Left,Pressed=true});
+            await tree.ToSignal(tree,Godot.SceneTree.SignalName.ProcessFrame);
+            Require(editorRequests==5 && session.Map.Placements.Count==1,$"Dropping must be accepted through the native queue: requests={editorRequests}, placements={session.Map.Placements.Count}, point={point}, canvas={view.MapControl.GetGlobalRect()}.");
+        }
+        finally {harmony.UnpatchAll(harmony.Id);view?.Free();tree.Root.Size=originalSize;RunManager.Instance.CleanUp(false);}
+    }
+    private static async Task StaleEndpointQueue()
+    {
+        var native=RunState.CreateForTest(players:[MegaCrit.Sts2.Core.Entities.Players.Player.CreateForNewRun(ModelDb.Character<MegaCrit.Sts2.Core.Models.Characters.Ironclad>(),MegaCrit.Sts2.Core.Unlocks.UnlockState.all,1)],acts:[ModelDb.Act<Overgrowth>()],seed:"STALE_ENDPOINT_80");
+        RunManager.Instance.SetUpTest(native,new NetSingleplayerGameService());
+        var tree=(Godot.SceneTree)Godot.Engine.GetMainLoop();
+        try
+        {
+            RunManager.Instance.GenerateRooms();await RunManager.Instance.GenerateMap();
+            var session=JigsawNativeSession.Enable(native);await session.StartAct();var map=session.Map!;
+            RunManager.Instance.ActionExecutor.Pause();
+            Require(JigsawEditorAction.Submit(session,JigsawEditorOperation.SelectEndpoint,nodeId:0).Success,"Queue endpoint before its editing revision ends.");
+            Require(map.ResetLayout().Success,"Reset invalidates the queued editing revision.");
+            RunManager.Instance.ActionExecutor.Unpause();
+            for(int i=0;i<12;i++)await tree.ToSignal(tree,Godot.SceneTree.SignalName.ProcessFrame);
+            Require(map.SelectedEndpoints.Count==0,"Old editing request cannot restore an endpoint after reset.");
+            Require(JigsawEditorAction.Submit(session,JigsawEditorOperation.SelectEndpoint,nodeId:0).Success,"Submit fresh endpoint after stale callback.");
+            for(int i=0;i<12;i++)await tree.ToSignal(tree,Godot.SceneTree.SignalName.ProcessFrame);
+            Require(map.SelectedEndpoints.GetValueOrDefault(1UL,-1)==0,"Rejected latest request must resynchronize local input so a fresh endpoint succeeds.");
+            map.ResetLayout();
+            RunManager.Instance.ActionExecutor.Pause();
+            JigsawEditorAction.Submit(session,JigsawEditorOperation.SelectEndpoint,nodeId:0);
+            map.ResetLayout();
+            JigsawEditorAction.Submit(session,JigsawEditorOperation.SelectEndpoint,nodeId:0);
+            RunManager.Instance.ActionExecutor.Unpause();
+            for(int i=0;i<12;i++)await tree.ToSignal(tree,Godot.SceneTree.SignalName.ProcessFrame);
+            Require(map.SelectedEndpoints.GetValueOrDefault(1UL,-1)==0,"A fresh request after reset must use the new revision even before the old pending callback arrives.");
+            map.ResetLayout();
+            Require(map.Take(1,0).Success && map.Drop(1,new(3,0)).Success,"Prepare adjacent endpoints for rapid native requests.");
+            RunManager.Instance.ActionExecutor.Pause();
+            JigsawEditorAction.Submit(session,JigsawEditorOperation.SelectEndpoint,nodeId:0);
+            JigsawEditorAction.Submit(session,JigsawEditorOperation.SelectEndpoint,nodeId:1);
+            RunManager.Instance.ActionExecutor.Unpause();
+            for(int i=0;i<12;i++)await tree.ToSignal(tree,Godot.SceneTree.SignalName.ProcessFrame);
+            Require(map.Edges.Any(edge=>edge.Connects(0,1)) && map.SelectedEndpoints.Count==0,"Two endpoint requests before either callback must connect once and clear selection.");
+            RunManager.Instance.CleanUp(false);
+            var replacement=RunState.CreateForTest(players:[MegaCrit.Sts2.Core.Entities.Players.Player.CreateForNewRun(ModelDb.Character<MegaCrit.Sts2.Core.Models.Characters.Ironclad>(),MegaCrit.Sts2.Core.Unlocks.UnlockState.all,1)],acts:[ModelDb.Act<Overgrowth>()],seed:"NEW_SESSION_80");
+            RunManager.Instance.SetUpTest(replacement,new NetSingleplayerGameService());
+            RunManager.Instance.GenerateRooms();await RunManager.Instance.GenerateMap();
+            var current=JigsawNativeSession.Enable(replacement);await current.StartAct();
+            Require(!JigsawEditorAction.Submit(session,JigsawEditorOperation.Take,piece:0).Success,"An old session UI callback cannot submit an action against a replacement native session.");
+            Require(current.Map!.Holdings.Count==0,"Old session input leaves the replacement layout unchanged.");
+        }
+        finally {RunManager.Instance.CleanUp(false);}
+    }
     private static async Task CanonicalLobby(bool twoPlayers=false,bool invalidRoster=false)
     {
         var participants=Enumerable.Range(1,twoPlayers?2:1).Select(id=>MegaCrit.Sts2.Core.Entities.Players.Player.CreateForNewRun(ModelDb.Character<MegaCrit.Sts2.Core.Models.Characters.Ironclad>(),MegaCrit.Sts2.Core.Unlocks.UnlockState.all,(ulong)id)).ToArray();
@@ -77,7 +162,7 @@ internal static class JigsawNativeTests
             {
                 bool invalidOwner=false;try {RunManager.CanonicalizeSave(canonical,999);}catch(InvalidOperationException){invalidOwner=true;}
                 Require(invalidOwner,"Native canonicalization rejects callers outside the original save roster.");
-                bool gated=false;try {RunState.FromSerializable(incoming.serializableRun);}catch(InvalidOperationException e) when(e.Message.Contains("仅用于单人")){gated=true;}
+                bool gated=false;try {RunState.FromSerializable(incoming.serializableRun);}catch(InvalidOperationException e) when(e.Message.Contains("已连接且角色名单匹配")){gated=true;}
                 Require(gated,"Lobby-only validation cannot leak into unsupported multiplayer gameplay activation after success or failure.");
             }
         }
@@ -108,7 +193,8 @@ internal static class JigsawNativeTests
     }
     private enum EntryFailureKind { None, BeforeReady, RestoredBeforeReady, AfterReady, RetryAfterReady, BeforeSave, Abandon, AbandonBeforeSave, AbandonRestored, AbandonWriteFailure, AfterCompletedAbandon }
     public static readonly (string Name, Func<Task> Test)[] Cases =
-    [ ("Jigsaw native known lobby document rejects lost identity and incomplete data", ()=>MissingModeData("Budget",identityLost:true)),
+    [ ("Jigsaw native stale endpoint queue resynchronizes", StaleEndpointQueue), (JigsawNetworkTests.Name, JigsawNetworkTests.Run), (JigsawActivationTests.Name, JigsawActivationTests.Run), ("Jigsaw native routed editor uses native ordered action", RoutedEditorQueue),
+      ("Jigsaw native known lobby document rejects lost identity and incomplete data", ()=>MissingModeData("Budget",identityLost:true)),
       ("Jigsaw native lobby canonicalization and response preserve checkpoint", ()=>CanonicalLobby()),
       ("Jigsaw native lobby rejects a substituted saved player", ()=>CanonicalLobby(true,true)),
       ("Jigsaw native two-player lobby canonicalization preserves full save", ()=>CanonicalLobby(true)),
@@ -134,6 +220,7 @@ internal static class JigsawNativeTests
       ("Jigsaw native manual map reaches actual Ancient and first room checkpoint", FullFirstRoom),
       ("Jigsaw native treasure rewards complete before map checkpoint", CompletedTreasure),
       ("Jigsaw native partial Ancient restores complete prereward player and map", PartialAncient),
+      ("Jigsaw native delayed Ancient effect releases checkpoint after accepted Continue", ()=>FirstRoomFlow(false,laggedAncient:true)),
       ("Jigsaw native legacy completed Ancient save explores without replay", ()=>FirstRoomFlow(false,finishedAncient:true,legacyAncient:true)),
       ("Jigsaw native map previews Ancient and unfinished rooms return safely", ()=>FirstRoomFlow(false,preview:true)),
       ("Jigsaw native map covers previous room until destination ready", ()=>FirstRoomFlow(false,transition:true)),
@@ -236,7 +323,8 @@ internal static class JigsawNativeTests
             {
                 io.ShouldFailWrites=true;release.SetResult();
                 bool rejected=false;try {await generation;} catch {rejected=true;}
-                Require(rejected && session.Map!.Phase==JigsawPhase.Ancient && native.CurrentRoom is MapRoom,"Failed final save retains the accepted map and does not enter rewards.");
+                Require(rejected && session.Map!.Phase==JigsawPhase.Ancient && native.CurrentRoom is MapRoom,
+                    $"Failed final save retains the accepted map and does not enter rewards (rejected={rejected}, phase={session.Map?.Phase}, room={native.CurrentRoom?.GetType().Name}).");
                 using(var retryAtlases=HeadlessTestSetup.LoadAtlases("ui_atlas","compressed"))
                 {
                     var retryView=session.CreateScreen(new AllMatters.Jigsaw.Presentation.MemoryJigsawTutorialProfile{Sentence=6});
@@ -530,9 +618,18 @@ internal static class JigsawNativeTests
             var pool=map.Pool;
             Require(map.Take(1,0).Success && map.Drop(1,new(3,0)).Success && map.AddEdge(1,0,1).Success && map.Take(1,1).Success,"Prepare committed layout, retained edge and held preview.");
             Require(!command.Process(native.Players[0],["unexpected"]).success && map.Holdings.Count==1,"Invalid command arguments preserve state.");
-            var reset=command.Process(native.Players[0],[]); if(reset.task!=null) await reset.task;
+            bool orderedReset=false;
+            RunManager.Instance.ActionExecutor.BeforeActionExecuted+=_=>orderedReset=true;
+            RunManager.Instance.ActionExecutor.Pause();
+            bool canPause=RunManager.Instance.ActionExecutor.IsPaused;
+            var reset=command.Process(native.Players[0],[]);
+            Require(!canPause || map.Placements.Count==1 && reset.task is {IsCompleted:false},$"Console reset must wait for the native ordered callback before changing layout or reporting completion: placements={map.Placements.Count}, task={reset.task?.Status}, paused={RunManager.Instance.ActionExecutor.IsPaused}, message={reset.msg}.");
+            RunManager.Instance.ActionExecutor.Unpause();
+            if(reset.task!=null) await reset.task;
+            Require(orderedReset,"Reset must execute as an actual native queued action on both supported versions.");
             Require(reset.success && map.Nodes.Count==1 && map.Edges.Count==0 && map.Holdings.Count==0 && ReferenceEquals(pool,map.Pool),"Actual command resets only editable MapRoom and keeps the original pool.");
-            Require(command.Process(native.Players[0],[]).success,"Repeated reset is harmless.");
+            var repeated=command.Process(native.Players[0],[]);if(repeated.task!=null)await repeated.task;
+            Require(repeated.success,"Repeated reset is harmless.");
             Require(map.Take(1,0).Success && map.Drop(1,new(3,0)).Success && map.AddEdge(1,0,1).Success && map.ChooseEnd(1,EndChoice.Manual).Success,"Map remains editable after reset.");
             Require(!command.Process(native.Players[0],[]).success && map.Placements.Count==1,"Authorized inspection rejects command without changing the layout.");
         }
@@ -591,7 +688,7 @@ internal static class JigsawNativeTests
         finally { RunManager.Instance.CleanUp(false); }
     }
 
-    private static async Task FirstRoomFlow(bool completeTreasure,bool partialAncient=false,bool finishedAncient=false,bool actualPartial=false,EntryFailureKind entryFailure=EntryFailureKind.None,bool transition=false,bool legacyAncient=false,bool preview=false)
+    private static async Task FirstRoomFlow(bool completeTreasure,bool partialAncient=false,bool finishedAncient=false,bool actualPartial=false,EntryFailureKind entryFailure=EntryFailureKind.None,bool transition=false,bool legacyAncient=false,bool preview=false,bool laggedAncient=false)
     {
         using var atlases=HeadlessTestSetup.LoadAtlases("card_atlas","relic_atlas");
         using var eventScope=HeadlessCombatInProgress.EnterEvent();
@@ -647,6 +744,20 @@ internal static class JigsawNativeTests
                 Require(JigsawCheckpoint.Slot.TryGet(rollback,out var partialMap) && partialMap.Map is {Phase:JigsawPhase.Ancient,Steps:0} && partialMap.Map.AncientCompleted.Length==0 && partialMap.Map.Placements.Length==1,"Partial Ancient rollback keeps the successful layout and incomplete reward phase.");
                 return;
             }
+            if(laggedAncient)
+            {
+                // Model a replica receiving Host completion and common Continue before
+                // its own actual option task finishes; native effects remain real below.
+                Require(map.CompleteAncient(1).Success && map.Continue(1).Success,"Accepted common Continue can precede local native effects.");
+                Require(session.BeforeAncient!=null && !ancient.IsFinished,"Retain whole prereward checkpoint while local effects lag.");
+                session.OnAncientCompleted();
+                Require(session.BeforeAncient!=null,"Logical completion alone cannot release the native checkpoint.");
+                var roomBefore=native.CurrentRoom;
+                var rngBefore=HeadlessTestSetup.RngPosition(native.Rng.Niche);
+                int stepsBefore=map.Steps;
+                await session.Enter(map.AvailableDestinations.First());
+                Require(map.PendingEntry==null && ReferenceEquals(native.CurrentRoom,roomBefore) && map.Steps==stepsBefore && HeadlessTestSetup.RngPosition(native.Rng.Niche)==rngBefore,"Lagging Ancient effects block entry without changing room, steps, RNG or pending entry.");
+            }
             if(preview) await PreviewRoom(session);
             string beforeReward = System.Text.Json.JsonSerializer.Serialize(native.Players[0].ToSerializable());
             MegaCrit.Sts2.Core.Saves.SerializableRun? interrupted = null;
@@ -668,6 +779,13 @@ internal static class JigsawNativeTests
             using(MegaCrit.Sts2.Core.Commands.CardSelectCmd.UseSelector(new NativeEventTests.Select(native.Players[0].Deck.Cards.First()))) await option.Chosen();
             JigsawAncientRewardBoundaryHost.BeforeDone = null;
             Require(ancient.IsFinished && session.AncientReady && map.Phase==JigsawPhase.Exploring,"Real native option completion directly begins exploration without a Continue click.");
+            if(laggedAncient)
+            {
+                Require(session.BeforeAncient==null,"Late actual native completion releases the prereward checkpoint after logical Exploring.");
+                await session.Enter(map.AvailableDestinations.First());
+                Require(map.Steps==1 && map.PendingEntry==null,"Entry resumes normally after actual Ancient effects finish.");
+                return;
+            }
             if (actualPartial)
             {
                 Require(interrupted != null, "The real Ancient Done callback exposes the partial reward checkpoint.");

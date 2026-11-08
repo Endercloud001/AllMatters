@@ -1,9 +1,11 @@
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using Godot;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Map;
 using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.Entities.Multiplayer;
 using MegaCrit.Sts2.Core.Multiplayer;
+using MegaCrit.Sts2.Core.Multiplayer.Game.Lobby;
 using MegaCrit.Sts2.Core.Nodes;
 using MegaCrit.Sts2.Core.Nodes.Screens.Map;
 using MegaCrit.Sts2.Core.Nodes.Screens;
@@ -24,9 +26,50 @@ namespace AllMatters.Jigsaw;
 public sealed class JigsawNativeSession
 {
     private static readonly ConditionalWeakTable<RunState, JigsawNativeSession> sessions = new();
-    public static JigsawNativeSession? Current => RunManager.Instance.DebugOnlyGetState() is { } state &&
+    internal static JigsawNativeSession? SaveSession => RunManager.Instance.DebugOnlyGetState() is { } state &&
         sessions.TryGetValue(state, out var session) ? session : null;
+    public static JigsawNativeSession? Current
+    {
+        get
+        {
+            var session=SaveSession;
+            if(session==null)return null;
+            if(session.netService is not NetSingleplayerGameService && !session.netService.IsConnected)session.Close();
+            return session.closed ? null : session;
+        }
+    }
+    private bool closed;
+    private readonly MegaCrit.Sts2.Core.Multiplayer.Game.INetGameService netService;
+    private readonly CancellationTokenSource closedCancellation=new();
+    private void OnDisconnected(NetErrorInfo info)=>Close();
+    internal void Close()
+    {
+        if(closed)return;
+        closed=true;
+        netService.Disconnected-=OnDisconnected;
+        closedCancellation.Cancel();
+        if(boundLobby!=null)
+        {
+            boundLobby.RemotePlayerDisconnected-=OnPlayerDisconnected;
+#if !STS2_PUBLIC
+            boundLobby.PlayerRejoined-=OnPlayerRejoined;
+#endif
+            boundLobby=null;
+        }
+        // TODO(cleanup): TaskCompletionSource lifecycle - Consider adding explicit cleanup
+        // or bounded allocation for pending completions. Currently orphaned if session
+        // closes mid-operation, though practically benign due to `closed` flag guard.
+        pendingAutomaticVote?.TrySetResult(JigsawResult.Reject("会话已结束。"));
+        automaticApplied?.TrySetResult(JigsawResult.Reject("会话已结束。"));
+        if(Map!=null)JigsawEditorAction.Stop(Map);
+        if(GodotObject.IsInstanceValid(screen))screen?.SetProcessInput(false);
+        ReleaseHotkeys();
+        // TODO(cleanup): ConditionalWeakTable entry cleanup - Sessions WeakTable entry
+        // not explicitly removed. Benign: `closed` flag prevents reuse, RunState GC
+        // triggers auto-cleanup, and Current property guards with reference check.
+    }
     public RunState Native { get; }
+    private ulong LocalPlayerId=>netService.NetId;
     public JigsawRun? Map { get; private set; }
     public event Action? Changed;
     private bool enteringAncient;
@@ -34,6 +77,7 @@ public sealed class JigsawNativeSession
     private JigsawScreen? screen;
     private Task saveTask = Task.CompletedTask;
     private Task nativeSaveTask = Task.CompletedTask;
+    private TaskCompletionSource<JigsawResult>? pendingAutomaticVote;
     private bool savingEdits;
     private bool pendingEditSave;
     private Exception? saveFailure;
@@ -42,30 +86,102 @@ public sealed class JigsawNativeSession
     private SerializableRun? entryCheckpoint;
     private bool entryFailed;
     private Task? enteringTask;
+    private RunLobby? boundLobby;
     public SerializableRun? BeforeAncient { get; private set; }
-    public bool AncientReady => Map?.CreateSave().AncientCompleted.Length == Native.Players.Count;
+    public bool AncientReady => Map is {} map && ActivePlayerIds.All(map.CreateSave().AncientCompleted.Contains);
     public bool CanResetLayout => Map?.Phase == JigsawPhase.Editing && Native.CurrentRoom is MapRoom &&
         !paused && (TestMode.IsOn || screen is { Visible: true } && screen.IsProcessingInput());
 
-    private JigsawNativeSession(RunState native) { Native = native; }
+    private JigsawNativeSession(RunState native) { Native = native; netService=RunManager.Instance.NetService; netService.Disconnected+=OnDisconnected; }
     public static JigsawNativeSession Enable(RunState native)
     {
-        if (native.Players.Count != 1) throw new InvalidOperationException("此入口仅用于单人拼图。");
-        return sessions.GetValue(native, state => new(state));
+        if (native.Players.Count != 1)
+        {
+            var net = RunManager.Instance.NetService;
+            var roster = native.Players.Select(p => p.NetId).ToHashSet();
+            var active = ActivePlayers(native).ToHashSet();
+            bool connected = net switch
+            {
+                NetHostGameService host => host.IsConnected && active.SetEquals(host.ConnectedPeers.Select(p => p.peerId).Append(host.NetId)),
+                NetClientGameService client => client.IsConnected && active.Contains(client.NetId) && active.Contains(client.HostNetId),
+                _ => false
+            };
+            if (!connected || active.Count==0 || !active.IsSubsetOf(roster) || !ReferenceEquals(RunManager.Instance.DebugOnlyGetState(), native))
+                throw new InvalidOperationException("多人拼图需要已连接且角色名单匹配的原生会话。");
+        }
+        var session=sessions.GetValue(native, state => new(state));
+        session.AttachLobby();
+        return session;
     }
+    private static IEnumerable<ulong> ActivePlayers(RunState native)
+    {
+        var lobby=RunManager.Instance.RunLobby;
+        if(lobby==null)return native.Players.Select(player=>player.NetId);
+#if STS2_PUBLIC
+        return lobby.ConnectedPlayerIds;
+#else
+        return lobby.PlayerIds;
+#endif
+    }
+    private ulong[] ActivePlayerIds=>(Map?.ActivePlayers ?? ActivePlayers(Native)).ToArray();
+    private void AttachLobby()
+    {
+        var lobby=RunManager.Instance.RunLobby;
+        if(ReferenceEquals(boundLobby,lobby))return;
+        if(boundLobby!=null)
+        {
+            boundLobby.RemotePlayerDisconnected-=OnPlayerDisconnected;
+#if !STS2_PUBLIC
+            boundLobby.PlayerRejoined-=OnPlayerRejoined;
+#endif
+        }
+        boundLobby=lobby;
+        if(boundLobby==null)return;
+        boundLobby.RemotePlayerDisconnected+=OnPlayerDisconnected;
+#if !STS2_PUBLIC
+        boundLobby.PlayerRejoined+=OnPlayerRejoined;
+#endif
+    }
+    private void OnPlayerDisconnected(ulong player)
+    {
+        if(Current!=this || Map?.ActivePlayers.Contains(player)!=true || !JigsawEditorAction.IsHost(LocalPlayerId))return;
+        JigsawEditorAction.Submit(this,JigsawEditorOperation.Disconnect,completedOwner:player);
+    }
+    internal JigsawResult ApplyDisconnect(ulong player)
+    {
+        if(Map==null || !Map.OriginalPlayers.Contains(player))return JigsawResult.Reject(JigsawFailure.UnknownPlayer);
+        Map.Disconnect(player);
+        OnAncientCompleted();
+        return JigsawResult.Ok;
+    }
+#if !STS2_PUBLIC
+    private void OnPlayerRejoined(RunLobbyPlayer player)
+    {
+        if(Map?.Reconnect(player.id).Success==true) {OnEdited();RefreshEditor();}
+    }
+#endif
     public async Task StartAct()
     {
+        AttachLobby();
         if (act != Native.CurrentActIndex || Map == null)
         {
             act = Native.CurrentActIndex;
             // Own deterministic stream: observing/using native content RNG is unnecessary.
             int seed = unchecked((int)Native.Rng.Seed);
             Map = JigsawRun.Create(unchecked(seed + act * 7919), 15 - Math.Min(2, act),
-                act == 2 && Native.AscensionLevel >= 10, Native.Players.Select(p => p.NetId));
+                act == 2 && Native.AscensionLevel >= 10, ActivePlayerIds,Native.Players.Select(p=>p.NetId));
         }
+        SyncActivePlayers();
         if (Native.CurrentRoom is not MapRoom) await RunManager.Instance.EnterRoom(new MapRoom());
         JigsawCheckpoint.Capture(Native, Map);
         Changed?.Invoke();
+    }
+    private void SyncActivePlayers()
+    {
+        if(Map==null)return;
+        var active=ActivePlayers(Native).ToHashSet();
+        foreach(ulong player in Map.ActivePlayers.Where(player=>!active.Contains(player)).ToArray())Map.Disconnect(player);
+        foreach(ulong player in active.Where(player=>!Map.ActivePlayers.Contains(player)))Map.Reconnect(player);
     }
 
     public static void Restore(RunState native, bool marked = false, SerializableRun? checkpoint = null)
@@ -115,7 +231,32 @@ public sealed class JigsawNativeSession
         }
         screen.Show();
     }
-    internal JigsawScreen CreateScreen(IJigsawTutorialProfile? profile=null) => screen=JigsawScreen.Create(Map!,Native.Players[0].NetId,OnEdited,Inspect,Continue,Enter,Pause,profile,Automatic,id=>Native.Players.FirstOrDefault(p=>p.NetId==id)?.Character.IconTexture,AbandonEntry,Native.Act,id=>Native.Players.FirstOrDefault(p=>p.NetId==id)?.Character.MapDrawingColor??Colors.White);
+    internal JigsawScreen CreateScreen(IJigsawTutorialProfile? profile=null)
+    {
+        screen=JigsawScreen.Create(Map!,RunManager.Instance.NetService.NetId,()=>{},Inspect,Continue,Enter,Pause,profile,Automatic,id=>Native.Players.FirstOrDefault(p=>p.NetId==id)?.Character.IconTexture,AbandonEntry,Native.Act,id=>Native.Players.FirstOrDefault(p=>p.NetId==id)?.Character.MapDrawingColor??Colors.White);
+        screen.ReturnRequested=piece=>JigsawEditorAction.Submit(this,JigsawEditorOperation.ReturnToPool,piece);
+        screen.TakeRequested=piece=>JigsawEditorAction.Submit(this,JigsawEditorOperation.Take,piece);
+        screen.CancelRequested=()=>JigsawEditorAction.Submit(this,JigsawEditorOperation.Cancel);
+        screen.RotateRequested=()=>JigsawEditorAction.Submit(this,JigsawEditorOperation.Rotate);
+        screen.DropRequested=point=>JigsawEditorAction.Submit(this,JigsawEditorOperation.Drop,point:point);
+        screen.EndpointRequested=node=>JigsawEditorAction.Submit(this,JigsawEditorOperation.SelectEndpoint,nodeId:node);
+        screen.ChoiceRequested=choice=>JigsawEditorAction.Submit(this,JigsawEditorOperation.ChooseEnd,choice:choice);
+        return screen;
+    }
+    internal void RefreshEditor()
+    {
+        if(GodotObject.IsInstanceValid(screen) && screen!.IsInsideTree())screen.Refresh();
+    }
+    internal void EditorResult(ulong issuer,JigsawEditorOperation operation,JigsawResult result)
+    {
+        if(issuer==LocalPlayerId && operation==JigsawEditorOperation.ChooseEnd)pendingAutomaticVote?.TrySetResult(result);
+        if(issuer==RunManager.Instance.NetService.NetId && GodotObject.IsInstanceValid(screen) && screen!.IsInsideTree())screen.EditorResult(operation,result);
+    }
+    internal void OnOrderedConsensus()
+    {
+        if(Map?.Phase==JigsawPhase.Inspecting)_=Defer(Inspect);
+        else if(Map?.Phase==JigsawPhase.Generating)_=ResumeAutomatic();
+    }
     internal bool CloseRoomPreview()
     {
         if (!GodotObject.IsInstanceValid(screen) || screen is not { Visible:true, CanReturnToRoom:true }) return false;
@@ -219,20 +360,49 @@ public sealed class JigsawNativeSession
 
     internal static Func<Task>? TestAutomaticReveal;
     private Task? automaticTask;
+    private TaskCompletionSource<JigsawResult>? automaticApplied;
+    private Task Defer(Func<Task> work)
+    {
+        var map=Map;
+        var completion=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        Callable.From(async ()=>{try {if(Current==this && ReferenceEquals(Map,map))await work();completion.TrySetResult();}catch(Exception error){completion.TrySetException(error);}}).CallDeferred();
+        return completion.Task;
+    }
     public Task Automatic()
     {
         if(Map==null)return Task.CompletedTask;
-        var chosen=Map.ChooseEnd(Native.Players[0].NetId,EndChoice.Automatic);
-        if(!chosen.Success) { screen?.ShowResult(chosen);return Task.CompletedTask; }
-        OnEdited();screen?.Refresh();
-        return Map.Phase==JigsawPhase.Generating?ResumeAutomatic():Task.CompletedTask;
+        if(pendingAutomaticVote!=null)return pendingAutomaticVote.Task;
+        var completion=pendingAutomaticVote=new(TaskCreationOptions.RunContinuationsAsynchronously);
+        var submitted=JigsawEditorAction.Submit(this,JigsawEditorOperation.ChooseEnd,choice:EndChoice.Automatic);
+        if(!submitted.Success)
+        {
+            pendingAutomaticVote=null;
+            screen?.ShowResult(submitted);
+            return Task.CompletedTask;
+        }
+        return CompleteAutomaticVote(completion);
     }
-    public Task ResumeAutomatic() => automaticTask is { IsCompleted:false } ? automaticTask : automaticTask=GenerateAutomatic();
+    private async Task CompleteAutomaticVote(TaskCompletionSource<JigsawResult> completion)
+    {
+        var result=await completion.Task;
+        if(ReferenceEquals(pendingAutomaticVote,completion))pendingAutomaticVote=null;
+        if(result.Success && (Map?.Phase is JigsawPhase.Generating or JigsawPhase.Ancient) && automaticTask is {} generation)await generation;
+    }
+    private JigsawAutomaticOperation? runningAutomatic;
+    public Task ResumeAutomatic()
+    {
+        if(Map?.AutomaticOperation is not {} operation)return Task.CompletedTask;
+        if(automaticTask is {IsCompleted:false} && ReferenceEquals(runningAutomatic,operation))return automaticTask;
+        runningAutomatic=operation;
+        automaticApplied=new(TaskCreationOptions.RunContinuationsAsynchronously);
+        return automaticTask=Defer(GenerateAutomatic);
+    }
     private async Task GenerateAutomatic()
     {
         var map=Map;
-        if(map?.Phase!=JigsawPhase.Generating || map.AutomaticOperation is not {} operation)return;
-        bool Active()=>ReferenceEquals(Map,map)&&Current==this&&ReferenceEquals(map.AutomaticOperation,operation)&&map.Phase==JigsawPhase.Generating;
+        if(map==null || (map.Phase!=JigsawPhase.Generating && automaticApplied?.Task.IsCompleted!=true) || map.AutomaticOperation is not {} operation)return;
+        var applied=automaticApplied ??= new(TaskCreationOptions.RunContinuationsAsynchronously);
+        bool Active()=>ReferenceEquals(Map,map)&&Current==this&&ReferenceEquals(map.AutomaticOperation,operation)&&(map.Phase==JigsawPhase.Generating || applied.Task.IsCompleted);
         if(!Active())return;
         JigsawLayout? result=null;
         string? failureReason=null;
@@ -240,15 +410,18 @@ public sealed class JigsawNativeSession
         {
             OnEdited();await WaitForSave();if(!Active())return;
             if(!TestMode.IsOn && NGame.Instance!=null)
-                await NGame.Instance.Transition.FadeOut(.8f,Native.Players[0].Character.CharacterSelectTransitionPath);
+                await NGame.Instance.Transition.FadeOut(.8f,Native.Players.Single(player=>player.NetId==LocalPlayerId).Character.CharacterSelectTransitionPath);
             if(!Active())return;
-            screen?.SetGenerating(true);
+            if(GodotObject.IsInstanceValid(screen))screen?.SetGenerating(true);
             if(!TestMode.IsOn && NGame.Instance!=null)await NGame.Instance.Transition.FadeIn(.4f);
             if(!Active())return;
-            result=await JigsawAutomaticWorker.Run(map,operation.ExpansionBudget);
+            automaticApplied ??= new(TaskCreationOptions.RunContinuationsAsynchronously);
+            if(JigsawEditorAction.IsHost(LocalPlayerId))
+                result=await JigsawAutomaticWorker.Run(map,operation.ExpansionBudget).WaitAsync(closedCancellation.Token);
             if(!Active())return;
             if(!TestMode.IsOn && NGame.Instance!=null)await NGame.Instance.Transition.FadeOut(.4f);
         }
+        catch(OperationCanceledException) when(closed) { return; }
         catch(Exception error)
         {
             result=null;
@@ -259,10 +432,14 @@ public sealed class JigsawNativeSession
                 catch(Exception fadeError) { Godot.GD.PushError("Automatic jigsaw fade recovery failed: "+fadeError); }
         }
         if(!Active())return;
-        var accepted=map.FinishAutomatic(operation,result);
-        screen?.SetGenerating(false);
-        OnEdited();
-        if(!accepted.Success)screen?.ShowAutomaticFailure(failureReason??accepted.Reason);
+        if(JigsawEditorAction.IsHost(LocalPlayerId))
+        {
+            var submitted=JigsawEditorAction.Submit(this,JigsawEditorOperation.FinalizeAutomatic,layout:result,automaticFailure:failureReason);
+            if(!submitted.Success)throw new InvalidOperationException(submitted.Reason);
+        }
+        var accepted=await applied.Task;
+        if(GodotObject.IsInstanceValid(screen))screen?.SetGenerating(false);
+        if(ReferenceEquals(automaticApplied,applied))automaticApplied=null;
         bool saved=false;
         try { await WaitForSave();saved=true; }
         finally
@@ -272,7 +449,7 @@ public sealed class JigsawNativeSession
         }
         if(Current!=this || !ReferenceEquals(Map,map) || !ReferenceEquals(map.AutomaticOperation,operation))return;
         if(!accepted.Success)return;
-        BeforeAncient=RunManager.Instance.ToSave(null);
+        BeforeAncient=JigsawSaveSource.Copy(RunManager.Instance.ToSave(null));
         try { await EnterAncient(); }
         finally
         {
@@ -284,6 +461,21 @@ public sealed class JigsawNativeSession
         }
     }
 
+    internal JigsawResult ApplyAutomatic(JigsawLayout? layout,string? failure)
+    {
+        if(Map is not {} map || map.Phase!=JigsawPhase.Generating || map.AutomaticOperation is not {} operation)
+            return JigsawResult.Reject("旧自动任务不能提交。");
+        automaticApplied ??= new(TaskCreationOptions.RunContinuationsAsynchronously);
+        var accepted=map.FinishAutomatic(operation,layout);
+        if(GodotObject.IsInstanceValid(screen))
+        {
+            screen?.SetGenerating(false);
+            if(!accepted.Success)screen?.ShowAutomaticFailure(failure??accepted.Reason);
+        }
+        automaticApplied.TrySetResult(accepted);
+        return JigsawResult.Ok;
+    }
+
     public async Task Inspect()
     {
         if (Map == null) return;
@@ -292,7 +484,7 @@ public sealed class JigsawNativeSession
         OnEdited();
         await WaitForSave();
         if (!result.Success) return;
-        BeforeAncient = RunManager.Instance.ToSave(null);
+        BeforeAncient = JigsawSaveSource.Copy(RunManager.Instance.ToSave(null));
         await EnterAncient();
     }
 
@@ -300,7 +492,7 @@ public sealed class JigsawNativeSession
     {
         if (Map?.Phase != JigsawPhase.Ancient) return;
         if (AncientReady) { ShowMap(); return; }
-        BeforeAncient ??= RunManager.Instance.ToSave(null);
+        BeforeAncient ??= JigsawSaveSource.Copy(RunManager.Instance.ToSave(null));
         HideMap();
         enteringAncient = true;
         try
@@ -310,21 +502,62 @@ public sealed class JigsawNativeSession
         finally { enteringAncient = false; }
     }
 
-    public void AncientFinished()
+    internal bool NativeAncientFinished(ulong player) =>
+        RunManager.Instance.EventSynchronizer.Events.Any(e=>e.Owner?.NetId==player && e is AncientEventModel && e.IsFinished);
+
+    public void AncientFinished(ulong player)
     {
-        if (Map?.Phase != JigsawPhase.Ancient) return;
-        Map.CompleteAncient(Native.Players[0].NetId);
+        if(Map?.Phase is not (JigsawPhase.Ancient or JigsawPhase.Exploring) || !NativeAncientFinished(player))return;
+        if(JigsawEditorAction.IsHost(LocalPlayerId))
+            JigsawEditorAction.Submit(this,JigsawEditorOperation.CompleteAncient,completedOwner:player);
+        OnAncientCompleted();
+    }
+
+    private bool settlingAncientOptions;
+    private bool HasUnfinishedChosenAncient() => RunManager.Instance.EventSynchronizer.Events
+        .OfType<AncientEventModel>().Any(e=>!e.IsFinished && e.CurrentOptions.Any(option=>option.WasChosen));
+
+    private async Task SettleAncientOptions()
+    {
+        var synchronizer=RunManager.Instance.EventSynchronizer;
+        var events=synchronizer.Events.ToArray();
+        var map=Map;
+        try
+        {
+            // Run outside the managed action and native StateChanged callback.
+            await synchronizer.AwaitPendingOptionTasks();
+        }
+        finally { settlingAncientOptions=false; }
+        // AwaitPendingOptionTasks swallows failures: a chosen unfinished event is
+        // still unsafe after its task ends. Keep the whole rollback checkpoint.
+        if(Current!=this || !ReferenceEquals(Map,map) || !ReferenceEquals(synchronizer,RunManager.Instance.EventSynchronizer)
+            || !events.SequenceEqual(synchronizer.Events) || HasUnfinishedChosenAncient())return;
+        OnAncientCompleted();
+    }
+
+    internal void OnAncientCompleted()
+    {
+        if(Map?.Phase is not (JigsawPhase.Ancient or JigsawPhase.Exploring) || !AncientReady || !ActivePlayerIds.All(NativeAncientFinished))return;
+        if(settlingAncientOptions)return;
+        if(HasUnfinishedChosenAncient())
+        {
+            settlingAncientOptions=true;
+            _=Defer(SettleAncientOptions);
+            return;
+        }
+        if(Native.CurrentRoom is EventRoom room)room.MarkPreFinished();
         BeforeAncient = null;
         BeginExploration();
         JigsawCheckpoint.Capture(Native, Map);
+        OnEdited();
     }
 
     // Native reward completion owns this transition so its normal save already
     // contains exploration. Also accepts completed Ancient saves from older builds.
     private void BeginExploration()
     {
-        if (Map?.Phase == JigsawPhase.Ancient && AncientReady)
-            Map.Continue(Native.Players[0].NetId);
+        if (Map?.Phase == JigsawPhase.Ancient && AncientReady && Map.ActivePlayers.Count==1)
+            Map.Continue(LocalPlayerId);
     }
 
     public async Task Continue()
@@ -333,10 +566,12 @@ public sealed class JigsawNativeSession
         {
             OnEdited();await WaitForSave();
             if(Current!=this || !ReferenceEquals(Map,waiting))return;
-            BeforeAncient=RunManager.Instance.ToSave(null);await EnterAncient();return;
+            BeforeAncient=JigsawSaveSource.Copy(RunManager.Instance.ToSave(null));await EnterAncient();return;
         }
-        if (Map == null || !Map.Continue(Native.Players[0].NetId).Success) return;
-        OnEdited(); await WaitForSave(); ShowMap();
+        if (Map == null) return;
+        var submitted=JigsawEditorAction.Submit(this,JigsawEditorOperation.ContinueAncient);
+        if(!submitted.Success)screen?.ShowResult(submitted);
+        await Task.CompletedTask;
     }
 
     public Task Enter(int node)
@@ -384,7 +619,7 @@ public sealed class JigsawNativeSession
 
     private async Task EnterCore(int node)
     {
-        if (Map == null) return;
+        if (Map == null || BeforeAncient != null) return;
         if (Map.PendingEntry == null) { entryCheckpoint = null; entryFailed = false; }
         if (entryFailed && Map.PendingEntry?.NodeId == node && entryCheckpoint != null)
         {
@@ -503,6 +738,12 @@ public sealed class JigsawNativeSession
     }
 }
 
+[HarmonyPatch(typeof(RunManager), nameof(RunManager.CleanUp))]
+internal static class JigsawCloseNativeSession
+{
+    private static void Prefix()=>JigsawNativeSession.SaveSession?.Close();
+}
+
 internal static class JigsawAutomaticWorker
 {
     internal static Func<JigsawRun,int,Task<JigsawLayout?>>? TestOverride;
@@ -582,7 +823,7 @@ internal static class JigsawAncientCompletion
     private static void Prefix(EventModel eventModel)
     {
         if (eventModel is AncientEventModel && eventModel.IsFinished)
-            JigsawNativeSession.Current?.AncientFinished();
+            JigsawNativeSession.Current?.AncientFinished(eventModel.Owner.NetId);
     }
 }
 
@@ -608,21 +849,23 @@ internal static class JigsawRestoreSession
 [HarmonyPatch(typeof(RunManager), nameof(RunManager.ToSave))]
 internal static class JigsawCaptureNativePoint
 {
-    private static void Postfix(SerializableRun __result)
+    [HarmonyPriority(Priority.Last)]
+    private static void Postfix(ref SerializableRun __result)
     {
-        if (JigsawNativeSession.Current == null) return;
+        if (JigsawNativeSession.SaveSession is not {} session) return;
+        if(session.BeforeAncient is {} before)__result=JigsawSaveSource.Copy(before);
         var identity = ModelDb.Modifier<AllMattersJigsawMode>();
         if (!__result.Modifiers.Any(modifier => modifier.Id == identity.Id))
             __result.Modifiers.Add(identity.ToMutable().ToSerializable());
-        JigsawNativeSession.Current.CapturePendingEntry(__result);
+        session.CapturePendingEntry(__result);
     }
     private static bool Prefix(ref SerializableRun __result)
     {
-        if (JigsawNativeSession.Current is not { Map: not null } session) return true;
+        if (JigsawNativeSession.SaveSession is not { Map: not null } session) return true;
         JigsawCheckpoint.Capture(session.Native, session.Map);
         if (session.FailedEntryCheckpoint is { } pending) { __result = pending; return false; }
-        if (session.BeforeAncient == null || session.AncientReady) return true;
-        __result = session.BeforeAncient;
+        if (session.BeforeAncient == null) return true;
+        __result = JigsawSaveSource.Copy(session.BeforeAncient);
         return false;
     }
 }

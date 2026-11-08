@@ -20,6 +20,7 @@
     <Compile Include="*.cs" />
     <ProjectReference Include="../../AllMatters.csproj" />
     <Reference Include="sts2" HintPath="$(GameDataDir)/sts2.dll" />
+    <Reference Include="Steamworks.NET" HintPath="$(GameDataDir)/Steamworks.NET.dll" />
     <Reference Include="0Harmony" HintPath="$(GameDataDir)/0Harmony.dll" />
     <AssemblyMetadata Include="DependencyDirectory" Value="$(BetaGameDataDir)" />
     <AssemblyMetadata Include="GameResourcePack" Value="$(BetaGameDataDir)/../SlayTheSpire2.pck" />

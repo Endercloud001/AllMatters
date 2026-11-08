@@ -1,4 +1,4 @@
-namespace AllMatters.Jigsaw;
+﻿namespace AllMatters.Jigsaw;
 
 /// <summary>Authoritative accepted-order map state. UI and native adapters submit intentions here.</summary>
 public sealed class JigsawRun
@@ -26,6 +26,7 @@ public sealed class JigsawRun
     public IReadOnlyDictionary<ulong,int> SelectedEndpoints => new System.Collections.ObjectModel.ReadOnlyDictionary<ulong,int>(endpoints);
     public IReadOnlyDictionary<ulong,EndChoice> Choices => new System.Collections.ObjectModel.ReadOnlyDictionary<ulong,EndChoice>(choices);
     public JigsawPhase Phase { get; private set; } = JigsawPhase.Editing;
+    public long EditRevision { get; private set; }
     public int Budget { get; }
     public int Steps { get; private set; }
     public int FirstProgress { get; private set; }
@@ -36,20 +37,23 @@ public sealed class JigsawRun
     public IReadOnlyCollection<int> Completed => completed.ToArray();
     public IReadOnlyList<JigsawNode> Nodes => BuildNodes(placements);
     public IReadOnlyList<JigsawEdge> Edges => BuildEdges(placements,external);
-    public static JigsawRun Create(int seed, int budget = 15, bool doubleBoss = false, IEnumerable<ulong>? players = null)
+    public static JigsawRun Create(int seed, int budget = 15, bool doubleBoss = false, IEnumerable<ulong>? players = null,IEnumerable<ulong>? originalPlayers=null)
     {
-        var run=new JigsawRun(JigsawPool.Create(seed,doubleBoss),budget,players);
+        var run=new JigsawRun(JigsawPool.Create(seed,doubleBoss),budget,players,originalPlayers);
         run.generationRandomState=(ulong)(uint)seed+1;
         run.AutomaticWitness=JigsawAutomatic.Witness(run);
         return run;
     }
     public JigsawRun(IEnumerable<JigsawPiece> pool, int budget = 15, IEnumerable<ulong>? players = null)
+        :this(pool,budget,players,null) { }
+    private JigsawRun(IEnumerable<JigsawPiece> pool,int budget,IEnumerable<ulong>? players,IEnumerable<ulong>? originalPlayers)
     {
         if (budget < 0) throw new ArgumentOutOfRangeException(nameof(budget));
         Pool = Array.AsReadOnly(pool.Select(p => p with { Nodes = Array.AsReadOnly(p.Nodes.ToArray()), InternalEdges = Array.AsReadOnly(p.InternalEdges.ToArray()) }).ToArray());
         if (Pool.Select(p => p.Id).Distinct().Count() != Pool.Count || Pool.SelectMany(p => p.Nodes).Select(n => n.Id).Distinct().Count() != Pool.Sum(p => p.Nodes.Count) || Pool.SelectMany(p => p.Nodes).Any(n => n.Id == 0)) throw new ArgumentException("Piece and node IDs must be unique; zero belongs to Ancient.");
         Budget = budget; this.players = (players ?? [1UL]).ToHashSet();
-        originalPlayers = new(this.players);
+        this.originalPlayers = (originalPlayers ?? this.players).ToHashSet();
+        if(this.players.Count==0 || !this.players.IsSubsetOf(this.originalPlayers))throw new ArgumentException("Active players must be a non-empty subset of the original roster.",nameof(players));
     }
     private List<JigsawNode> BuildNodes(IReadOnlyDictionary<int,JigsawPlacement> layout)
     {
@@ -125,7 +129,7 @@ public sealed class JigsawRun
         external.RemoveAll(e => e.Connects(first,second)); return JigsawResult.Ok;
     }
     public void ClearEndpoint(ulong player) { endpoints.Remove(player); blankClicks.Remove(player); }
-    public JigsawResult SelectEndpoint(ulong player,int? node)
+    public JigsawResult SelectEndpoint(ulong player,int? node,bool? desiredAdd=null)
     {
         if (!Editable(player) || holdings.ContainsKey(player)) return JigsawResult.Reject(JigsawFailure.CannotSelectPaths);
         if (node == null)
@@ -137,7 +141,7 @@ public sealed class JigsawRun
         if (!Nodes.Any(n => n.Id == node)) return JigsawResult.Reject(JigsawFailure.UnknownNode);
         if (!endpoints.TryGetValue(player,out int first)) { endpoints[player] = node.Value; return JigsawResult.Ok; }
         if (first == node) { ClearEndpoint(player); return JigsawResult.Ok; }
-        var check = external.Any(e => e.Connects(first,node.Value)) ? RemoveEdge(player,first,node.Value) : AddEdge(player,first,node.Value);
+        var check = (desiredAdd ?? !external.Any(e => e.Connects(first,node.Value))) ? AddEdge(player,first,node.Value) : RemoveEdge(player,first,node.Value);
         if (check.Success) ClearEndpoint(player); return check;
     }
     public JigsawResult ChooseEnd(ulong player,EndChoice? choice)
@@ -150,11 +154,18 @@ public sealed class JigsawRun
     {
         holdings.Remove(player);ClearEndpoint(player);choices.Remove(player);players.Remove(player);
         if(Phase==JigsawPhase.Editing)AuthorizeIfUnanimous();
+        if(Phase==JigsawPhase.Ancient && players.Count>0 && players.All(ancientCompleted.Contains) && players.All(continued.Contains))Phase=JigsawPhase.Exploring;
+    }
+    public JigsawResult Reconnect(ulong player)
+    {
+        if(!originalPlayers.Contains(player))return JigsawResult.Reject(JigsawFailure.UnknownPlayer);
+        players.Add(player);return JigsawResult.Ok;
     }
     private void AuthorizeIfUnanimous()
     {
         if (players.Count > 0 && choices.Count == players.Count && choices.Values.Distinct().Count() == 1)
         {
+            EditRevision++;
             Phase = choices.Values.First() == EndChoice.Manual ? JigsawPhase.Inspecting : JigsawPhase.Generating;
             if(Phase==JigsawPhase.Inspecting)AutomaticOperation=null;
             if(Phase==JigsawPhase.Generating)
@@ -227,11 +238,17 @@ public sealed class JigsawRun
     public JigsawResult ResetLayout()
     {
         if (Phase != JigsawPhase.Editing) return JigsawResult.Reject(JigsawFailure.NotEditable);
+        EditRevision++;
         placements.Clear(); external.Clear(); holdings.Clear(); endpoints.Clear(); blankClicks.Clear(); choices.Clear(); return JigsawResult.Ok;
     }
     public JigsawResult CompleteAncient(ulong player)
     {
         if (Phase != JigsawPhase.Ancient || !players.Contains(player)) return JigsawResult.Reject(JigsawFailure.NotAncient);
+        ancientCompleted.Add(player); return JigsawResult.Ok;
+    }
+    internal JigsawResult RecordNativeAncientCompletion(ulong player)
+    {
+        if (Phase is not (JigsawPhase.Ancient or JigsawPhase.Exploring) || !originalPlayers.Contains(player)) return JigsawResult.Reject(JigsawFailure.NotAncient);
         ancientCompleted.Add(player); return JigsawResult.Ok;
     }
     public JigsawResult Continue(ulong player)

@@ -1,4 +1,4 @@
-using AllMatters.Jigsaw;
+﻿using AllMatters.Jigsaw;
 
 internal static class JigsawDomainTests
 {
@@ -13,9 +13,12 @@ internal static class JigsawDomainTests
         ("Jigsaw domain explicit paths are idempotent and failed selection retains first endpoint", Paths),
         ("Jigsaw domain paths reject crossings and third connection between same pieces", PathGeometry),
         ("Jigsaw domain reset clears editing transients and preserves exact pool", Reset),
+        ("Jigsaw domain vote changes, retractions and late actions follow acceptance order", VoteOrder),
         ("Jigsaw domain failed inspection retracts isolated pieces and clears votes", FailedInspection),
         ("Jigsaw domain exploration waits for success and counts each entry once", Exploration),
         ("Jigsaw domain absent Ancient recipient survives checkpoint restore", AbsentRecipient),
+        ("Jigsaw domain disconnect releases final Ancient continuation", DisconnectContinuation),
+        ("Jigsaw domain disconnect clears only the departed editor state", DisconnectEditorState),
         ("Jigsaw domain save copy cancels preview without mutating live holding", Save),
         ("Jigsaw domain restore rejects malformed pool layout and exploration state", InvalidSave),
     ];
@@ -138,6 +141,12 @@ internal static class JigsawDomainTests
         Ok(run.SelectEndpoint(1,0)); Ok(run.SelectEndpoint(1,null)); Check(run.SelectedEndpoints[1]==0,"One blank preserves first endpoint.");
         Check(!run.SelectEndpoint(1,21).Success && run.SelectedEndpoints[1]==0,"Failed link retains first endpoint."); Ok(run.SelectEndpoint(1,null)); Ok(run.SelectEndpoint(1,null)); Check(run.SelectedEndpoints.Count==0,"Two consecutive blanks clear selection.");
         Ok(run.SelectEndpoint(1,11)); Ok(run.SelectEndpoint(1,11)); Check(run.SelectedEndpoints.Count==0,"Same endpoint clears selection.");
+        Ok(run.SelectEndpoint(1,11)); Ok(run.AddEdge(2,11,21));
+        Ok(run.SelectEndpoint(1,21,desiredAdd:true));
+        Check(run.Edges.Count==1,"A delayed add intention cannot delete an edge added by another player.");
+        Ok(run.SelectEndpoint(1,11)); Ok(run.RemoveEdge(2,11,21));
+        Ok(run.SelectEndpoint(1,21,desiredAdd:false));
+        Check(run.Edges.Count==0,"A delayed delete intention cannot recreate an edge removed by another player.");
         var internalRun=JigsawRun.Create(74); Place(internalRun,0,3,0); Check(!internalRun.RemoveEdge(1,1,2).Success,"Internal paths cannot be deleted.");
         return Task.CompletedTask;
     }
@@ -146,6 +155,27 @@ internal static class JigsawDomainTests
         var run=JigsawRun.Create(74,players:[1UL,2UL]); var pool=run.Pool; Place(run,0,3,0); Ok(run.AddEdge(1,0,1)); Ok(run.ChooseEnd(1,EndChoice.Manual)); Ok(run.Take(2,1));
         Ok(run.ResetLayout()); Ok(run.ResetLayout()); Check(ReferenceEquals(pool,run.Pool) && run.Nodes.Count==1 && run.Edges.Count==0 && run.Holdings.Count==0 && run.Choices.Count==0,"Reset returns same original pool and clears all edit state.");
         var authorized=Ready(); var save=authorized.CreateSave(); Check(!authorized.ResetLayout().Success && authorized.Placements.SequenceEqual(save.Placements),"Authorized end rejects reset without mutation."); return Task.CompletedTask;
+    }
+    private static Task VoteOrder()
+    {
+        var run=JigsawRun.Create(86,players:[1UL,2UL]);
+        Ok(run.ChooseEnd(1,EndChoice.Manual));
+        Ok(run.Take(2,0));
+        Check(run.Choices.TryGetValue(1,out var retained)&&retained==EndChoice.Manual,"Another player's edit does not clear the first player's vote.");
+        Ok(run.Cancel(2));
+        Ok(run.ChooseEnd(2,EndChoice.Automatic));
+        Check(run.Phase==JigsawPhase.Editing,"Different buttons cannot authorize an end operation.");
+        Ok(run.ChooseEnd(2,EndChoice.Manual));
+        Check(run.Phase==JigsawPhase.Inspecting,"The last accepted matching vote authorizes manual inspection.");
+        Check(!run.ChooseEnd(2,EndChoice.Manual).Success&&run.Phase==JigsawPhase.Inspecting,"A retraction ordered after the final vote is rejected as late.");
+
+        var retracted=JigsawRun.Create(87,players:[1UL,2UL]);
+        Ok(retracted.ChooseEnd(2,EndChoice.Manual));Ok(retracted.ChooseEnd(2,EndChoice.Manual));
+        Ok(retracted.ChooseEnd(1,EndChoice.Manual));
+        Check(retracted.Phase==JigsawPhase.Editing&&retracted.Choices.Count==1,"A retraction ordered before the other player's last vote prevents premature authorization.");
+        Ok(retracted.ChooseEnd(2,EndChoice.Manual));
+        Check(retracted.Phase==JigsawPhase.Inspecting,"The later matching vote authorizes exactly once.");
+        return Task.CompletedTask;
     }
     private static Task PathGeometry()
     {
@@ -175,6 +205,34 @@ internal static class JigsawDomainTests
         ((JigsawPieceNode[])save.Pool[0].Nodes)[0] = new JigsawPieceNode(999,new(0,0),JigsawRoom.Rest);
         Check(run.Pool[0].Nodes[0].Id==1,"Save DTO has its own collection copy."); return Task.CompletedTask;
     }
+    private static Task DisconnectContinuation()
+    {
+        var run=JigsawRun.Create(80,players:[1UL,2UL]);
+        Ok(run.ChooseEnd(1,EndChoice.Automatic));Ok(run.ChooseEnd(2,EndChoice.Automatic));
+        Ok(run.FinishAutomatic(run.AutomaticOperation!,JigsawAutomatic.Solve(run,0)));
+        Ok(run.CompleteAncient(1));Ok(run.CompleteAncient(2));Ok(run.Continue(1));
+        Check(run.Phase==JigsawPhase.Ancient,"One remaining continuation keeps the common map waiting.");
+        run.Disconnect(2);
+        Check(run.Phase==JigsawPhase.Exploring,"Disconnecting the final noncontinued player must release the already unanimous continuation.");
+        Check(run.CreateSave().AncientCompleted.Contains(2UL),"Disconnect preserves the departed player's personal reward completion.");
+        return Task.CompletedTask;
+    }
+    private static Task DisconnectEditorState()
+    {
+        var run=JigsawRun.Create(81,players:[1UL,2UL,3UL]);
+        Ok(run.ChooseEnd(2,EndChoice.Manual));
+        Ok(run.Take(3,0));
+        run.Disconnect(3);
+        Check(!run.Holdings.ContainsKey(3)&&run.ActivePlayers.SequenceEqual(new[]{1UL,2UL}),"A departed holder releases its piece and leaves the active roster.");
+        Check(run.Choices.TryGetValue(2,out var retained)&&retained==EndChoice.Manual,"Disconnect leaves another active player's accepted vote intact.");
+        var endpoint=JigsawRun.Create(82,players:[1UL,2UL]);
+        Ok(endpoint.SelectEndpoint(2,0));
+        Ok(endpoint.ChooseEnd(1,EndChoice.Manual));
+        endpoint.Disconnect(2);
+        Check(!endpoint.SelectedEndpoints.ContainsKey(2)&&!endpoint.Choices.ContainsKey(2),"A departed editor loses its temporary endpoint and vote.");
+        Check(endpoint.Phase==JigsawPhase.Inspecting,"Removing the last required editor re-evaluates the remaining accepted vote.");
+        return Task.CompletedTask;
+    }
     private static Task AbsentRecipient()
     {
         var run=JigsawRun.Create(74,players:[1UL,2UL]);Place(run,0,3,0);Ok(run.AddEdge(1,0,1));
@@ -184,6 +242,11 @@ internal static class JigsawDomainTests
         Check(saved.OriginalPlayers!.Order().SequenceEqual(new[]{1UL,2UL}),"Disconnect preserves the original saved roster.");
         Check(saved.Players.SequenceEqual(new[]{1UL})&&restored.CreateSave().AncientCompleted.Contains(2UL),"The inactive recipient is excluded from current decisions but keeps saved completion.");
         Check(!restored.CompleteAncient(2).Success,"An absent original player cannot submit a live completion.");
+        var late=JigsawRun.Restore(saved with {AncientCompleted=[]});
+        Check(!late.CompleteAncient(2).Success,"Absent owner cannot submit ordinary completion.");
+        Ok(late.RecordNativeAncientCompletion(2));
+        Check(late.CreateSave().AncientCompleted.SequenceEqual(new[]{2UL}),"Trusted native fact preserves genuine late completion for an absent original owner.");
+        Check(!late.RecordNativeAncientCompletion(3).Success,"Trusted native facts still reject owners outside the original roster.");
         var rejoined=JigsawRun.Restore(saved,[1UL,2UL]);
         Check(rejoined.ActivePlayers.Order().SequenceEqual(new[]{1UL,2UL})&&rejoined.CreateSave().AncientCompleted.Contains(2UL),"A new lobby session reselects active original players without replaying completed rewards.");
         Ok(rejoined.CompleteAncient(1));Ok(rejoined.Continue(1));
