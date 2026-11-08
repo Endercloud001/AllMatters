@@ -1,4 +1,4 @@
-using AllMatters.Jigsaw;
+﻿using AllMatters.Jigsaw;
 
 internal static class JigsawDomainTests
 {
@@ -141,6 +141,12 @@ internal static class JigsawDomainTests
         Ok(run.SelectEndpoint(1,0)); Ok(run.SelectEndpoint(1,null)); Check(run.SelectedEndpoints[1]==0,"One blank preserves first endpoint.");
         Check(!run.SelectEndpoint(1,21).Success && run.SelectedEndpoints[1]==0,"Failed link retains first endpoint."); Ok(run.SelectEndpoint(1,null)); Ok(run.SelectEndpoint(1,null)); Check(run.SelectedEndpoints.Count==0,"Two consecutive blanks clear selection.");
         Ok(run.SelectEndpoint(1,11)); Ok(run.SelectEndpoint(1,11)); Check(run.SelectedEndpoints.Count==0,"Same endpoint clears selection.");
+        Ok(run.SelectEndpoint(1,11)); Ok(run.AddEdge(2,11,21));
+        Ok(run.SelectEndpoint(1,21,desiredAdd:true));
+        Check(run.Edges.Count==1,"A delayed add intention cannot delete an edge added by another player.");
+        Ok(run.SelectEndpoint(1,11)); Ok(run.RemoveEdge(2,11,21));
+        Ok(run.SelectEndpoint(1,21,desiredAdd:false));
+        Check(run.Edges.Count==0,"A delayed delete intention cannot recreate an edge removed by another player.");
         var internalRun=JigsawRun.Create(74); Place(internalRun,0,3,0); Check(!internalRun.RemoveEdge(1,1,2).Success,"Internal paths cannot be deleted.");
         return Task.CompletedTask;
     }
@@ -236,6 +242,11 @@ internal static class JigsawDomainTests
         Check(saved.OriginalPlayers!.Order().SequenceEqual(new[]{1UL,2UL}),"Disconnect preserves the original saved roster.");
         Check(saved.Players.SequenceEqual(new[]{1UL})&&restored.CreateSave().AncientCompleted.Contains(2UL),"The inactive recipient is excluded from current decisions but keeps saved completion.");
         Check(!restored.CompleteAncient(2).Success,"An absent original player cannot submit a live completion.");
+        var late=JigsawRun.Restore(saved with {AncientCompleted=[]});
+        Check(!late.CompleteAncient(2).Success,"Absent owner cannot submit ordinary completion.");
+        Ok(late.RecordNativeAncientCompletion(2));
+        Check(late.CreateSave().AncientCompleted.SequenceEqual(new[]{2UL}),"Trusted native fact preserves genuine late completion for an absent original owner.");
+        Check(!late.RecordNativeAncientCompletion(3).Success,"Trusted native facts still reject owners outside the original roster.");
         var rejoined=JigsawRun.Restore(saved,[1UL,2UL]);
         Check(rejoined.ActivePlayers.Order().SequenceEqual(new[]{1UL,2UL})&&rejoined.CreateSave().AncientCompleted.Contains(2UL),"A new lobby session reselects active original players without replaying completed rewards.");
         Ok(rejoined.CompleteAncient(1));Ok(rejoined.Continue(1));

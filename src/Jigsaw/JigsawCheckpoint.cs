@@ -23,7 +23,7 @@ public static class JigsawCheckpoint
 {
     public static RunSavedData<JigsawCheckpointData> Slot { get; } =
         RunSavedDataStore.For(ModEntry.ModId).Register<JigsawCheckpointData>("jigsaw");
-    public static void Initialize() => _ = Slot;
+    public static void Initialize() { _ = Slot; _ = JigsawNewRunMode.Slot; }
 
     public static void Capture(RunState native, JigsawRun map) =>
         Slot.Set(native, new() { Version = 1, Act = native.CurrentActIndex, Map = map.CreateSave() });

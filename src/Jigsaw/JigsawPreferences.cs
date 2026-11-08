@@ -19,7 +19,7 @@ internal static class JigsawPreferences
             .WithTitle(ModSettingsText.Literal("万物皆有意义"))
             .WithModDisplayName(ModSettingsText.Literal("AllMatters"))
             .AddSection("jigsaw", section => section.WithTitle(ModSettingsText.Literal("拼图模式"))
-                .AddToggle("enabled", ModSettingsText.Literal("新单人标准跑局默认启用拼图模式"),
+                .AddToggle("enabled", ModSettingsText.Literal("新单人及由我主持的多人标准跑局默认启用拼图模式"),
                     new ModSettingsValueBinding<JigsawPreferencesData, bool>(ModEntry.ModId, "jigsaw_settings", SaveScope.Global,
                         settings => settings.Enabled, (settings, value) => settings.Enabled = value))));
     }
