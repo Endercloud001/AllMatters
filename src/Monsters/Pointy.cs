@@ -25,82 +25,82 @@ namespace AllMatters.Monsters;
 [RegisterMonster]
 public sealed class Pointy : BanditMonster
 {
-  public override MonsterAssetProfile AssetProfile => new(
-    "res://AllMatters/monsters/pointy/pointy.tscn");
+    public override MonsterAssetProfile AssetProfile => new(
+      "res://AllMatters/monsters/pointy/pointy.tscn");
 
-  public override int MinInitialHp => AscensionHelper.GetValueIfAscension(AscensionLevel.ToughEnemies, 34, 30);
-  public override int MaxInitialHp => MinInitialHp;
+    public override int MinInitialHp => AscensionHelper.GetValueIfAscension(AscensionLevel.ToughEnemies, 34, 30);
+    public override int MaxInitialHp => MinInitialHp;
 
-  private static int AttackDamage => AscensionHelper.GetValueIfAscension(AscensionLevel.DeadlyEnemies, 6, 5);
-  private const int AttackHits = 2;
-  private static readonly LocString DeathReactLine =
-    new("monsters", "ALL_MATTERS_MONSTER_POINTY.deathReactLine");
+    private static int AttackDamage => AscensionHelper.GetValueIfAscension(AscensionLevel.DeadlyEnemies, 6, 5);
+    private const int AttackHits = 2;
+    private static readonly LocString DeathReactLine =
+      new("monsters", "ALL_MATTERS_MONSTER_POINTY.deathReactLine");
 
-  private const string STAB = "STAB";
-  protected override string AttackSfx => "event:/sfx/enemy/enemy_attacks/gremlin_merc/sneaky_gremlin_attack";
+    private const string STAB = "STAB";
+    protected override string AttackSfx => "event:/sfx/enemy/enemy_attacks/gremlin_merc/sneaky_gremlin_attack";
 
-  public override async Task AfterAddedToRoom()
-  {
-    await base.AfterAddedToRoom();
-
-    ICombatState? combatState = Creature.CombatState;
-    if (combatState == null)
+    public override async Task AfterAddedToRoom()
     {
-      return;
+        await base.AfterAddedToRoom();
+
+        ICombatState? combatState = Creature.CombatState;
+        if (combatState == null)
+        {
+            return;
+        }
+
+        Creature? bear = combatState.GetTeammatesOf(Creature)
+          .FirstOrDefault(t => t.Monster is Bear);
+        if (bear != null)
+        {
+            bear.Died += BearDeathResponse;
+        }
     }
 
-    Creature? bear = combatState.GetTeammatesOf(Creature)
-      .FirstOrDefault(t => t.Monster is Bear);
-    if (bear != null)
+    private void BearDeathResponse(Creature deadCreature)
     {
-      bear.Died += BearDeathResponse;
-    }
-  }
+        deadCreature.Died -= BearDeathResponse;
+        if (Creature.IsDead)
+        {
+            return;
+        }
 
-  private void BearDeathResponse(Creature deadCreature)
-  {
-    deadCreature.Died -= BearDeathResponse;
-    if (Creature.IsDead)
-    {
-      return;
+        TalkCmd.Play(DeathReactLine, Creature, VfxColor.Red, VfxDuration.Long);
     }
 
-    TalkCmd.Play(DeathReactLine, Creature, VfxColor.Red, VfxDuration.Long);
-  }
+    protected override MonsterMoveStateMachine GenerateMoveStateMachine()
+    {
+        var stabState = new MoveState(STAB, Stab, [new MultiAttackIntent(AttackDamage, AttackHits)]);
+        stabState.FollowUpState = stabState;
+        return new MonsterMoveStateMachine([stabState], stabState);
+    }
 
-  protected override MonsterMoveStateMachine GenerateMoveStateMachine()
-  {
-    var stabState = new MoveState(STAB, Stab, [new MultiAttackIntent(AttackDamage, AttackHits)]);
-    stabState.FollowUpState = stabState;
-    return new MonsterMoveStateMachine([stabState], stabState);
-  }
+    private async Task Stab(IReadOnlyList<Creature> targets)
+    {
+        await DamageCmd.Attack(AttackDamage)
+            .WithHitCount(AttackHits).OnlyPlayAnimOnce()
+            .FromMonster(this)
+            .WithAttackerAnim("Attack", 0.4f)
+            .WithAttackerFx(null, AttackSfx)
+            .WithHitFx("vfx/vfx_attack_slash")
+            .Execute(null);
+    }
 
-  private async Task Stab(IReadOnlyList<Creature> targets)
-  {
-    await DamageCmd.Attack(AttackDamage)
-        .WithHitCount(AttackHits).OnlyPlayAnimOnce()
-        .FromMonster(this)
-        .WithAttackerAnim("Attack", 0.4f)
-        .WithAttackerFx(null, AttackSfx)
-        .WithHitFx("vfx/vfx_attack_slash")
-        .Execute(null);
-  }
+    public override CreatureAnimator GenerateAnimator(MegaSprite controller)
+    {
+        var idle = new AnimState("Idle", true);
+        var attack = new AnimState("Attack");
+        var hit = new AnimState("Hit");
 
-  public override CreatureAnimator GenerateAnimator(MegaSprite controller)
-  {
-    var idle = new AnimState("Idle", true);
-    var attack = new AnimState("Attack");
-    var hit = new AnimState("Hit");
+        attack.NextState = idle;
+        hit.NextState = idle;
 
-    attack.NextState = idle;
-    hit.NextState = idle;
+        var animator = new CreatureAnimator(idle, controller);
+        animator.AddAnyState("Attack", attack);
+        animator.AddAnyState("Slash", attack);
+        animator.AddAnyState(STAB, attack);
+        animator.AddAnyState("Hit", hit);
 
-    var animator = new CreatureAnimator(idle, controller);
-    animator.AddAnyState("Attack", attack);
-    animator.AddAnyState("Slash", attack);
-    animator.AddAnyState(STAB, attack);
-    animator.AddAnyState("Hit", hit);
-
-    return animator;
-  }
+        return animator;
+    }
 }

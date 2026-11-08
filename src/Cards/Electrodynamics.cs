@@ -25,7 +25,8 @@ public sealed class Electrodynamics : ModCardTemplate
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
         await PowerCmd.Apply<ElectrodynamicsPower>(choiceContext, Owner.Creature, 1, Owner.Creature, this);
-        for (int i = 0; i < 3; i++) await OrbCmd.Channel<LightningOrb>(choiceContext, Owner);
+        for (int i = 0; i < 3; i++)
+            await OrbCmd.Channel<LightningOrb>(choiceContext, Owner);
     }
     protected override void OnUpgrade() => EnergyCost.UpgradeBy(-1);
 }

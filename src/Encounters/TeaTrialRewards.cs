@@ -15,7 +15,8 @@ internal static class TeaTrialRewards
 
     private static bool Prefix(RewardsSet __instance, AbstractRoom room, ref RewardsSet __result)
     {
-        if (room is not CombatRoom combat || combat.Encounter is not (ChampionEncounter or TrialEncounter)) return true;
+        if (room is not CombatRoom combat || combat.Encounter is not (ChampionEncounter or TrialEncounter))
+            return true;
         // Enemy identity stays on the actual encounter. Only reward generation and
         // its modifiers see the elite tier, including the elite gold range.
         var elite = new EliteRewardRoom(combat);

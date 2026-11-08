@@ -14,7 +14,8 @@ internal static class NativeSpiritGrafter
     private static void Postfix(SpiritGrafter __instance, ref IReadOnlyList<EventOption> __result)
     {
         var model = __instance;
-        if (!NativeSelectionVariant.Alternative(model)) return;
+        if (!NativeSelectionVariant.Alternative(model))
+            return;
         var options = __result.ToList();
         options[0] = NativeEventActions.Option(model, "SPIRIT_GRAFTER.pages.INITIAL.options.AM_CHRYSALIS", async () =>
         {

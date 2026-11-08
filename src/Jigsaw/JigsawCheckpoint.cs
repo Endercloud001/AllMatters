@@ -45,9 +45,11 @@ internal static class JigsawSaveSource
 
     public static void Observe(string content, ReadSaveResult<SerializableRun> result)
     {
-        if (!result.Success || result.SaveData is not { } save) return;
+        if (!result.Success || result.SaveData is not { } save)
+            return;
         JsonDocument parsed;
-        try { parsed = JsonDocument.Parse(content); }
+        try
+        { parsed = JsonDocument.Parse(content); }
         catch (JsonException) { return; } // Native recovery may salvage non-JSON saves; do not break that result.
         using var json = parsed;
         bool hasJigsaw = json.RootElement.TryGetProperty("_ritsulib", out var root) &&
@@ -60,8 +62,8 @@ internal static class JigsawSaveSource
     }
 
     internal static bool IsJigsaw(SerializableRun save) =>
-        save.Modifiers.Any(m=>m.Id==ModelDb.Modifier<AllMattersJigsawMode>().Id) ||
-        sources.TryGetValue(save,out var source) && source.IsJigsaw;
+        save.Modifiers.Any(m => m.Id == ModelDb.Modifier<AllMattersJigsawMode>().Id) ||
+        sources.TryGetValue(save, out var source) && source.IsJigsaw;
 
     public static void Attach(SerializableRun save)
     {
@@ -79,7 +81,8 @@ internal static class JigsawSaveSource
         string json = System.Text.Encoding.UTF8.GetString(bytes);
         var copy = JsonSerializer.Deserialize(json, type) ?? throw new InvalidDataException("进入检查点无法复制。");
         var identity = ModelDb.Modifier<AllMattersJigsawMode>();
-        if (!copy.Modifiers.Any(m => m.Id == identity.Id)) copy.Modifiers.Add(identity.ToMutable().ToSerializable());
+        if (!copy.Modifiers.Any(m => m.Id == identity.Id))
+            copy.Modifiers.Add(identity.ToMutable().ToSerializable());
         attach.Invoke(null, [copy, json]);
         return copy;
     }
@@ -108,7 +111,7 @@ internal static class JigsawObserveNativeSaveSource
     [HarmonyPriority(Priority.Last)]
     private static void Postfix(ReadSaveResult<SerializableRun> __result, ReadScope __state)
     {
-        if (__state.Content is {} json && __result.Success && __result.SaveData is {} save)
+        if (__state.Content is { } json && __result.Success && __result.SaveData is { } save)
         {
             JigsawSaveSource.Observe(json, __result);
             JigsawSaveSource.Attach(save);
@@ -127,7 +130,8 @@ internal static class JigsawObserveNativeRead
     }
     private static void Postfix(string __result)
     {
-        if (JigsawObserveNativeSaveSource.Current is not {} scope || string.IsNullOrWhiteSpace(__result)) return;
+        if (JigsawObserveNativeSaveSource.Current is not { } scope || string.IsNullOrWhiteSpace(__result))
+            return;
         // Ignore library post-load primary rereads. Only native migration reads
         // determine the source of the successfully returned run object.
         if (new System.Diagnostics.StackTrace().GetFrames().Any(f => f.GetMethod()?.DeclaringType == typeof(MigrationManager)))

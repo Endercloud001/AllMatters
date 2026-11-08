@@ -46,7 +46,8 @@ internal static class TreasuryChest
     private static async Task Open(SunkenTreasury model)
     {
         await PlayerCmd.GainGold(model.DynamicVars["LargeChestGold"].BaseValue, model.Owner!);
-        for (int i = 0; i < model.DynamicVars["AmBranch"].IntValue; i++) await CardPileCmd.AddCurseToDeck<Greed>(model.Owner!);
+        for (int i = 0; i < model.DynamicVars["AmBranch"].IntValue; i++)
+            await CardPileCmd.AddCurseToDeck<Greed>(model.Owner!);
         var loc = new LocString("events", "SUNKEN_TREASURY.pages.SECOND_CHEST.description");
         loc.Add("Monologue", new LocString("characters", model.Owner!.Character.Id.Entry + ".goldMonologue"));
         AccessTools.Method(typeof(EventModel), "SetEventFinished").Invoke(model, [loc]);
@@ -70,7 +71,8 @@ internal static class WoodSnakeOption
 {
     private static void Postfix(WoodCarvings __instance, ref IReadOnlyList<EventOption> __result)
     {
-        if (__instance.DynamicVars["AmBranch"].IntValue != 1) return;
+        if (__instance.DynamicVars["AmBranch"].IntValue != 1)
+            return;
         var list = __result.ToList();
         list[1] = NativeEventActions.Option(__instance, "WOOD_CARVINGS.pages.INITIAL.options.AM_OIL", async () =>
         {
@@ -90,7 +92,8 @@ internal static class PunchActPools
         .OfType<MethodBase>();
     private static void Postfix(ActModel __instance, ref IEnumerable<EventModel> __result)
     {
-        if (__instance.Index is 0 or 1) __result = __result.Append(ModelDb.Event<PunchOff>()).Append(ModelDb.Event<WhisperingHollow>())
+        if (__instance.Index is 0 or 1)
+            __result = __result.Append(ModelDb.Event<PunchOff>()).Append(ModelDb.Event<WhisperingHollow>())
             .Append(ModelDb.Event<DenseVegetation>()).DistinctBy(e => e.Id);
     }
 }
@@ -108,7 +111,8 @@ internal static class LanternKeyHealing
     private static async Task<bool> Heal(Task<bool> original, SpecialCardReward reward, CardModel card)
     {
         bool selected = await original;
-        if (selected && reward.Player.Deck.Cards.Contains(card)) await CreatureCmd.Heal(reward.Player.Creature, 20);
+        if (selected && reward.Player.Deck.Cards.Contains(card))
+            await CreatureCmd.Heal(reward.Player.Creature, 20);
         return selected;
     }
 }

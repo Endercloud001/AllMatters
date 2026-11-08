@@ -24,10 +24,14 @@ public sealed class ForeignInfluence : ModCardTemplate
             .SelectMany(pool => pool.GetUnlockedCards(Owner.UnlockState, Owner.RunState.CardMultiplayerConstraint))
             .Where(card => card.Type == CardType.Skill && card.GetType().Assembly == typeof(CardModel).Assembly);
         var choices = MegaCrit.Sts2.Core.Factories.CardFactory.GetDistinctForCombat(Owner, options, 3, Owner.RunState.Rng.CombatCardGeneration).ToArray();
-        if (IsUpgraded) foreach (var card in choices) CardCmd.Upgrade(card);
-        if (choices.Length == 0) return;
+        if (IsUpgraded)
+            foreach (var card in choices)
+                CardCmd.Upgrade(card);
+        if (choices.Length == 0)
+            return;
         var chosen = await CardSelectCmd.FromChooseACardScreen(choiceContext, choices, Owner, canSkip: true);
-        if (chosen == null) return;
+        if (chosen == null)
+            return;
         chosen.SetToFreeThisTurn();
         await CardPileCmd.AddGeneratedCardToCombat(chosen, PileType.Hand, Owner);
     }

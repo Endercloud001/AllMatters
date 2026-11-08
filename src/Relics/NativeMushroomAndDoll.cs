@@ -33,7 +33,8 @@ internal static class StrangeMushroomVulnerable
         foreach (var instruction in instructions)
         {
             yield return instruction;
-            if (!instruction.Calls(getter)) continue;
+            if (!instruction.Calls(getter))
+                continue;
             yield return new CodeInstruction(OpCodes.Ldarg_0);
             yield return CodeInstruction.Call(typeof(StrangeMushroomVulnerable), nameof(StartingMultiplier));
         }
@@ -53,6 +54,7 @@ public sealed class DuVuDoll : ModRelicTemplate
     public override async Task BeforeCombatStart()
     {
         int curses = Owner.Deck.Cards.Count(c => c.Type == CardType.Curse);
-        if (curses > 0) await PowerCmd.Apply<StrengthPower>(new ThrowingPlayerChoiceContext(), Owner.Creature, curses, Owner.Creature, null);
+        if (curses > 0)
+            await PowerCmd.Apply<StrengthPower>(new ThrowingPlayerChoiceContext(), Owner.Creature, curses, Owner.Creature, null);
     }
 }

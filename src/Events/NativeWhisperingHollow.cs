@@ -24,7 +24,8 @@ internal static class WhisperingSharedPage
     internal static void Initialize() => _ = Sharing;
     private static void Postfix(EventModel __instance, ref bool __result)
     {
-        if (__instance is not WhisperingHollow || __instance.Owner == null) return;
+        if (__instance is not WhisperingHollow || __instance.Owner == null)
+            return;
         var run = (RunState)__instance.Owner.RunState;
         int floor = run.MapPointHistory.Sum(points => points.Count);
         var page = Sharing.Get(run);
@@ -45,7 +46,8 @@ internal static class ConditionalSharedSynchronization
 {
     private static void Postfix(EventSynchronizer __instance, ref bool __result)
     {
-        if (__instance.Events.FirstOrDefault() is WhisperingHollow or FieldOfManSizedHoles) __result = __instance.Events[0].IsShared;
+        if (__instance.Events.FirstOrDefault() is WhisperingHollow or FieldOfManSizedHoles)
+            __result = __instance.Events[0].IsShared;
     }
 }
 
@@ -79,10 +81,12 @@ internal static class WhisperingHug
         options[1] = new EventOption(model, legal ? async () =>
         {
             var cards = await CardSelectCmd.FromDeckForTransformation(model.Owner!, new CardSelectorPrefs(CardSelectorPrefs.TransformSelectionPrompt, count));
-            foreach (var card in cards) await CardCmd.TransformToRandom(card, model.Rng, CardPreviewStyle.EventLayout);
+            foreach (var card in cards)
+                await CardCmd.TransformToRandom(card, model.Rng, CardPreviewStyle.EventLayout);
             await NativeEventActions.LoseHp(model, model.DynamicVars.HpLoss.BaseValue);
             NativeEventActions.Finish(model, "WHISPERING_HOLLOW.pages.HUG.description");
-        } : null, "WHISPERING_HOLLOW.pages.INITIAL.options.AM_HUG_" + count, HoverTipFactory.Static(StaticHoverTip.Transform))
+        }
+        : null, "WHISPERING_HOLLOW.pages.INITIAL.options.AM_HUG_" + count, HoverTipFactory.Static(StaticHoverTip.Transform))
             .ThatDoesDamage(model.DynamicVars.HpLoss.BaseValue);
         if (model.IsShared)
             options.Add(NativeEventActions.Option(model, "WHISPERING_HOLLOW.pages.INITIAL.options.AM_BURN", () =>

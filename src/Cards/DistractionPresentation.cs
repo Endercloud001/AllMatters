@@ -12,7 +12,8 @@ internal static class DistractionLocalization
 
     private static void Postfix(LocManager __instance, string name, LocTable __result)
     {
-        if (name != "cards") return;
+        if (name != "cards")
+            return;
         string original = __result.GetRawText("DISTRACTION.description");
         string description = __instance.Language switch
         {
@@ -29,6 +30,7 @@ internal static class DistractionDescription
 {
     private static void Postfix(CardModel __instance, ref LocString __result)
     {
-        if (__instance is Distraction) __result = new LocString("cards", DistractionLocalization.DescriptionKey);
+        if (__instance is Distraction)
+            __result = new LocString("cards", DistractionLocalization.DescriptionKey);
     }
 }

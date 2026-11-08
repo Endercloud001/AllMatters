@@ -11,7 +11,8 @@ internal static class NativeVirusIcon
 {
     private static void Postfix(RelicModel __instance, ref string __result)
     {
-        if (__instance is SymbioticVirus) __result = "res://AllMatters/images/relics/symbiotic_virus.png";
+        if (__instance is SymbioticVirus)
+            __result = "res://AllMatters/images/relics/symbiotic_virus.png";
     }
 }
 [HarmonyPatch(typeof(RelicModel), "get_PackedIconOutlinePath")]
@@ -19,7 +20,8 @@ internal static class NativeVirusOutline
 {
     private static void Postfix(RelicModel __instance, ref string __result)
     {
-        if (__instance is SymbioticVirus) __result = "res://AllMatters/images/relics/outlines/symbiotic_virus.png";
+        if (__instance is SymbioticVirus)
+            __result = "res://AllMatters/images/relics/outlines/symbiotic_virus.png";
     }
 }
 [HarmonyPatch(typeof(RelicModel), "get_BigIconPath")]
@@ -27,7 +29,8 @@ internal static class NativeVirusBigIcon
 {
     private static void Postfix(RelicModel __instance, ref string __result)
     {
-        if (__instance is SymbioticVirus) __result = "res://AllMatters/images/relics/symbiotic_virus.png";
+        if (__instance is SymbioticVirus)
+            __result = "res://AllMatters/images/relics/symbiotic_virus.png";
     }
 }
 [HarmonyPatch(typeof(SymbioticVirus), "get_ExtraHoverTips")]

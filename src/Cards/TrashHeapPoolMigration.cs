@@ -41,8 +41,10 @@ internal static class TrashHeapCardRarity
 {
     private static void Postfix(CardModel __instance, ref CardRarity __result)
     {
-        if (__instance is Stack) __result = CardRarity.Common;
-        else if (__instance is Rebound or RipAndTear or DualWield or Entrench) __result = CardRarity.Uncommon;
+        if (__instance is Stack)
+            __result = CardRarity.Common;
+        else if (__instance is Rebound or RipAndTear or DualWield or Entrench)
+            __result = CardRarity.Uncommon;
     }
 }
 
@@ -68,8 +70,10 @@ internal static class TrashHeapNormalRelicPools
 
     private static void Postfix(RelicPoolModel __instance, ref IEnumerable<RelicModel> __result)
     {
-        if (__instance is EventRelicPool) __result = __result.Where(relic => !TrashHeapPoolMigration.IsMigrated(relic));
-        else __result = __result.Concat(new RelicModel[] { ModelDb.Relic<MawBank>(), ModelDb.Relic<TheBoot>() }).DistinctBy(relic => relic.Id);
+        if (__instance is EventRelicPool)
+            __result = __result.Where(relic => !TrashHeapPoolMigration.IsMigrated(relic));
+        else
+            __result = __result.Concat(new RelicModel[] { ModelDb.Relic<MawBank>(), ModelDb.Relic<TheBoot>() }).DistinctBy(relic => relic.Id);
     }
 }
 

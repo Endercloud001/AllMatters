@@ -18,7 +18,8 @@ internal static class EventCombatRewards
             return false;
         }
         if (room is not CombatRoom combat ||
-            (combat.Encounter is not MindBloomEncounter && !AllMatters.Events.Colosseum.IsSecondCombat(combat))) return true;
+            (combat.Encounter is not MindBloomEncounter && !AllMatters.Events.Colosseum.IsSecondCombat(combat)))
+            return true;
         var player = __instance.Player;
         var options = CardCreationOptions.ForRoom(player, RoomType.Boss);
 #if !STS2_PUBLIC

@@ -20,27 +20,27 @@ namespace AllMatters.Encounters;
 [RegisterGlobalEncounter]
 public sealed class RedMaskBandits : ModEncounterTemplate
 {
-  public override RoomType RoomType => RoomType.Monster;
+    public override RoomType RoomType => RoomType.Monster;
 
-  public override bool IsValidForAct(ActModel act) => false;
+    public override bool IsValidForAct(ActModel act) => false;
 
-  public override bool IsWeak => false;
+    public override bool IsWeak => false;
 
-  public override EncounterAssetProfile AssetProfile => new(
-    EncounterScenePath: "res://AllMatters/scenes/red_mask_bandits.tscn");
+    public override EncounterAssetProfile AssetProfile => new(
+      EncounterScenePath: "res://AllMatters/scenes/red_mask_bandits.tscn");
 
-  public override IReadOnlyList<string> Slots => ["pointy", "romeo", "bear"];
+    public override IReadOnlyList<string> Slots => ["pointy", "romeo", "bear"];
 
-  public override IEnumerable<MonsterModel> AllPossibleMonsters =>
-  [
-    ModelDb.Monster<Pointy>(),
+    public override IEnumerable<MonsterModel> AllPossibleMonsters =>
+    [
+      ModelDb.Monster<Pointy>(),
     ModelDb.Monster<Romeo>(),
     ModelDb.Monster<Bear>(),
   ];
 
-  protected override IReadOnlyList<(MonsterModel, string?)> GenerateMonsters() =>
-  [
-    (ModelDb.Monster<Pointy>().ToMutable(), "pointy"),
+    protected override IReadOnlyList<(MonsterModel, string?)> GenerateMonsters() =>
+    [
+      (ModelDb.Monster<Pointy>().ToMutable(), "pointy"),
     (ModelDb.Monster<Romeo>().ToMutable(), "romeo"),
     (ModelDb.Monster<Bear>().ToMutable(), "bear"),
   ];

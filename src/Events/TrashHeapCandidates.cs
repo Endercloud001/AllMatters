@@ -64,7 +64,8 @@ internal static class TrashHeapGrab
 
     private static async Task Grab(TrashHeap model)
     {
-        if (model.IsFinished) return;
+        if (model.IsFinished)
+            return;
         var owner = model.Owner!;
         await PlayerCmd.GainGold(model.DynamicVars.Gold.BaseValue, owner);
         var card = owner.RunState.CreateCard(model.Rng.NextItem(TrashHeapCandidates.Cards(owner)), owner);
@@ -84,7 +85,8 @@ internal static class TrashHeapDive
 
     private static async Task Dive(TrashHeap model)
     {
-        if (model.IsFinished) return;
+        if (model.IsFinished)
+            return;
         await NativeEventActions.LoseHp(model, model.DynamicVars.HpLoss.IntValue);
         if (!model.Owner!.Creature.IsDead)
             await RelicCmd.Obtain(model.Rng!.NextItem(TrashHeapCandidates.Relics(model.Owner))!.ToMutable(), model.Owner);

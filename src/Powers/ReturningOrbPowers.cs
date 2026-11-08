@@ -29,7 +29,8 @@ public sealed class LockOnPower : ModPowerTemplate
     public override PowerAssetProfile AssetProfile => new(IconPath: "res://AllMatters/images/powers/lock_on.png", BigIconPath: "res://AllMatters/images/powers/lock_on.png");
     public override async Task AfterSideTurnEnd(PlayerChoiceContext choiceContext, CombatSide side, IEnumerable<Creature> participants)
     {
-        if (side == Owner.Side && participants.Contains(Owner)) await PowerCmd.Decrement(this);
+        if (side == Owner.Side && participants.Contains(Owner))
+            await PowerCmd.Decrement(this);
     }
 }
 
@@ -51,7 +52,8 @@ internal static class ElectrodynamicsLightning
         ref Task<IEnumerable<Creature>> __result)
     {
         var enemies = __instance.CombatState.GetOpponentsOf(__instance.Owner.Creature).Where(e => e.IsHittable).ToArray();
-        if (!__instance.Owner.Creature.HasPower<ElectrodynamicsPower>() && !enemies.Any(e => e.Powers.OfType<LockOnPower>().Any(mark => mark.Applier == __instance.Owner.Creature))) return true;
+        if (!__instance.Owner.Creature.HasPower<ElectrodynamicsPower>() && !enemies.Any(e => e.Powers.OfType<LockOnPower>().Any(mark => mark.Applier == __instance.Owner.Creature)))
+            return true;
         var targets = __instance.Owner.Creature.HasPower<ElectrodynamicsPower>() ? enemies
             : target != null ? [target] : enemies.Length == 0 ? [] : new[] { __instance.Owner.RunState.Rng.CombatTargets.NextItem(enemies) };
         __result = Hit(__instance, targets, value, choiceContext,
@@ -67,9 +69,11 @@ internal static class ElectrodynamicsLightning
     private static async Task<IEnumerable<Creature>> Hit(LightningOrb orb, Creature[] targets, decimal value, PlayerChoiceContext context, bool evoke)
     {
 #if !STS2_PUBLIC
-        if (evoke) AccessTools.Method(typeof(OrbModel), "ActivateEvoke").Invoke(orb, [targets]);
+        if (evoke)
+            AccessTools.Method(typeof(OrbModel), "ActivateEvoke").Invoke(orb, [targets]);
 #endif
-        if (targets.Length == 0) return targets;
+        if (targets.Length == 0)
+            return targets;
         AccessTools.Method(typeof(OrbModel), "PlayEvokeSfx").Invoke(orb, null);
         foreach (var enemy in targets)
         {
@@ -86,7 +90,8 @@ internal static class LockOnDark
     private static bool Prefix(DarkOrb __instance, PlayerChoiceContext playerChoiceContext, ref Task<IEnumerable<Creature>> __result)
     {
         var target = __instance.CombatState.HittableEnemies.MinBy(e => e.CurrentHp);
-        if (target == null || !target.Powers.OfType<LockOnPower>().Any(mark => mark.Applier == __instance.Owner.Creature)) return true;
+        if (target == null || !target.Powers.OfType<LockOnPower>().Any(mark => mark.Applier == __instance.Owner.Creature))
+            return true;
         __result = Hit(__instance, target, playerChoiceContext);
         return false;
     }

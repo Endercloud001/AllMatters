@@ -13,7 +13,8 @@ internal static class NativeDrowningBeacon
 {
     private static void Postfix(DrowningBeacon __instance, ref IReadOnlyList<EventOption> __result)
     {
-        if (NativePotionPayment.Potion(__instance) == null) return;
+        if (NativePotionPayment.Potion(__instance) == null)
+            return;
         var option = NativePotionPayment.Option(__instance, "DROWNING_BEACON.pages.INITIAL.options.AM_LIGHT", async () =>
         {
             var card = __instance.Owner!.RunState.CreateCard<Brilliance>(__instance.Owner);

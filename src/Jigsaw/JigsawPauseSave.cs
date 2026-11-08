@@ -10,14 +10,16 @@ internal static class JigsawWaitForSafeExit
     [ThreadStatic] private static bool invoking;
     private static bool Prefix(NPauseMenu __instance, ref Task __result)
     {
-        if (invoking || JigsawNativeSession.Current is not { } session) return true;
+        if (invoking || JigsawNativeSession.Current is not { } session)
+            return true;
         __result = WaitAndExit(session, __instance);
         return false;
     }
 
     private static async Task WaitAndExit(JigsawNativeSession session, NPauseMenu menu)
     {
-        try { await session.WaitForSave(); }
+        try
+        { await session.WaitForSave(); }
         catch (Exception)
         {
             var error = new JigsawSaveErrorDialog
@@ -34,7 +36,8 @@ internal static class JigsawWaitForSafeExit
         }
         Task original;
         invoking = true;
-        try { original = (Task)AccessTools.Method(typeof(NPauseMenu), "CloseToMenu").Invoke(menu, null)!; }
+        try
+        { original = (Task)AccessTools.Method(typeof(NPauseMenu), "CloseToMenu").Invoke(menu, null)!; }
         finally { invoking = false; }
         await original;
     }
@@ -56,17 +59,18 @@ public partial class JigsawSaveErrorDialog : AcceptDialog
 [HarmonyPatch(typeof(NPauseMenu), nameof(NPauseMenu.OnSubmenuClosed))]
 internal static class JigsawResumeInput
 {
-    private static void Postfix() { if(JigsawNativeSession.Current is {} session) _=AfterFrame(session); }
+    private static void Postfix() { if (JigsawNativeSession.Current is { } session) _ = AfterFrame(session); }
     private static async Task AfterFrame(JigsawNativeSession session)
     {
-        var tree=(SceneTree)Engine.GetMainLoop();
-        await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
-        if(JigsawNativeSession.Current==session && MegaCrit.Sts2.Core.Nodes.NRun.Instance?.GlobalUi.SubmenuStack.Stack?.SubmenusOpen!=true)session.ResumeInput();
+        var tree = (SceneTree)Engine.GetMainLoop();
+        await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
+        if (JigsawNativeSession.Current == session && MegaCrit.Sts2.Core.Nodes.NRun.Instance?.GlobalUi.SubmenuStack.Stack?.SubmenusOpen != true)
+            session.ResumeInput();
     }
 }
 
 [HarmonyPatch(typeof(NPauseMenu), nameof(NPauseMenu.OnSubmenuOpened))]
 internal static class JigsawSuspendNativePause
 {
-    private static void Postfix()=>JigsawNativeSession.Current?.SuspendForNativePause();
+    private static void Postfix() => JigsawNativeSession.Current?.SuspendForNativePause();
 }

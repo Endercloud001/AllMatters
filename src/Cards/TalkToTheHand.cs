@@ -22,7 +22,8 @@ public sealed class TalkToTheHand : ModCardTemplate
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
         await ReturningCardAttack.Single(this, cardPlay, choiceContext);
-        if (cardPlay.Target!.IsAlive) await PowerCmd.Apply<TalkToTheHandPower>(choiceContext, cardPlay.Target, DynamicVars["BoundBlock"].BaseValue, Owner.Creature, this);
+        if (cardPlay.Target!.IsAlive)
+            await PowerCmd.Apply<TalkToTheHandPower>(choiceContext, cardPlay.Target, DynamicVars["BoundBlock"].BaseValue, Owner.Creature, this);
     }
     protected override void OnUpgrade() { DynamicVars.Damage.UpgradeValueBy(2); DynamicVars["BoundBlock"].UpgradeValueBy(1); }
 }

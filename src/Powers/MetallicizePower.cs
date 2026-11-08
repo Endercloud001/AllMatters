@@ -23,7 +23,8 @@ public sealed class MetallicizePower : ModPowerTemplate
 
     public override async Task BeforeSideTurnEndEarly(PlayerChoiceContext choiceContext, CombatSide side, IEnumerable<Creature> participants)
     {
-        if (side != Owner.Side) return;
+        if (side != Owner.Side)
+            return;
         Flash();
         await CreatureCmd.GainBlock(Owner, Amount, ValueProp.Unpowered, null);
     }

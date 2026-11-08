@@ -21,7 +21,8 @@ internal static class BrillianceTracking
         ? totals.GetValueOrDefault(owner) : 0;
     internal static void Add(Creature owner, int amount)
     {
-        if (owner.CombatState == null) return;
+        if (owner.CombatState == null)
+            return;
         var totals = Totals.GetOrCreateValue(owner.CombatState);
         totals[owner] = totals.GetValueOrDefault(owner) + amount;
     }
@@ -32,8 +33,10 @@ internal static class BrillianceTracking
 
     internal static int Gained(PowerModel power)
     {
-        if (power.Owner.Player == null || power.TypeForCurrentAmount != PowerType.Buff) return 0;
-        if (NaturalRestoration.Value is { } restoration && restoration.Owner == power.Owner && restoration.PowerType == power.GetType()) return 0;
+        if (power.Owner.Player == null || power.TypeForCurrentAmount != PowerType.Buff)
+            return 0;
+        if (NaturalRestoration.Value is { } restoration && restoration.Owner == power.Owner && restoration.PowerType == power.GetType())
+            return 0;
         int previous = Before.TryGetValue(power, out var before) ? Math.Max(0, before.Amount) : 0;
         int current = Math.Max(0, power.Amount);
         return power.StackType == PowerStackType.Single ? (previous == 0 && current > 0 ? 1 : 0) : Math.Max(0, current - previous);
@@ -56,7 +59,8 @@ internal static class BrillianceAfterPower
     private static void Prefix(PowerModel power, out int __state) => __state = BrillianceTracking.Gained(power);
     private static void Postfix(PowerModel power, int __state, ref Task __result)
     {
-        if (__state > 0) __result = Record(__result, power.Owner, __state);
+        if (__state > 0)
+            __result = Record(__result, power.Owner, __state);
     }
     private static async Task Record(Task original, Creature owner, int gained)
     {

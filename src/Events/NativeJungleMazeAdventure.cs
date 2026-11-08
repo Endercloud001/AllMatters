@@ -15,7 +15,8 @@ internal static class NativeJungleMazeFight
     private static bool Prefix(JungleMazeAdventure __instance, ref Task __result)
     {
         __result = Task.CompletedTask;
-        if (__instance.IsFinished) return false;
+        if (__instance.IsFinished)
+            return false;
         var bonusRewards = new List<Reward>();
 #if STS2_PUBLIC
         foreach (var player in __instance.Owner!.RunState.Players)

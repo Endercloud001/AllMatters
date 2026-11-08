@@ -56,7 +56,8 @@ public sealed class Champion : ModMonsterTemplate
         var next = new ConditionalBranchState("NEXT");
         next.AddState(execute, () => _enraged && _regularMovesUntilExecute == 0);
         next.AddState(regular, () => true);
-        foreach (var move in new[] { defend, taunt, slash, slap, anger, execute }) move.FollowUpState = next;
+        foreach (var move in new[] { defend, taunt, slash, slap, anger, execute })
+            move.FollowUpState = next;
         return new MonsterMoveStateMachine([defend, taunt, slash, slap, anger, execute, regular, next], defend);
     }
 
@@ -74,7 +75,8 @@ public sealed class Champion : ModMonsterTemplate
     private void RegularMove(string id)
     {
         _lastMove = id;
-        if (_enraged) _regularMovesUntilExecute--;
+        if (_enraged)
+            _regularMovesUntilExecute--;
     }
 
     private async Task Defend(IReadOnlyList<Creature> targets)

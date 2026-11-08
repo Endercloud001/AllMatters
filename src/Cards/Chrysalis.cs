@@ -25,7 +25,8 @@ public sealed class Chrysalis : ModCardTemplate
         foreach (var card in cards)
         {
             card.EnergyCost.SetThisCombat(0);
-            if (card.EnergyCost.CostsX) ChrysalisFreeX.Cards[card] = true;
+            if (card.EnergyCost.CostsX)
+                ChrysalisFreeX.Cards[card] = true;
         }
         await CardPileCmd.AddGeneratedCardsToCombat(cards, PileType.Draw, Owner);
     }
@@ -42,7 +43,8 @@ internal static class ChrysalisFreeX
         => !card.IsCanonical && card.CombatState != null && Cards.GetValueOrDefault(card);
     private static void Postfix(MegaCrit.Sts2.Core.Models.CardModel ____card, ref int __result)
     {
-        if (Applies(____card)) __result = 0;
+        if (Applies(____card))
+            __result = 0;
     }
 }
 

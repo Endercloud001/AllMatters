@@ -56,7 +56,8 @@ internal static class NativeSelfHelpBook
             return new EventOption(model, legal ? () => Read(model, reading) : null, title, description, key,
                 preview.HoverTips);
         }).ToList();
-        if (options.All(o => o.IsLocked)) options.Add(NativeEventActions.Option(model, "SELF_HELP_BOOK.pages.INITIAL.options.NO_OPTIONS", () =>
+        if (options.All(o => o.IsLocked))
+            options.Add(NativeEventActions.Option(model, "SELF_HELP_BOOK.pages.INITIAL.options.NO_OPTIONS", () =>
         {
             NativeEventActions.Finish(model, "SELF_HELP_BOOK.pages.NO_OPTIONS.description");
             return Task.CompletedTask;
@@ -69,7 +70,8 @@ internal static class NativeSelfHelpBook
     {
         var selected = await CardSelectCmd.FromDeckForEnchantment(model.Owner!, reading.Enchantment, reading.Amount,
             c => c!.Type == reading.Type, new CardSelectorPrefs(CardSelectorPrefs.EnchantSelectionPrompt, 1));
-        foreach (var card in selected) CardCmd.Enchant(reading.Enchantment!.ToMutable(), card, reading.Amount);
+        foreach (var card in selected)
+            CardCmd.Enchant(reading.Enchantment!.ToMutable(), card, reading.Amount);
         NativeEventActions.Finish(model, "SELF_HELP_BOOK.pages." + reading.Key + ".description");
     }
 }

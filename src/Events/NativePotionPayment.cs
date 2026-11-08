@@ -17,7 +17,8 @@ internal static class NativePotionPayment
 
     internal static void Freeze(EventModel model, bool choosePotion = true)
     {
-        if (Payments.TryGetValue(model, out _)) return;
+        if (Payments.TryGetValue(model, out _))
+            return;
         var potions = model.Owner!.Potions.ToArray();
         Payments.Add(model, new(!choosePotion || potions.Length == 0 ? null : potions[model.Rng.NextInt(potions.Length)], IsAllowed(model)));
         FrozenPlayers.Remove(model.Owner);
@@ -60,10 +61,12 @@ internal static class NativePotionPayment
         description.Add("AmPaymentPotion", potion.Title);
         return new EventOption(model, legal ? async () =>
         {
-            if (model.IsFinished || !model.Owner!.Potions.Contains(potion)) return;
+            if (model.IsFinished || !model.Owner!.Potions.Contains(potion))
+                return;
             await PotionCmd.Discard(potion);
             await action();
-        } : null, new LocString("events", key + ".title"), description, key, potion.HoverTips);
+        }
+        : null, new LocString("events", key + ".title"), description, key, potion.HoverTips);
     }
 }
 
@@ -86,7 +89,8 @@ internal static class FrozenPotionUse
 {
     private static bool Prefix(PotionModel __instance, ref Task __result)
     {
-        if (!NativePotionPayment.IsFrozen(__instance.Owner)) return true;
+        if (!NativePotionPayment.IsFrozen(__instance.Owner))
+            return true;
         __result = Task.CompletedTask;
         return false;
     }
@@ -97,7 +101,8 @@ internal static class FreezeNativePayment
 {
     private static void Postfix(EventModel __instance)
     {
-        if (__instance is BrainLeech or SapphireSeed or DrowningBeacon) NativePotionPayment.Freeze(__instance);
+        if (__instance is BrainLeech or SapphireSeed or DrowningBeacon)
+            NativePotionPayment.Freeze(__instance);
     }
 }
 

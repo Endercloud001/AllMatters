@@ -12,7 +12,8 @@ internal static class JigsawPreferences
     private static bool registered;
     internal static void Register()
     {
-        if (registered) return;
+        if (registered)
+            return;
         registered = true;
         store.Register<JigsawPreferencesData>("jigsaw_settings", "jigsaw_settings", SaveScope.Global);
         RitsuLibFramework.RegisterModSettings(ModEntry.ModId, page => page

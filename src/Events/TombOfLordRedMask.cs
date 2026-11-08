@@ -42,14 +42,16 @@ public sealed class TombOfLordRedMask : ModEventTemplate
 
     private async Task WearMask()
     {
-        if (IsFinished) return;
+        if (IsFinished)
+            return;
         await PlayerCmd.GainGold(222, Owner!);
         SetEventFinished(PageDescription("WEAR_MASK"));
     }
 
     private async Task PayRespects()
     {
-        if (IsFinished) return;
+        if (IsFinished)
+            return;
         await PlayerCmd.LoseGold(150, Owner!, GoldLossType.Spent);
         await RelicCmd.Obtain(ModelDb.Relic<RedMask>().ToMutable(), Owner!);
         SetEventFinished(PageDescription("PAY_RESPECTS"));
@@ -57,7 +59,8 @@ public sealed class TombOfLordRedMask : ModEventTemplate
 
     private Task Leave()
     {
-        if (!IsFinished) SetEventFinished(PageDescription("LEAVE"));
+        if (!IsFinished)
+            SetEventFinished(PageDescription("LEAVE"));
         return Task.CompletedTask;
     }
 }

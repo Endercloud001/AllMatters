@@ -30,13 +30,15 @@ internal static class NativeRemovalBranches
             options.Add(new EventOption(model, legal ? async () =>
             {
                 var removed = player.Deck.Cards.Where(c => c.IsRemovable).ToList().StableShuffle(model.Rng).Take(2).ToArray();
-                if (removed.Length < 2) return;
+                if (removed.Length < 2)
+                    return;
                 await CardPileCmd.RemoveFromDeck(removed);
                 var card = player.RunState.CreateCard(pool[model.Rng.NextInt(pool.Length)], player);
                 CardCmd.Upgrade(card, CardPreviewStyle.None);
                 CardCmd.PreviewCardPileAdd(await CardPileCmd.Add(card, PileType.Deck));
                 NativeEventActions.Finish(model, "AMALGAMATOR.pages.AM_FUSE.description");
-            } : null, "AMALGAMATOR.pages.INITIAL.options.AM_FUSE"));
+            }
+            : null, "AMALGAMATOR.pages.INITIAL.options.AM_FUSE"));
         }
         else
         {
@@ -50,7 +52,8 @@ internal static class NativeRemovalBranches
                     await CardPileCmd.RemoveFromDeck(selected.ToList());
                 }
                 NativeEventActions.Finish(model, "LOST_WISP.pages.AM_BURN.description");
-            } : null, "LOST_WISP.pages.INITIAL.options.AM_BURN").ThatDoesDamage(cost));
+            }
+            : null, "LOST_WISP.pages.INITIAL.options.AM_BURN").ThatDoesDamage(cost));
         }
         __result = options;
     }

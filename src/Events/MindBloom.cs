@@ -33,14 +33,16 @@ public sealed class MindBloom : ModEventTemplate
 
     private Task Fight()
     {
-        if (IsFinished || _choosing) return Task.CompletedTask;
+        if (IsFinished || _choosing)
+            return Task.CompletedTask;
         _choosing = true;
         EnterCombatWithoutExitingEvent<MindBloomEncounter>([], false);
         return Task.CompletedTask;
     }
     private async Task Upgrade()
     {
-        if (IsFinished || _choosing) return;
+        if (IsFinished || _choosing)
+            return;
         _choosing = true;
         foreach (var card in Owner!.Deck.Cards.Where(c => c.IsUpgradable).ToArray())
             CardCmd.Upgrade(card);
@@ -50,7 +52,8 @@ public sealed class MindBloom : ModEventTemplate
 
     private async Task Gold()
     {
-        if (IsFinished || _choosing) return;
+        if (IsFinished || _choosing)
+            return;
         _choosing = true;
         await PlayerCmd.GainGold(999, Owner!);
         await AddCurses(ModelDb.Card<Normality>(), ModelDb.Card<Greed>());
@@ -59,7 +62,8 @@ public sealed class MindBloom : ModEventTemplate
 
     private async Task Heal()
     {
-        if (IsFinished || _choosing) return;
+        if (IsFinished || _choosing)
+            return;
         _choosing = true;
         await CreatureCmd.Heal(Owner!.Creature, Owner.Creature.MaxHp);
         await AddCurses(ModelDb.Card<Enthralled>(), ModelDb.Card<Regret>());

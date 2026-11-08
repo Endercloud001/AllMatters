@@ -8,7 +8,8 @@ internal static class NativeTrashRelicLocalization
 {
     private static void Postfix(LocManager __instance, string name, LocTable __result)
     {
-        if (name != "relics") return;
+        if (name != "relics")
+            return;
         bool zh = __instance.Language == "zhs";
         __result.MergeWith(new Dictionary<string, string>
         {

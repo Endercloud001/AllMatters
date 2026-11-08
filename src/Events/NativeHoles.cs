@@ -21,7 +21,8 @@ internal static class HolesSharedPage
     internal static void Initialize() => _ = Sharing;
     private static void Postfix(EventModel __instance, ref bool __result)
     {
-        if (__instance is not FieldOfManSizedHoles || __instance.Owner == null) return;
+        if (__instance is not FieldOfManSizedHoles || __instance.Owner == null)
+            return;
         var run = (RunState)__instance.Owner.RunState;
         int floor = run.MapPointHistory.Sum(points => points.Count);
         var page = Sharing.Get(run);
@@ -31,7 +32,8 @@ internal static class HolesSharedPage
             // A separate native RNG gives every peer the same floor roll without
             // consuming another event's or player's random stream.
             var rng = new Rng(run.Rng.Seed);
-            for (int i = 0; i < floor; i++) rng.NextInt(100);
+            for (int i = 0; i < floor; i++)
+                rng.NextInt(100);
             bool shared = rng.NextInt(100) < 33;
             page = Sharing.Modify(run, state => { state.Floor = floor; state.Shared = shared; });
         }
@@ -44,7 +46,8 @@ internal static class HolesFightOption
 {
     private static void Postfix(FieldOfManSizedHoles __instance, ref IReadOnlyList<EventOption> __result)
     {
-        if (!__instance.IsShared) return;
+        if (!__instance.IsShared)
+            return;
         var model = __instance;
         __result = __result.Append(NativeEventActions.Option(model, "FIELD_OF_MAN_SIZED_HOLES.pages.INITIAL.options.AM_FIGHT", () =>
         {

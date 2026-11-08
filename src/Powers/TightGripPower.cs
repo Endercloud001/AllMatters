@@ -34,13 +34,15 @@ public sealed class TightGripPower : ModPowerTemplate
 
     public override Task AfterDeath(PlayerChoiceContext choiceContext, Creature creature, bool wasRemovalPrevented, float deathAnimLength)
     {
-        if (creature == Owner) WeightedCardPresentation.RefreshViews();
+        if (creature == Owner)
+            WeightedCardPresentation.RefreshViews();
         return Task.CompletedTask;
     }
 
     public override async Task AfterCardPlayed(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        if (Owner.IsDead || cardPlay.Card.Owner.Creature.CombatState != Owner.CombatState) return;
+        if (Owner.IsDead || cardPlay.Card.Owner.Creature.CombatState != Owner.CombatState)
+            return;
         Flash();
         await PlayerCmd.LoseEnergy(1, cardPlay.Card.Owner);
     }
@@ -64,8 +66,10 @@ internal static class TrialGripCycle
         var grip = monster.Creature.GetPower<TightGripPower>();
         if (round % 3 == 0 && round > 0)
         {
-            if (grip == null) await PowerCmd.Apply<TightGripPower>(context, monster.Creature, 1, monster.Creature, null);
+            if (grip == null)
+                await PowerCmd.Apply<TightGripPower>(context, monster.Creature, 1, monster.Creature, null);
         }
-        else if (grip != null) await PowerCmd.Remove(grip);
+        else if (grip != null)
+            await PowerCmd.Remove(grip);
     }
 }

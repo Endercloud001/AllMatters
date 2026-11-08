@@ -27,7 +27,8 @@ public sealed class MutagenicStrength : ModRelicTemplate
 
     public override async Task AfterRoomEntered(AbstractRoom room)
     {
-        if (room is not CombatRoom) return;
+        if (room is not CombatRoom)
+            return;
         Flash();
         await PowerCmd.Apply<StrengthPower>(new ThrowingPlayerChoiceContext(), Owner.Creature, DynamicVars.Strength.BaseValue, Owner.Creature, null);
         await PowerCmd.Apply<MutagenicDecayPower>(new ThrowingPlayerChoiceContext(), Owner.Creature, DynamicVars["MutagenicDecayPower"].BaseValue, Owner.Creature, null);
