@@ -39,7 +39,8 @@ public sealed class OmegaPower : ModPowerTemplate
     public override PowerAssetProfile AssetProfile => new(IconPath: "res://AllMatters/images/powers/omega.png", BigIconPath: "res://AllMatters/images/powers/omega.png");
     public override async Task AfterSideTurnEnd(PlayerChoiceContext choiceContext, CombatSide side, IEnumerable<Creature> participants)
     {
-        if (side != Owner.Side || !participants.Contains(Owner)) return;
+        if (side != Owner.Side || !participants.Contains(Owner))
+            return;
         foreach (var target in Owner.CombatState!.GetOpponentsOf(Owner).Where(c => c.IsHittable).ToArray())
             await CreatureCmd.Damage(choiceContext, target, Amount, ValueProp.Unpowered, Owner);
     }

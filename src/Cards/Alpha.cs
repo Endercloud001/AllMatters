@@ -21,7 +21,7 @@ public sealed class Alpha : ModCardTemplate
     protected override IEnumerable<IHoverTip> AdditionalHoverTips => HoverTipFactory.FromCardWithCardHoverTips<Beta>();
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        var result = await CardPileCmd.AddGeneratedCardToCombat(CombatState.CreateCard<Beta>(Owner), PileType.Draw, Owner, CardPilePosition.Random);
+        var result = await CardPileCmd.AddGeneratedCardToCombat(CombatState!.CreateCard<Beta>(Owner), PileType.Draw, Owner, CardPilePosition.Random);
         CardCmd.PreviewCardPileAdd(result);
     }
     protected override void OnUpgrade() => AddKeyword(CardKeyword.Innate);

@@ -10,7 +10,8 @@ internal static class HolesRewards
 {
     private static bool Prefix(RewardsSet __instance, AbstractRoom room, ref RewardsSet __result)
     {
-        if (room is not CombatRoom { Encounter: HolesEncounter } combat) return true;
+        if (room is not CombatRoom { Encounter: HolesEncounter } combat)
+            return true;
         var rewards = (List<Reward>)AccessTools.Method(typeof(RewardsSet), "GenerateRewardsFor")
             .Invoke(__instance, [__instance.Player, combat])!;
         if (combat.GoldProportion > 0)

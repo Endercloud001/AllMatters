@@ -61,4 +61,4 @@ public sealed record JigsawSave(
     public JigsawAutomaticOperation? AutomaticOperation { get; init; }
     [JsonRequired] public ulong GenerationRandomState { get; init; } = 1;
 }
-public sealed record JigsawAutomaticOperation(string Algorithm,int ExpansionBudget,int[] CandidateOrder,ulong RandomState);
+public sealed record JigsawAutomaticOperation(string Algorithm, int ExpansionBudget, int[] CandidateOrder, ulong RandomState);

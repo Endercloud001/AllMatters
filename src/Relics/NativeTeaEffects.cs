@@ -30,7 +30,8 @@ internal static class NativeEmberStart
 {
     private static void Postfix(AbstractModel __instance, ref Task __result)
     {
-        if (__instance is EmberTea tea && !tea.IsUsedUp) __result = Apply(tea, __result);
+        if (__instance is EmberTea tea && !tea.IsUsedUp)
+            __result = Apply(tea, __result);
     }
     private static async Task Apply(EmberTea tea, Task original)
     {
@@ -90,7 +91,8 @@ internal static class NativeDiscourtesyStart
     }
     private static async Task Apply(TeaOfDiscourtesy tea)
     {
-        if (tea.IsUsedUp) return;
+        if (tea.IsUsedUp)
+            return;
         AccessTools.Property(typeof(TeaOfDiscourtesy), "CombatsLeft").SetValue(tea, 0);
         int effect = DiscourtesyVariant.Effect.GetValueOrDefault(tea);
         if (effect == 2)

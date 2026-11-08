@@ -31,121 +31,121 @@ namespace AllMatters.Events;
 [RegisterActEvent(typeof(Hive))]
 public sealed class MaskedBandits : ModEventTemplate
 {
-  private static readonly LocString EmptyDescription =
-    new("events", "ALL_MATTERS_EVENT_MASKED_BANDITS.pages.EMPTY.description");
+    private static readonly LocString EmptyDescription =
+      new("events", "ALL_MATTERS_EVENT_MASKED_BANDITS.pages.EMPTY.description");
 
-  private NSpeechBubbleVfx? _speechBubble;
+    private NSpeechBubbleVfx? _speechBubble;
 
-  public override bool IsShared => true;
+    public override bool IsShared => true;
 
-  public override EventLayoutType LayoutType => EventLayoutType.Combat;
+    public override EventLayoutType LayoutType => EventLayoutType.Combat;
 
-  public override EncounterModel CanonicalEncounter => ModelDb.Encounter<RedMaskBandits>();
+    public override EncounterModel CanonicalEncounter => ModelDb.Encounter<RedMaskBandits>();
 
-  /// <summary>
-  /// 第 3 层（城市）且未持有红面具时触发
-  /// </summary>
-  public override bool IsAllowed(IRunState runState)
-  {
-    if (runState.CurrentActIndex != 1)
-      return false;         // NOTE: 第 2 幕（索引 1）
-    if (runState.TotalFloor < 23)
-      return false;              // NOTE: 至少第 23 层
-    return !runState.Players.Any(p => p.Relics.Any(r => r is RedMask));
-  }
+    /// <summary>
+    /// 第 3 层（城市）且未持有红面具时触发
+    /// </summary>
+    public override bool IsAllowed(IRunState runState)
+    {
+        if (runState.CurrentActIndex != 1)
+            return false;         // NOTE: 第 2 幕（索引 1）
+        if (runState.TotalFloor < 23)
+            return false;              // NOTE: 至少第 23 层
+        return !runState.Players.Any(p => p.Relics.Any(r => r is RedMask));
+    }
 
-  protected override IReadOnlyList<EventOption> GenerateInitialOptions()
-  {
-    return
-    [
-      new(this, Pay, InitialOptionKey("PAY"), []),
+    protected override IReadOnlyList<EventOption> GenerateInitialOptions()
+    {
+        return
+        [
+          new(this, Pay, InitialOptionKey("PAY"), []),
       new(this, Fight, InitialOptionKey("FIGHT"), []),
     ];
-  }
-
-  private async Task Pay()
-  {
-    Player? owner = Owner;
-    if (owner == null)
-      return;
-
-    int goldToLose = owner.Gold;
-    if (goldToLose > 0)
-      await PlayerCmd.LoseGold(goldToLose, owner, GoldLossType.Stolen);
-
-    await ShowPaidLine(1);
-  }
-
-  private Task ShowPaidLine(int line)
-  {
-    const int lastLine = 14;
-    if (line > lastLine)
-    {
-      if (_speechBubble != null)
-      {
-        _ = _speechBubble.AnimOut();
-        _speechBubble = null;
-      }
-      SetEventFinished(EmptyDescription);
-      return Task.CompletedTask;
     }
 
-    string page = $"PAID_{line}";
-    SetEventState(EmptyDescription,
-    [
-      new EventOption(this, () => ShowPaidLine(line + 1), $"{Id.Entry}.pages.{page}.options.CONTINUE", []),
+    private async Task Pay()
+    {
+        Player? owner = Owner;
+        if (owner == null)
+            return;
+
+        int goldToLose = owner.Gold;
+        if (goldToLose > 0)
+            await PlayerCmd.LoseGold(goldToLose, owner, GoldLossType.Stolen);
+
+        await ShowPaidLine(1);
+    }
+
+    private Task ShowPaidLine(int line)
+    {
+        const int lastLine = 14;
+        if (line > lastLine)
+        {
+            if (_speechBubble != null)
+            {
+                _ = _speechBubble.AnimOut();
+                _speechBubble = null;
+            }
+            SetEventFinished(EmptyDescription);
+            return Task.CompletedTask;
+        }
+
+        string page = $"PAID_{line}";
+        SetEventState(EmptyDescription,
+        [
+          new EventOption(this, () => ShowPaidLine(line + 1), $"{Id.Entry}.pages.{page}.options.CONTINUE", []),
     ]);
-    if (line <= 3)
-      PlayPaidLine<Pointy>(page);
-    else
-      PlayPaidLine<Romeo>(page);
-    return Task.CompletedTask;
-  }
-
-  private void PlayPaidLine<TMonster>(string pageKey) where TMonster : MonsterModel
-  {
-    if (!LocalContext.IsMe(Owner))
-      return;
-
-    if (_speechBubble != null)
-    {
-      _ = _speechBubble.AnimOut();
-      _speechBubble = null;
+        if (line <= 3)
+            PlayPaidLine<Pointy>(page);
+        else
+            PlayPaidLine<Romeo>(page);
+        return Task.CompletedTask;
     }
 
-    Creature? speaker = FindCreature<TMonster>();
-    if (speaker == null)
-      return;
+    private void PlayPaidLine<TMonster>(string pageKey) where TMonster : MonsterModel
+    {
+        if (!LocalContext.IsMe(Owner))
+            return;
 
-    _speechBubble = TalkCmd.Play(PageDescription(pageKey), speaker, VfxColor.Red, VfxDuration.Forever);
-  }
+        if (_speechBubble != null)
+        {
+            _ = _speechBubble.AnimOut();
+            _speechBubble = null;
+        }
 
-  private static Creature? FindCreature<TMonster>() where TMonster : MonsterModel
-  {
-    return NCombatRoom.Instance?.CreatureNodes
-      .FirstOrDefault(n => n.Entity.Monster is TMonster)
-      ?.Entity;
-  }
+        Creature? speaker = FindCreature<TMonster>();
+        if (speaker == null)
+            return;
 
-  private Task Fight()
-  {
-    Player? owner = Owner;
-    if (owner == null)
-      return Task.CompletedTask;
+        _speechBubble = TalkCmd.Play(PageDescription(pageKey), speaker, VfxColor.Red, VfxDuration.Forever);
+    }
 
-    var rewards = new List<Reward>();
+    private static Creature? FindCreature<TMonster>() where TMonster : MonsterModel
+    {
+        return NCombatRoom.Instance?.CreatureNodes
+          .FirstOrDefault(n => n.Entity.Monster is TMonster)
+          ?.Entity;
+    }
+
+    private Task Fight()
+    {
+        Player? owner = Owner;
+        if (owner == null)
+            return Task.CompletedTask;
+
+        var rewards = new List<Reward>();
 #if STS2_PUBLIC
     // 0.107.1 creates the room only from the local event instance; it does not
     // collect rewards from the other players' instances as 0.111.0 does.
     foreach (var participant in owner.RunState.Players)
 #else
-    foreach (var participant in new[] { owner })
+        foreach (var participant in new[] { owner })
 #endif
-    {
-      rewards.Add(new GoldReward(25, 35, participant));
-      rewards.Add(new RelicReward(ModelDb.Relic<RedMask>().ToMutable(), participant));
+        {
+            rewards.Add(new GoldReward(25, 35, participant));
+            rewards.Add(new RelicReward(ModelDb.Relic<RedMask>().ToMutable(), participant));
+        }
+        EnterCombatWithoutExitingEvent<RedMaskBandits>(rewards, false);
+        return Task.CompletedTask;
     }
-    EnterCombatWithoutExitingEvent<RedMaskBandits>(rewards, false);
-    return Task.CompletedTask;
-  }
 }

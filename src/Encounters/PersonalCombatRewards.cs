@@ -23,7 +23,8 @@ public static class PersonalCombatRewards
     }
     internal static void Filter(RewardsSet rewards)
     {
-        if (rewards.Room is CombatRoom && !IsEligible(rewards.Player)) rewards.Rewards.Clear();
+        if (rewards.Room is CombatRoom && !IsEligible(rewards.Player))
+            rewards.Rewards.Clear();
     }
 }
 

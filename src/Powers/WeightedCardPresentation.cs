@@ -29,11 +29,13 @@ internal static class WeightedCardPresentation
     private static void Refresh(NCard node)
     {
         var container = node.OverlayContainer;
-        if (container == null) return;
+        if (container == null)
+            return;
         var overlay = container.GetNodeOrNull<Control>(OverlayName);
         if (IsActive(node.Model))
         {
-            if (overlay != null) return;
+            if (overlay != null)
+                return;
             overlay = ResourceLoader.Load<PackedScene>(OverlayPath).Instantiate<Control>();
             overlay.Name = OverlayName;
             container.AddChild(overlay);
@@ -47,10 +49,12 @@ internal static class WeightedCardPresentation
 
     internal static void RefreshViews()
     {
-        if (Engine.GetMainLoop() is not SceneTree tree) return;
+        if (Engine.GetMainLoop() is not SceneTree tree)
+            return;
         // Native groups follow node lifetime and include open pile browsers and
         // previews, which FindOnTable deliberately excludes.
-        foreach (var node in tree.GetNodesInGroup(CardGroup).OfType<NCard>()) Refresh(node);
+        foreach (var node in tree.GetNodesInGroup(CardGroup).OfType<NCard>())
+            Refresh(node);
     }
 }
 

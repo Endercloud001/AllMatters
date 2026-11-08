@@ -1,0 +1,22 @@
+Godot Engine v4.5.1.stable.mono.official.f62fdbde1 - https://godotengine.org
+
+res://images/atlases/compressed.sprites/map/map_circle_0.tres
+res://images/atlases/compressed.sprites/map/map_circle_1.tres
+res://images/atlases/compressed.sprites/map/map_circle_2.tres
+res://images/atlases/compressed.sprites/map/map_circle_3.tres
+res://images/atlases/compressed.sprites/map/map_circle_4.tres
+res://images/atlases/compressed.sprites/map/map_monster_outline.tres
+res://images/atlases/ui_atlas.sprites/map/icons/map_monster.tres
+res://images/vfx/monsters/devoted_sculptor/devoted_sculptor_spark_particle.png.import
+res://images/vfx/monsters/devoted_sculptor/devoted_sculptor_voice_particle.png.import
+res://scenes/creature_visuals/devoted_sculptor.tscn
+res://scenes/screens/run_history_screen/map_point_history.tscn
+res://scenes/screens/run_history_screen/map_point_history_entry.tscn
+res://scenes/ui/ancient_map_point.tscn
+res://scenes/ui/boss_map_point.tscn
+res://scenes/ui/map_point_history_hover_tip.tscn
+res://scenes/ui/multiplayer_vote_container.tscn
+res://scenes/ui/multiplayer_vote_icon.tscn
+res://scenes/ui/normal_map_point.gdshader
+res://scenes/ui/normal_map_point.tscn
+res://scenes/vfx/map_circle_vfx.tscn

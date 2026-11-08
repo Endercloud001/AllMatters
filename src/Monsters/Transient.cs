@@ -47,10 +47,13 @@ public sealed class Transient : ModMonsterTemplate
     private async Task Attack(IReadOnlyList<Creature> targets)
     {
         await DamageCmd.Attack(10 * Creature.CombatState!.RoundNumber).FromMonster(this).WithAttackerAnim("Attack", 0f).Execute(null);
-        if (Creature.IsDead) return;
+        if (Creature.IsDead)
+            return;
         var fading = Creature.GetPower<Powers.FadingPower>()!;
-        if (fading.Amount <= 1) await CreatureCmd.Kill(Creature);
-        else await PowerCmd.Decrement(fading);
+        if (fading.Amount <= 1)
+            await CreatureCmd.Kill(Creature);
+        else
+            await PowerCmd.Decrement(fading);
     }
 
     public override CreatureAnimator GenerateAnimator(MegaSprite controller)

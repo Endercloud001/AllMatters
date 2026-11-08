@@ -45,14 +45,16 @@ public sealed class WheelOfChange : ModEventTemplate
         // map visit as well as Balance's act offset so later visits can differ,
         // while reloading this same visit still reproduces its result.
         int advance = Owner!.RunState.TotalFloor + Owner.RunState.CurrentActIndex;
-        for (int draw = 0; draw < advance; draw++) Rng.NextInt(1);
+        for (int draw = 0; draw < advance; draw++)
+            Rng.NextInt(1);
         int result = Rng.NextInt(6);
         // Visuals consume no gameplay randomness and only run for the local owner.
         if (Node != null && LocalContext.IsMe(Owner!))
             await WheelSpinPresentation.Play(Node, Id, result);
         string key = Outcomes[result];
         var option = new EventOption(this, () => ApplyResult(result), $"{Id.Entry}.pages.RESULT.options.{key}", []);
-        if (result == 5) option.ThatDoesDamage(7);
+        if (result == 5)
+            option.ThatDoesDamage(7);
         SetEventState(PageDescription(key), [option]);
     }
 
@@ -123,7 +125,8 @@ public sealed class WheelOfChange : ModEventTemplate
         var owner = Owner!;
         var tier = candidates.Where(relic => relic.Rarity == rarity).ToArray();
         var primary = tier.Where(owner.RelicGrabBag.Contains).ToArray();
-        if (primary.Length > 0) return primary[Rng.NextInt(primary.Length)];
+        if (primary.Length > 0)
+            return primary[Rng.NextInt(primary.Length)];
 
         // Contains only sees primary queues. The native multiplayer chest fallback
         // remains eligible when those are exhausted. Probe in random order through
@@ -134,7 +137,8 @@ public sealed class WheelOfChange : ModEventTemplate
         {
             var relic = owner.RelicGrabBag.PullFromFront(rarity,
                 relic => relic.Rarity == rarity && relic.Id == candidate.Id, owner.RunState);
-            if (relic != null) return relic;
+            if (relic != null)
+                return relic;
         }
         return null;
     }

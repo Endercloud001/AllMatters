@@ -1,0 +1,2 @@
+from pathlib import Path
+p=Path('AllMatters_docs/jigsaw-visual-detail/DESIGN.md');s=p.read_text(encoding='utf-8-sig');s=s.replace('用户已阶段性认可整体美术方向，精确决定见 DECISIONS.md。','用户已确认当前四轮视觉，正式实现阅读入口为 IMPLEMENTATION-REFERENCE.md，精确决定见 DECISIONS.md。');s=s.replace('70%/100%/130%','70%/100%');s=s.replace('130%超过可容纳范围时限制到fit大小；70%继续可缩小。','100%为完整放入安全区的上限；已删除无效130%选项，70%可缩小。');s=s.replace('状态文案与适配将在第四轮核对。','状态文案与适配已完成本轮浏览器展示并获用户通过。');s=s.replace('其他截图仍由主代理视觉复核。','主代理另实看16:10编辑、21:9探索并修正长文字行裁切；标准编辑底区140px，720高时112px。');p.write_text(s,encoding='utf-8')

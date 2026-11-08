@@ -21,7 +21,8 @@ public sealed class ShiftingPower : ModPowerTemplate
     public override async Task AfterDamageReceived(PlayerChoiceContext choiceContext, Creature target, DamageResult result,
         ValueProp props, Creature? dealer, CardModel? cardSource)
     {
-        if (target != Owner || result.UnblockedDamage <= 0 ) return;
+        if (target != Owner || result.UnblockedDamage <= 0)
+            return;
         Flash();
         _strengthLost += result.UnblockedDamage;
         await PowerCmd.Apply<MegaCrit.Sts2.Core.Models.Powers.StrengthPower>(choiceContext, Owner, -result.UnblockedDamage, Owner, null);
@@ -29,7 +30,8 @@ public sealed class ShiftingPower : ModPowerTemplate
 
     public override async Task AfterSideTurnEnd(PlayerChoiceContext choiceContext, MegaCrit.Sts2.Core.Combat.CombatSide side, IEnumerable<Creature> participants)
     {
-        if (side != Owner.Side || _strengthLost == 0 ) return;
+        if (side != Owner.Side || _strengthLost == 0)
+            return;
         decimal restore = _strengthLost;
         _strengthLost = 0;
         await PowerCmd.Apply<MegaCrit.Sts2.Core.Models.Powers.StrengthPower>(choiceContext, Owner, restore, Owner, null);

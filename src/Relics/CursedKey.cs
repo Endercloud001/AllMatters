@@ -28,12 +28,15 @@ public sealed class CursedKey : ModRelicTemplate
 
     internal async Task Open(TreasureRoom room)
     {
-        if (ReferenceEquals(_lastOpened, room)) return;
+        if (ReferenceEquals(_lastOpened, room))
+            return;
         _lastOpened = room;
-        if (Owner.PlayerRng.Rewards.NextInt(2) != 0) return;
+        if (Owner.PlayerRng.Rewards.NextInt(2) != 0)
+            return;
         var curses = ModelDb.CardPool<CurseCardPool>().GetUnlockedCards(Owner.UnlockState, Owner.RunState.CardMultiplayerConstraint)
             .Where(c => c.CanBeGeneratedByModifiers).ToArray();
-        if (curses.Length == 0) return;
+        if (curses.Length == 0)
+            return;
         var curse = curses[Owner.PlayerRng.Rewards.NextInt(curses.Length)];
         await CardPileCmd.AddCursesToDeck([curse], Owner);
     }
@@ -44,9 +47,11 @@ internal static class CursedKeyChestOpened
 {
     private static void Postfix(Player player, ref Task<int> __result)
     {
-        if (player.RunState.CurrentRoom is not TreasureRoom room) return;
+        if (player.RunState.CurrentRoom is not TreasureRoom room)
+            return;
         var key = player.Relics.OfType<CursedKey>().FirstOrDefault();
-        if (key != null) __result = OpenAfterGold(__result, key, room);
+        if (key != null)
+            __result = OpenAfterGold(__result, key, room);
     }
     private static async Task<int> OpenAfterGold(Task<int> original, CursedKey key, TreasureRoom room)
     {

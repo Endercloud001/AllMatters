@@ -23,14 +23,17 @@ public sealed class DeadBranch : ModRelicTemplate
 
     public override async Task AfterCardExhausted(PlayerChoiceContext choiceContext, CardModel card, bool causedByEthereal)
     {
-        if (card.Owner != Owner) return;
+        if (card.Owner != Owner)
+            return;
         IEnumerable<CardPoolModel> pools = Owner.GetRelic<PrismaticGem>() != null
             ? Owner.UnlockState.CharacterCardPools.Append(ModelDb.CardPool<ColorlessCardPool>()).Distinct()
             : [Owner.Character.CardPool];
         var candidates = pools.SelectMany(pool => pool.GetUnlockedCards(Owner.UnlockState, Owner.RunState.CardMultiplayerConstraint));
         var generated = CardFactory.GetForCombat(Owner, candidates, 1, Owner.RunState.Rng.CombatCardGeneration).FirstOrDefault();
-        if (generated == null) return;
-        if (causedByEthereal) generated.GiveSingleTurnRetain();
+        if (generated == null)
+            return;
+        if (causedByEthereal)
+            generated.GiveSingleTurnRetain();
         Flash();
         await CardPileCmd.AddGeneratedCardToCombat(generated, PileType.Hand, Owner);
     }

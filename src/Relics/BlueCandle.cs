@@ -25,14 +25,16 @@ public sealed class BlueCandle : ModRelicTemplate
 
     public override bool TryModifyKeywordsInCombat(CardModel card, ISet<CardKeyword> keywords)
     {
-        if (card.Owner != Owner || card.Type != CardType.Curse) return false;
+        if (card.Owner != Owner || card.Type != CardType.Curse)
+            return false;
         bool removed = keywords.Remove(CardKeyword.Unplayable);
         return keywords.Add(CardKeyword.Exhaust) || removed;
     }
 
     public override async Task AfterCardPlayed(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        if (cardPlay.Card.Owner != Owner || cardPlay.Card.Type != CardType.Curse) return;
+        if (cardPlay.Card.Owner != Owner || cardPlay.Card.Type != CardType.Curse)
+            return;
         Flash();
         await CreatureCmd.Damage(choiceContext, Owner.Creature, 2, ValueProp.Unblockable | ValueProp.Unpowered, null, null);
     }
@@ -47,17 +49,20 @@ internal static class BlueCandleDefaultCost
     private static void Prefix(CardModel ____card, ref int ____base, out int? __state)
     {
         __state = null;
-        if (____base >= 0 || !BlueCandle.Enables(____card)) return;
+        if (____base >= 0 || !BlueCandle.Enables(____card))
+            return;
         __state = ____base;
         ____base = 1;
     }
     private static void Postfix(ref int ____base, int? __state)
     {
-        if (__state.HasValue) ____base = __state.Value;
+        if (__state.HasValue)
+            ____base = __state.Value;
     }
     private static Exception? Finalizer(Exception? __exception, ref int ____base, int? __state)
     {
-        if (__exception != null && __state.HasValue) ____base = __state.Value;
+        if (__exception != null && __state.HasValue)
+            ____base = __state.Value;
         return __exception;
     }
 }

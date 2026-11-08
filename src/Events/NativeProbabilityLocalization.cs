@@ -8,7 +8,8 @@ internal static class NativeProbabilityLocalization
 {
     private static void Postfix(LocManager __instance, string name, LocTable __result)
     {
-        if (name != "events") return;
+        if (name != "events")
+            return;
         bool zh = __instance.Language == "zhs";
         __result.MergeWith(new Dictionary<string, string>
         {

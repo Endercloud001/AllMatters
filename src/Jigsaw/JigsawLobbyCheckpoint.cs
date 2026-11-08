@@ -13,18 +13,21 @@ internal static class JigsawLobbyCheckpoint
     [ThreadStatic] private static int validating;
     internal static bool IsValidating => validating > 0;
 
-    private static void Prefix(SerializableRun save,out bool __state)
+    private static void Prefix(SerializableRun save, out bool __state)
     {
-        __state=JigsawSaveSource.IsJigsaw(save);
-        if(__state)validating++;
+        __state = JigsawSaveSource.IsJigsaw(save);
+        if (__state)
+            validating++;
     }
     private static void Finalizer(bool __state)
     {
-        if(__state)validating--;
+        if (__state)
+            validating--;
     }
-    private static void Postfix(SerializableRun __result,bool __state)
+    private static void Postfix(SerializableRun __result, bool __state)
     {
-        if(!__state)return;
+        if (!__state)
+            return;
         var identity = ModelDb.Modifier<AllMattersJigsawMode>();
         if (!__result.Modifiers.Any(m => m.Id == identity.Id))
             __result.Modifiers.Add(identity.ToMutable().ToSerializable());

@@ -23,7 +23,8 @@ public sealed class MutagenicDecayPower : ModPowerTemplate
     // Amount is the remaining number of owner turns, using the native power lifecycle.
     public override async Task AfterSideTurnEnd(PlayerChoiceContext choiceContext, CombatSide side, IEnumerable<Creature> participants)
     {
-        if (side != Owner.Side || !participants.Contains(Owner) || Amount <= 0) return;
+        if (side != Owner.Side || !participants.Contains(Owner) || Amount <= 0)
+            return;
         if (Amount == 1)
         {
             Flash();

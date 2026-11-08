@@ -64,12 +64,15 @@ internal static class WheelSpinPresentation
         tween.TweenCallback(Callable.From(() => done.TrySetResult()));
         // Leaving a room or closing its scene must also release the pending option.
         eventNode.TreeExiting += OnEventExit;
-        try { await done.Task; }
+        try
+        { await done.Task; }
         finally
         {
             eventNode.TreeExiting -= OnEventExit;
-            if (GodotObject.IsInstanceValid(tween)) tween.Kill();
-            if (GodotObject.IsInstanceValid(root)) root.QueueFree();
+            if (GodotObject.IsInstanceValid(tween))
+                tween.Kill();
+            if (GodotObject.IsInstanceValid(root))
+                root.QueueFree();
         }
         void OnEventExit() => done.TrySetResult();
     }

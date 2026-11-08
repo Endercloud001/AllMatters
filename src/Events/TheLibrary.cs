@@ -53,7 +53,8 @@ public sealed class TheLibrary : ModEventTemplate
 
     private async Task Clean()
     {
-        if (!StartChoice()) return;
+        if (!StartChoice())
+            return;
         var bottles = AvailableBottles();
         await RelicCmd.Obtain(bottles[Rng.NextInt(bottles.Count)].ToMutable(), Owner!);
         SetEventFinished(PageDescription("CLEAN"));
@@ -61,14 +62,16 @@ public sealed class TheLibrary : ModEventTemplate
 
     private bool StartChoice()
     {
-        if (IsFinished || _choosing) return false;
+        if (IsFinished || _choosing)
+            return false;
         _choosing = true;
         return true;
     }
 
     private async Task Read()
     {
-        if (!StartChoice()) return;
+        if (!StartChoice())
+            return;
         var owner = Owner!;
         var pool = ReadingPool();
         var choices = new List<CardCreationResult>();
@@ -88,7 +91,8 @@ public sealed class TheLibrary : ModEventTemplate
 
     private async Task Sleep()
     {
-        if (!StartChoice()) return;
+        if (!StartChoice())
+            return;
         await CreatureCmd.Heal(Owner!.Creature, DynamicVars.Heal.BaseValue);
         SetEventFinished(PageDescription("SLEEP"));
     }

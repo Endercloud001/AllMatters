@@ -43,13 +43,15 @@ public sealed class WrithingMass : ModMonsterTemplate
         var wither = new MoveState("WITHER", Wither, [new DebuffIntent()]);
         var flail = new MoveState("FLAIL", Flail, [new MultiAttackIntent(5, 3)]);
         var shield = new MoveState("SHIELD", Shield, [new DefendIntent()]);
-        foreach (var move in new[] { parasite, wither, flail, shield }) move.FollowUpState = shield;
+        foreach (var move in new[] { parasite, wither, flail, shield })
+            move.FollowUpState = shield;
         return new MonsterMoveStateMachine([parasite, wither, flail, shield], parasite);
     }
 
     internal void ReactToAttack()
     {
-        if (_lastAction == null || Creature.IsDead) return;
+        if (_lastAction == null || Creature.IsDead)
+            return;
         var choices = new[] { "WITHER", "FLAIL", "SHIELD" }.Where(id => id != _lastAction).ToArray();
         var move = (MoveState)MoveStateMachine!.States[choices[RunRng.MonsterAi.NextInt(choices.Length)]];
         SetMoveImmediate(move);

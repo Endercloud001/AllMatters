@@ -22,7 +22,8 @@ internal static class NativeZenUpgrades
     private static void Postfix(ZenWeaver __instance, ref IReadOnlyList<EventOption> __result)
     {
         var model = __instance;
-        if (!NativeSelectionVariant.Alternative(model)) return;
+        if (!NativeSelectionVariant.Alternative(model))
+            return;
         var options = __result.ToList();
         for (int i = 1; i <= 2; i++)
         {
@@ -33,7 +34,8 @@ internal static class NativeZenUpgrades
                 CardCmd.Upgrade(selected, MegaCrit.Sts2.Core.Nodes.CommonUi.CardPreviewStyle.MessyLayout);
                 await PlayerCmd.LoseGold(cost, model.Owner, GoldLossType.Spent);
                 NativeEventActions.Finish(model, "ZEN_WEAVER.pages.AM_UPGRADE.description");
-            } : null, "ZEN_WEAVER.pages.INITIAL.options.AM_UPGRADE_" + count);
+            }
+            : null, "ZEN_WEAVER.pages.INITIAL.options.AM_UPGRADE_" + count);
         }
         __result = options;
     }

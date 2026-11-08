@@ -23,8 +23,10 @@ internal static class JigsawSaveObservation
     private static bool Prefix(RunSaveManager __instance, SerializableRun save, bool isMultiplayer, ref Task __result)
     {
         // Consume the bypass once, so saves requested by native callbacks still queue.
-        if (invoking) { invoking = false; return true; }
-        if (JigsawNativeSession.Current is not { } session) return true;
+        if (invoking)
+        { invoking = false; return true; }
+        if (JigsawNativeSession.Current is not { } session)
+            return true;
         var queue = queues.GetValue(__instance, _ => new());
         var completion = new TaskCompletionSource();
         Task previous;
@@ -42,10 +44,13 @@ internal static class JigsawSaveObservation
     {
         try
         {
-            try { await previous; } catch { /* A later complete checkpoint may retry a failed write. */ }
+            try
+            { await previous; }
+            catch { /* A later complete checkpoint may retry a failed write. */ }
             Task write;
             invoking = true;
-            try { write = (Task)saveMethod.Invoke(manager, [save, multiplayer])!; }
+            try
+            { write = (Task)saveMethod.Invoke(manager, [save, multiplayer])!; }
             finally { invoking = false; }
             await write;
             completion.SetResult();

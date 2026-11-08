@@ -23,7 +23,8 @@ public sealed class ChampionBelt : ModRelicTemplate
     public override async Task AfterPowerAmountChanged(PlayerChoiceContext choiceContext, PowerModel power,
         decimal amount, MegaCrit.Sts2.Core.Entities.Creatures.Creature? applier, CardModel? cardSource)
     {
-        if (power is not VulnerablePower || amount <= 0 || applier != Owner.Creature || power.Owner.IsDead) return;
+        if (power is not VulnerablePower || amount <= 0 || applier != Owner.Creature || power.Owner.IsDead)
+            return;
         Flash();
         await PowerCmd.Apply<WeakPower>(choiceContext, power.Owner, 1, Owner.Creature, cardSource);
     }

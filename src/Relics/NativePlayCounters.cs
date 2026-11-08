@@ -28,11 +28,13 @@ public sealed class InkBottle : ModRelicTemplate
         BigIconPath: "res://AllMatters/images/relics/ink_bottle.png");
     public override async Task AfterCardPlayed(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        if (cardPlay.Card.Owner != Owner) return;
+        if (cardPlay.Card.Owner != Owner)
+            return;
         int count = DisplayAmount + 1;
         Plays[this] = count % 10;
         InvokeDisplayAmountChanged();
-        if (count == 10) await CardPileCmd.Draw(choiceContext, 1, Owner);
+        if (count == 10)
+            await CardPileCmd.Draw(choiceContext, 1, Owner);
     }
 }
 
@@ -52,7 +54,8 @@ internal static class NativeVirusDraw
 {
     private static void Postfix(AbstractModel __instance, Player player, PlayerChoiceContext choiceContext, ref Task __result)
     {
-        if (__instance is SymbioticVirus virus && player == virus.Owner) __result = Draw(__result, choiceContext, player);
+        if (__instance is SymbioticVirus virus && player == virus.Owner)
+            __result = Draw(__result, choiceContext, player);
     }
     private static async Task Draw(Task original, PlayerChoiceContext context, Player player)
     {
@@ -74,7 +77,8 @@ internal static class NativeVirusPlay
         await original;
         int count = NativeVirusCounter.Plays.GetValueOrDefault(virus) + 1;
         NativeVirusCounter.Plays[virus] = count % 5;
-        if (count == 5) await CardPileCmd.AddToCombatAndPreview<Dazed>(virus.Owner.Creature, PileType.Draw, 1, virus.Owner, CardPilePosition.Random);
+        if (count == 5)
+            await CardPileCmd.AddToCombatAndPreview<Dazed>(virus.Owner.Creature, PileType.Draw, 1, virus.Owner, CardPilePosition.Random);
     }
 }
 
@@ -88,11 +92,13 @@ internal static class NativeHistorySkill
     }
     private static async Task Replay(HistoryCourse relic, PlayerChoiceContext context, Player player)
     {
-        if (player != relic.Owner || player.PlayerCombatState!.TurnNumber <= 1) return;
+        if (player != relic.Owner || player.PlayerCombatState!.TurnNumber <= 1)
+            return;
         var card = CombatManager.Instance.History.CardPlaysFinished.LastOrDefault(e => e.CardPlay.Card.Owner == player
             && e.HappenedLastPlayerTurn(player) && e.CardPlay.Card.Type is CardType.Attack or CardType.Skill
             && !e.CardPlay.Card.IsDupe)?.CardPlay.Card;
-        if (card == null) return;
+        if (card == null)
+            return;
 #if STS2_PUBLIC
         await CardCmd.AutoPlay(context, card.CreateDupe(), null);
 #else

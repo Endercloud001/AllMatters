@@ -33,289 +33,289 @@ namespace AllMatters.Monsters;
 [RegisterMonster]
 public sealed class Lagavulin : ModMonsterTemplate
 {
-  protected override NCreatureVisuals? TryCreateCreatureVisuals() =>
-    RitsuGodotNodeFactories.CreateFromScene<NCreatureVisuals>(ResourceLoader.Load<PackedScene>(CustomVisualsPath!));
+    protected override NCreatureVisuals? TryCreateCreatureVisuals() =>
+      RitsuGodotNodeFactories.CreateFromScene<NCreatureVisuals>(ResourceLoader.Load<PackedScene>(CustomVisualsPath!));
 
-  private static LocString MonsterText(string key) => new("monsters", key);
+    private static LocString MonsterText(string key) => new("monsters", key);
 
-  public const string SLEEP = "SLEEP";
-  public const string ATTACK = "ATTACK";
-  public const string DEBUFF = "DEBUFF";
+    public const string SLEEP = "SLEEP";
+    public const string ATTACK = "ATTACK";
+    public const string DEBUFF = "DEBUFF";
 
-  public override MonsterAssetProfile AssetProfile => new(
-    "res://AllMatters/monsters/lagavulin/lagavulin.tscn");
+    public override MonsterAssetProfile AssetProfile => new(
+      "res://AllMatters/monsters/lagavulin/lagavulin.tscn");
 
-  public override int MinInitialHp => AscensionHelper.GetValueIfAscension(AscensionLevel.ToughEnemies, 112, 109);
-  public override int MaxInitialHp => AscensionHelper.GetValueIfAscension(AscensionLevel.ToughEnemies, 115, 111);
+    public override int MinInitialHp => AscensionHelper.GetValueIfAscension(AscensionLevel.ToughEnemies, 112, 109);
+    public override int MaxInitialHp => AscensionHelper.GetValueIfAscension(AscensionLevel.ToughEnemies, 115, 111);
 
-  private static int AttackDamage => AscensionHelper.GetValueIfAscension(AscensionLevel.DeadlyEnemies, 20, 18);
-  private static int DebuffAmount => AscensionHelper.GetValueIfAscension(AscensionLevel.DeadlyEnemies, -2, -1);
-  private const int MetalAmount = 8;
-  private const int AsleepTurns = 3;
+    private static int AttackDamage => AscensionHelper.GetValueIfAscension(AscensionLevel.DeadlyEnemies, 20, 18);
+    private static int DebuffAmount => AscensionHelper.GetValueIfAscension(AscensionLevel.DeadlyEnemies, -2, -1);
+    private const int MetalAmount = 8;
+    private const int AsleepTurns = 3;
 
-  private bool _isAwake;
-  private int _debuffTurnCount;
-  private int _sleepTurnCount;
-  private bool _startsAwake;
+    private bool _isAwake;
+    private int _debuffTurnCount;
+    private int _sleepTurnCount;
+    private bool _startsAwake;
 
-  public bool IsAwake
-  {
-    get => _isAwake;
-    set
+    public bool IsAwake
     {
-      AssertMutable();
-      _isAwake = value;
-    }
-  }
-
-  public int DebuffTurnCount
-  {
-    get => _debuffTurnCount;
-    set
-    {
-      AssertMutable();
-      _debuffTurnCount = value;
-    }
-  }
-
-  public int SleepTurnCount
-  {
-    get => _sleepTurnCount;
-    set
-    {
-      AssertMutable();
-      _sleepTurnCount = value;
-    }
-  }
-
-  public bool StartsAwake
-  {
-    get => _startsAwake;
-    set
-    {
-      AssertMutable();
-      _startsAwake = value;
-    }
-  }
-
-  public override async Task AfterAddedToRoom()
-  {
-    await base.AfterAddedToRoom();
-
-    if (StartsAwake)
-    {
-      IsAwake = true;
-      ApplyAwakeBounds();
-    }
-    else
-    {
-      await PowerCmd.Apply<MetallicizePower>(new ThrowingPlayerChoiceContext(), Creature, MetalAmount, Creature, null);
-      await PowerCmd.Apply<AsleepLagavulinPower>(new ThrowingPlayerChoiceContext(), Creature, AsleepTurns, Creature, null);
-    }
-  }
-
-  public async Task WakeUpFromDamage()
-  {
-    TalkCmd.Play(MonsterText("ALL_MATTERS_MONSTER_LAGAVULIN.dialog.WAKE"), Creature, VfxColor.White, VfxDuration.Long);
-    await CreatureCmd.TriggerAnim(Creature, "Wake", 0.6f);
-    IsAwake = true;
-    ApplyAwakeBounds();
-    await CreatureCmd.Stun(Creature, StunnedMove, ATTACK);
-  }
-
-  public async Task WakeUpNaturally()
-  {
-    TalkCmd.Play(MonsterText("ALL_MATTERS_MONSTER_LAGAVULIN.dialog.WAKE"), Creature, VfxColor.White, VfxDuration.Long);
-    await CreatureCmd.TriggerAnim(Creature, "Wake", 0.6f);
-    IsAwake = true;
-    ApplyAwakeBounds();
-  }
-
-  private void ApplyAwakeBounds()
-  {
-    var creatureNode = NCombatRoom.Instance?.GetCreatureNode(Creature);
-    if (creatureNode == null)
-      return;
-
-    var visuals = creatureNode.GetNodeOrNull<Node>("Lagavulin");
-    if (visuals == null)
-      return;
-
-    var rootBounds = visuals.GetNodeOrNull<Control>("Bounds");
-    var awakeBounds = visuals.GetNodeOrNull<Control>("AwakeBounds/Bounds");
-    if (rootBounds != null && awakeBounds != null)
-    {
-      rootBounds.Position = awakeBounds.Position;
-      rootBounds.Size = awakeBounds.Size;
+        get => _isAwake;
+        set
+        {
+            AssertMutable();
+            _isAwake = value;
+        }
     }
 
-    var rootCenter = visuals.GetNodeOrNull<Marker2D>("CenterPos");
-    var awakeCenter = visuals.GetNodeOrNull<Marker2D>("AwakeBounds/CenterPos");
-    if (rootCenter != null && awakeCenter != null)
+    public int DebuffTurnCount
     {
-      rootCenter.Position = awakeCenter.Position;
+        get => _debuffTurnCount;
+        set
+        {
+            AssertMutable();
+            _debuffTurnCount = value;
+        }
     }
 
-    var rootIntent = visuals.GetNodeOrNull<Marker2D>("IntentPos");
-    var awakeIntent = visuals.GetNodeOrNull<Marker2D>("AwakeBounds/IntentPos");
-    if (rootIntent != null && awakeIntent != null)
+    public int SleepTurnCount
     {
-      rootIntent.Position = awakeIntent.Position;
+        get => _sleepTurnCount;
+        set
+        {
+            AssertMutable();
+            _sleepTurnCount = value;
+        }
     }
 
-    var hitbox = creatureNode.GetNodeOrNull<Control>("Hitbox");
-    if (hitbox != null && awakeBounds != null)
+    public bool StartsAwake
     {
-      hitbox.Position = awakeBounds.Position;
-      hitbox.Size = awakeBounds.Size;
-    }
-  }
-
-  public Task StunnedMove(IReadOnlyList<Creature> targets) => Task.CompletedTask;
-
-  protected override MonsterMoveStateMachine GenerateMoveStateMachine()
-  {
-    List<MonsterState> states = [];
-
-    MoveState sleepState = new(
-      SLEEP,
-      SleepMove,
-      [new SleepIntent()]
-    );
-
-    MoveState attackState = new(
-      ATTACK,
-      AttackMove,
-      [new SingleAttackIntent(AttackDamage)]
-    );
-
-    MoveState debuffState = new(
-      DEBUFF,
-      DebuffMove,
-      [new DebuffIntent()]
-    );
-
-    ConditionalBranchState mainBranch = new("MAIN_BRANCH");
-    mainBranch.AddState(sleepState, () => SelectNextMove(MoveStateMachine) == SLEEP);
-    mainBranch.AddState(debuffState, () => SelectNextMove(MoveStateMachine) == DEBUFF);
-    mainBranch.AddState(attackState, () => true);
-
-    sleepState.FollowUpState = mainBranch;
-    attackState.FollowUpState = mainBranch;
-    debuffState.FollowUpState = mainBranch;
-
-    states.Add(sleepState);
-    states.Add(attackState);
-    states.Add(debuffState);
-    states.Add(mainBranch);
-
-    return new MonsterMoveStateMachine(states, mainBranch);
-  }
-
-  private string SelectNextMove(MonsterMoveStateMachine stateMachine)
-  {
-    if (!IsAwake && Creature.HasPower<AsleepLagavulinPower>())
-    {
-      return SLEEP;
+        get => _startsAwake;
+        set
+        {
+            AssertMutable();
+            _startsAwake = value;
+        }
     }
 
-    if (StartsAwake && stateMachine.StateLog.Count == 0)
+    public override async Task AfterAddedToRoom()
     {
-      return DEBUFF;
+        await base.AfterAddedToRoom();
+
+        if (StartsAwake)
+        {
+            IsAwake = true;
+            ApplyAwakeBounds();
+        }
+        else
+        {
+            await PowerCmd.Apply<MetallicizePower>(new ThrowingPlayerChoiceContext(), Creature, MetalAmount, Creature, null);
+            await PowerCmd.Apply<AsleepLagavulinPower>(new ThrowingPlayerChoiceContext(), Creature, AsleepTurns, Creature, null);
+        }
     }
 
-    if (DebuffTurnCount >= 2)
+    public async Task WakeUpFromDamage()
     {
-      return DEBUFF;
+        TalkCmd.Play(MonsterText("ALL_MATTERS_MONSTER_LAGAVULIN.dialog.WAKE"), Creature, VfxColor.White, VfxDuration.Long);
+        await CreatureCmd.TriggerAnim(Creature, "Wake", 0.6f);
+        IsAwake = true;
+        ApplyAwakeBounds();
+        await CreatureCmd.Stun(Creature, StunnedMove, ATTACK);
     }
 
-    if (stateMachine.StateLog.Count >= 2 && stateMachine.StateLog[^1].Id == ATTACK && stateMachine.StateLog[^2].Id == ATTACK)
+    public async Task WakeUpNaturally()
     {
-      return DEBUFF;
+        TalkCmd.Play(MonsterText("ALL_MATTERS_MONSTER_LAGAVULIN.dialog.WAKE"), Creature, VfxColor.White, VfxDuration.Long);
+        await CreatureCmd.TriggerAnim(Creature, "Wake", 0.6f);
+        IsAwake = true;
+        ApplyAwakeBounds();
     }
 
-    return ATTACK;
-  }
-
-  private Task SleepMove(IReadOnlyList<Creature> targets)
-  {
-    SleepTurnCount++;
-    string dialogKey = SleepTurnCount switch
+    private void ApplyAwakeBounds()
     {
-      1 => "ALL_MATTERS_MONSTER_LAGAVULIN.dialog.SLEEP_1",
-      2 => "ALL_MATTERS_MONSTER_LAGAVULIN.dialog.SLEEP_2",
-      _ => ""
-    };
+        var creatureNode = NCombatRoom.Instance?.GetCreatureNode(Creature);
+        if (creatureNode == null)
+            return;
 
-    if (!string.IsNullOrEmpty(dialogKey))
-    {
-      TalkCmd.Play(MonsterText(dialogKey), Creature, VfxColor.White, VfxDuration.Long);
+        var visuals = creatureNode.GetNodeOrNull<Node>("Lagavulin");
+        if (visuals == null)
+            return;
+
+        var rootBounds = visuals.GetNodeOrNull<Control>("Bounds");
+        var awakeBounds = visuals.GetNodeOrNull<Control>("AwakeBounds/Bounds");
+        if (rootBounds != null && awakeBounds != null)
+        {
+            rootBounds.Position = awakeBounds.Position;
+            rootBounds.Size = awakeBounds.Size;
+        }
+
+        var rootCenter = visuals.GetNodeOrNull<Marker2D>("CenterPos");
+        var awakeCenter = visuals.GetNodeOrNull<Marker2D>("AwakeBounds/CenterPos");
+        if (rootCenter != null && awakeCenter != null)
+        {
+            rootCenter.Position = awakeCenter.Position;
+        }
+
+        var rootIntent = visuals.GetNodeOrNull<Marker2D>("IntentPos");
+        var awakeIntent = visuals.GetNodeOrNull<Marker2D>("AwakeBounds/IntentPos");
+        if (rootIntent != null && awakeIntent != null)
+        {
+            rootIntent.Position = awakeIntent.Position;
+        }
+
+        var hitbox = creatureNode.GetNodeOrNull<Control>("Hitbox");
+        if (hitbox != null && awakeBounds != null)
+        {
+            hitbox.Position = awakeBounds.Position;
+            hitbox.Size = awakeBounds.Size;
+        }
     }
 
-    return Task.CompletedTask;
-  }
+    public Task StunnedMove(IReadOnlyList<Creature> targets) => Task.CompletedTask;
 
-  private async Task AttackMove(IReadOnlyList<Creature> targets)
-  {
-    DebuffTurnCount++;
-
-    await DamageCmd.Attack(AttackDamage)
-      .FromMonster(this)
-      .WithAttackerAnim("Attack", 0.3f)
-      .WithHitFx("vfx/vfx_attack_blunt")
-      .Execute(null);
-  }
-
-  private async Task DebuffMove(IReadOnlyList<Creature> targets)
-  {
-    DebuffTurnCount = 0;
-
-    await CreatureCmd.TriggerAnim(Creature, "Debuff", 0.0f);
-    await Cmd.Wait(0.3f);
-
-    foreach (Creature target in targets.Where(t => t.IsAlive))
+    protected override MonsterMoveStateMachine GenerateMoveStateMachine()
     {
-      await PowerCmd.Apply<DexterityPower>(new ThrowingPlayerChoiceContext(), target, DebuffAmount, Creature, null);
-      await PowerCmd.Apply<StrengthPower>(new ThrowingPlayerChoiceContext(), target, DebuffAmount, Creature, null);
+        List<MonsterState> states = [];
+
+        MoveState sleepState = new(
+          SLEEP,
+          SleepMove,
+          [new SleepIntent()]
+        );
+
+        MoveState attackState = new(
+          ATTACK,
+          AttackMove,
+          [new SingleAttackIntent(AttackDamage)]
+        );
+
+        MoveState debuffState = new(
+          DEBUFF,
+          DebuffMove,
+          [new DebuffIntent()]
+        );
+
+        ConditionalBranchState mainBranch = new("MAIN_BRANCH");
+        mainBranch.AddState(sleepState, () => SelectNextMove(MoveStateMachine) == SLEEP);
+        mainBranch.AddState(debuffState, () => SelectNextMove(MoveStateMachine) == DEBUFF);
+        mainBranch.AddState(attackState, () => true);
+
+        sleepState.FollowUpState = mainBranch;
+        attackState.FollowUpState = mainBranch;
+        debuffState.FollowUpState = mainBranch;
+
+        states.Add(sleepState);
+        states.Add(attackState);
+        states.Add(debuffState);
+        states.Add(mainBranch);
+
+        return new MonsterMoveStateMachine(states, mainBranch);
     }
-  }
 
-  public override CreatureAnimator GenerateAnimator(MegaSprite controller)
-  {
-    AnimState sleepLoop = new("Idle_1", true)
+    private string SelectNextMove(MonsterMoveStateMachine stateMachine)
     {
-      BoundsContainer = "SleepingBounds"
-    };
+        if (!IsAwake && Creature.HasPower<AsleepLagavulinPower>())
+        {
+            return SLEEP;
+        }
 
-    AnimState hurtSleeping = new("Idle_1", true);
-    AnimState wakeUp = new("Coming_out");
+        if (StartsAwake && stateMachine.StateLog.Count == 0)
+        {
+            return DEBUFF;
+        }
 
-    AnimState idleLoop = new("Idle_2", true)
+        if (DebuffTurnCount >= 2)
+        {
+            return DEBUFF;
+        }
+
+        if (stateMachine.StateLog.Count >= 2 && stateMachine.StateLog[^1].Id == ATTACK && stateMachine.StateLog[^2].Id == ATTACK)
+        {
+            return DEBUFF;
+        }
+
+        return ATTACK;
+    }
+
+    private Task SleepMove(IReadOnlyList<Creature> targets)
     {
-      BoundsContainer = "AwakeBounds"
-    };
+        SleepTurnCount++;
+        string dialogKey = SleepTurnCount switch
+        {
+            1 => "ALL_MATTERS_MONSTER_LAGAVULIN.dialog.SLEEP_1",
+            2 => "ALL_MATTERS_MONSTER_LAGAVULIN.dialog.SLEEP_2",
+            _ => ""
+        };
 
-    AnimState attack = new("Attack");
-    AnimState debuff = new("Debuff");
-    AnimState hurt = new("Hit");
+        if (!string.IsNullOrEmpty(dialogKey))
+        {
+            TalkCmd.Play(MonsterText(dialogKey), Creature, VfxColor.White, VfxDuration.Long);
+        }
 
-    hurtSleeping.NextState = sleepLoop;
-    wakeUp.NextState = idleLoop;
-    attack.NextState = idleLoop;
-    debuff.NextState = idleLoop;
-    hurt.NextState = idleLoop;
+        return Task.CompletedTask;
+    }
 
-    AnimState initialState = StartsAwake ? idleLoop : sleepLoop;
-    CreatureAnimator animator = new(initialState, controller);
+    private async Task AttackMove(IReadOnlyList<Creature> targets)
+    {
+        DebuffTurnCount++;
 
-    animator.AddAnyState("Sleep", sleepLoop);
-    animator.AddAnyState("Wake", wakeUp, () => !IsAwake);
-    animator.AddAnyState("Idle_2", idleLoop);
-    animator.AddAnyState("Attack", attack);
-    animator.AddAnyState("Debuff", debuff);
-    animator.AddAnyState("Hit", hurt, () => IsAwake);
-    animator.AddAnyState("Hit", hurtSleeping, () => !IsAwake);
+        await DamageCmd.Attack(AttackDamage)
+          .FromMonster(this)
+          .WithAttackerAnim("Attack", 0.3f)
+          .WithHitFx("vfx/vfx_attack_blunt")
+          .Execute(null);
+    }
 
-    return animator;
-  }
+    private async Task DebuffMove(IReadOnlyList<Creature> targets)
+    {
+        DebuffTurnCount = 0;
+
+        await CreatureCmd.TriggerAnim(Creature, "Debuff", 0.0f);
+        await Cmd.Wait(0.3f);
+
+        foreach (Creature target in targets.Where(t => t.IsAlive))
+        {
+            await PowerCmd.Apply<DexterityPower>(new ThrowingPlayerChoiceContext(), target, DebuffAmount, Creature, null);
+            await PowerCmd.Apply<StrengthPower>(new ThrowingPlayerChoiceContext(), target, DebuffAmount, Creature, null);
+        }
+    }
+
+    public override CreatureAnimator GenerateAnimator(MegaSprite controller)
+    {
+        AnimState sleepLoop = new("Idle_1", true)
+        {
+            BoundsContainer = "SleepingBounds"
+        };
+
+        AnimState hurtSleeping = new("Idle_1", true);
+        AnimState wakeUp = new("Coming_out");
+
+        AnimState idleLoop = new("Idle_2", true)
+        {
+            BoundsContainer = "AwakeBounds"
+        };
+
+        AnimState attack = new("Attack");
+        AnimState debuff = new("Debuff");
+        AnimState hurt = new("Hit");
+
+        hurtSleeping.NextState = sleepLoop;
+        wakeUp.NextState = idleLoop;
+        attack.NextState = idleLoop;
+        debuff.NextState = idleLoop;
+        hurt.NextState = idleLoop;
+
+        AnimState initialState = StartsAwake ? idleLoop : sleepLoop;
+        CreatureAnimator animator = new(initialState, controller);
+
+        animator.AddAnyState("Sleep", sleepLoop);
+        animator.AddAnyState("Wake", wakeUp, () => !IsAwake);
+        animator.AddAnyState("Idle_2", idleLoop);
+        animator.AddAnyState("Attack", attack);
+        animator.AddAnyState("Debuff", debuff);
+        animator.AddAnyState("Hit", hurt, () => IsAwake);
+        animator.AddAnyState("Hit", hurtSleeping, () => !IsAwake);
+
+        return animator;
+    }
 }

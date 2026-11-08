@@ -53,7 +53,8 @@ internal static class NativeFutureOfPotions
             description.Add("Type", offers.Type.ToLocString());
             return new EventOption(model, async () =>
             {
-                if (model.IsFinished || !model.Owner!.Potions.Contains(potion)) return;
+                if (model.IsFinished || !model.Owner!.Potions.Contains(potion))
+                    return;
                 await PotionCmd.Discard(potion);
                 if (cards)
                 {
@@ -74,12 +75,15 @@ internal static class NativeFutureOfPotions
         }
         var refresh = new EventOption(model, model.Owner!.Gold >= 50 ? async () =>
         {
-            if (model.Owner.Gold < 50 || model.IsFinished) return;
+            if (model.Owner.Gold < 50 || model.IsFinished)
+                return;
             await PlayerCmd.LoseGold(50, model.Owner, GoldLossType.Spent);
             var next = Roll(model, offers);
-            Current.Remove(model); Current.Add(model, next);
+            Current.Remove(model);
+            Current.Add(model, next);
             NativeEventActions.State(model, "THE_FUTURE_OF_POTIONS.pages.INITIAL.description", Options(model));
-        } : null, "THE_FUTURE_OF_POTIONS.pages.INITIAL.options.AM_REFRESH");
+        }
+        : null, "THE_FUTURE_OF_POTIONS.pages.INITIAL.options.AM_REFRESH");
         return [Trade(true), Trade(false), refresh];
     }
 

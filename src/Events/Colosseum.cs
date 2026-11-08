@@ -47,7 +47,8 @@ public sealed class Colosseum : ModEventTemplate
 
     private Task Continue()
     {
-        if (_stage != Stage.Initial) return Task.CompletedTask;
+        if (_stage != Stage.Initial)
+            return Task.CompletedTask;
         _stage = Stage.Awake;
         SetEventState(PageDescription("AWAKE"),
         [
@@ -58,7 +59,8 @@ public sealed class Colosseum : ModEventTemplate
 
     private Task Fight()
     {
-        if (_stage != Stage.Awake) return Task.CompletedTask;
+        if (_stage != Stage.Awake)
+            return Task.CompletedTask;
         _stage = Stage.FirstCombat;
         EnterCombatWithoutExitingEvent<ColosseumFirstEncounter>([], true);
         return Task.CompletedTask;
@@ -84,11 +86,13 @@ public sealed class Colosseum : ModEventTemplate
 
     private Task FightAgain()
     {
-        if (_stage != Stage.Intermission) return Task.CompletedTask;
+        if (_stage != Stage.Intermission)
+            return Task.CompletedTask;
         _stage = Stage.SecondCombat;
         // Shared event RNG is identical for every participant. Its seed is
         // restored natively; include the visit so separate visits can differ.
-        for (int i = 0; i < Owner!.RunState.TotalFloor; i++) Rng.NextInt(1);
+        for (int i = 0; i < Owner!.RunState.TotalFloor; i++)
+            Rng.NextInt(1);
         EncounterModel encounter = Rng.NextInt(3) switch
         {
             0 => ModelDb.Encounter<DecimillipedeElite>(),
@@ -105,7 +109,8 @@ public sealed class Colosseum : ModEventTemplate
 
     private Task Flee()
     {
-        if (_stage != Stage.Intermission) return Task.CompletedTask;
+        if (_stage != Stage.Intermission)
+            return Task.CompletedTask;
         _stage = Stage.Finished;
         SetEventFinished(PageDescription("FLEE"));
         return Task.CompletedTask;
