@@ -56,11 +56,17 @@ public sealed class JigsawNativeSession
 #endif
             boundLobby=null;
         }
+        // TODO(cleanup): TaskCompletionSource lifecycle - Consider adding explicit cleanup
+        // or bounded allocation for pending completions. Currently orphaned if session
+        // closes mid-operation, though practically benign due to `closed` flag guard.
         pendingAutomaticVote?.TrySetResult(JigsawResult.Reject("会话已结束。"));
         automaticApplied?.TrySetResult(JigsawResult.Reject("会话已结束。"));
         if(Map!=null)JigsawEditorAction.Stop(Map);
         if(GodotObject.IsInstanceValid(screen))screen?.SetProcessInput(false);
         ReleaseHotkeys();
+        // TODO(cleanup): ConditionalWeakTable entry cleanup - Sessions WeakTable entry
+        // not explicitly removed. Benign: `closed` flag prevents reuse, RunState GC
+        // triggers auto-cleanup, and Current property guards with reference check.
     }
     public RunState Native { get; }
     private ulong LocalPlayerId=>netService.NetId;

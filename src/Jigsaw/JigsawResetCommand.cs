@@ -22,6 +22,10 @@ public sealed class JigsawResetCommand : AbstractConsoleCmd
             return new(false, "当前不在可编辑拼图界面，不能重置拼图。");
         async Task Complete()
         {
+            // TODO(completion): Reset async completion depends on managed action handler resolving
+            // the TaskCompletionSource. If session closes between Reset() storing the completion
+            // and handler executing, the completion may be orphaned. Consider adding explicit
+            // test verifying handler completes the task, or document timeout behavior.
             var result=await JigsawEditorAction.Reset(session);
             if(!result.Success)throw new InvalidOperationException(string.IsNullOrEmpty(result.Reason) ? result.Failure.ToString() : result.Reason);
             MegaCrit.Sts2.Core.Logging.Log.Info("已归还全部碎块并保存；本幕原池保持不变。");
