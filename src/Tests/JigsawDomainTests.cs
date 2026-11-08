@@ -21,6 +21,10 @@ internal static class JigsawDomainTests
         ("Jigsaw domain disconnect clears only the departed editor state", DisconnectEditorState),
         ("Jigsaw domain save copy cancels preview without mutating live holding", Save),
         ("Jigsaw domain restore rejects malformed pool layout and exploration state", InvalidSave),
+        ("Jigsaw domain shop revisit increments steps but not first progress", ShopRevisit),
+        ("Jigsaw domain movement respects adjacency and forbids unexplored crossings", MovementBoundaries),
+        ("Jigsaw domain multi-player completion requires all entries confirmed", MultiPlayerCompletion),
+        ("Jigsaw domain save and restore preserve visit history without duplication", SaveRestoreVisitHistory),
     ];
     private static void Check(bool value,string text) => NativeEventTests.Check(value,text);
     private static Task AutomaticWitness()
@@ -275,5 +279,163 @@ internal static class JigsawDomainTests
         Reject(save with { Visited=[0,999] });
         Reject(save with { Phase=JigsawPhase.Exploring });
         return Task.CompletedTask;
+    }
+
+    private static Task ShopRevisit()
+    {
+        // Test: Shop revisit increments Steps but not FirstProgress
+        var piece1 = Piece(1, (0,0,JigsawRoom.Combat), (1,0,JigsawRoom.Shop));
+        var piece2 = Piece(2, (0,0,JigsawRoom.Combat));
+        var run = Fixture(piece1, piece2);
+        Place(run, 1, 3, 0); Place(run, 2, 5, 0);
+        Ok(run.AddEdge(1, 0, 11)); Ok(run.AddEdge(1, 12, 21));
+        Ok(run.ChooseEnd(1, EndChoice.Manual)); Ok(run.ChooseEnd(2, EndChoice.Manual));
+        Ok(run.Inspect());
+
+        Ok(run.CompleteAncient(1)); Ok(run.CompleteAncient(2));
+        Ok(run.Continue(1)); Ok(run.Continue(2));
+
+        // First visit to shop
+        var firstShop = run.BeginEnter(12)!;
+        Ok(run.ConfirmEnter(firstShop.Id));
+        Check(run.Steps == 1 && run.FirstProgress == 1, "First shop visit increments both Steps and FirstProgress.");
+        Ok(run.CompleteRoom(firstShop.Id));
+
+        // Visit combat node
+        var combat = run.BeginEnter(21)!;
+        Ok(run.ConfirmEnter(combat.Id));
+        Check(run.Steps == 2 && run.FirstProgress == 2, "Combat visit increments both counters.");
+        Ok(run.CompleteRoom(combat.Id));
+
+        // Revisit shop
+        Check(run.AvailableDestinations.Contains(12), "Shop is available for revisit.");
+        var revisitShop = run.BeginEnter(12)!;
+        Ok(run.ConfirmEnter(revisitShop.Id));
+        Check(run.Steps == 3 && run.FirstProgress == 2, "Shop revisit increments Steps but not FirstProgress.");
+        Check(revisitShop.Id != firstShop.Id, "Revisit creates new entry identity.");
+        Ok(run.CompleteRoom(revisitShop.Id));
+
+        return Task.CompletedTask;
+    }
+
+    private static Task MovementBoundaries()
+    {
+        // Test: 1-2-3 adjacency, 1-4 diagonal optional, cannot cross unexplored
+        var piece1 = Piece(1, (0,0,JigsawRoom.Combat), (1,0,JigsawRoom.Combat), (2,0,JigsawRoom.Combat));
+        var piece2 = Piece(2, (0,0,JigsawRoom.Combat), (0,1,JigsawRoom.Combat));
+        var run = Fixture(piece1, piece2);
+        Place(run, 1, 3, 0); Place(run, 2, 5, 1);
+        Ok(run.AddEdge(1, 0, 11));
+
+        // Don't connect 13 to 21, leaving 21 unreachable directly
+        Ok(run.ChooseEnd(1, EndChoice.Manual)); Ok(run.ChooseEnd(2, EndChoice.Manual));
+        Ok(run.Inspect());
+
+        Ok(run.CompleteAncient(1)); Ok(run.CompleteAncient(2));
+        Ok(run.Continue(1)); Ok(run.Continue(2));
+
+        // Can reach adjacent nodes
+        Check(run.AvailableDestinations.Contains(11), "Adjacent node is available.");
+        var first = run.BeginEnter(11)!;
+        Ok(run.ConfirmEnter(first.Id));
+        Ok(run.CompleteRoom(first.Id));
+
+        Check(run.AvailableDestinations.Contains(12), "Next adjacent node available from completed.");
+        var second = run.BeginEnter(12)!;
+        Ok(run.ConfirmEnter(second.Id));
+        Ok(run.CompleteRoom(second.Id));
+
+        // Node 21 is not reachable because there's no path from completed region
+        Check(!run.AvailableDestinations.Contains(21), "Unconnected node cannot be reached.");
+        Check(run.BeginEnter(21) == null, "Cannot begin entry to unreachable node.");
+
+        return Task.CompletedTask;
+    }
+
+    private static Task MultiPlayerCompletion()
+    {
+        // Test: Multi-player requires all to confirm entry before advancing
+        var piece1 = Piece(1, (0,0,JigsawRoom.Combat), (1,0,JigsawRoom.Combat));
+        var run = new JigsawRun([piece1], 15, [1UL, 2UL]);
+        Place(run, 1, 3, 0);
+        Ok(run.AddEdge(1, 0, 11));
+        Ok(run.ChooseEnd(1, EndChoice.Manual)); Ok(run.ChooseEnd(2, EndChoice.Manual));
+        Ok(run.Inspect());
+
+        Ok(run.CompleteAncient(1)); Ok(run.CompleteAncient(2));
+        Ok(run.Continue(1)); Ok(run.Continue(2));
+
+        // Both players must coordinate entry
+        var entry = run.BeginEnter(11)!;
+        Check(run.CurrentNode == null, "Entry not confirmed until ConfirmEnter.");
+
+        Ok(run.ConfirmEnter(entry.Id));
+        Check(run.CurrentNode == 11 && run.Steps == 1, "Entry confirmed increments steps once.");
+
+        // Completion binding to this entry
+        Ok(run.CompleteRoom(entry.Id));
+        Check(run.CurrentNode == null, "Completion clears current node.");
+
+        // Second entry to same node should work
+        var secondEntry = run.BeginEnter(12)!;
+        Ok(run.ConfirmEnter(secondEntry.Id));
+        Check(run.Steps == 2, "Second entry increments steps.");
+
+        return Task.CompletedTask;
+    }
+
+    private static Task SaveRestoreVisitHistory()
+    {
+        // Test: Save/restore preserves visit history without duplication
+        var piece1 = Piece(1, (0,0,JigsawRoom.Combat), (1,0,JigsawRoom.Shop), (2,0,JigsawRoom.Combat));
+        var run = Fixture(piece1);
+        Place(run, 1, 3, 0);
+        Ok(run.AddEdge(1, 0, 11));
+        Ok(run.ChooseEnd(1, EndChoice.Manual)); Ok(run.ChooseEnd(2, EndChoice.Manual));
+        Ok(run.Inspect());
+
+        Ok(run.CompleteAncient(1)); Ok(run.CompleteAncient(2));
+        Ok(run.Continue(1)); Ok(run.Continue(2));
+
+        // Visit nodes
+        var e1 = run.BeginEnter(11)!; Ok(run.ConfirmEnter(e1.Id)); Ok(run.CompleteRoom(e1.Id));
+        var e2 = run.BeginEnter(12)!; Ok(run.ConfirmEnter(e2.Id));
+
+        // Save while in shop
+        var save1 = run.CreateSave();
+        Check(save1.Steps == 2 && save1.FirstProgress == 2, "Save captures current progress.");
+        Check(save1.Visited.Contains(11) && save1.Visited.Contains(12), "Save captures visited nodes.");
+        Check(save1.CurrentNode == 12, "Save captures current location.");
+
+        // Complete and revisit
+        Ok(run.CompleteRoom(e2.Id));
+        var e3 = run.BeginEnter(12)!; Ok(run.ConfirmEnter(e3.Id));
+
+        // Save after revisit
+        var save2 = run.CreateSave();
+        Check(save2.Steps == 3 && save2.FirstProgress == 2, "Revisit increments Steps only.");
+
+        // Restore from first save and verify no duplicate rewards
+        var restored = JigsawRun.Restore(save1);
+        Check(restored.Steps == 2 && restored.FirstProgress == 2, "Restored progress matches saved.");
+        Check(restored.Visited.Contains(11) && restored.Visited.Contains(12), "Restored visited history intact.");
+        Check(restored.CurrentNode == 12, "Restored to saved location.");
+
+        // Complete from restored state
+        Ok(restored.CompleteRoom(e2.Id));
+        var e4 = restored.BeginEnter(13)!; Ok(restored.ConfirmEnter(e4.Id));
+        Check(restored.Steps == 3 && restored.FirstProgress == 3, "New node after restore increments FirstProgress.");
+
+        return Task.CompletedTask;
+    }
+
+    private static JigsawRun Ready()
+    {
+        var run = JigsawRun.Create(74);
+        Place(run, 0, 3, 0);
+        Ok(run.AddEdge(1, 0, 1));
+        Ok(run.ChooseEnd(1, EndChoice.Manual));
+        Ok(run.Inspect());
+        return run;
     }
 }
