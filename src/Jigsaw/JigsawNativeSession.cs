@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using Godot;
 using HarmonyLib;
+using MegaCrit.Sts2.Core.Helpers;
 using MegaCrit.Sts2.Core.Map;
 using MegaCrit.Sts2.Core.Entities.Merchant;
 using MegaCrit.Sts2.Core.Entities.Players;
@@ -989,6 +990,24 @@ internal static class JigsawTerminalRoomCompletion
             session.CompleteCurrentRoom(true);
             session.ShowMap();
         }
+    }
+}
+
+// Native NRewardsScreen returns to the map after the first of two bosses only when
+// CurrentMapCoord == BossMapPoint.coord. Jigsaw projects every entry to (0,row), so
+// that check never matches and the first boss fell through to ActChangeSynchronizer
+// (EnterNextAct → ending). Route the logical first boss of a dual-boss act back to the map.
+[HarmonyPatch(typeof(NRewardsScreen), "OnProceedButtonPressed")]
+internal static class JigsawFirstBossReturnsToMap
+{
+    private static bool Prefix(bool ____isTerminal)
+    {
+        if (!____isTerminal || JigsawNativeSession.Current is not { Map: { CurrentNode: int node } map } session) return true;
+        if (session.Native.CurrentRoom?.RoomType != RoomType.Boss) return true;
+        if (map.Nodes.Single(n => n.Id == node).Room != JigsawRoom.Boss) return true;
+        if (!map.Nodes.Any(n => n.Room == JigsawRoom.SecondBoss)) return true;
+        TaskHelper.RunSafely(RunManager.Instance.ProceedFromTerminalRewardsScreen());
+        return false;
     }
 }
 
