@@ -22,6 +22,12 @@
     <Reference Include="sts2" HintPath="$(GameDataDir)/sts2.dll" />
     <Reference Include="Steamworks.NET" HintPath="$(GameDataDir)/Steamworks.NET.dll" />
     <Reference Include="0Harmony" HintPath="$(GameDataDir)/0Harmony.dll" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
     <AssemblyMetadata Include="DependencyDirectory" Value="$(BetaGameDataDir)" />
     <AssemblyMetadata Include="GameResourcePack" Value="$(BetaGameDataDir)/../SlayTheSpire2.pck" />
     <AssemblyMetadata Include="ModResourcePack" Value="$(MSBuildProjectDirectory)/../../dist/AllMatters.pck" />

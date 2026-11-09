@@ -103,7 +103,6 @@ public sealed class LobbyRecovery
         return connectedPlayerIds.Count > 0;
     }
 
-<<<<<<< HEAD
     /// <summary>Get current lobby state snapshot with save and exploration state.</summary>
     public LobbyState GetLobbyState()
     {
