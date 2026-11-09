@@ -873,7 +873,8 @@ public sealed class JigsawNativeSession
         int index = 0;
         foreach (var entry in inventory.AllEntries)
         {
-            if (!entry.IsStocked) soldOut.Add($"{entry.GetType().Name}:{index}");
+            if (!entry.IsStocked)
+                soldOut.Add($"{entry.GetType().Name}:{index}");
             index++;
         }
         var promotions = inventory.CardEntries.Select((entry, slot) => (entry, slot))
@@ -1002,10 +1003,14 @@ internal static class JigsawFirstBossReturnsToMap
 {
     private static bool Prefix(bool ____isTerminal)
     {
-        if (!____isTerminal || JigsawNativeSession.Current is not { Map: { CurrentNode: int node } map } session) return true;
-        if (session.Native.CurrentRoom?.RoomType != RoomType.Boss) return true;
-        if (map.Nodes.Single(n => n.Id == node).Room != JigsawRoom.Boss) return true;
-        if (!map.Nodes.Any(n => n.Room == JigsawRoom.SecondBoss)) return true;
+        if (!____isTerminal || JigsawNativeSession.Current is not { Map: { CurrentNode: int node } map } session)
+            return true;
+        if (session.Native.CurrentRoom?.RoomType != RoomType.Boss)
+            return true;
+        if (map.Nodes.Single(n => n.Id == node).Room != JigsawRoom.Boss)
+            return true;
+        if (!map.Nodes.Any(n => n.Room == JigsawRoom.SecondBoss))
+            return true;
         TaskHelper.RunSafely(RunManager.Instance.ProceedFromTerminalRewardsScreen());
         return false;
     }
@@ -1147,7 +1152,8 @@ internal static class JigsawRestoreShopInventory
     // Runs inside MerchantRoom.EnterInternal before NMerchantRoom exposes entries to UI.
     private static bool Prefix(Player player, ref MerchantInventory __result)
     {
-        if (JigsawNativeSession.Current?.SavedShopFor(player) is not { } saved) return true;
+        if (JigsawNativeSession.Current?.SavedShopFor(player) is not { } saved)
+            return true;
         __result = saved;
         return false;
     }

@@ -31,10 +31,15 @@ internal static class HelloWorldTests
         // Install host lifecycle substitutes before framework patches prepare game methods.
         new Harmony("AllMatters.TestHost").PatchAll(typeof(HelloWorldTests).Assembly);
         STS2RitsuLib.RitsuLibFramework.Initialize();
-        ModEntry.Initialize();
+        // Register the test initializer before calling ModManager.Initialize so that the mod
+        // is loaded in test mode and we can associate the assembly with it.
+        ModManager.TestInitializers[ModEntry.ModId] = ModEntry.Initialize;
         try
         {
             await ModManager.Initialize(null!, null, null);
+            // Associate the assembly immediately after ModManager creates the mod entry during Initialize.
+            // This ensures that when ModelDb discovers the types, they are already linked to the mod.
+            ModManager.AssociateAssemblyWithMod(ModEntry.ModId, typeof(ModEntry).Assembly);
             SaveManager.Instance.SettingsSave.Language = "eng";
             LocManager.Initialize();
             foreach (Type type in ReflectionHelper.GetSubtypes<AbstractModel>()
@@ -49,6 +54,7 @@ internal static class HelloWorldTests
 
             (string Name, Func<Task> Test)[] cases =
             [
+                ("Test host registers mod assembly correctly without association warnings", ModAssociationRegistration),
                 ("Upgrade does not add Innate", UpgradeWithoutInnate),
                 ("Ordinary single source keeps original behavior", OrdinarySingle),
                 ("Upgraded single source has its own power and upgrades its card", UpgradedSingle),
@@ -86,6 +92,17 @@ internal static class HelloWorldTests
             Console.Error.WriteLine(exception);
             return 1;
         }
+    }
+
+    private static Task ModAssociationRegistration()
+    {
+        // Regression test for the test host registering mod assembly correctly.
+        // When ModManager.AssociateAssemblyWithMod is not called before ModManager.Initialize,
+        // content types registered via RitsuLib attributes fail with "not associated with any mod" errors.
+        // This test confirms the fix: if the association worked, we can acquire the registered BlueCandle relic.
+        var blueCandle = ModelDb.Relic<AllMatters.Relics.BlueCandle>();
+        Check(blueCandle != null, "BlueCandle relic must be registered without mod association errors.");
+        return Task.CompletedTask;
     }
 
     private static Task UpgradeWithoutInnate()
