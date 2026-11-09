@@ -57,6 +57,20 @@ dotnet build src/Tests/AllMatters.Tests.csproj -p:GameBranch=public --nologo
 
 测试准备复用 `src/Tests/HeadlessCombatHost.cs` 中的 `HeadlessTestSetup`：`PlayerWithRun` 返回已绑定测试局的玩家，`Run` 创建指定角色的多人测试局，`Combat` 为局内玩家准备真实战斗状态；已有 `NativeEventTests.Player/Combat` 继续代理该入口。原生资源测试用 `using var atlases = HeadlessTestSetup.LoadAtlases("card_atlas", "relic_atlas")` 加载并自动撤销资源加载器；需要遗物袋时调用原生 `player.RelicGrabBag.Populate(player, player.RunState.Rng.UpFront)`。比较单目标前后 RNG 是否变化时复用 `RngPosition`，其数值不用于跨版本比较。事件原生文案的变量绑定沿实际 UI 使用事件 DynamicVars；既有框架初始化和生命周期替代顺序保持不变。
 
+### PR 合并后清理
+
+PR 合并到 main 后，本地 main 与远程不再同步。标准清理操作序列：
+
+```powershell
+rtk git fetch origin
+rtk git checkout main
+rtk git reset --hard origin/main
+rtk git branch -d integration/batch-N
+rtk git branch -d <feature-branch>  # 如有特性分支
+```
+
+参见 [Git 最佳实践](git-best-practices.md#pr-合并后同步)。
+
 ### 开工前冒烟检查
 
 每个批次开始前，运行一次测试宿主健康检查以确保 TDD 信号完整：
@@ -99,6 +113,19 @@ CLI 遇到连接问题时按 [GitHub 操作约定](agents/issue-tracker.md) 处�
 2. **子代理 brief 写明起点**：修复 feature/集成分支上的 bug 时，brief 中写「worktree 必须从 `integration/batch-N` 切出」，并在 `start_session` 传 `source_branch`。
 3. **热点文件串行化**：多张票都要改 `src/Jigsaw/JigsawNativeSession.cs` 等集成热点时，先排定合并顺序；后合并者在前者合入后 merge 新基线，再开始改该文件。
 4. **集成分支由主会话独占**：子代理只在自己的分支提交；合入 `integration/batch-N` 由主会话逐个执行，每次合入后构建并跑测试。
+
+### worktree 清理
+
+完成工作后清理 worktree：
+
+1. 归档相关子代理会话：`mcp__ccd_session_mgmt__archive_session` 对应的 session_id
+2. 等待约 5 秒确保进程退出（Windows 文件句柄释放）
+3. 执行删除：
+   ```powershell
+   git worktree remove --force <path>
+   ```
+   
+如若删除失败，检查目录是否仍被子代理持有文件句柄；必要时用资源管理器或 Handle 工具查看占用情况。参见 [Git 最佳实践](git-best-practices.md#worktree-清理)。
 
 ## 实机验收交付
 
