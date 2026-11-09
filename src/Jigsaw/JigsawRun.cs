@@ -377,7 +377,8 @@ public sealed class JigsawRun
     {
         get
         {
-            if (CurrentNode == null) return false;
+            if (CurrentNode == null)
+                return false;
             var currentRoom = Nodes.Single(n => n.Id == CurrentNode.Value).Room;
             var hasSecondBoss = Nodes.Any(n => n.Room == JigsawRoom.SecondBoss);
             // Endgame is at Boss (if no second boss) or at SecondBoss (if dual boss layout)
@@ -492,7 +493,7 @@ public sealed class JigsawRun
     {
         // TODO #09: Restore full mask points before final boss reward
     }
-    public JigsawSave CreateSave() => new(Pool.Select(p => p with { Nodes = p.Nodes.ToArray(), InternalEdges = p.InternalEdges.ToArray() }).ToArray(), placements.Values.ToArray(), external.ToArray(), Phase, Budget, players.ToArray(), Steps, FirstProgress, visited.ToArray(), completed.ToArray(), CurrentNode, PendingEntry, nextEntry, ancientCompleted.ToArray()) { OriginalPlayers = originalPlayers.ToArray(), AutomaticWitness = AutomaticWitness is { } witness ? new(witness.Placements.ToArray(), witness.Edges.ToArray()) : null, AutomaticOperation = AutomaticOperation is { } operation ? operation with { CandidateOrder = operation.CandidateOrder.ToArray() } : null, GenerationRandomState = generationRandomState, ShopStates = shopInventories.Count > 0 ? shopInventories.ToDictionary(kv => $"{kv.Key.nodeId}_{kv.Key.playerId}", kv => (object)kv.Value) : null }
+    public JigsawSave CreateSave() => new(Pool.Select(p => p with { Nodes = p.Nodes.ToArray(), InternalEdges = p.InternalEdges.ToArray() }).ToArray(), placements.Values.ToArray(), external.ToArray(), Phase, Budget, players.ToArray(), Steps, FirstProgress, visited.ToArray(), completed.ToArray(), CurrentNode, PendingEntry, nextEntry, ancientCompleted.ToArray()) { OriginalPlayers = originalPlayers.ToArray(), AutomaticWitness = AutomaticWitness is { } witness ? new(witness.Placements.ToArray(), witness.Edges.ToArray()) : null, AutomaticOperation = AutomaticOperation is { } operation ? operation with { CandidateOrder = operation.CandidateOrder.ToArray() } : null, GenerationRandomState = generationRandomState, ShopStates = shopInventories.Count > 0 ? shopInventories.ToDictionary(kv => $"{kv.Key.nodeId}_{kv.Key.playerId}", kv => (object)kv.Value) : null };
     public static JigsawRun Restore(JigsawSave save, IEnumerable<ulong>? activePlayers = null)
     {
         JigsawSaveValidation.Validate(save);
