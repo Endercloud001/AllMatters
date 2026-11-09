@@ -354,7 +354,36 @@ public sealed class JigsawRun
             Phase = JigsawPhase.Exploring;
         return JigsawResult.Ok;
     }
-    public IReadOnlyCollection<int> AvailableDestinations => Phase != JigsawPhase.Exploring || CurrentNode != null || PendingEntry != null ? [] : Edges.SelectMany(e => new[] { (From: e.First, To: e.Second), (From: e.Second, To: e.First) }).Where(e => completed.Contains(e.From) && (!visited.Contains(e.To) || Nodes.Single(n => n.Id == e.To).Room == JigsawRoom.Shop) && e.To != 0).Select(e => e.To).Distinct().ToArray();
+    public IReadOnlyCollection<int> AvailableDestinations
+    {
+        get
+        {
+            if (Phase != JigsawPhase.Exploring || CurrentNode != null || PendingEntry != null)
+                return [];
+            var candidates = Edges.SelectMany(e => new[] { (From: e.First, To: e.Second), (From: e.Second, To: e.First) })
+                .Where(e => completed.Contains(e.From) && (!visited.Contains(e.To) || Nodes.Single(n => n.Id == e.To).Room == JigsawRoom.Shop) && e.To != 0)
+                .Select(e => e.To).Distinct().ToArray();
+
+            // Dual boss sequence: second boss only available after first boss completed
+            var secondBoss = Nodes.FirstOrDefault(n => n.Room == JigsawRoom.SecondBoss);
+            var firstBoss = Nodes.FirstOrDefault(n => n.Room == JigsawRoom.Boss);
+            if (secondBoss != null && firstBoss != null && !completed.Contains(firstBoss.Id))
+                candidates = candidates.Where(id => id != secondBoss.Id).ToArray();
+
+            return candidates;
+        }
+    }
+    public bool IsEndgame
+    {
+        get
+        {
+            if (CurrentNode == null) return false;
+            var currentRoom = Nodes.Single(n => n.Id == CurrentNode.Value).Room;
+            var hasSecondBoss = Nodes.Any(n => n.Room == JigsawRoom.SecondBoss);
+            // Endgame is at Boss (if no second boss) or at SecondBoss (if dual boss layout)
+            return hasSecondBoss ? currentRoom == JigsawRoom.SecondBoss : currentRoom == JigsawRoom.Boss;
+        }
+    }
     public JigsawEnterAttempt? BeginEnter(int node)
     {
         if (!AvailableDestinations.Contains(node))
@@ -393,6 +422,7 @@ public sealed class JigsawRun
             CommitShopTransaction();
         return JigsawResult.Ok;
     }
+    // T05: Shop inventory tracking
     public void RecordShopInventory(int nodeId, ulong playerId, JigsawShopInventory inventory)
     {
         shopInventories[(nodeId, playerId)] = inventory;
@@ -432,7 +462,37 @@ public sealed class JigsawRun
     {
         return GetShopInventory(nodeId, playerId);
     }
-    public JigsawSave CreateSave() => new(Pool.Select(p => p with { Nodes = p.Nodes.ToArray(), InternalEdges = p.InternalEdges.ToArray() }).ToArray(), placements.Values.ToArray(), external.ToArray(), Phase, Budget, players.ToArray(), Steps, FirstProgress, visited.ToArray(), completed.ToArray(), CurrentNode, PendingEntry, nextEntry, ancientCompleted.ToArray()) { OriginalPlayers = originalPlayers.ToArray(), AutomaticWitness = AutomaticWitness is { } witness ? new(witness.Placements.ToArray(), witness.Edges.ToArray()) : null, AutomaticOperation = AutomaticOperation is { } operation ? operation with { CandidateOrder = operation.CandidateOrder.ToArray() } : null, GenerationRandomState = generationRandomState, ShopStates = shopInventories.Count > 0 ? shopInventories.ToDictionary(kv => $"{kv.Key.nodeId}_{kv.Key.playerId}", kv => (object)kv.Value) : null };
+    // T06: Act transition
+    public JigsawResult TransitionToNextAct()
+    {
+        if (Phase != JigsawPhase.Exploring)
+            return JigsawResult.Reject("Act transition only allowed during exploration.");
+        Steps = 0;
+        FirstProgress = 0;
+        visited.Clear();
+        visited.Add(0);
+        completed.Clear();
+        completed.Add(0);
+        CurrentNode = null;
+        currentEntry = null;
+        PendingEntry = null;
+        ancientCompleted.Clear();
+        continued.Clear();
+        Phase = JigsawPhase.Ancient;
+        ClearHuntingData();
+        return JigsawResult.Ok;
+    }
+    /// <summary>Stub for hunting data cleanup. To be implemented in #84.</summary>
+    private void ClearHuntingData()
+    {
+        // TODO #84: Clear hunting state when transitioning between acts
+    }
+    /// <summary>Stub for mask restoration before endgame rewards. To be implemented in #09.</summary>
+    public void RestoreMaskForEndgame()
+    {
+        // TODO #09: Restore full mask points before final boss reward
+    }
+    public JigsawSave CreateSave() => new(Pool.Select(p => p with { Nodes = p.Nodes.ToArray(), InternalEdges = p.InternalEdges.ToArray() }).ToArray(), placements.Values.ToArray(), external.ToArray(), Phase, Budget, players.ToArray(), Steps, FirstProgress, visited.ToArray(), completed.ToArray(), CurrentNode, PendingEntry, nextEntry, ancientCompleted.ToArray()) { OriginalPlayers = originalPlayers.ToArray(), AutomaticWitness = AutomaticWitness is { } witness ? new(witness.Placements.ToArray(), witness.Edges.ToArray()) : null, AutomaticOperation = AutomaticOperation is { } operation ? operation with { CandidateOrder = operation.CandidateOrder.ToArray() } : null, GenerationRandomState = generationRandomState, ShopStates = shopInventories.Count > 0 ? shopInventories.ToDictionary(kv => $"{kv.Key.nodeId}_{kv.Key.playerId}", kv => (object)kv.Value) : null }
     public static JigsawRun Restore(JigsawSave save, IEnumerable<ulong>? activePlayers = null)
     {
         JigsawSaveValidation.Validate(save);
