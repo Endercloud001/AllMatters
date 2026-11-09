@@ -2,6 +2,8 @@ using System.Runtime.CompilerServices;
 using Godot;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Map;
+using MegaCrit.Sts2.Core.Entities.Merchant;
+using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Entities.Multiplayer;
 using MegaCrit.Sts2.Core.Multiplayer;
@@ -746,14 +748,16 @@ public sealed class JigsawNativeSession
                 // The real native post-EnterInternal event is the confirmation seam.
                 ready = Map.ConfirmEnter(attempt.Id).Success;
                 if (ready)
-                {
-                    // T05: Handle shop state capture/restore
-                    _ = HandleShopStateAsync(node, destination.Room);
                     HideMap();
-                }
             }
         }
         RunManager.Instance.RoomEntered += RoomReady;
+        bool shop = destination.Room == JigsawRoom.Shop;
+        if (shop)
+        {
+            Map.CreateShopTransactionCheckpoint(node, LocalPlayerId);
+            enteringShopNode = node;
+        }
         try
         {
             await RunManager.Instance.EnterMapCoord(projection.Point.coord);
@@ -761,17 +765,22 @@ public sealed class JigsawNativeSession
                 return;
             if (!ready)
                 throw new InvalidOperationException("原生房间尚未确认就绪；本次未计步。");
+            if (shop)
+                CaptureShopInventory(node);
             entryCheckpoint = null;
             JigsawCheckpoint.Capture(Native, Map);
         }
         catch
         {
+            if (shop)
+                Map?.RollbackShopTransaction();
             if (Current == this)
             { entryFailed = !ready; ShowMap(); }
             throw;
         }
         finally
         {
+            enteringShopNode = null;
             RunManager.Instance.RoomEntered -= RoomReady;
             if (Current == this && GodotObject.IsInstanceValid(screen))
                 screen?.SetProcessInput(!paused);
@@ -826,92 +835,50 @@ public sealed class JigsawNativeSession
         { entryFailed = true; ShowMap(); }
     }
 
-    // T05: Shop state handling in native integration
-    /// <summary>Handle shop inventory capture and restoration on native entry.</summary>
-    private async Task HandleShopStateAsync(int nodeId, JigsawRoom roomType)
+    // T05: Shop persistence. Native MerchantRoom rolls a fresh MerchantInventory on
+    // every EnterInternal. The live native inventory objects (entries, sale flag,
+    // IsStocked/Used) are kept per logical node and player and handed back to the
+    // revisited room, so no new RNG roll happens and purchases stay cleared.
+    private readonly Dictionary<(int nodeId, ulong playerId), MerchantInventory> nativeShops = new();
+    private int? enteringShopNode;
+
+    internal MerchantInventory? SavedShopFor(Player player) =>
+        enteringShopNode is { } node && nativeShops.TryGetValue((node, player.NetId), out var inventory) &&
+        ReferenceEquals(inventory.Player, player) ? inventory : null;
+
+    /// <summary>Record the mounted MerchantRoom inventories after native entry, then commit.</summary>
+    private void CaptureShopInventory(int nodeId)
     {
-        // Only handle shop rooms
-        if (roomType != JigsawRoom.Shop || Map == null)
-            return;
-
-        try
+        if (Map == null || Native.CurrentRoom is not MerchantRoom room)
         {
-            // Create checkpoint at shop entry start
-            Map.CreateShopTransactionCheckpoint(nodeId, LocalPlayerId);
-
-            var existing = Map.GetShopInventory(nodeId, LocalPlayerId);
-            if (existing != null)
-            {
-                // Revisit: restore saved inventory
-                await RestoreShopInventory(nodeId, existing);
-            }
-            else
-            {
-                // First visit: capture native shop state after generation
-                await CaptureShopInventory(nodeId);
-            }
-        }
-        catch (Exception ex)
-        {
-            GD.PushError($"Failed to handle shop state for node {nodeId}: {ex.Message}");
-            // Rollback on error to preserve consistency
             Map?.RollbackShopTransaction();
+            return;
         }
+        foreach (var inventory in room.Inventories)
+        {
+            nativeShops[(nodeId, inventory.Player.NetId)] = inventory;
+            Map.RecordShopInventory(nodeId, inventory.Player.NetId, Describe(inventory));
+        }
+        Map.CommitShopTransaction();
     }
 
-    /// <summary>Capture the native shop's current inventory state and record it.</summary>
-    private async Task CaptureShopInventory(int nodeId)
+    private static JigsawShopInventory Describe(MerchantInventory inventory)
     {
-        if (Map == null || Native.CurrentRoom == null)
-            return;
-
-        // Wait for shop UI to be ready
-        await Task.Delay(50);
-
-        try
+        var cards = inventory.CardEntries.Select((entry, slot) =>
+            new JigsawShopCard(entry.CreationResult?.Card?.Id.ToString() ?? "", slot, false, null, entry.Cost)).ToArray();
+        var relics = inventory.RelicEntries.Select((entry, slot) =>
+            new JigsawShopRelic(entry.Model?.Id.ToString() ?? "", slot, null, entry.Cost)).ToArray();
+        var soldOut = new HashSet<string>();
+        int index = 0;
+        foreach (var entry in inventory.AllEntries)
         {
-            // For now, we store a placeholder inventory. In a full implementation,
-            // this would read the native shop's actual item slots, prices, and sold items.
-            // The native ShopRoom instance is accessed via Native.CurrentRoom.
-            var domainInventory = new JigsawShopInventory(
-                [],  // Cards - would be populated from native shop
-                [],  // Relics - would be populated from native shop
-                0,   // PurgeUsedCount
-                false, // PurgeAvailable
-                new Dictionary<string, int>(),  // OriginalPrices
-                new Dictionary<string, bool>(), // Promotions
-                new HashSet<string>());         // SoldOut
-
-            Map.RecordShopInventory(nodeId, LocalPlayerId, domainInventory);
+            if (!entry.IsStocked) soldOut.Add($"{entry.GetType().Name}:{index}");
+            index++;
         }
-        catch (Exception ex)
-        {
-            GD.PushError($"Failed to capture shop inventory: {ex.Message}");
-        }
-    }
-
-    /// <summary>Restore a previously saved shop inventory and apply it to native state.</summary>
-    private async Task RestoreShopInventory(int nodeId, JigsawShopInventory saved)
-    {
-        if (Map == null || Native.CurrentRoom == null)
-            return;
-
-        // Wait for shop UI initialization
-        await Task.Delay(50);
-
-        try
-        {
-            // In a full implementation, this would:
-            // 1. Find the native ShopRoom instance
-            // 2. Clear the current shop state
-            // 3. Restore cards, relics, prices, and sold items from saved inventory
-            // For now, the saved inventory is preserved in Map state and will be used
-            // when the UI queries for available items.
-        }
-        catch (Exception ex)
-        {
-            GD.PushError($"Failed to restore shop inventory: {ex.Message}");
-        }
+        var promotions = inventory.CardEntries.Select((entry, slot) => (entry, slot))
+            .Where(x => x.entry.IsOnSale).ToDictionary(x => $"card:{x.slot}", _ => true);
+        return new JigsawShopInventory(cards, relics, inventory.CardRemovalEntry?.Used == true ? 1 : 0,
+            inventory.CardRemovalEntry?.IsStocked == true, new Dictionary<string, int>(), promotions, soldOut);
     }
 
     public void CompleteCurrentRoom(bool canTravel)
@@ -1152,5 +1119,17 @@ internal static class JigsawResumePhase
         else if (session.Map.Phase is JigsawPhase.Editing or JigsawPhase.Ancient ||
                  session.Map.Phase == JigsawPhase.Exploring && session.Map.CurrentNode == null)
             session.ShowMap();
+    }
+}
+
+[HarmonyPatch(typeof(MerchantInventory), nameof(MerchantInventory.CreateForNormalMerchant))]
+internal static class JigsawRestoreShopInventory
+{
+    // Runs inside MerchantRoom.EnterInternal before NMerchantRoom exposes entries to UI.
+    private static bool Prefix(Player player, ref MerchantInventory __result)
+    {
+        if (JigsawNativeSession.Current?.SavedShopFor(player) is not { } saved) return true;
+        __result = saved;
+        return false;
     }
 }
