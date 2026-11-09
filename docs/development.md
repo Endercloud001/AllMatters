@@ -57,6 +57,25 @@ dotnet build src/Tests/AllMatters.Tests.csproj -p:GameBranch=public --nologo
 
 测试准备复用 `src/Tests/HeadlessCombatHost.cs` 中的 `HeadlessTestSetup`：`PlayerWithRun` 返回已绑定测试局的玩家，`Run` 创建指定角色的多人测试局，`Combat` 为局内玩家准备真实战斗状态；已有 `NativeEventTests.Player/Combat` 继续代理该入口。原生资源测试用 `using var atlases = HeadlessTestSetup.LoadAtlases("card_atlas", "relic_atlas")` 加载并自动撤销资源加载器；需要遗物袋时调用原生 `player.RelicGrabBag.Populate(player, player.RunState.Rng.UpFront)`。比较单目标前后 RNG 是否变化时复用 `RngPosition`，其数值不用于跨版本比较。事件原生文案的变量绑定沿实际 UI 使用事件 DynamicVars；既有框架初始化和生命周期替代顺序保持不变。
 
+### 开工前冒烟检查
+
+每个批次开始前，运行一次测试宿主健康检查以确保 TDD 信号完整：
+
+```powershell
+./tools/Test.ps1 -Branch All
+./tools/ReadTestLog.ps1 -Path .local/tests/public-beta-last.log
+./tools/ReadTestLog.ps1 -Path .local/tests/public-last.log
+```
+
+宿主就绪的标志：
+- 两份日志中「完整通过数」（Complete Passes）都**非零**
+- 无 `not associated with any mod` 错误或该错误计数为单个预期的提示（在 `ReadTestLog.ps1` 的诊断行单独统计，非零退出码）
+
+宿主 red（退出码非零或通过数为空）时：
+1. 立即修复宿主问题，不开始批次实施工单
+2. 将宿主修复记录为独立工单，在批次工单中标记为 blocked by
+3. 复验修复后的两目标输出，确认两份日志通过数均非零
+
 ## 自动检查与 PR 范围
 
 ```powershell
@@ -74,7 +93,76 @@ dotnet build src/Tests/AllMatters.Tests.csproj -p:GameBranch=public --nologo
 
 CLI 遇到连接问题时按 [GitHub 操作约定](agents/issue-tracker.md) 处理。`GitRemote.ps1` 尊重既有 Git/环境代理，否则为当前命令采用系统代理，不修改全局配置。
 
+## 并行实施与 worktree
+
+1. **并行实施一律独立 worktree**：派发两个及以上实施代理时，每个都设 `use_worktree: true`，并显式给出 `source_branch`（集成分支，如 `integration/batch-N`，**不是** `main`）和各自的 `branch_name`。普通 checkout 下 `use_worktree` 默认共享当前目录，不能依赖默认值。
+2. **子代理 brief 写明起点**：修复 feature/集成分支上的 bug 时，brief 中写「worktree 必须从 `integration/batch-N` 切出」，并在 `start_session` 传 `source_branch`。
+3. **热点文件串行化**：多张票都要改 `src/Jigsaw/JigsawNativeSession.cs` 等集成热点时，先排定合并顺序；后合并者在前者合入后 merge 新基线，再开始改该文件。
+4. **集成分支由主会话独占**：子代理只在自己的分支提交；合入 `integration/batch-N` 由主会话逐个执行，每次合入后构建并跑测试。
+
 ## 实机验收交付
+
+### 交付流程与顺序
+
+批次完成的固定顺序（缺一即未完成）：
+
+```
+实施 (代理开发)
+    ↓
+自动化测试 (两目标同时) + 初步代码审查
+    ↓
+[代码审查返还修改意见]
+    ↓
+Agent 自行修正审查发现的问题 (如有)
+    ↓
+复测 (两目标) + 复审 (确认修正有效)
+    ↓
+生成测试包：dist/batch-N-integration/AllMatters-<branch>/
+    ↓
+写测试文档：docs/batch-N-test-guide.md
+    ↓
+交付给用户实机验收
+```
+
+**关键约定**：
+- 打包与文档必须对应审查通过后的同一提交 SHA；交付消息明确该 SHA
+- 用户实机反馈后如需修复，循环走「修复 → 复测 → 复审 → 重新打包 → 更新文档」
+- 测试文档中添加「修复后验证项」小节，列出对应这轮 bug 的验证步骤
+
+### 测试包内容
+
+mod 包白名单（仅包含以下文件，不含 `.pdb`、`.xml` 或其他调试符号）：
+
+```
+AllMatters/
+  ├─ AllMatters.dll
+  ├─ AllMatters.pck
+  ├─ AllMatters.json (manifest)
+  ├─ LICENSE
+  └─ THIRD_PARTY_NOTICES.md
+```
+
+生成位置：`dist/batch-N-integration/AllMatters-public-beta/` 和 `.../AllMatters-public/`
+
+构建脚本采用白名单复制（`Copy-Item -Include`），不全量复制输出目录。
+
+### 测试文档
+
+`docs/batch-N-test-guide.md` 内容：
+
+- 安装步骤（复制到 `mods/AllMatters/`，RitsuLib 完整包位置）
+- 每项工单的操作序列与预期结果
+- 已知限制与未验证范围
+- [如有修复轮] 修复后验证项小节
+
+### 交付消息
+
+向用户提供：
+- 包的**绝对路径**
+- 验证版本（`ReleaseInfo.json` 版本号）  
+- 文档位置
+- 本批次依赖（如 RitsuLib 版本号）
+- 尚待用户操作的清单（是否需逐票安装）
 
 Agent 完成适当的自动化测试和两目标构建后，向用户提供 `dist/<branch>/AllMatters/` 的绝对路径、实际验证版本、独立依赖来源及完整目录要求、安装/更新步骤，以及本票具体的操作与预期结果。产物保留在开发输出目录，由用户安装并通过 Steam 完成游戏实测。
 
@@ -125,6 +213,29 @@ Agent 完成适当的自动化测试和两目标构建后，向用户提供 `dis
 交接实现任务时，先记录目标版本、已核实机制及源码入口，再列尚需用户决定的行为。已有决定直接沿用；在开始 TDD 前一次约定公开接口、验收例子、宿主替代边界和审查起点。机制入口见 [阅读地图](game-mechanics.md)，展示和证据范围见 [审查说明](agents/review.md)。查询时先找类型和成员，再按需导出方法体；保留大文件于本地，交接只给出来源、成员和必要证据。
 
 工作区父目录可能不是 Git 仓库，先定位含 `AGENTS.md`、项目文件和 `.git` 的仓库根目录，再执行 Git/工具命令。文件查找先 `rg --files <目录> -g '<模式>'`，确认文件后按章节或成员读取；PowerShell 下使用 `rg '<内容>' src/Tests -g '*.cs'`，不将 `src/Tests/*.cs` 当成已展开路径。长日志保留本地，只返回退出码、通过数、首个相关错误及来源行；遇到输出截断时缩小范围。
+
+## PR 合并后清理
+
+PR 合并到 main 后（特别是 squash-merge），本地 main 会与远程分叉。标准清理流程：
+
+```powershell
+rtk git fetch origin
+rtk git checkout main
+rtk git reset --hard origin/main   # 先确认本地 main 没有未推送的独有提交
+rtk git branch -D <feature-branch>  # 如 integration/batch-1；squash 后需 -D
+```
+
+### Worktree 清理
+
+Windows 上子代理会话仍持有 worktree 文件句柄时，`git worktree remove` 会返回 Permission denied / Device or resource busy。顺序：
+
+1. 用 `mcp__ccd_session_mgmt__archive_session` 归档对应子代理会话
+2. 等约 5 秒让进程退出
+3. `git worktree remove --force <path>`，然后 `git worktree prune`
+
+### Stash 操作
+
+`git stash drop` 前先 `git stash list` 并用 `git stash show -p stash@{N}` 确认目标内容，再按显式编号删除；新 stash 会把旧编号整体后移。
 
 ## 文档与参考目录
 

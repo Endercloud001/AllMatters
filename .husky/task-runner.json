@@ -3,8 +3,16 @@
   "tasks": [
     {
       "name": "pre-commit",
+      "group": "pre-commit",
       "command": "dotnet",
       "args": ["format", "AllMatters.sln"],
+      "include": ["**/*.cs"]
+    },
+    {
+      "name": "stage-formatted",
+      "group": "pre-commit",
+      "command": "git",
+      "args": ["add", "-u", "--", "*.cs"],
       "include": ["**/*.cs"]
     }
   ]
