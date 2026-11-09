@@ -31,15 +31,16 @@ internal static class HelloWorldTests
         // Install host lifecycle substitutes before framework patches prepare game methods.
         new Harmony("AllMatters.TestHost").PatchAll(typeof(HelloWorldTests).Assembly);
         STS2RitsuLib.RitsuLibFramework.Initialize();
-        // Register the test initializer before calling ModManager.Initialize so that the mod
-        // is loaded in test mode and we can associate the assembly with it.
+        // Register the test initializer so that the mod is loaded and its types are registered by ModManager.
         ModManager.TestInitializers[ModEntry.ModId] = ModEntry.Initialize;
         try
         {
             await ModManager.Initialize(null!, null, null);
-            // Associate the assembly immediately after ModManager creates the mod entry during Initialize.
-            // This ensures that when ModelDb discovers the types, they are already linked to the mod.
+            // Immediately associate the assembly on public-beta where the API exists.
+            // This tells the type serialization system which mod owns these types.
+#if !STS2_PUBLIC
             ModManager.AssociateAssemblyWithMod(ModEntry.ModId, typeof(ModEntry).Assembly);
+#endif
             SaveManager.Instance.SettingsSave.Language = "eng";
             LocManager.Initialize();
             foreach (Type type in ReflectionHelper.GetSubtypes<AbstractModel>()
