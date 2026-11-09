@@ -103,9 +103,12 @@ public sealed class LobbyRecovery
         return connectedPlayerIds.Count > 0;
     }
 
-    /// <summary>Get current lobby state snapshot.</summary>
+    /// <summary>Get current lobby state snapshot with exploration state.</summary>
     public LobbyState GetLobbyState()
     {
+        var explorationRecovery = ExplorationStateRecovery.GetOrCreate(nativeRun);
+        var explorationSnapshot = explorationRecovery?.GetSnapshot();
+
         return new LobbyState
         {
             OriginalPlayerCount = originalPlayers.Count,
@@ -114,7 +117,17 @@ public sealed class LobbyRecovery
             ConnectedPlayerIds = [.. connectedPlayerIds],
             IsOriginalRosterReady = recovered && originalPlayers.Count > 0 &&
                 connectedPlayerIds.Count == originalPlayers.Count &&
-                originalPlayers.All(id => connectedPlayerIds.Contains(id))
+                originalPlayers.All(id => connectedPlayerIds.Contains(id)),
+            ExplorationState = explorationSnapshot != null ? new ExplorationStateInfo
+            {
+                VisitedCount = explorationSnapshot.VisitedNodes.Count,
+                CompletedCount = explorationSnapshot.CompletedNodes.Count,
+                CurrentNode = explorationSnapshot.CurrentNode,
+                Steps = explorationSnapshot.Steps,
+                RemainingSteps = Math.Max(0, explorationSnapshot.Budget - explorationSnapshot.Steps),
+                IsHunting = explorationSnapshot.Steps > explorationSnapshot.Budget,
+                Phase = explorationSnapshot.Phase
+            } : null
         };
     }
 
@@ -126,6 +139,19 @@ public sealed class LobbyRecovery
         public bool IsRecovered { get; init; }
         public ulong[] ConnectedPlayerIds { get; init; } = [];
         public bool IsOriginalRosterReady { get; init; }
+        public ExplorationStateInfo? ExplorationState { get; init; }
+    }
+
+    /// <summary>Exploration state information for lobby sync.</summary>
+    public sealed class ExplorationStateInfo
+    {
+        public int VisitedCount { get; init; }
+        public int CompletedCount { get; init; }
+        public int? CurrentNode { get; init; }
+        public int Steps { get; init; }
+        public int RemainingSteps { get; init; }
+        public bool IsHunting { get; init; }
+        public JigsawPhase Phase { get; init; }
     }
 }
 
