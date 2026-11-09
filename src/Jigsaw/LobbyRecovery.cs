@@ -103,9 +103,16 @@ public sealed class LobbyRecovery
         return connectedPlayerIds.Count > 0;
     }
 
-    /// <summary>Get current lobby state snapshot.</summary>
+    /// <summary>Get current lobby state snapshot including save state info.</summary>
     public LobbyState GetLobbyState()
     {
+        // Capture save state recovery info if available
+        SaveStateRecovery.SaveStateSnapshot? saveState = null;
+        if (SaveStateRecovery.GetOrCreate(nativeRun) is { } saveRecovery && saveRecovery.IsInitialized)
+        {
+            saveState = saveRecovery.GetSnapshot();
+        }
+
         return new LobbyState
         {
             OriginalPlayerCount = originalPlayers.Count,
@@ -114,7 +121,14 @@ public sealed class LobbyRecovery
             ConnectedPlayerIds = [.. connectedPlayerIds],
             IsOriginalRosterReady = recovered && originalPlayers.Count > 0 &&
                 connectedPlayerIds.Count == originalPlayers.Count &&
-                originalPlayers.All(id => connectedPlayerIds.Contains(id))
+                originalPlayers.All(id => connectedPlayerIds.Contains(id)),
+            SaveState = saveState != null ? new SaveStateInfo
+            {
+                Act = saveState.Act,
+                Budget = saveState.Budget,
+                Steps = saveState.Steps,
+                Phase = saveState.Phase.ToString()
+            } : null
         };
     }
 
@@ -126,6 +140,16 @@ public sealed class LobbyRecovery
         public bool IsRecovered { get; init; }
         public ulong[] ConnectedPlayerIds { get; init; } = [];
         public bool IsOriginalRosterReady { get; init; }
+        public SaveStateInfo? SaveState { get; init; }
+    }
+
+    /// <summary>Snapshot of game save state for lobby sync.</summary>
+    public sealed class SaveStateInfo
+    {
+        public required int Act { get; init; }
+        public required int Budget { get; init; }
+        public required int Steps { get; init; }
+        public required string Phase { get; init; }
     }
 }
 
