@@ -12,7 +12,8 @@ internal static class NlothSkipTreasure
 {
     private static void Postfix(TreasureRoomRelicSynchronizer __instance, IPlayerCollection ____playerCollection)
     {
-        if (__instance.CurrentRelics == null) return;
+        if (__instance.CurrentRelics == null)
+            return;
         foreach (var player in ____playerCollection.Players.Where(NlothsHungryFace.IsEmptyFor))
             __instance.OnPicked(player, null);
     }
@@ -23,7 +24,8 @@ internal static class NlothTreasureVote
 {
     private static void Prefix(Player player, ref int? index)
     {
-        if (NlothsHungryFace.IsEmptyFor(player)) index = null;
+        if (NlothsHungryFace.IsEmptyFor(player))
+            index = null;
     }
 }
 
@@ -32,7 +34,8 @@ internal static class NlothLocalTreasureVote
 {
     private static void Prefix(ulong ____localPlayerId, IPlayerCollection ____playerCollection, ref int? index)
     {
-        if (NlothsHungryFace.IsEmptyFor(____playerCollection.Players.Single(p => p.NetId == ____localPlayerId))) index = null;
+        if (NlothsHungryFace.IsEmptyFor(____playerCollection.Players.Single(p => p.NetId == ____localPlayerId)))
+            index = null;
     }
 }
 
@@ -41,7 +44,8 @@ internal static class NlothTreasureExtras
 {
     private static void Postfix(RewardsSet __instance, AbstractRoom room)
     {
-        if (room is TreasureRoom && NlothsHungryFace.IsEmptyFor(__instance.Player)) __instance.Rewards.Clear();
+        if (room is TreasureRoom && NlothsHungryFace.IsEmptyFor(__instance.Player))
+            __instance.Rewards.Clear();
     }
 }
 

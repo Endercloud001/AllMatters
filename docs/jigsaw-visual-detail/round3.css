@@ -1,0 +1,6 @@
+.vote{position:relative}.vote-avatars{position:absolute;bottom:100%;left:0;right:0;display:flex;justify-content:center;gap:8px;height:34px}.vote-avatars img{width:32px;height:32px;object-fit:contain}.state-pulse{animation:statePulse 1.4s ease-in-out infinite}@keyframes statePulse{50%{transform:scale(1.08)}}.r2-controls{flex-wrap:wrap}
+.explore .steps{left:12%;top:35px;color:#312415}
+/* Approved: exploration uses the map's upper information area, no bottom dialogue. */
+.shell.explore{grid-template-rows:minmax(0,1fr)}
+.explore .dialog{display:none}
+.explore .steps{z-index:2;max-width:65%;font-size:20px}

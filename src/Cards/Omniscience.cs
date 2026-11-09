@@ -51,7 +51,8 @@ internal sealed class OmniscienceResolution
         try
         {
             await nativePlay;
-            if (queue._draining) return;
+            if (queue._draining)
+                return;
             queue._draining = true;
             try
             {
@@ -61,7 +62,8 @@ internal sealed class OmniscienceResolution
                     if ((reason & ~(UnplayableReason.EnergyCostTooHigh | UnplayableReason.StarCostTooHigh)) == UnplayableReason.None)
                     {
                         queue._repeating = card;
-                        try { await CardCmd.AutoPlay(context, card, null); }
+                        try
+                        { await CardCmd.AutoPlay(context, card, null); }
                         finally { queue._repeating = null; }
                     }
                     // Native Power resolution removes the card from combat. Preserve that
@@ -92,7 +94,8 @@ internal static class OmniscienceNativeRepeat
 {
     private static void Postfix(CardModel __instance, ref Task<int> __result)
     {
-        if (OmniscienceResolution.IsRepeating(__instance)) __result = AddOnePlay(__result);
+        if (OmniscienceResolution.IsRepeating(__instance))
+            __result = AddOnePlay(__result);
     }
     private static async Task<int> AddOnePlay(Task<int> nativeCount) => await nativeCount + 1;
 }

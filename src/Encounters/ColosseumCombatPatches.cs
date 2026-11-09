@@ -18,8 +18,10 @@ internal static class ColosseumCombatReset
 {
     private static void Prefix(EventSynchronizer __instance, AbstractRoom exitedRoom)
     {
-        if (exitedRoom is not CombatRoom { Encounter: ColosseumFirstEncounter }) return;
-        if (__instance.GetLocalEvent() is not Colosseum) return;
+        if (exitedRoom is not CombatRoom { Encounter: ColosseumFirstEncounter })
+            return;
+        if (__instance.GetLocalEvent() is not Colosseum)
+            return;
         __instance.BeforeExitingRoom();
         __instance.GenerateInternalCombatStateIfNecessary(__instance.GetLocalEvent());
     }
@@ -32,11 +34,13 @@ internal static class EventCombatReplayInitialization
     private static void Prefix(RunManager __instance, AbstractRoom room)
     {
         if (room is not CombatRoom combat || (!Colosseum.IsSecondCombat(combat)
-            && combat.Encounter is not (HolesEncounter or ChampionEncounter or TrialEncounter))) return;
+            && combat.Encounter is not (HolesEncounter or ChampionEncounter or TrialEncounter)))
+            return;
         var writer = __instance.CombatReplayWriter;
         // A prior victory can stop recording on either target. Embedded event
         // battles need an initial state before their first turn or player action.
-        if (!writer.IsEnabled || writer.IsRecordingReplay) return;
+        if (!writer.IsEnabled || writer.IsRecordingReplay)
+            return;
         var snapshot = __instance.ToSave(null);
         // RunReplay loads PreFinishedRoom even when it is not finished. A null
         // room would roll this map point again. Build a replay-only live room

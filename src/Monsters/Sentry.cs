@@ -116,6 +116,7 @@ internal static class SentryArtifactAmount
 {
     private static void Postfix(decimal amount, Creature target, ref decimal __result)
     {
-        if (target.Monster is Sentry) __result = amount;
+        if (target.Monster is Sentry)
+            __result = amount;
     }
 }

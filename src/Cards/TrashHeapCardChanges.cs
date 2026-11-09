@@ -12,7 +12,8 @@ internal static class OutmaneuverSly
 {
     private static void Postfix(CardModel __instance, ref IEnumerable<CardKeyword> __result)
     {
-        if (__instance is Outmaneuver) __result = __result.Append(CardKeyword.Sly).Distinct();
+        if (__instance is Outmaneuver)
+            __result = __result.Append(CardKeyword.Sly).Distinct();
     }
 }
 
@@ -27,7 +28,8 @@ internal static class DistractionPlay
 {
     private static bool Prefix(Distraction __instance, ref Task __result)
     {
-        if (!__instance.IsUpgraded) return true;
+        if (!__instance.IsUpgraded)
+            return true;
         __result = Play(__instance);
         return false;
     }
@@ -38,7 +40,8 @@ internal static class DistractionPlay
         var card = CardFactory.GetDistinctForCombat(owner,
             owner.Character.CardPool.GetUnlockedCards(owner.UnlockState, owner.RunState.CardMultiplayerConstraint)
                 .Where(candidate => candidate.Type == CardType.Skill), 1, owner.RunState.Rng.CombatCardGeneration).FirstOrDefault();
-        if (card == null) return;
+        if (card == null)
+            return;
         CardCmd.Upgrade(card);
         card.SetToFreeThisTurn();
         await CardPileCmd.AddGeneratedCardToCombat(card, PileType.Hand, owner);

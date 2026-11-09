@@ -29,7 +29,8 @@ public sealed class NlothsHungryFace : ModRelicTemplate
 
     public override Task AfterRoomEntered(AbstractRoom room)
     {
-        if (Spent) Status = RelicStatus.Disabled;
+        if (Spent)
+            Status = RelicStatus.Disabled;
         if (!Spent && room is TreasureRoom treasure)
         {
             _emptyRoom = treasure;

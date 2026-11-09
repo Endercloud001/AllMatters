@@ -1,0 +1,42 @@
+[
+  {
+    "w": 1280,
+    "h": 720,
+    "errors": [],
+    "horizontalOverflow": false,
+    "inert": 0,
+    "focus": "help"
+  },
+  {
+    "w": 1920,
+    "h": 1080,
+    "errors": [],
+    "horizontalOverflow": false,
+    "inert": 0,
+    "focus": "help"
+  },
+  {
+    "w": 3840,
+    "h": 2160,
+    "errors": [],
+    "horizontalOverflow": false,
+    "inert": 0,
+    "focus": "help"
+  },
+  {
+    "w": 1440,
+    "h": 900,
+    "errors": [],
+    "horizontalOverflow": false,
+    "inert": 0,
+    "focus": "help"
+  },
+  {
+    "w": 2560,
+    "h": 1080,
+    "errors": [],
+    "horizontalOverflow": false,
+    "inert": 0,
+    "focus": "help"
+  }
+]

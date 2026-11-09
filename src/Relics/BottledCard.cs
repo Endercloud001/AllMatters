@@ -46,7 +46,8 @@ public abstract class BottledCard : ModRelicTemplate
 
     internal static bool IsBound(CardModel card)
     {
-        if (card.IsCanonical) return false;
+        if (card.IsCanonical)
+            return false;
         var original = card.DeckVersion ?? card;
         string? entry = Binding.GetValueOrDefault(original);
         return !string.IsNullOrEmpty(entry) && original.Owner?.Relics.Any(relic => relic is BottledCard && relic.Id.Entry == entry) == true;

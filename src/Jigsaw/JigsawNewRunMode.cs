@@ -27,10 +27,10 @@ internal static class JigsawStageNewRunMode
     [HarmonyPriority(Priority.First)]
     private static void Prefix(StartRunLobby __instance)
     {
-        JigsawNewRunMode.Slot.Lobby.Set(__instance,new JigsawModeIdentity
+        JigsawNewRunMode.Slot.Lobby.Set(__instance, new JigsawModeIdentity
         {
-            Enabled=__instance.NetService.Type==NetGameType.Host &&
-                __instance.GameMode==GameMode.Standard && __instance.DailyTime==null && JigsawPreferences.Enabled
+            Enabled = __instance.NetService.Type == NetGameType.Host &&
+                __instance.GameMode == GameMode.Standard && __instance.DailyTime == null && JigsawPreferences.Enabled
         });
     }
 }
@@ -38,10 +38,10 @@ internal static class JigsawStageNewRunMode
 [HarmonyPatch(typeof(RunManager), nameof(RunManager.SetUpNewMultiplayer))]
 internal static class JigsawActivateMultiplayerNewRun
 {
-    private static void Postfix(RunState state,DateTimeOffset? dailyTime)
+    private static void Postfix(RunState state, DateTimeOffset? dailyTime)
     {
-        if(dailyTime==null && state.GameMode==GameMode.Standard &&
-           JigsawNewRunMode.Slot.TryGet(state,out var identity) && identity.Enabled)
+        if (dailyTime == null && state.GameMode == GameMode.Standard &&
+           JigsawNewRunMode.Slot.TryGet(state, out var identity) && identity.Enabled)
             JigsawNativeSession.Enable(state);
     }
 }

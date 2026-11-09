@@ -1,0 +1,3 @@
+const {chromium}=require('C:/Users/Endercloud/.codex/skills/blcaptain-style-skill/node_modules/playwright-core');
+(async()=>{const b=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});const p=await b.newPage({viewport:{width:1672,height:1000}});for(const v of ['a','b']){await p.goto('file:///E:/Godot_v4.5.1-stable_mono_win64/sts2mod/AllMatters_docs/jigsaw-visual-detail/index.html?variant='+v);await p.locator('.help').click();await p.screenshot({path:'E:/Godot_v4.5.1-stable_mono_win64/sts2mod/AllMatters_docs/jigsaw-visual-detail/help-'+v+'.png',fullPage:true});}await b.close()})()
+

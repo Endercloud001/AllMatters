@@ -16,7 +16,8 @@ internal static class NativeChoirMushroom
         => __result = __result.Append(NativeEventActions.Option(__instance, "LUMINOUS_CHOIR.pages.INITIAL.options.AM_MUSHROOM", async () =>
         {
             await NativeEventActions.LoseHp(__instance, 14);
-            if (!__instance.Owner!.Creature.IsDead) await RelicCmd.Obtain<StrangeMushroom>(__instance.Owner);
+            if (!__instance.Owner!.Creature.IsDead)
+                await RelicCmd.Obtain<StrangeMushroom>(__instance.Owner);
             NativeEventActions.Finish(__instance, "LUMINOUS_CHOIR.pages.AM_MUSHROOM.description");
         }, HoverTipFactory.FromRelic<StrangeMushroom>().ToArray()).ThatDoesDamage(14)).ToArray();
 }
@@ -28,7 +29,8 @@ internal static class NativeNestMeat
         => __result = __result.Append(NativeEventActions.Option(__instance, "BYRDONIS_NEST.pages.INITIAL.options.AM_HELP", async () =>
         {
             await NativeEventActions.LoseHp(__instance, 12);
-            if (!__instance.Owner!.Creature.IsDead) await RelicCmd.Obtain<MeatOnTheBone>(__instance.Owner);
+            if (!__instance.Owner!.Creature.IsDead)
+                await RelicCmd.Obtain<MeatOnTheBone>(__instance.Owner);
             NativeEventActions.Finish(__instance, "BYRDONIS_NEST.pages.AM_HELP.description");
         }, HoverTipFactory.FromRelic<MeatOnTheBone>().ToArray()).ThatDoesDamage(12)).ToArray();
 }

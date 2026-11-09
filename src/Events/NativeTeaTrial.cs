@@ -13,7 +13,8 @@ internal static class TeaTrialSharedPage
 {
     private static void Postfix(EventModel __instance, ref bool __result)
     {
-        if (__instance is RoundTeaParty or Trial) __result = true;
+        if (__instance is RoundTeaParty or Trial)
+            __result = true;
     }
 }
 
@@ -63,7 +64,8 @@ internal static class TeaTrialReturn
 {
     private static void Postfix(EventModel __instance, AbstractRoom exitedRoom)
     {
-        if (exitedRoom is not CombatRoom { ParentEventId: var parent } combat || parent != __instance.Id) return;
+        if (exitedRoom is not CombatRoom { ParentEventId: var parent } combat || parent != __instance.Id)
+            return;
         if (__instance is RoundTeaParty && combat.Encounter is ChampionEncounter)
             NativeEventActions.Finish(__instance, "ROUND_TEA_PARTY.pages.CONTINUE_FIGHT.description");
         else if (__instance is Trial && combat.Encounter is TrialEncounter)

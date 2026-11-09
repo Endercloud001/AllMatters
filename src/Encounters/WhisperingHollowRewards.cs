@@ -20,7 +20,8 @@ internal static class WhisperingHollowRewards
 
     private static bool Prefix(RewardsSet __instance, AbstractRoom room, ref RewardsSet __result)
     {
-        if (room is not CombatRoom { Encounter: WhisperingHollowEncounter } combat) return true;
+        if (room is not CombatRoom { Encounter: WhisperingHollowEncounter } combat)
+            return true;
         // Reuse the native elite reward generator (including potion odds and card tier),
         // without changing the real encounter's ordinary monster identity.
         var elite = new EliteRewardRoom(combat);
@@ -37,7 +38,8 @@ internal static class WhisperingHollowCleanup
 {
     private static bool Prefix(Player player, AbstractRoom room, ref Task<RewardsSet> __result)
     {
-        if (room is not CombatRoom { Encounter: WhisperingHollowEncounter }) return true;
+        if (room is not CombatRoom { Encounter: WhisperingHollowEncounter })
+            return true;
         __result = CleanAndGenerate(player, room);
         return false;
     }

@@ -26,6 +26,7 @@ public sealed class EndlessAgony : ModCardTemplate
     protected override void OnUpgrade() { DynamicVars.Damage.UpgradeValueBy(2); }
     public override async Task AfterCardDrawn(PlayerChoiceContext choiceContext, CardModel card, bool fromHandDraw)
     {
-        if (card == this) await CardPileCmd.AddGeneratedCardToCombat(CreateClone(), PileType.Hand, Owner);
+        if (card == this)
+            await CardPileCmd.AddGeneratedCardToCombat(CreateClone(), PileType.Hand, Owner);
     }
 }

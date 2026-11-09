@@ -21,7 +21,8 @@ internal static class NativeLightPriority
     {
         var cards = __instance.Owner!.Deck.Cards.Where(c => c.IsUpgradable).ToList().StableShuffle(__instance.Rng)
             .OrderBy(c => c.Rarity == CardRarity.Basic ? 1 : 0).Take(__instance.DynamicVars.Cards.IntValue);
-        foreach (var card in cards) CardCmd.Upgrade(card);
+        foreach (var card in cards)
+            CardCmd.Upgrade(card);
         NativeEventActions.Finish(__instance, "DOORS_OF_LIGHT_AND_DARK.pages.LIGHT.description");
         __result = Task.CompletedTask;
         return false;
@@ -49,7 +50,8 @@ internal static class NativeMorphicChoices
 
     private static void Postfix(MorphicGrove __instance, ref IReadOnlyList<EventOption> __result)
     {
-        if (Targets(__instance).Length >= 2) return;
+        if (Targets(__instance).Length >= 2)
+            return;
         var list = __result.ToList();
         list[0] = new EventOption(__instance, null, "MORPHIC_GROVE.pages.INITIAL.options.AM_GROUP_LOCKED");
         __result = list;
@@ -68,7 +70,8 @@ internal static class NativeMorphicTransform
     {
         var targets = NativeMorphicChoices.Targets(model).ToList().StableShuffle(model.Rng)
             .OrderBy(c => c.Rarity == CardRarity.Basic ? 0 : c.Rarity == CardRarity.Common ? 1 : 2).Take(2).ToArray();
-        if (targets.Length < 2) return;
+        if (targets.Length < 2)
+            return;
         await PlayerCmd.LoseGold(model.Owner!.Gold, model.Owner, GoldLossType.Stolen);
         foreach (var original in targets)
         {

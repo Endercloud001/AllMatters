@@ -26,17 +26,20 @@ internal sealed class JigsawEntryProjection : ActMap
 
     public static (ActMap Map, MapPoint Point) Append(ActMap original, int row, JigsawRoom room)
     {
-        var point = new MapPoint(0, row) { PointType = room switch
+        var point = new MapPoint(0, row)
         {
-            JigsawRoom.Combat => MapPointType.Monster,
-            JigsawRoom.Unknown => MapPointType.Unknown,
-            JigsawRoom.Elite => MapPointType.Elite,
-            JigsawRoom.Shop => MapPointType.Shop,
-            JigsawRoom.Rest => MapPointType.RestSite,
-            JigsawRoom.Treasure => MapPointType.Treasure,
-            JigsawRoom.Boss or JigsawRoom.SecondBoss => MapPointType.Boss,
-            _ => throw new InvalidOperationException("This is not an exploration destination.")
-        }};
+            PointType = room switch
+            {
+                JigsawRoom.Combat => MapPointType.Monster,
+                JigsawRoom.Unknown => MapPointType.Unknown,
+                JigsawRoom.Elite => MapPointType.Elite,
+                JigsawRoom.Shop => MapPointType.Shop,
+                JigsawRoom.Rest => MapPointType.RestSite,
+                JigsawRoom.Treasure => MapPointType.Treasure,
+                JigsawRoom.Boss or JigsawRoom.SecondBoss => MapPointType.Boss,
+                _ => throw new InvalidOperationException("This is not an exploration destination.")
+            }
+        };
         return (new JigsawEntryProjection(original, row, point), point);
     }
 }

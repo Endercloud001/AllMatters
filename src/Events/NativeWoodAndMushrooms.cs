@@ -68,7 +68,8 @@ internal static class ToricExhaust
 {
     private static void Postfix(CardModel __instance, ref IEnumerable<CardKeyword> __result)
     {
-        if (__instance is ToricToughness) __result = __result.Append(CardKeyword.Exhaust);
+        if (__instance is ToricToughness)
+            __result = __result.Append(CardKeyword.Exhaust);
     }
 }
 
@@ -100,7 +101,8 @@ internal static class FragrantUpgradeSelection
     {
         await CreatureCmd.Damage(new ThrowingPlayerChoiceContext(), relic.Owner.Creature, 15,
             ValueProp.Unblockable | ValueProp.Unpowered, null, null);
-        if (relic.Owner.Creature.IsDead) return;
+        if (relic.Owner.Creature.IsDead)
+            return;
         var cards = await CardSelectCmd.FromDeckForUpgrade(relic.Owner, new CardSelectorPrefs(CardSelectorPrefs.UpgradeSelectionPrompt, 2));
         CardCmd.Upgrade(cards, CardPreviewStyle.MessyLayout);
     }

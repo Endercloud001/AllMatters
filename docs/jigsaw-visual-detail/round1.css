@@ -1,0 +1,36 @@
+/* Independent review prototype. All numeric values are proposals. */
+body{background:radial-gradient(ellipse at 50% 30%,#17262b,#020607 85%);font-family:GameCN,'Microsoft YaHei',sans-serif}
+nav{height:58px;padding:8px 20px;background:#111a20;font-size:14px}nav button{padding:6px 12px}
+.hud{height:44px;padding:10px 28px;background:transparent;border:0;font-size:13px;color:#9aa7a7}
+.shell{height:calc(100vh - 110px);min-height:580px;padding:14px 25px 22px;grid-template-columns:300px 1fr;grid-template-rows:minmax(0,1fr) 112px;gap:20px 24px}
+.pool{border:30px solid transparent;border-image:url('assets/reward_panel.png') 44 fill / 30px / 0 stretch;background:none;padding:0 0 5px;position:relative}
+.pool h2{font-family:inherit;font-size:32px;color:#f9e5b8;text-shadow:2px 2px #302b22,-1px -1px #302b22;line-height:52px;height:65px;margin:-31px -34px 8px;background:url('assets/reward_banner.png') center/100% 100% no-repeat}
+.pool>button{align-self:center;font-family:inherit;padding:6px 20px;background:none;border:12px solid transparent;border-image:url('assets/event_button.png') 24 fill / 12px;color:#f4dda5;font-size:17px;line-height:1;margin-bottom:6px}
+.cards{margin:0 -6px 0 0;padding-right:7px;scrollbar-color:#6b929b #10212a;scrollbar-width:thin}
+.card{height:126px;border:14px solid transparent;border-image:url('assets/event_button.png') 30 fill / 14px;background:none;margin-bottom:10px}.card svg{overflow:visible}
+.map{border-radius:0;background:transparent!important;isolation:isolate;overflow:hidden;padding:35px 20px}
+.paper-layer{position:absolute;inset:0;z-index:-1;display:flex;flex-direction:column;pointer-events:none}.paper-layer img{width:100%;display:block}.paper-layer .top,.paper-layer .bottom{height:12%;object-fit:fill}.paper-layer .middle{flex:1;min-height:0;background:url('assets/map_middle_overgrowth.png') center/100% 100%}
+.help{background:none;border:12px solid transparent;border-image:url('assets/event_button.png') 24 fill / 12px;padding:5px 15px;font-family:inherit;font-size:17px;right:30px;top:25px}
+.dialog{grid-template-columns:minmax(0,1fr) 300px 300px;gap:18px;align-items:stretch}
+.speech{background:none;border:25px solid transparent;border-image:url('assets/submenu_panel_short.png') 44 fill / 25px;color:#3b2b1d;border-radius:0;font-family:inherit;font-size:24px;line-height:1.5;padding:10px 15px;text-shadow:0 1px #ebd4a9}
+.dialog .vote{background:none;border:22px solid transparent;border-image:url('assets/event_button.png') 36 fill / 22px;font-family:inherit;font-size:25px;line-height:1.25;color:#f4dfa8;text-shadow:2px 2px #172329;padding:5px 8px}
+.annotation{font-size:14px;color:#a5b4b8;padding:20px 30px}.badge{display:none}
+body.variant-b .speech{border-image-source:url('assets/reward_panel.png')}
+body.variant-b .pool{border-image-source:url('assets/reward_panel.png')}
+@media(max-width:1400px){.shell{grid-template-columns:240px 1fr;grid-template-rows:minmax(0,1fr) 95px;padding:10px 18px 18px;gap:14px}.dialog{grid-template-columns:minmax(0,1fr) 240px 240px;gap:12px}.dialog .vote{font-size:21px}.speech{font-size:20px;padding:2px 5px}.card{height:112px}.pool h2{font-size:27px}.shell{min-height:500px}}
+
+.card{border-image-slice:28;border-image-width:10px;background:#0a171b;background-clip:padding-box;border-width:12px}.pool{border-image-slice:85;}.speech{border-image-slice:60;}body.variant-b .speech{color:#f4dfa8;text-shadow:1px 2px #10212a;}
+@font-face{font-family:GameCN;src:url('assets/SourceHanSerifSC-Medium.otf')}@font-face{font-family:GameCN;src:url('assets/SourceHanSerifSC-Bold.otf');font-weight:700}
+.pool{border-image-slice:85 fill}.speech{border-image-slice:60 fill;text-shadow:none}.pool h2{font-weight:700}.dialog .vote{font-weight:700}
+.paper-layer .top{height:140px;object-fit:cover;object-position:top}.paper-layer .bottom{height:120px;object-fit:cover;object-position:bottom}.paper-layer .middle{background-size:100% auto;background-repeat:repeat-y}
+/* Preserve the native joining rows; never crop a cap through its paper edge. */
+.paper-layer .top,.paper-layer .bottom{height:38%;object-fit:fill;flex:none}.paper-layer .middle{height:24%;flex:none;background-size:100% 100%;background-repeat:no-repeat}
+/* Native AncientDialogueLine: colored mask + tail + shadow; local tint cache. */
+.speech,body.variant-b .speech{position:relative;border:27px solid transparent;border-image:url('assets/dialogue_nine_patch-tinted.png') 28 27 fill / 27px round;background:none;color:#fff6e2;text-shadow:3px 2px #0004;padding:0 4px;font-size:24px;filter:drop-shadow(2px 5px 0 #0004)}
+.speech:before{content:'';position:absolute;width:36px;height:40px;left:-43px;top:0;background:url('assets/dialogue_tail-tinted.png') center/contain no-repeat}
+.dialog .vote:last-child{border-image:none;border:0;background:url('assets/confirm_button.png') center/100% 100% no-repeat;padding:15px 20px 15px 32px}
+/* Symmetric local reconstruction: mirrored native confirm stone, not native finished art. */
+.dialog .vote:last-child{background-image:url('assets/confirm_button-symmetric.png');padding:15px 24px}
+.shell{position:relative}.shell>.overlay{position:absolute;inset:0;z-index:30;background:#000b;padding:18px}
+.modal{width:min(522px,90%);height:min(600px,100%);max-height:100%;border:0;background:url('assets/popup_vertical-native-color.png') center/100% 100% no-repeat;padding:48px 48px 60px;text-align:center;display:flex;flex-direction:column;overflow:auto;color:#fff6e2;font-size:21px;text-shadow:2px 2px #0006}
+.modal h2{font-size:30px;color:#efc851;text-shadow:2px 2px #544000;margin:8px 0 22px}.modal p{line-height:1.55;margin:10px 0}.modal button{margin:auto auto 0;background:none;border:15px solid transparent;border-image:url('assets/event_button.png') 24 fill / 15px;font:22px GameCN;color:#fff6e2;padding:2px 30px}

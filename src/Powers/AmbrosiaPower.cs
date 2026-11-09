@@ -27,6 +27,7 @@ public sealed class AmbrosiaPower : ModPowerTemplate
 
     public override async Task AfterSideTurnEnd(PlayerChoiceContext choiceContext, CombatSide side, IEnumerable<Creature> participants)
     {
-        if (side == Owner.Side && participants.Contains(Owner)) await PowerCmd.Remove(this);
+        if (side == Owner.Side && participants.Contains(Owner))
+            await PowerCmd.Remove(this);
     }
 }

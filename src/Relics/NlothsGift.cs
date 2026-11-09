@@ -25,7 +25,8 @@ public sealed class NlothsGift : ModRelicTemplate
     internal static void Track(Player player)
     {
         var odds = player.PlayerOdds.CardRarity;
-        Owners.Remove(odds); Owners.Add(odds, player);
+        Owners.Remove(odds);
+        Owners.Add(odds, player);
     }
     public override Task AfterObtained() { Track(Owner); return Task.CompletedTask; }
 }
@@ -43,8 +44,10 @@ internal static class NlothRareOdds
 {
     private static void Prefix(CardRarityOdds __instance, CardRarityOddsType type, ref float offset)
     {
-        if (type is not (CardRarityOddsType.RegularEncounter or CardRarityOddsType.EliteEncounter)) return;
-        if (!NlothsGift.Owners.TryGetValue(__instance, out var player) || !player.Relics.OfType<NlothsGift>().Any()) return;
+        if (type is not (CardRarityOddsType.RegularEncounter or CardRarityOddsType.EliteEncounter))
+            return;
+        if (!NlothsGift.Owners.TryGetValue(__instance, out var player) || !player.Relics.OfType<NlothsGift>().Any())
+            return;
         // STS1 modifies the base rare threshold before its independent pity
         // adjustment. Keep that stage and the native roll/saturation behavior.
         float baseRare = type == CardRarityOddsType.RegularEncounter ? CardRarityOdds.RegularRareOdds : CardRarityOdds.EliteRareOdds;

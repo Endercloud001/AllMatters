@@ -24,12 +24,16 @@ internal static class NativeDollChoices
     }
     internal static async Task Pick(DollRoom model, int count, int hp, string page)
     {
-        if (hp > 0) await NativeEventActions.LoseHp(model, hp);
-        if (model.Owner!.Creature.IsDead) return;
+        if (hp > 0)
+            await NativeEventActions.LoseHp(model, hp);
+        if (model.Owner!.Creature.IsDead)
+            return;
         var all = Choices(model);
         var choices = Enumerable.Range(0, all.Count).ToList().StableShuffle(model.Rng).Take(count).Select(i => all[i]).ToArray();
-        if (count == 1) await choices[0].Chosen();
-        else NativeEventActions.State(model, "DOLL_ROOM.pages." + page + ".description", choices);
+        if (count == 1)
+            await choices[0].Chosen();
+        else
+            NativeEventActions.State(model, "DOLL_ROOM.pages." + page + ".description", choices);
     }
 }
 

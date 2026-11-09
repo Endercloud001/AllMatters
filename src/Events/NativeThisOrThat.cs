@@ -26,8 +26,10 @@ internal static class ThisOrThatIdentity
         __result = __result.Append(NativeEventActions.Option(__instance, "THIS_OR_THAT.pages.INITIAL.options.AM_REVEAL", async () =>
         {
             int roll = __instance.Rng.NextInt(100);
-            if (roll is >= 78 and < 98) await RelicCmd.Obtain<NlothsHungryFace>(__instance.Owner!);
-            else if (roll >= 98) await RelicCmd.Obtain<NlothsGift>(__instance.Owner!);
+            if (roll is >= 78 and < 98)
+                await RelicCmd.Obtain<NlothsHungryFace>(__instance.Owner!);
+            else if (roll >= 98)
+                await RelicCmd.Obtain<NlothsGift>(__instance.Owner!);
             NativeEventActions.Finish(__instance, "THIS_OR_THAT.pages.AM_REVEAL_" + (roll < 78 ? "NONE" : roll < 98 ? "FACE" : "GIFT") + ".description");
         }, HoverTipFactory.FromRelic<NlothsHungryFace>().Concat(HoverTipFactory.FromRelic<NlothsGift>()).ToArray())).ToArray();
     }

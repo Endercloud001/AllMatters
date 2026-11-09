@@ -79,7 +79,8 @@ internal static class NativeDenseVegetation
 
     private static IReadOnlyList<EventOption> Options(DenseVegetation model, Visit visit)
     {
-        if (visit.Completed) return model.CurrentOptions;
+        if (visit.Completed)
+            return model.CurrentOptions;
         var options = visit.Actions.Select(action =>
         {
             string key = "DENSE_VEGETATION.pages.INITIAL.options.AM_REST_" + action.OptionId;
@@ -87,7 +88,8 @@ internal static class NativeDenseVegetation
             description.Add("ActionDescription", action.Description.GetFormattedText());
             return new EventOption(model, async () =>
             {
-                if (visit.Choosing || visit.Completed || !action.IsEnabled) return;
+                if (visit.Choosing || visit.Completed || !action.IsEnabled)
+                    return;
                 visit.Choosing = true;
                 bool previousSelection = SharedSelection.Value;
                 SharedSelection.Value = model.Owner!.RunState.Players.Count > 1;
@@ -114,7 +116,8 @@ internal static class NativeDenseVegetation
         }).ToList();
         options.Add(new EventOption(model, async () =>
         {
-            if (visit.Choosing || visit.Completed) return;
+            if (visit.Choosing || visit.Completed)
+                return;
             visit.Choosing = visit.Completed = true;
             await visit.Trudge.Chosen();
         }, visit.Trudge.Title, visit.Trudge.Description, visit.Trudge.TextKey, visit.Trudge.HoverTips)
@@ -136,7 +139,8 @@ internal static class DenseVegetationSharedSelection
 
     private static void Prefix(ref CardSelectorPrefs prefs)
     {
-        if (NativeDenseVegetation.RequiresSelection) prefs = prefs with { Cancelable = false };
+        if (NativeDenseVegetation.RequiresSelection)
+            prefs = prefs with { Cancelable = false };
     }
 }
 
@@ -145,7 +149,8 @@ internal static class DenseVegetationLocalization
 {
     private static void Postfix(LocManager __instance, string name, LocTable __result)
     {
-        if (name != "events") return;
+        if (name != "events")
+            return;
         bool zh = __instance.Language == "zhs";
         __result.MergeWith(new Dictionary<string, string>
         {

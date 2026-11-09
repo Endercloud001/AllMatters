@@ -20,7 +20,8 @@ public static class SmallLaserEffect
     {
         var room = NCombatRoom.Instance;
         var source = room?.GetCreatureNode(attacker);
-        if (room == null || source == null) return;
+        if (room == null || source == null)
+            return;
         var endpoints = targets.Where(target => target.IsAlive)
             .Select(target => room.GetCreatureNode(target))
             .Where(node => node != null).Select(node => node!.VfxSpawnPosition).ToArray();
@@ -30,7 +31,8 @@ public static class SmallLaserEffect
     public static void PlayAt(Node container, Vector2 source, IReadOnlyList<Vector2> targets)
     {
         var effect = Create(source, targets);
-        if (effect == null) return;
+        if (effect == null)
+            return;
         container.AddChild(effect);
         // File playback is outside the FMOD graph: apply master explicitly;
         // RitsuLib additionally samples the SFX bus when playback starts.
@@ -43,9 +45,11 @@ public static class SmallLaserEffect
 
     public static Node2D? Create(Vector2 source, IReadOnlyList<Vector2> targets)
     {
-        if (targets.Count == 0) return null;
+        if (targets.Count == 0)
+            return null;
         var texture = ResourceLoader.Load<Texture2D>(TexturePath);
-        if (texture == null) return null;
+        if (texture == null)
+            return null;
         // The mod uses Microsoft.NET.Sdk, without Godot script generators.
         // Built-in nodes/signals/tweens work without registering custom scripts.
         var effect = new Node2D { TopLevel = true, Modulate = new Color(1, 1, 1, 0) };
@@ -56,18 +60,28 @@ public static class SmallLaserEffect
             var pivot = new Node2D { Position = source, Rotation = (target - source).Angle() };
             var primary = new Sprite2D
             {
-                Name = "Primary", Texture = texture, Centered = false,
-                Position = new Vector2(0, -35), Scale = new Vector2(source.DistanceTo(target) / texture.GetWidth(), 50f / texture.GetHeight()),
-                Modulate = Colors.Cyan, UseParentMaterial = true,
+                Name = "Primary",
+                Texture = texture,
+                Centered = false,
+                Position = new Vector2(0, -35),
+                Scale = new Vector2(source.DistanceTo(target) / texture.GetWidth(), 50f / texture.GetHeight()),
+                Modulate = Colors.Cyan,
+                UseParentMaterial = true,
             };
             var secondary = new Sprite2D
             {
-                Name = "Secondary", Texture = texture, Centered = false,
-                Position = new Vector2(0, -35), Scale = new Vector2(primary.Scale.X, 70f / texture.GetHeight()),
-                Modulate = new Color(0.3f, 0.3f, 1), UseParentMaterial = true,
+                Name = "Secondary",
+                Texture = texture,
+                Centered = false,
+                Position = new Vector2(0, -35),
+                Scale = new Vector2(primary.Scale.X, 70f / texture.GetHeight()),
+                Modulate = new Color(0.3f, 0.3f, 1),
+                UseParentMaterial = true,
             };
             pivot.UseParentMaterial = true;
-            pivot.AddChild(primary); pivot.AddChild(secondary); effect.AddChild(pivot);
+            pivot.AddChild(primary);
+            pivot.AddChild(secondary);
+            effect.AddChild(pivot);
             beams.Add((primary, secondary, primary.Scale.X));
         }
         effect.Draw += () => DrawBorder(effect);
@@ -108,13 +122,15 @@ public static class SmallLaserEffect
         // libGDX's default four-bounce curve, used by STS1's bounceIn fade.
         ReadOnlySpan<float> widths = [0.68f, 0.34f, 0.2f, 0.15f];
         ReadOnlySpan<float> heights = [1, 0.26f, 0.11f, 0.03f];
-        if (value == 1) return 1;
+        if (value == 1)
+            return 1;
         value += widths[0] / 2;
         float width = widths[^1], height = heights[^1];
         for (int i = 0; i < widths.Length; i++)
         {
             width = widths[i];
-            if (value <= width) { height = heights[i]; break; }
+            if (value <= width)
+            { height = heights[i]; break; }
             value -= width;
         }
         value /= width;

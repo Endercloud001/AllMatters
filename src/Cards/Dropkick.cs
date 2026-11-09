@@ -22,7 +22,8 @@ public sealed class Dropkick : ModCardTemplate
     {
         bool vulnerable = cardPlay.Target!.HasPower<VulnerablePower>();
         await ReturningCardAttack.Single(this, cardPlay, choiceContext);
-        if (vulnerable) { await PlayerCmd.GainEnergy(1, Owner); await CardPileCmd.Draw(choiceContext, 1, Owner); }
+        if (vulnerable)
+        { await PlayerCmd.GainEnergy(1, Owner); await CardPileCmd.Draw(choiceContext, 1, Owner); }
     }
     protected override void OnUpgrade() { DynamicVars.Damage.UpgradeValueBy(3); }
 

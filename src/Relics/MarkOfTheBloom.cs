@@ -19,8 +19,10 @@ public sealed class MarkOfTheBloom : ModRelicTemplate, IHealHookListener
 
     public decimal ModifyHealMultiplicative(HealContext context, decimal amount)
     {
-        if (context.Creature.Player != Owner) return 1m;
-        if (amount > 0) Flash();
+        if (context.Creature.Player != Owner)
+            return 1m;
+        if (amount > 0)
+            Flash();
         return 0m;
     }
 }

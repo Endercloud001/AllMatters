@@ -35,7 +35,8 @@ internal static class NativeEventActions
             NEventRoom.Instance?.EmbeddedCombatRoom?.Hide();
         }
         Finish(model, "ALL_MATTERS_NATIVE_EMPTY");
-        if (NEventRoom.Instance != null) await NEventRoom.Proceed();
+        if (NEventRoom.Instance != null)
+            await NEventRoom.Proceed();
     }
 
     internal static EventOption Option(EventModel model, string key, Func<Task> action, params IHoverTip[] tips)

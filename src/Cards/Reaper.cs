@@ -28,7 +28,8 @@ public sealed class Reaper : ModCardTemplate
         // Both targets clamp UnblockedDamage to actual HP lost in LoseHpInternal;
         // subtracting OverkillDamage again would under-heal lethal hits.
         decimal heal = attack.Results.SelectMany(results => results).Sum(result => Math.Max(0, result.UnblockedDamage));
-        if (heal > 0) await CreatureCmd.Heal(Owner.Creature, heal);
+        if (heal > 0)
+            await CreatureCmd.Heal(Owner.Creature, heal);
     }
     protected override void OnUpgrade() { DynamicVars.Damage.UpgradeValueBy(2); }
 

@@ -33,7 +33,8 @@ public sealed class Omamori : ModRelicTemplate
         BigIconPath: "res://AllMatters/images/relics/omamori.png");
     public override async Task AfterCardChangedPiles(CardModel card, PileType oldPileType, AbstractModel? clonedBy)
     {
-        if (DisplayAmount <= 0 || card.Owner != Owner || card.Type != CardType.Curse || card.Pile?.Type != PileType.Deck || oldPileType == PileType.Deck) return;
+        if (DisplayAmount <= 0 || card.Owner != Owner || card.Type != CardType.Curse || card.Pile?.Type != PileType.Deck || oldPileType == PileType.Deck)
+            return;
         Uses[this] = Uses.GetValueOrDefault(this) + 1;
         InvokeDisplayAmountChanged();
         Flash();
@@ -56,7 +57,8 @@ public sealed class PreservedInsect : ModRelicTemplate
     {
         foreach (var enemy in Owner.Creature.CombatState!.Enemies.Where(c => EnemyIdentity.Kind(c) == RoomType.Elite).ToArray())
         {
-            if (enemy.GetPower<ArtifactPower>() is { } artifact) await PowerCmd.Remove(artifact);
+            if (enemy.GetPower<ArtifactPower>() is { } artifact)
+                await PowerCmd.Remove(artifact);
             await PowerCmd.Apply<ShrinkPower>(new ThrowingPlayerChoiceContext(), enemy, 99, Owner.Creature, null);
         }
     }
@@ -85,7 +87,8 @@ public sealed class Inserter : ModRelicTemplate
         int turns = DisplayAmount + 1;
         Turns[this] = turns % 2;
         InvokeDisplayAmountChanged();
-        if (turns == 2) { Flash(); await OrbCmd.AddSlots(Owner, 1); }
+        if (turns == 2)
+        { Flash(); await OrbCmd.AddSlots(Owner, 1); }
     }
 }
 
@@ -107,9 +110,11 @@ internal static class SwordOfStoneUnitCount
     private static async Task Count(Task native, SwordOfStone sword)
     {
         await native;
-        if (!sword.Owner.Relics.Contains(sword)) return;
+        if (!sword.Owner.Relics.Contains(sword))
+            return;
         sword.ElitesDefeated++;
         sword.Flash();
-        if (sword.ElitesDefeated >= 5) await RelicCmd.Replace(sword, ModelDb.Relic<SwordOfJade>().ToMutable());
+        if (sword.ElitesDefeated >= 5)
+            await RelicCmd.Replace(sword, ModelDb.Relic<SwordOfJade>().ToMutable());
     }
 }

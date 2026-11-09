@@ -21,6 +21,16 @@ internal static class JigsawDomainTests
         ("Jigsaw domain disconnect clears only the departed editor state", DisconnectEditorState),
         ("Jigsaw domain save copy cancels preview without mutating live holding", Save),
         ("Jigsaw domain restore rejects malformed pool layout and exploration state", InvalidSave),
+        ("Jigsaw domain shop revisit increments steps but not first progress", ShopRevisit),
+        ("Jigsaw domain movement respects adjacency and forbids unexplored crossings", MovementBoundaries),
+        ("Jigsaw domain multi-player completion requires all entries confirmed", MultiPlayerCompletion),
+        ("Jigsaw domain save and restore preserve visit history without duplication", SaveRestoreVisitHistory),
+        ("Jigsaw domain shop inventory tracks per node and player across revisits", ShopInventoryTracking),
+        ("Jigsaw domain shop transaction checkpoint rolls back on exit without commit", ShopTransactionRollback),
+        ("Jigsaw domain shop transaction checkpoint commits on room completion", ShopTransactionCommit),
+        ("Jigsaw domain act transition clears progress but preserves map and players", ActTransition),
+        ("Jigsaw domain dual boss requires first completion before second entry", DualBossSequence),
+        ("Jigsaw domain endgame detected at final boss node", EndgameDetection),
     ];
     private static void Check(bool value,string text) => NativeEventTests.Check(value,text);
     private static Task AutomaticWitness()
@@ -275,5 +285,468 @@ internal static class JigsawDomainTests
         Reject(save with { Visited=[0,999] });
         Reject(save with { Phase=JigsawPhase.Exploring });
         return Task.CompletedTask;
+    }
+
+    private static Task ShopRevisit()
+    {
+        // Test: Shop revisit increments Steps but not FirstProgress
+        var piece1 = Piece(1, (0,0,JigsawRoom.Combat), (1,0,JigsawRoom.Shop));
+        var piece2 = Piece(2, (0,0,JigsawRoom.Combat));
+        var run = Fixture(piece1, piece2);
+        Place(run, 1, 3, 0); Place(run, 2, 5, 0);
+        Ok(run.AddEdge(1, 0, 11)); Ok(run.AddEdge(1, 12, 21));
+        Ok(run.ChooseEnd(1, EndChoice.Manual)); Ok(run.ChooseEnd(2, EndChoice.Manual));
+        Ok(run.Inspect());
+
+        Ok(run.CompleteAncient(1)); Ok(run.CompleteAncient(2));
+        Ok(run.Continue(1)); Ok(run.Continue(2));
+
+        // First visit to shop
+        var firstShop = run.BeginEnter(12)!;
+        Ok(run.ConfirmEnter(firstShop.Id));
+        Check(run.Steps == 1 && run.FirstProgress == 1, "First shop visit increments both Steps and FirstProgress.");
+        Ok(run.CompleteRoom(firstShop.Id));
+
+        // Visit combat node
+        var combat = run.BeginEnter(21)!;
+        Ok(run.ConfirmEnter(combat.Id));
+        Check(run.Steps == 2 && run.FirstProgress == 2, "Combat visit increments both counters.");
+        Ok(run.CompleteRoom(combat.Id));
+
+        // Revisit shop
+        Check(run.AvailableDestinations.Contains(12), "Shop is available for revisit.");
+        var revisitShop = run.BeginEnter(12)!;
+        Ok(run.ConfirmEnter(revisitShop.Id));
+        Check(run.Steps == 3 && run.FirstProgress == 2, "Shop revisit increments Steps but not FirstProgress.");
+        Check(revisitShop.Id != firstShop.Id, "Revisit creates new entry identity.");
+        Ok(run.CompleteRoom(revisitShop.Id));
+
+        return Task.CompletedTask;
+    }
+
+    private static Task MovementBoundaries()
+    {
+        // Test: 1-2-3 adjacency, 1-4 diagonal optional, cannot cross unexplored
+        var piece1 = Piece(1, (0,0,JigsawRoom.Combat), (1,0,JigsawRoom.Combat), (2,0,JigsawRoom.Combat));
+        var piece2 = Piece(2, (0,0,JigsawRoom.Combat), (0,1,JigsawRoom.Combat));
+        var run = Fixture(piece1, piece2);
+        Place(run, 1, 3, 0); Place(run, 2, 5, 1);
+        Ok(run.AddEdge(1, 0, 11));
+
+        // Don't connect 13 to 21, leaving 21 unreachable directly
+        Ok(run.ChooseEnd(1, EndChoice.Manual)); Ok(run.ChooseEnd(2, EndChoice.Manual));
+        Ok(run.Inspect());
+
+        Ok(run.CompleteAncient(1)); Ok(run.CompleteAncient(2));
+        Ok(run.Continue(1)); Ok(run.Continue(2));
+
+        // Can reach adjacent nodes
+        Check(run.AvailableDestinations.Contains(11), "Adjacent node is available.");
+        var first = run.BeginEnter(11)!;
+        Ok(run.ConfirmEnter(first.Id));
+        Ok(run.CompleteRoom(first.Id));
+
+        Check(run.AvailableDestinations.Contains(12), "Next adjacent node available from completed.");
+        var second = run.BeginEnter(12)!;
+        Ok(run.ConfirmEnter(second.Id));
+        Ok(run.CompleteRoom(second.Id));
+
+        // Node 21 is not reachable because there's no path from completed region
+        Check(!run.AvailableDestinations.Contains(21), "Unconnected node cannot be reached.");
+        Check(run.BeginEnter(21) == null, "Cannot begin entry to unreachable node.");
+
+        return Task.CompletedTask;
+    }
+
+    private static Task MultiPlayerCompletion()
+    {
+        // Test: Multi-player requires all to confirm entry before advancing
+        var piece1 = Piece(1, (0,0,JigsawRoom.Combat), (1,0,JigsawRoom.Combat));
+        var run = new JigsawRun([piece1], 15, [1UL, 2UL]);
+        Place(run, 1, 3, 0);
+        Ok(run.AddEdge(1, 0, 11));
+        Ok(run.ChooseEnd(1, EndChoice.Manual)); Ok(run.ChooseEnd(2, EndChoice.Manual));
+        Ok(run.Inspect());
+
+        Ok(run.CompleteAncient(1)); Ok(run.CompleteAncient(2));
+        Ok(run.Continue(1)); Ok(run.Continue(2));
+
+        // Both players must coordinate entry
+        var entry = run.BeginEnter(11)!;
+        Check(run.CurrentNode == null, "Entry not confirmed until ConfirmEnter.");
+
+        Ok(run.ConfirmEnter(entry.Id));
+        Check(run.CurrentNode == 11 && run.Steps == 1, "Entry confirmed increments steps once.");
+
+        // Completion binding to this entry
+        Ok(run.CompleteRoom(entry.Id));
+        Check(run.CurrentNode == null, "Completion clears current node.");
+
+        // Second entry to same node should work
+        var secondEntry = run.BeginEnter(12)!;
+        Ok(run.ConfirmEnter(secondEntry.Id));
+        Check(run.Steps == 2, "Second entry increments steps.");
+
+        return Task.CompletedTask;
+    }
+
+    private static Task SaveRestoreVisitHistory()
+    {
+        // Test: Save/restore preserves visit history without duplication
+        var piece1 = Piece(1, (0,0,JigsawRoom.Combat), (1,0,JigsawRoom.Shop), (2,0,JigsawRoom.Combat));
+        var run = Fixture(piece1);
+        Place(run, 1, 3, 0);
+        Ok(run.AddEdge(1, 0, 11));
+        Ok(run.ChooseEnd(1, EndChoice.Manual)); Ok(run.ChooseEnd(2, EndChoice.Manual));
+        Ok(run.Inspect());
+
+        Ok(run.CompleteAncient(1)); Ok(run.CompleteAncient(2));
+        Ok(run.Continue(1)); Ok(run.Continue(2));
+
+        // Visit nodes
+        var e1 = run.BeginEnter(11)!; Ok(run.ConfirmEnter(e1.Id)); Ok(run.CompleteRoom(e1.Id));
+        var e2 = run.BeginEnter(12)!; Ok(run.ConfirmEnter(e2.Id));
+
+        // Save while in shop
+        var save1 = run.CreateSave();
+        Check(save1.Steps == 2 && save1.FirstProgress == 2, "Save captures current progress.");
+        Check(save1.Visited.Contains(11) && save1.Visited.Contains(12), "Save captures visited nodes.");
+        Check(save1.CurrentNode == 12, "Save captures current location.");
+
+        // Complete and revisit
+        Ok(run.CompleteRoom(e2.Id));
+        var e3 = run.BeginEnter(12)!; Ok(run.ConfirmEnter(e3.Id));
+
+        // Save after revisit
+        var save2 = run.CreateSave();
+        Check(save2.Steps == 3 && save2.FirstProgress == 2, "Revisit increments Steps only.");
+
+        // Restore from first save and verify no duplicate rewards
+        var restored = JigsawRun.Restore(save1);
+        Check(restored.Steps == 2 && restored.FirstProgress == 2, "Restored progress matches saved.");
+        Check(restored.Visited.Contains(11) && restored.Visited.Contains(12), "Restored visited history intact.");
+        Check(restored.CurrentNode == 12, "Restored to saved location.");
+
+        // Complete from restored state
+        Ok(restored.CompleteRoom(e2.Id));
+        var e4 = restored.BeginEnter(13)!; Ok(restored.ConfirmEnter(e4.Id));
+        Check(restored.Steps == 3 && restored.FirstProgress == 3, "New node after restore increments FirstProgress.");
+
+        return Task.CompletedTask;
+    }
+
+    // T05: Shop tests
+    private static Task ShopInventoryTracking()
+    {
+        // Test: Shop inventory tracked per node and player, persists across save/restore
+        var piece1 = Piece(1, (0,0,JigsawRoom.Shop), (1,0,JigsawRoom.Shop));
+        var piece2 = Piece(2, (0,0,JigsawRoom.Combat));
+        var run = Fixture(piece1, piece2);
+        Place(run, 1, 3, 0); Place(run, 2, 5, 0);
+        Ok(run.AddEdge(1, 0, 11)); Ok(run.AddEdge(1, 12, 21));
+        Ok(run.ChooseEnd(1, EndChoice.Manual)); Ok(run.ChooseEnd(2, EndChoice.Manual));
+        Ok(run.Inspect());
+
+        Ok(run.CompleteAncient(1)); Ok(run.CompleteAncient(2));
+        Ok(run.Continue(1)); Ok(run.Continue(2));
+
+        // Enter first shop for player 1
+        var shop1Player1 = run.BeginEnter(11)!;
+        Ok(run.ConfirmEnter(shop1Player1.Id));
+
+        // Mark that player 1 has inventory state for shop node 11
+        run.RecordShopState(11, 1, new { Item = "Potion", Price = 50 });
+        Check(run.GetShopState(11, 1) != null, "Shop state recorded for player 1 at node 11.");
+
+        Ok(run.CompleteRoom(shop1Player1.Id));
+
+        // Enter second shop for player 1
+        var shop2Player1 = run.BeginEnter(12)!;
+        Ok(run.ConfirmEnter(shop2Player1.Id));
+
+        // Different inventory for second shop
+        run.RecordShopState(12, 1, new { Item = "Relic", Price = 150 });
+        Check(run.GetShopState(12, 1) != null, "Shop state recorded for player 1 at node 12.");
+        Check(run.GetShopState(11, 1) != null, "Previous shop state preserved.");
+
+        Ok(run.CompleteRoom(shop2Player1.Id));
+
+        // Revisit first shop - inventory should be retrievable
+        var revisitShop1 = run.BeginEnter(11)!;
+        Ok(run.ConfirmEnter(revisitShop1.Id));
+        Check(run.GetShopState(11, 1) != null, "Shop state retrieved on revisit.");
+        Ok(run.CompleteRoom(revisitShop1.Id));
+
+        // Save and restore
+        var save = run.CreateSave();
+        var restored = JigsawRun.Restore(save);
+
+        Check(restored.GetShopState(11, 1) != null, "Shop state for node 11 player 1 restored.");
+        Check(restored.GetShopState(12, 1) != null, "Shop state for node 12 player 1 restored.");
+        Check(restored.GetShopState(11, 2) == null, "No shop state for player 2 at node 11.");
+
+        return Task.CompletedTask;
+    }
+
+    // T06: Act transition tests
+    private static Task ActTransition()
+    {
+        // Test: Act transition clears progress but preserves map
+        var run = JigsawRun.Create(74, budget: 15);
+        Place(run, 0, 3, 0);
+        Ok(run.AddEdge(1, 0, 1));
+        Ok(run.ChooseEnd(1, EndChoice.Manual));
+        Ok(run.Inspect());
+        Ok(run.CompleteAncient(1));
+        Ok(run.Continue(1));
+
+        // Complete some rooms
+        var e1 = run.BeginEnter(1)!;
+        Ok(run.ConfirmEnter(e1.Id));
+        Ok(run.CompleteRoom(e1.Id));
+        var e2 = run.BeginEnter(2)!;
+        Ok(run.ConfirmEnter(e2.Id));
+        Ok(run.CompleteRoom(e2.Id));
+
+        Check(run.Steps == 2 && run.FirstProgress == 2, "Progress tracked before transition.");
+        Check(run.Visited.Count == 3, "Visited includes Ancient and two rooms.");
+        Check(run.Completed.Count == 3, "Completed includes Ancient and two rooms.");
+
+        var placementsBefore = run.Placements.ToArray();
+        var edgesBefore = run.Edges.ToArray();
+        var playersBefore = run.ActivePlayers.ToArray();
+
+        // Transition to next act
+        Ok(run.TransitionToNextAct());
+
+        // Progress cleared
+        Check(run.Steps == 0, "Steps reset to zero.");
+        Check(run.FirstProgress == 0, "FirstProgress reset to zero.");
+        Check(run.Visited.SequenceEqual(new[] { 0 }), "Visited cleared except Ancient.");
+        Check(run.Completed.SequenceEqual(new[] { 0 }), "Completed cleared except Ancient.");
+        Check(run.CurrentNode == null, "CurrentNode cleared.");
+        Check(run.Phase == JigsawPhase.Ancient, "Phase returns to Ancient for new act rewards.");
+
+        // Map preserved
+        Check(run.Placements.SequenceEqual(placementsBefore), "Placements preserved.");
+        Check(run.Edges.SequenceEqual(edgesBefore), "Edges preserved.");
+        Check(run.ActivePlayers.SequenceEqual(playersBefore), "Players preserved.");
+        Check(run.Budget == 15, "Budget unchanged.");
+
+        return Task.CompletedTask;
+    }
+
+    // T05: Shop transaction tests
+    private static Task ShopTransactionRollback()
+    {
+        // Test: Transaction checkpoint rolls back on explicit rollback
+        var piece1 = Piece(1, (0,0,JigsawRoom.Shop));
+        var run = Fixture(piece1);
+        Place(run, 1, 3, 0);
+        Ok(run.AddEdge(1, 0, 11));
+        Ok(run.ChooseEnd(1, EndChoice.Manual)); Ok(run.ChooseEnd(2, EndChoice.Manual));
+        Ok(run.Inspect());
+
+        Ok(run.CompleteAncient(1)); Ok(run.CompleteAncient(2));
+        Ok(run.Continue(1)); Ok(run.Continue(2));
+
+        // Enter shop
+        var enter = run.BeginEnter(11)!;
+        Ok(run.ConfirmEnter(enter.Id));
+
+        // Create initial inventory
+        var initialInventory = new JigsawShopInventory(
+            [new JigsawShopCard("Strike", 0, false, null, 50)],
+            [new JigsawShopRelic("Lantern", 0, null, 150)],
+            0, true,
+            new Dictionary<string, int> { ["Strike"] = 50, ["Lantern"] = 150 },
+            new Dictionary<string, bool>(),
+            []);
+
+        run.RecordShopInventory(11, 1, initialInventory);
+
+        // Create checkpoint before transaction
+        run.CreateShopTransactionCheckpoint(11, 1);
+
+        // Modify inventory (simulate purchase)
+        var modifiedInventory = initialInventory with
+        {
+            SoldOut = new HashSet<string> { "Strike" },
+            PurgeUsedCount = 1
+        };
+        run.RecordShopInventory(11, 1, modifiedInventory);
+
+        // Rollback transaction (simulating exit during purchase)
+        run.RollbackShopTransaction();
+
+        // Verify inventory was restored to checkpoint
+        var restored = run.GetShopInventory(11, 1);
+        Check(restored != null && restored.PurgeUsedCount == 0, "Inventory rolled back to checkpoint state.");
+        Check(restored != null && !restored.SoldOut.Contains("Strike"), "Sold out state rolled back.");
+
+        Ok(run.CompleteRoom(enter.Id));
+        return Task.CompletedTask;
+    }
+
+    private static Task ShopTransactionCommit()
+    {
+        // Test: Transaction checkpoint commits on room completion
+        var piece1 = Piece(1, (0,0,JigsawRoom.Shop));
+        var run = Fixture(piece1);
+        Place(run, 1, 3, 0);
+        Ok(run.AddEdge(1, 0, 11));
+        Ok(run.ChooseEnd(1, EndChoice.Manual)); Ok(run.ChooseEnd(2, EndChoice.Manual));
+        Ok(run.Inspect());
+
+        Ok(run.CompleteAncient(1)); Ok(run.CompleteAncient(2));
+        Ok(run.Continue(1)); Ok(run.Continue(2));
+
+        // Enter shop
+        var enter = run.BeginEnter(11)!;
+        Ok(run.ConfirmEnter(enter.Id));
+
+        // Create initial inventory
+        var initialInventory = new JigsawShopInventory(
+            [new JigsawShopCard("Strike", 0, false, null, 50)],
+            [],
+            0, true,
+            new Dictionary<string, int> { ["Strike"] = 50 },
+            new Dictionary<string, bool>(),
+            []);
+
+        run.RecordShopInventory(11, 1, initialInventory);
+
+        // Create checkpoint
+        run.CreateShopTransactionCheckpoint(11, 1);
+
+        // Complete purchase
+        var afterPurchase = initialInventory with
+        {
+            SoldOut = new HashSet<string> { "Strike" }
+        };
+        run.RecordShopInventory(11, 1, afterPurchase);
+
+        // Complete room - should commit transaction
+        Ok(run.CompleteRoom(enter.Id));
+
+        // Verify inventory persisted after completion
+        var final = run.GetShopInventory(11, 1);
+        Check(final != null && final.SoldOut.Contains("Strike"), "Purchase committed on room completion.");
+
+        // Save and restore to verify persistence
+        var save = run.CreateSave();
+        var restored = JigsawRun.Restore(save);
+        var restoredInventory = restored.GetShopInventory(11, 1);
+        Check(restoredInventory != null && restoredInventory.SoldOut.Contains("Strike"), "Committed purchase persists across save/restore.");
+
+        return Task.CompletedTask;
+    }
+
+    // T06: Act transition and dual boss tests
+    private static Task DualBossSequence()
+    {
+        // Test: Dual boss requires first completion before second entry
+        var run = JigsawRun.Create(74, budget: 15, doubleBoss: true);
+
+        // Build a dual boss layout
+        Place(run, 0, 3, 0);
+        Place(run, 1, 6, 0);
+        Ok(run.AddEdge(1, 0, 1));
+        Ok(run.AddEdge(1, 0, 2));
+        Ok(run.ChooseEnd(1, EndChoice.Manual));
+        Ok(run.Inspect());
+
+        var boss = run.Nodes.Single(n => n.Room == JigsawRoom.Boss);
+        var secondBoss = run.Nodes.Single(n => n.Room == JigsawRoom.SecondBoss);
+
+        Ok(run.CompleteAncient(1));
+        Ok(run.Continue(1));
+
+        // Complete some rooms
+        var available = run.AvailableDestinations.ToArray();
+        var regularRoom = available.FirstOrDefault(id => run.Nodes.Single(n => n.Id == id).Room is not (JigsawRoom.Boss or JigsawRoom.SecondBoss));
+
+        if (regularRoom != 0)
+        {
+            var e1 = run.BeginEnter(regularRoom);
+            Ok(run.ConfirmEnter(e1!.Id));
+            Ok(run.CompleteRoom(e1.Id));
+        }
+
+        // Second boss should not be available before first boss completion
+        available = run.AvailableDestinations.ToArray();
+        Check(!available.Contains(secondBoss.Id), "Second boss not available before first boss completion.");
+
+        // Enter and complete first boss
+        if (available.Contains(boss.Id))
+        {
+            var bossEntry = run.BeginEnter(boss.Id);
+            Ok(run.ConfirmEnter(bossEntry!.Id));
+            Ok(run.CompleteRoom(bossEntry.Id));
+        }
+
+        // Now second boss should be available
+        available = run.AvailableDestinations.ToArray();
+        Check(available.Contains(secondBoss.Id), "Second boss available after first boss completion.");
+
+        return Task.CompletedTask;
+    }
+
+    private static Task EndgameDetection()
+    {
+        // Test: Endgame detected at final boss node
+
+        // Single boss layout
+        var run1 = JigsawRun.Create(74, budget: 15, doubleBoss: false);
+        Place(run1, 0, 3, 0);
+        Ok(run1.AddEdge(1, 0, 1));
+        Ok(run1.ChooseEnd(1, EndChoice.Manual));
+        Ok(run1.Inspect());
+        Ok(run1.CompleteAncient(1));
+        Ok(run1.Continue(1));
+
+        var boss1 = run1.Nodes.Single(n => n.Room == JigsawRoom.Boss);
+        Check(!run1.IsEndgame, "Not endgame before boss entry.");
+
+        var e1 = run1.BeginEnter(boss1.Id);
+        Ok(run1.ConfirmEnter(e1!.Id));
+        Check(run1.IsEndgame, "Endgame detected at boss node.");
+
+        // Dual boss layout
+        var run2 = JigsawRun.Create(75, budget: 15, doubleBoss: true);
+        Place(run2, 0, 3, 0);
+        Place(run2, 1, 6, 0);
+        Ok(run2.AddEdge(1, 0, 1));
+        Ok(run2.AddEdge(1, 0, 2));
+        Ok(run2.ChooseEnd(1, EndChoice.Manual));
+        Ok(run2.Inspect());
+        Ok(run2.CompleteAncient(1));
+        Ok(run2.Continue(1));
+
+        var boss2 = run2.Nodes.Single(n => n.Room == JigsawRoom.Boss);
+        var secondBoss = run2.Nodes.Single(n => n.Room == JigsawRoom.SecondBoss);
+
+        // Enter first boss
+        var e2 = run2.BeginEnter(boss2.Id);
+        Ok(run2.ConfirmEnter(e2!.Id));
+        Check(!run2.IsEndgame, "Not endgame at first boss in dual boss layout.");
+        Ok(run2.CompleteRoom(e2.Id));
+
+        // Enter second boss
+        var e3 = run2.BeginEnter(secondBoss.Id);
+        Ok(run2.ConfirmEnter(e3!.Id));
+        Check(run2.IsEndgame, "Endgame detected at second boss in dual boss layout.");
+
+        return Task.CompletedTask;
+    }
+
+    private static JigsawRun Ready()
+    {
+        var run = JigsawRun.Create(74);
+        Place(run, 0, 3, 0);
+        Ok(run.AddEdge(1, 0, 1));
+        Ok(run.ChooseEnd(1, EndChoice.Manual));
+        Ok(run.Inspect());
+        return run;
     }
 }

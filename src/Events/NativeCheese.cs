@@ -48,7 +48,8 @@ internal static class NativeCheeseCandle
         __result = __result.Append(NativeEventActions.Option(__instance, "ROOM_FULL_OF_CHEESE.pages.INITIAL.options.AM_CANDLE", async () =>
         {
             await CreatureCmd.LoseMaxHp(new ThrowingPlayerChoiceContext(), __instance.Owner!.Creature, 14, isFromCard: false);
-            if (!__instance.Owner.Creature.IsDead) await RelicCmd.Obtain<BlueCandle>(__instance.Owner);
+            if (!__instance.Owner.Creature.IsDead)
+                await RelicCmd.Obtain<BlueCandle>(__instance.Owner);
             NativeEventActions.Finish(__instance, "ROOM_FULL_OF_CHEESE.pages.AM_CANDLE.description");
         }, HoverTipFactory.FromRelic<BlueCandle>().ToArray()).ThatDecreasesMaxHp(14)).ToArray();
     }

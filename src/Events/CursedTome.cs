@@ -38,7 +38,8 @@ public sealed class CursedTome : ModEventTemplate
 
     private async Task Continue(int page)
     {
-        if (!await DamageOwner(page)) return;
+        if (!await DamageOwner(page))
+            return;
         if (page < 3)
         {
             await ShowPage(page + 1);
@@ -53,7 +54,8 @@ public sealed class CursedTome : ModEventTemplate
 
     private async Task Obtain()
     {
-        if (!await DamageOwner(15)) return;
+        if (!await DamageOwner(15))
+            return;
         SetEventState(PageDescription("CHOOSE"),
         [
             BookOption<Necronomicon>("NECRONOMICON"),
@@ -69,14 +71,17 @@ public sealed class CursedTome : ModEventTemplate
     {
         // All three visible options belong to the same choice. Claim before awaiting
         // the native obtain/curse flow so stale options cannot award another book.
-        if (IsFinished) return;
+        if (IsFinished)
+            return;
         SetEventFinished(PageDescription("OBTAIN"));
-        if (!Owner!.Creature.IsDead) await RelicCmd.Obtain<T>(Owner);
+        if (!Owner!.Creature.IsDead)
+            await RelicCmd.Obtain<T>(Owner);
     }
 
     private async Task Stop()
     {
-        if (await DamageOwner(3)) SetEventFinished(PageDescription("STOP"));
+        if (await DamageOwner(3))
+            SetEventFinished(PageDescription("STOP"));
     }
 
     private Task Leave()
@@ -94,7 +99,8 @@ public sealed class CursedTome : ModEventTemplate
         await CreatureCmd.Damage(new ThrowingPlayerChoiceContext(), Owner!.Creature, amount,
             ValueProp.Unblockable | ValueProp.Unpowered, dealer: null, cardSource: null, cardPlay: null);
 #endif
-        if (!Owner.Creature.IsDead) return true;
+        if (!Owner.Creature.IsDead)
+            return true;
         SetEventFinished(PageDescription("DEAD"));
         return false;
     }

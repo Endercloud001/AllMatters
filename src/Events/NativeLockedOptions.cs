@@ -14,7 +14,8 @@ internal static class NativeLockedOptions
     // Construct at focus time so language changes and current card previews are retained.
     internal static IEnumerable<IHoverTip> Tips(EventModel model, EventOption option)
     {
-        if (!option.IsLocked) return option.HoverTips;
+        if (!option.IsLocked)
+            return option.HoverTips;
         bool zh = LocManager.Instance.Language == "zhs";
         string? reason = option.TextKey switch
         {
@@ -63,7 +64,8 @@ internal static class NativeLockedOptionUnfocus
 {
     private static void Postfix(NEventOptionButton __instance)
     {
-        if (__instance.Option.IsLocked) NHoverTipSet.Remove(__instance);
+        if (__instance.Option.IsLocked)
+            NHoverTipSet.Remove(__instance);
     }
 }
 
@@ -72,9 +74,10 @@ internal static class NativeLockedOptionLocalization
 {
     private static void Postfix(LocManager __instance, string name, LocTable __result)
     {
-        if (name == "events") __result.MergeWith(new Dictionary<string, string>
-        {
-            ["ALL_MATTERS_LOCKED_OPTION.title"] = __instance.Language == "zhs" ? "无法选择" : "Unavailable"
-        });
+        if (name == "events")
+            __result.MergeWith(new Dictionary<string, string>
+            {
+                ["ALL_MATTERS_LOCKED_OPTION.title"] = __instance.Language == "zhs" ? "无法选择" : "Unavailable"
+            });
     }
 }

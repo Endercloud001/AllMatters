@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Relics;
@@ -51,7 +51,8 @@ internal static class NativeLightOptions
                 {
                     bool mirror = model.Rng.NextInt(2) == 0;
                     await NativeEventActions.LoseHp(model, 10);
-                    if (!model.Owner!.Creature.IsDead && mirror) await RelicCmd.Obtain<DollysMirror>(model.Owner!);
+                    if (!model.Owner!.Creature.IsDead && mirror)
+                        await RelicCmd.Obtain<DollysMirror>(model.Owner!);
                     NativeEventActions.Finish(model, "REFLECTIONS.pages.AM_MOVE.description");
                 }, HoverTipFactory.FromRelic<DollysMirror>().ToArray()).ThatDoesDamage(10));
                 break;

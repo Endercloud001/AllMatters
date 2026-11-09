@@ -49,7 +49,8 @@ internal static class BanditsGoldReward
 {
     private static void Postfix(RewardsSet __instance, AbstractRoom room)
     {
-        if (room is not CombatRoom { Encounter: RedMaskBandits } combat) return;
+        if (room is not CombatRoom { Encounter: RedMaskBandits } combat)
+            return;
         // Replace only the normal gold reward. Keep inherited cards and potion
         // odds, and leave later native reward-modification hooks intact.
         combat.ExtraRewards.TryGetValue(__instance.Player, out var explicitRewards);

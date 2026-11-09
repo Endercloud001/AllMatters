@@ -1,0 +1,12 @@
+/* Independent responsive study: scale the same composition by available height. */
+nav{height:auto;min-height:58px}.r2-controls{gap:12px;align-items:center}.r2-controls span{display:flex;gap:12px;align-items:center}.shell{min-height:0;height:calc(100vh - 170px)}.speech{overflow:auto}.vote-avatars{bottom:calc(100% + 6px);height:34px}.steps{display:flex;gap:12px;flex-direction:column;line-height:1.4}.steps span{font-weight:400}.explore .steps{top:38px}.annotation{font-size:13px}
+@media(max-height:800px){nav{min-height:44px;padding:5px 12px;font-size:12px}.r2-controls{padding:4px 15px;font-size:12px;gap:8px}.hud{height:30px;padding:5px 20px}.shell{height:calc(100vh - 140px);grid-template-rows:minmax(0,1fr) 90px;gap:28px 14px}.pool{border-width:22px}.pool h2{height:55px;font-size:25px}.card{height:105px}.dialog{grid-template-columns:minmax(0,1fr) 225px 225px}.dialog .vote{font-size:18px}.speech{font-size:18px;line-height:1.4}.vote-avatars img{width:27px;height:27px}.modal{max-height:90%;overflow:auto}}
+@media(min-height:1500px){body{zoom:2}.shell{height:calc(50vh - 170px)}.shell.explore{height:calc(50vh - 170px)}}
+/* Conservative interior of the visible parchment, clear of curled transparent edges. */
+#paper>svg#map{position:absolute;left:12%;top:24%;width:74%;height:61%;overflow:hidden}
+.steps[hidden]{display:none}
+@media(max-height:800px){.shell:not(.explore){grid-template-rows:minmax(0,1fr) 112px}.speech{padding:8px 18px!important}}
+/* Room for three lines of review text without cutting a glyph row. */
+.shell:not(.explore){grid-template-rows:minmax(0,1fr) 140px}
+.speech{padding-top:5px;padding-bottom:5px;scrollbar-width:thin}
+@media(max-height:800px){.shell:not(.explore){grid-template-rows:minmax(0,1fr) 112px}}

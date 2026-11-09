@@ -23,7 +23,8 @@ internal static class BottledRemovalEligibility
 {
     private static void Postfix(CardModel __instance, ref bool __result)
     {
-        if (BottledCard.IsProtected(__instance)) __result = false;
+        if (BottledCard.IsProtected(__instance))
+            __result = false;
     }
 }
 
