@@ -10,7 +10,9 @@
 
 **批次开始前**，运行冒烟测试确认测试宿主就绪，见 `docs/development.md` 的「开工前冒烟检查」。
 
-游戏安装与实机验收由用户手动完成。Agent 负责自动化测试、构建和提供安装/验收步骤，不启动游戏或 Steam，不向游戏 `mods` 目录复制产物、依赖或改动现有安装。交付流程见 `docs/development.md` 的“实机验收交付”。
+**Git 操作最佳实践**（worktree 清理、PR 合并后同步、stash 操作）见 `docs/git-best-practices.md`。
+
+游戏安装与实机验收由用户手动完成。Agent 负责自动化测试、构建和提供安装/验收步骤，不启动游戏或 Steam，不向游戏 `mods` 目录复制产物、依赖或改动现有安装。交付流程见 `docs/development.md` 的”实机验收交付”。
 
 代码仅在 `src/`；文档在 `docs/`。当前工作区的 `docs` 是指向同级 `AllMatters_docs` 的 Windows junction。本机依赖、工具、日志与参考源码保存在 Git 忽略的 `.local/`，独立于该 junction；参考仓库位于 `.local/references/`，不参与编译。仅借鉴参考源码，不执行参考仓库的构建脚本。
 
