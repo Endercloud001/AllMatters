@@ -29,31 +29,35 @@ public sealed class LobbyRecovery
     private readonly HashSet<ulong> connectedPlayerIds = [];
     private bool recovered;
 
+    /// <summary>Whether lobby recovery has been initialized.</summary>
+    public bool IsRecovered => recovered;
+
     private LobbyRecovery(RunState native)
     {
         nativeRun = native;
     }
 
     /// <summary>Initialize lobby recovery from checkpoint save.</summary>
-    /// <param name="checkpoint">The original save checkpoint to recover from.</param>
     /// <returns>True if recovery initialization succeeded.</returns>
-    public bool InitializeFromCheckpoint(SerializableRun checkpoint)
+    public bool InitializeFromCheckpoint()
     {
         if (recovered)
             return false;
 
-        // Check if this is a jigsaw save with checkpoint data
-        if (!JigsawSaveSource.IsJigsaw(checkpoint))
+        // Extract jigsaw checkpoint containing original player list
+        if (JigsawCheckpoint.Slot.TryGet(nativeRun, out var checkpointData) &&
+            checkpointData?.Map is { } mapSave && mapSave.OriginalPlayers is { } originalPlayerList)
         {
-            Console.WriteLine("[LobbyRecovery] Not a jigsaw save");
-            return false;
+            // Store original players from checkpoint
+            originalPlayers.Clear();
+            originalPlayers.AddRange(originalPlayerList);
+            Console.WriteLine($"[LobbyRecovery] Loaded checkpoint with {originalPlayers.Count} original players (Act {checkpointData.Act})");
+            recovered = true;
+            return true;
         }
 
-        // TODO (#91-Alpha): Extract original player list from checkpoint RitsuLib data
-        // For now, initialize with empty player list (to be populated by #92)
-        Console.WriteLine("[LobbyRecovery] Initializing from jigsaw checkpoint");
-        recovered = true;
-        return true;
+        Console.WriteLine("[LobbyRecovery] Checkpoint found but no original player list");
+        return false;
     }
 
     /// <summary>Sync player connection state to lobby.</summary>
@@ -107,7 +111,10 @@ public sealed class LobbyRecovery
             OriginalPlayerCount = originalPlayers.Count,
             ConnectedPlayerCount = connectedPlayerIds.Count,
             IsRecovered = recovered,
-            ConnectedPlayerIds = [.. connectedPlayerIds]
+            ConnectedPlayerIds = [.. connectedPlayerIds],
+            IsOriginalRosterReady = recovered && originalPlayers.Count > 0 &&
+                connectedPlayerIds.Count == originalPlayers.Count &&
+                originalPlayers.All(id => connectedPlayerIds.Contains(id))
         };
     }
 
@@ -118,6 +125,7 @@ public sealed class LobbyRecovery
         public int ConnectedPlayerCount { get; init; }
         public bool IsRecovered { get; init; }
         public ulong[] ConnectedPlayerIds { get; init; } = [];
+        public bool IsOriginalRosterReady { get; init; }
     }
 }
 
@@ -126,16 +134,13 @@ public sealed class LobbyRecovery
 internal static class InitializeLobbyRecoveryPatch
 {
     [HarmonyPriority(Priority.High)]
-    private static void Postfix(SerializableRun serializedRun, RunState __result)
+    private static void Postfix(RunState __result)
     {
-        // Only initialize for jigsaw saves with checkpoint data
-        if (!JigsawSaveSource.IsJigsaw(serializedRun))
-            return;
-
+        // Only initialize for jigsaw saves
         var recovery = LobbyRecovery.GetOrCreate(__result);
         if (recovery != null)
         {
-            recovery.InitializeFromCheckpoint(serializedRun);
+            recovery.InitializeFromCheckpoint();
         }
     }
 }
