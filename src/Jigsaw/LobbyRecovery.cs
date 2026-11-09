@@ -103,7 +103,8 @@ public sealed class LobbyRecovery
         return connectedPlayerIds.Count > 0;
     }
 
-    /// <summary>Get current lobby state snapshot including save state info.</summary>
+<<<<<<< HEAD
+    /// <summary>Get current lobby state snapshot with save and exploration state.</summary>
     public LobbyState GetLobbyState()
     {
         // Capture save state recovery info if available
@@ -112,6 +113,10 @@ public sealed class LobbyRecovery
         {
             saveState = saveRecovery.GetSnapshot();
         }
+
+        // Capture exploration state recovery info if available
+        var explorationRecovery = ExplorationStateRecovery.GetOrCreate(nativeRun);
+        var explorationSnapshot = explorationRecovery?.GetSnapshot();
 
         return new LobbyState
         {
@@ -128,6 +133,16 @@ public sealed class LobbyRecovery
                 Budget = saveState.Budget,
                 Steps = saveState.Steps,
                 Phase = saveState.Phase.ToString()
+            } : null,
+            ExplorationState = explorationSnapshot != null ? new ExplorationStateInfo
+            {
+                VisitedCount = explorationSnapshot.VisitedNodes.Count,
+                CompletedCount = explorationSnapshot.CompletedNodes.Count,
+                CurrentNode = explorationSnapshot.CurrentNode,
+                Steps = explorationSnapshot.Steps,
+                RemainingSteps = Math.Max(0, explorationSnapshot.Budget - explorationSnapshot.Steps),
+                IsHunting = explorationSnapshot.Steps > explorationSnapshot.Budget,
+                Phase = explorationSnapshot.Phase
             } : null
         };
     }
@@ -141,6 +156,7 @@ public sealed class LobbyRecovery
         public ulong[] ConnectedPlayerIds { get; init; } = [];
         public bool IsOriginalRosterReady { get; init; }
         public SaveStateInfo? SaveState { get; init; }
+        public ExplorationStateInfo? ExplorationState { get; init; }
     }
 
     /// <summary>Snapshot of game save state for lobby sync.</summary>
@@ -150,6 +166,18 @@ public sealed class LobbyRecovery
         public required int Budget { get; init; }
         public required int Steps { get; init; }
         public required string Phase { get; init; }
+    }
+
+    /// <summary>Exploration state information for lobby sync.</summary>
+    public sealed class ExplorationStateInfo
+    {
+        public int VisitedCount { get; init; }
+        public int CompletedCount { get; init; }
+        public int? CurrentNode { get; init; }
+        public int Steps { get; init; }
+        public int RemainingSteps { get; init; }
+        public bool IsHunting { get; init; }
+        public JigsawPhase Phase { get; init; }
     }
 }
 
