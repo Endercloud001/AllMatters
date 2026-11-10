@@ -39,4 +39,39 @@ patch 目标不一致或方法签名不存在的改动标记为阻塞项。
 
 ---
 
+## 测试编写规范
+
+**写任何新测试前，必须**：
+
+1. **查看既有测试**：列出测试文件，读取 2-3 个代表性样本
+   ```powershell
+   # 列出测试文件
+   rg --files src/Tests -g '*Tests.cs' | head -5
+   
+   # 读取前两个示例
+   head -50 src/Tests/ClericTests.cs
+   head -50 src/Tests/HelloWorldTests.cs
+   ```
+
+2. **识别项目框架与宿主初始化**：
+   - 项目框架：查看 `src/Tests/AllMatters.Tests.csproj` 的 `<PackageReference>` 标签
+   - 实际测试模式：阅读既有测试，识别是否使用框架特性或自定义架构
+   - 宿主初始化：查看 `HelloWorldTests.cs` 等测试入口，识别测试前必须的初始化步骤（如 Harmony 补丁、ModManager 初始化）
+
+3. **复用现有 API 和模式**：
+   - 复用相同的测试结构（如元组数组 + 静态方法）
+   - 复用相同的验证函数（如 `Check()` 断言）
+   - 复用相同的模型初始化（如 `Player.CreateForNewRun<>()`）
+   - 不引入新的测试框架或验证库
+
+4. **验证框架与依赖**：
+   - 提交测试前，确认没有添加新的测试依赖（如 NUnit、MSTest）
+   - 使用 `dotnet build src/Tests` 编译测试项目，确保无编译错误
+
+**禁止**：
+- 凭猜测使用测试 API
+- 跳过既有测试文件的阅读
+- 引入新的测试框架或依赖
+- 修改宿主初始化逻辑（除非与当前工作相关）
+
 *其他编码规则待补充。*

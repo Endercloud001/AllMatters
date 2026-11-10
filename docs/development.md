@@ -109,6 +109,40 @@ CLI 遇到连接问题时按 [GitHub 操作约定](agents/issue-tracker.md) 处�
 
 ## 并行实施与 worktree
 
+### Worktree 创建前验证
+
+**每次创建 worktree 前，必须确认上下文和目标**：
+
+1. **验证当前在主仓库根目录**（不在既有 worktree 中）：
+   ```powershell
+   git rev-parse --git-dir
+   # 预期输出：.git （不是 .git/worktrees/<name>）
+   
+   # 如在 worktree 中，先返回主仓库根目录
+   cd /path/to/main/repo
+   ```
+
+2. **检查目标工单的 worktree 是否已存在**：
+   ```powershell
+   git worktree list
+   # 查看输出，确认目标分支/工单（如 #92、issue-92）是否已有 worktree
+   ```
+   
+   - 若已存在：**复用既有 worktree**（`cd` 进入），或通过 `SendMessage` 向既有会话发送任务
+   - 若不存在：继续创建新 worktree
+
+3. **指定正确的源分支与目标分支**：
+   - 源分支：通常为集成分支（如 `integration/batch-N`），不是 `main`
+   - 目标分支名：遵循工单命名（如 `issue-92`、`issue-93-feature`）
+   - 避免嵌套：新 worktree 必须指向 `.claude/worktrees/<name>` 或类似隔离位置
+
+**错误示例**（曾在 Batch 2 复盘中发现）：
+- ❌ 在既有 worktree 中创建子 worktree，导致嵌套路径 `.claude/.claude/.claude/worktrees/`
+- ❌ 未检查目标工单是否已有 worktree，导致重复创建
+- ❌ 从 `main` 分支切出 worktree，导致开发基线不一致
+
+**验证脚本**：使用 `tools/ValidateWorktreeContext.ps1` 自动检查当前上下文
+
 1. **并行实施一律独立 worktree**：派发两个及以上实施代理时，每个都设 `use_worktree: true`，并显式给出 `source_branch`（集成分支，如 `integration/batch-N`，**不是** `main`）和各自的 `branch_name`。普通 checkout 下 `use_worktree` 默认共享当前目录，不能依赖默认值。
 2. **子代理 brief 写明起点**：修复 feature/集成分支上的 bug 时，brief 中写「worktree 必须从 `integration/batch-N` 切出」，并在 `start_session` 传 `source_branch`。
 3. **热点文件串行化**：多张票都要改 `src/Jigsaw/JigsawNativeSession.cs` 等集成热点时，先排定合并顺序；后合并者在前者合入后 merge 新基线，再开始改该文件。
