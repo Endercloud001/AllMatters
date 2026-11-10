@@ -88,6 +88,32 @@ git log --oneline --graph > <backup-path>/commits.txt
 
 参见 `docs/development.md` 的「并行实施与 worktree」→「worktree 清理」。
 
+## 并行 worktree 的 Git 操作协调
+
+**问题**：多个 worktree 同时执行 Git 命令可能导致 `.git/index.lock` 冲突。
+
+**预防措施**：
+
+1. **操作边界**：
+   - 子代理只在各自 worktree 内提交，不操作共享 `.git/`
+   - 主会话负责协调，串行执行 `fetch`、`merge`、`rebase`、`branch -D` 等跨 worktree 操作
+
+2. **串行合并**：
+   - 主会话逐个将子代理分支合入集成分支（如 `integration/batch-N`）
+   - 每次合并后等待构建与测试通过，再继续下一个
+
+3. **`index.lock` 错误处理**：
+   - 遇到 `fatal: Unable to create '.../.git/index.lock'` 错误时，**等待 5 秒**后重试一次
+   - 仍失败时，先用 `Get-Process git` 确认无其他 Git 进程运行
+   - 确认后才可：
+     ```powershell
+     Remove-Item .git/index.lock -Force
+     ```
+
+4. **仅当无其他 Git 进程时删除 lock**：
+   - 若仍有其他 Git 进程运行，**等待其完成**，不要强制删除
+   - 强制删除可能导致 index 损坏、提交丢失
+
 ## PR 合并后同步
 
 参见 `docs/development.md` 的「PR 合并后清理」。
