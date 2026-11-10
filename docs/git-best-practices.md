@@ -26,16 +26,48 @@
    git stash clear  # 需确认意图，无法恢复
    ```
 
+## Worktree 清理安全规范（强制执行）
+
+**清理任何 worktree 前，必须严格按「检查 → 备份 → 报告 → 用户确认 → 执行」顺序操作，不得跳过或颠倒。**
+
+### 1. 检查与备份阶段
+
+```powershell
+git worktree list
+cd <worktree-path>
+git status
+git log --oneline <branch> ^origin/main
+git diff > <backup-path>/diff.patch
+git log --oneline --graph > <backup-path>/commits.txt
+```
+
+记录目标路径、分支、未提交文件数、未合并提交数量及 SHA。必须生成差异快照和提交日志备份。
+
+### 2. 报告阶段
+
+向用户报告以下内容：
+
+- 路径和分支；
+- 未提交文件数量；
+- 未合并提交数量及 SHA；
+- 备份位置；
+- 将删除 worktree 目录，以及必要时删除分支的不可逆影响。
+
+### 3. 用户确认阶段
+
+必须等待用户明确回复「确认清理」「删除」或「继续」后才能执行。用户回复「取消」「等等」或「备份」时立即中止；无回复时不得自行判断。
+
+### 4. 执行与验证阶段
+
+确认差异快照和提交日志备份存在后，执行 `git worktree remove --force <path>`，必要时再删除分支，最后用 `git worktree list` 验证结果。可使用 `tools/SafeRemoveWorktree.ps1` 自动完成检查、备份、报告和确认流程。
+
+### 5. 例外情况
+
+仅当 worktree 为空、已合并且已推送远程，或用户在本轮对话明确说「直接删除」/「清理所有 worktree」时，才可跳过确认。其他情况必须报告并等待确认。
+
 ## worktree 清理
 
 参见 `docs/development.md` 的「并行实施与 worktree」→「worktree 清理」。
-
-标准步骤：
-1. 归档相关子代理会话
-2. 等待 ~5 秒确保文件句柄释放
-3. `git worktree remove --force <path>`
-
-Windows 上若删除失败，检查目录是否被 IDE、编辑器或后台进程持有。
 
 ## PR 合并后同步
 
