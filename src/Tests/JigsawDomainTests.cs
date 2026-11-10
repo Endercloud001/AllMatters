@@ -31,6 +31,11 @@ internal static class JigsawDomainTests
         ("Jigsaw domain act transition clears progress but preserves map and players", ActTransition),
         ("Jigsaw domain dual boss requires first completion before second entry", DualBossSequence),
         ("Jigsaw domain endgame detected at final boss node", EndgameDetection),
+        ("Jigsaw generation Boss is reachable from Ancient within the step budget", GenerationBossWithinBudget),
+        ("Jigsaw generation graph is connected and every ordinary room is explorable", GenerationConnected),
+        ("Jigsaw generation budgets 15 14 13 apply and bound the Boss route", GenerationBudgets),
+        ("Jigsaw generation inspection rejects a Boss beyond the budget", GenerationOverBudget),
+        ("Jigsaw generation pool uses all seven shapes twice", GenerationShapes),
     ];
     private static void Check(bool value,string text) => NativeEventTests.Check(value,text);
     private static Task AutomaticWitness()
@@ -635,4 +640,127 @@ internal static class JigsawDomainTests
     }
     private static JigsawShopInventory Inventory(string card, int price) =>
         new([new JigsawShopCard(card, 0, false, null, price)], [], 0, true, new Dictionary<string, int> { [card] = price }, new Dictionary<string, bool>(), []);
+    // ===== #96 生成校验：Ancient 到 Boss 的路径、连通性、预算与形状 =====
+    // 预算由调用方传入 JigsawRun.Create，生成器本身不按 Act 变化。原生会话在 JigsawNativeSession.StartAct 里
+    // 传入 15 - Math.Min(2, act)（act 为 0 起始的 CurrentActIndex），即第 1/2/3 幕为 15/14/13。
+    // 领域测试不经过原生会话，直接传入同样的三个预算。
+    private static readonly int[] GenerationSeeds = [74, 75, 0, 593, 9999];
+    private static JigsawRun Generate(int seed, int budget, bool doubled)
+    {
+        var run = JigsawRun.Create(seed, budget, doubled);
+        Ok(run.ChooseEnd(1, EndChoice.Automatic));
+        var result = run.FinishAutomatic(run.AutomaticOperation!, JigsawAutomatic.Solve(run, 0));
+        Check(result.Success && run.Phase == JigsawPhase.Ancient, $"种子 {seed} 预算 {budget} 双Boss={doubled} 自动生成应被接受：{result.Reason}");
+        return run;
+    }
+    // 无向边（AvailableDestinations 对每条边双向使用）上的最短步数；blocked 房间不可经过也不可到达。
+    private static Dictionary<int, int> Distances(JigsawRun run, int start, params JigsawRoom[] blocked)
+    {
+        var rooms = run.Nodes.ToDictionary(n => n.Id, n => n.Room);
+        var seen = new Dictionary<int, int> { [start] = 0 };
+        var queue = new Queue<int>();
+        queue.Enqueue(start);
+        while (queue.TryDequeue(out int id))
+            foreach (var edge in run.Edges.Where(e => e.Touches(id)))
+            {
+                int next = edge.First == id ? edge.Second : edge.First;
+                if (!blocked.Contains(rooms[next]) && seen.TryAdd(next, seen[id] + 1))
+                    queue.Enqueue(next);
+            }
+        return seen;
+    }
+    private static void Enter(JigsawRun run, int node)
+    {
+        var attempt = run.BeginEnter(node);
+        Check(attempt != null, $"节点 {node} 应当可进入。");
+        Ok(run.ConfirmEnter(attempt!.Id));
+        Ok(run.CompleteRoom(attempt.Id));
+    }
+    private static Task GenerationBossWithinBudget()
+    {
+        foreach (bool doubled in new[] { false, true }) foreach (int seed in GenerationSeeds)
+        {
+            var run = Generate(seed, 15, doubled);
+            var boss = run.Nodes.Single(n => n.Room == JigsawRoom.Boss).Id;
+            // 第一个 Boss 的最短路不经过第二个 Boss；进入 Boss 的那一步计入（每进入一个节点 Steps+1）。
+            var fromAncient = Distances(run, 0, JigsawRoom.SecondBoss);
+            Check(fromAncient.TryGetValue(boss, out int shortest) && shortest <= run.Budget, $"种子 {seed} 双Boss={doubled}：Boss 最短路应不超过预算 {run.Budget}。");
+            var toBoss = Distances(run, boss, JigsawRoom.SecondBoss);
+            Ok(run.CompleteAncient(1)); Ok(run.Continue(1));
+            while (run.Steps < shortest)
+                Enter(run, run.AvailableDestinations.Where(toBoss.ContainsKey).OrderBy(id => toBoss[id]).First());
+            Check(run.CurrentNode == null && run.Completed.Contains(boss) && run.Steps == shortest, $"种子 {seed}：沿最短路逐步进入，到达 Boss 时 Steps 应等于最短路长度 {shortest}。");
+            if (doubled)
+            {
+                // Inspect 只约束第一个 Boss 的距离；第二个 Boss 只能经第一个 Boss 到达，因此恰好多一步。
+                var second = run.Nodes.Single(n => n.Room == JigsawRoom.SecondBoss).Id;
+                Check(!Distances(run, 0, JigsawRoom.Boss).ContainsKey(second), $"种子 {seed}：第二个 Boss 不经第一个 Boss 不可达。");
+                Check(run.AvailableDestinations.Contains(second), $"种子 {seed}：第一个 Boss 完成后第二个 Boss 可进入。");
+                Enter(run, second);
+                Check(run.Steps == shortest + 1, $"种子 {seed}：第二个 Boss 比第一个 Boss 多一步。");
+            }
+        }
+        return Task.CompletedTask;
+    }
+    private static Task GenerationConnected()
+    {
+        foreach (bool doubled in new[] { false, true }) foreach (int seed in GenerationSeeds)
+        {
+            var run = Generate(seed, 15, doubled);
+            var rooms = run.Nodes.ToDictionary(n => n.Id, n => n.Room);
+            bool IsBoss(int id) => rooms[id] is JigsawRoom.Boss or JigsawRoom.SecondBoss;
+            Check(run.Edges.All(e => rooms.ContainsKey(e.First) && rooms.ContainsKey(e.Second)), $"种子 {seed}：每条边的端点都是已放置节点。");
+            Check(rooms.Keys.All(Distances(run, 0).ContainsKey), $"种子 {seed} 双Boss={doubled}：从 Ancient 能到达每个节点。");
+            var boss = rooms.Single(n => n.Value == JigsawRoom.Boss).Key;
+            Check(rooms.Keys.All(Distances(run, boss).ContainsKey), $"种子 {seed}：每个节点都能到达 Boss。");
+            Check(rooms.Keys.Where(id => !IsBoss(id)).All(Distances(run, 0, JigsawRoom.Boss, JigsawRoom.SecondBoss).ContainsKey), $"种子 {seed}：不经过 Boss 也能到达全部普通房间。");
+            // 实际探索：只进入没访问过的非 Boss 节点，直到无处可去，应覆盖所有普通房间。
+            Ok(run.CompleteAncient(1)); Ok(run.Continue(1));
+            while (run.AvailableDestinations.Where(id => !run.Visited.Contains(id) && !IsBoss(id)).OrderBy(id => id).ToArray() is { Length: > 0 } open)
+                Enter(run, open[0]);
+            Check(rooms.Keys.Where(id => !IsBoss(id)).All(run.Visited.Contains), $"种子 {seed} 双Boss={doubled}：实际探索能访问全部普通房间。");
+        }
+        return Task.CompletedTask;
+    }
+    private static Task GenerationBudgets()
+    {
+        foreach (int budget in new[] { 15, 14, 13 }) foreach (bool doubled in new[] { false, true }) foreach (int seed in GenerationSeeds)
+        {
+            var run = Generate(seed, budget, doubled);
+            var boss = run.Nodes.Single(n => n.Room == JigsawRoom.Boss).Id;
+            Check(run.Budget == budget, $"种子 {seed}：Budget 应等于传入的 {budget}。");
+            Check(Distances(run, 0, JigsawRoom.SecondBoss).TryGetValue(boss, out int shortest) && shortest <= budget, $"种子 {seed} 双Boss={doubled}：预算 {budget} 下 Boss 最短路 {shortest} 不应超出。");
+            Check(run.Nodes.Count(n => n.Room is not (JigsawRoom.Ancient or JigsawRoom.Boss or JigsawRoom.SecondBoss)) >= budget - 1, $"种子 {seed}：预算 {budget} 下应有足够的普通房间可探索。");
+        }
+        return Task.CompletedTask;
+    }
+    private static Task GenerationOverBudget()
+    {
+        // 种子 74 的第 0 块是 I 形，Ancient 经边 (0,1) 连入后 Boss（节点 4）的最短路为 1 + 3 = 4 步。
+        JigsawResult Inspect(int budget)
+        {
+            var run = JigsawRun.Create(74, budget);
+            Place(run, 0, 3, 0); Ok(run.AddEdge(1, 0, 1)); Ok(run.ChooseEnd(1, EndChoice.Manual));
+            return run.Inspect();
+        }
+        var tight = Inspect(3);
+        Check(!tight.Success && tight.Failure == JigsawFailure.BossOverBudget, $"预算 3 小于最短路 4，应拒绝为 BossOverBudget：{tight.Reason}");
+        Ok(Inspect(4));
+        return Task.CompletedTask;
+    }
+    private static Task GenerationShapes()
+    {
+        foreach (bool doubled in new[] { false, true }) foreach (int seed in GenerationSeeds)
+        {
+            var run = Generate(seed, 15, doubled);
+            var shapes = Enum.GetValues<JigsawShape>();
+            Check(run.Pool.Count == 14, $"种子 {seed}：碎块池共 14 块。");
+            foreach (var shape in shapes)
+                Check(run.Pool.Count(p => p.Shape == shape) == 2, $"种子 {seed}：形状 {shape} 恰好出现 2 次。");
+            Check(run.Pool.Select(p => p.Shape).Distinct().Count() == 7 && shapes.Length == 7, $"种子 {seed}：七种俄罗斯方块形状全部出现。");
+            Check(run.Pool.All(p => p.Nodes.Count == 4 && p.InternalEdges.Count == (p.Shape == JigsawShape.O ? 4 : 3)), $"种子 {seed}：每块 4 个格子，O 形 4 条内部边，其余 3 条。");
+            Check(run.Placements.All(p => run.Pool.Any(v => v.Id == p.PieceId)), $"种子 {seed}：已放置的碎块都来自碎块池。");
+        }
+        return Task.CompletedTask;
+    }
 }
