@@ -8,17 +8,65 @@ namespace AllMatters.Tests;
 /// <summary>Tests for exploration state recovery in multiplayer disconnection scenarios.</summary>
 public static class ExplorationRecoveryTests
 {
+    /// <summary>
+    /// Creates a minimal JigsawRun ready for exploration (Ancient phase completed).
+    /// Equivalent to JigsawDomainTests.Ready() but with minimal budget.
+    /// </summary>
+    private static JigsawRun ReadyMinimalLayout(int seed = 74, int budget = 15, bool doubleBoss = false, IEnumerable<ulong>? players = null)
+    {
+        var run = JigsawRun.Create(seed, budget, doubleBoss, players);
+        var playerList = players?.ToList() ?? [1UL];
+        var firstPlayer = playerList[0];
+
+        Place(run, firstPlayer, 0, 3, 0);
+        Ok(run.AddEdge(firstPlayer, 0, 1));
+
+        // All players must vote to authorize inspection
+        foreach (var player in playerList)
+        {
+            Ok(run.ChooseEnd(player, EndChoice.Manual));
+        }
+
+        Ok(run.Inspect());
+
+        // Complete Ancient phase for all players
+        foreach (var player in playerList)
+        {
+            Ok(run.CompleteAncient(player));
+        }
+
+        // Continue for all players
+        foreach (var player in playerList)
+        {
+            Ok(run.Continue(player));
+        }
+
+        return run;
+    }
+
+    private static void Ok(JigsawResult result)
+    {
+        if (!result.Success)
+            throw new InvalidOperationException($"Setup failed: {result.Reason}");
+    }
+
+    private static void Place(JigsawRun run, ulong player, int piece, int x, int y)
+    {
+        Ok(run.Take(player, piece));
+        Ok(run.Drop(player, new(x, y)));
+    }
+
     [Fact(DisplayName = "Create exploration state snapshot from valid JigsawSave")]
     public static void CreateSnapshotFromSave()
     {
         // Arrange
-        var pool = JigsawPool.Create(12345, doubleBoss: false);
-        var run = JigsawRun.Create(12345, budget: 15, players: [1UL, 2UL]);
+        var run = ReadyMinimalLayout(seed: 12345, budget: 15, players: [1UL, 2UL]);
 
         // Simulate exploration progress
-        run.BeginEnter(1);
-        run.ConfirmEnter(run.PendingEntry!.Id);
-        run.CompleteRoom(run.PendingEntry?.Id ?? 1);
+        var attempt = run.BeginEnter(1);
+        Assert.NotNull(attempt);
+        run.ConfirmEnter(attempt.Id);
+        run.CompleteRoom(attempt.Id);
 
         run.BeginEnter(2);
         run.ConfirmEnter(run.PendingEntry!.Id);
@@ -42,18 +90,17 @@ public static class ExplorationRecoveryTests
     public static void RestorePreservesVisited()
     {
         // Arrange
-        var pool = JigsawPool.Create(54321, doubleBoss: false);
-        var run = JigsawRun.Create(54321, budget: 15, players: [3UL]);
+        var run = ReadyMinimalLayout(seed: 54321, budget: 15, players: [3UL]);
 
         // Visit and complete multiple rooms
         var nodeIds = new List<int>();
         for (int i = 1; i <= 3; i++)
         {
-            run.BeginEnter(i);
-            var attempt = run.PendingEntry?.Id ?? (long)i;
-            run.ConfirmEnter(attempt);
+            var attempt = run.BeginEnter(i);
+            Assert.NotNull(attempt);
+            run.ConfirmEnter(attempt.Id);
             nodeIds.Add(run.CurrentNode ?? 0);
-            run.CompleteRoom(attempt);
+            run.CompleteRoom(attempt.Id);
         }
 
         var save = run.CreateSave();
@@ -74,12 +121,13 @@ public static class ExplorationRecoveryTests
     public static void HandlePlayerReconnection()
     {
         // Arrange
-        var run = JigsawRun.Create(99999, budget: 15, players: [10UL, 20UL], originalPlayers: [10UL, 20UL]);
+        var run = ReadyMinimalLayout(seed: 99999, budget: 15, players: [10UL, 20UL]);
 
         // Progress in exploration
-        run.BeginEnter(1);
-        run.ConfirmEnter(run.PendingEntry!.Id);
-        run.CompleteRoom(run.PendingEntry!.Id);
+        var attempt = run.BeginEnter(1);
+        Assert.NotNull(attempt);
+        run.ConfirmEnter(attempt.Id);
+        run.CompleteRoom(attempt.Id);
 
         // Player 20 disconnects
         run.Disconnect(20UL);
@@ -98,14 +146,14 @@ public static class ExplorationRecoveryTests
         Assert.Contains(20UL, restored.ActivePlayers);
         // Exploration state should still be preserved
         Assert.Equal(save.Steps, restored.Steps);
-        Assert.Single(restored.Completed); // Only Ancient (node 0) should be completed
+        Assert.Equal(2, restored.Completed.Count()); // Ancient (node 0) + first room (node 1)
     }
 
     [Fact(DisplayName = "Exploration step tracking persists after recovery")]
     public static void StepTrackingPersists()
     {
         // Arrange
-        var run = JigsawRun.Create(11111, budget: 10);
+        var run = ReadyMinimalLayout(seed: 11111, budget: 10);
 
         // Make several room entries to increment steps
         for (int i = 0; i < 5; i++)
@@ -113,11 +161,11 @@ public static class ExplorationRecoveryTests
             var dest = run.AvailableDestinations.FirstOrDefault();
             if (dest == 0) break;
 
-            run.BeginEnter(dest);
-            if (run.PendingEntry != null)
+            var attempt = run.BeginEnter(dest);
+            if (attempt != null)
             {
-                run.ConfirmEnter(run.PendingEntry.Id);
-                run.CompleteRoom(run.PendingEntry.Id);
+                run.ConfirmEnter(attempt.Id);
+                run.CompleteRoom(attempt.Id);
             }
         }
 
@@ -136,8 +184,7 @@ public static class ExplorationRecoveryTests
     public static void DetectHuntingPhase()
     {
         // Arrange: Create a save with steps exceeding budget
-        var pool = JigsawPool.Create(22222, doubleBoss: false);
-        var run = JigsawRun.Create(22222, budget: 5);
+        var run = ReadyMinimalLayout(seed: 22222, budget: 5);
 
         // Progress through multiple rooms to exceed budget
         for (int i = 0; i < 7; i++)
@@ -145,11 +192,11 @@ public static class ExplorationRecoveryTests
             var dest = run.AvailableDestinations.FirstOrDefault();
             if (dest == 0) break;
 
-            run.BeginEnter(dest);
-            if (run.PendingEntry != null)
+            var attempt = run.BeginEnter(dest);
+            if (attempt != null)
             {
-                run.ConfirmEnter(run.PendingEntry.Id);
-                run.CompleteRoom(run.PendingEntry.Id);
+                run.ConfirmEnter(attempt.Id);
+                run.CompleteRoom(attempt.Id);
             }
         }
 
@@ -168,19 +215,14 @@ public static class ExplorationRecoveryTests
     public static void MultiPlayerStateIndependent()
     {
         // Arrange: Two-player exploration where they follow different paths
-        var run = JigsawRun.Create(33333, budget: 15, players: [100UL, 200UL]);
-
-        // Both complete Ancient phase
-        run.CompleteAncient(100UL);
-        run.CompleteAncient(200UL);
-        run.Continue(100UL);
-        run.Continue(200UL);
+        var run = ReadyMinimalLayout(seed: 33333, budget: 15, players: [100UL, 200UL]);
 
         // Both enter first room and complete it (visited set will be updated)
         var firstDest = run.AvailableDestinations.First();
-        run.BeginEnter(firstDest);
-        run.ConfirmEnter(run.PendingEntry!.Id);
-        run.CompleteRoom(run.PendingEntry.Id);
+        var attempt = run.BeginEnter(firstDest);
+        Assert.NotNull(attempt);
+        run.ConfirmEnter(attempt.Id);
+        run.CompleteRoom(attempt.Id);
 
         var save = run.CreateSave();
 

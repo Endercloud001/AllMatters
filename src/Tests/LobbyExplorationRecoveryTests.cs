@@ -9,19 +9,67 @@ namespace AllMatters.Tests;
 /// <summary>Integration tests for lobby recovery with exploration state sync.</summary>
 public static class LobbyExplorationRecoveryTests
 {
+    /// <summary>
+    /// Creates a minimal JigsawRun ready for exploration (Ancient phase completed).
+    /// </summary>
+    private static JigsawRun ReadyMinimalLayout(int seed = 74, int budget = 15, bool doubleBoss = false, IEnumerable<ulong>? players = null)
+    {
+        var run = JigsawRun.Create(seed, budget, doubleBoss, players);
+        var playerList = players?.ToList() ?? [1UL];
+        var firstPlayer = playerList[0];
+
+        Place(run, firstPlayer, 0, 3, 0);
+        Ok(run.AddEdge(firstPlayer, 0, 1));
+
+        // All players must vote to authorize inspection
+        foreach (var player in playerList)
+        {
+            Ok(run.ChooseEnd(player, EndChoice.Manual));
+        }
+
+        Ok(run.Inspect());
+
+        // Complete Ancient phase for all players
+        foreach (var player in playerList)
+        {
+            Ok(run.CompleteAncient(player));
+        }
+
+        // Continue for all players
+        foreach (var player in playerList)
+        {
+            Ok(run.Continue(player));
+        }
+
+        return run;
+    }
+
+    private static void Ok(JigsawResult result)
+    {
+        if (!result.Success)
+            throw new InvalidOperationException($"Setup failed: {result.Reason}");
+    }
+
+    private static void Place(JigsawRun run, ulong player, int piece, int x, int y)
+    {
+        Ok(run.Take(player, piece));
+        Ok(run.Drop(player, new(x, y)));
+    }
+
     [Fact(DisplayName = "Lobby recovery initialization includes exploration state")]
     public static void LobbyInitializesExplorationState()
     {
         // Arrange: Create a jigsaw save with exploration progress
-        var run = JigsawRun.Create(55555, budget: 15, players: [5UL, 6UL]);
+        var run = ReadyMinimalLayout(seed: 55555, budget: 15, players: [5UL, 6UL]);
 
         // Progress exploration
         var dest = run.AvailableDestinations.FirstOrDefault();
         if (dest > 0)
         {
-            run.BeginEnter(dest);
-            run.ConfirmEnter(run.PendingEntry!.Id);
-            run.CompleteRoom(run.PendingEntry.Id);
+            var attempt = run.BeginEnter(dest);
+            Assert.NotNull(attempt);
+            run.ConfirmEnter(attempt.Id);
+            run.CompleteRoom(attempt.Id);
         }
 
         var save = run.CreateSave();
@@ -42,15 +90,16 @@ public static class LobbyExplorationRecoveryTests
     public static void ExplorationPersistsAcrossReconnect()
     {
         // Arrange
-        var run = JigsawRun.Create(66666, budget: 15, players: [7UL, 8UL], originalPlayers: [7UL, 8UL]);
+        var run = ReadyMinimalLayout(seed: 66666, budget: 15, players: [7UL, 8UL]);
 
         // Progress exploration
         var dest = run.AvailableDestinations.FirstOrDefault();
         if (dest > 0)
         {
-            run.BeginEnter(dest);
-            run.ConfirmEnter(run.PendingEntry!.Id);
-            run.CompleteRoom(run.PendingEntry.Id);
+            var attempt = run.BeginEnter(dest);
+            Assert.NotNull(attempt);
+            run.ConfirmEnter(attempt.Id);
+            run.CompleteRoom(attempt.Id);
         }
 
         var stepsBeforeDisconnect = run.Steps;
@@ -82,7 +131,7 @@ public static class LobbyExplorationRecoveryTests
     public static void RemainingStepsCorrectAfterRecovery()
     {
         // Arrange: Create a run with known step count
-        var run = JigsawRun.Create(77777, budget: 10);
+        var run = ReadyMinimalLayout(seed: 77777, budget: 10);
 
         // Progress to step 5
         for (int i = 0; i < 5; i++)
@@ -90,11 +139,11 @@ public static class LobbyExplorationRecoveryTests
             var dest = run.AvailableDestinations.FirstOrDefault();
             if (dest == 0) break;
 
-            run.BeginEnter(dest);
-            if (run.PendingEntry != null)
+            var attempt = run.BeginEnter(dest);
+            if (attempt != null)
             {
-                run.ConfirmEnter(run.PendingEntry.Id);
-                run.CompleteRoom(run.PendingEntry.Id);
+                run.ConfirmEnter(attempt.Id);
+                run.CompleteRoom(attempt.Id);
             }
         }
 
@@ -105,7 +154,7 @@ public static class LobbyExplorationRecoveryTests
         int expectedRemaining = save.Budget - save.Steps;
 
         // Assert
-        Assert.Equal(5, restored.Steps);
+        Assert.Equal(save.Steps, restored.Steps); // Actual steps preserved
         Assert.Equal(expectedRemaining, restored.RemainingSteps);
         Assert.False(restored.IsEndgame);
     }
@@ -114,7 +163,7 @@ public static class LobbyExplorationRecoveryTests
     public static void HuntingPhaseDetectionInRecovery()
     {
         // Arrange: Create a save with steps exceeding budget (hunting phase)
-        var run = JigsawRun.Create(88888, budget: 5);
+        var run = ReadyMinimalLayout(seed: 88888, budget: 5);
 
         // Force steps beyond budget for testing
         // We need to set up a scenario where steps > budget
@@ -123,11 +172,11 @@ public static class LobbyExplorationRecoveryTests
             var dest = run.AvailableDestinations.FirstOrDefault();
             if (dest == 0) break;
 
-            run.BeginEnter(dest);
-            if (run.PendingEntry != null)
+            var attempt = run.BeginEnter(dest);
+            if (attempt != null)
             {
-                run.ConfirmEnter(run.PendingEntry.Id);
-                run.CompleteRoom(run.PendingEntry.Id);
+                run.ConfirmEnter(attempt.Id);
+                run.CompleteRoom(attempt.Id);
             }
         }
 
@@ -149,15 +198,16 @@ public static class LobbyExplorationRecoveryTests
     public static void MultiPlayerCheckpointRecovery()
     {
         // Arrange: Two-player run where both have progressed
-        var run = JigsawRun.Create(99999, budget: 15, players: [11UL, 12UL]);
+        var run = ReadyMinimalLayout(seed: 99999, budget: 15, players: [11UL, 12UL]);
 
         // Both move to first room
         var dest = run.AvailableDestinations.FirstOrDefault();
         if (dest > 0)
         {
-            run.BeginEnter(dest);
-            run.ConfirmEnter(run.PendingEntry!.Id);
-            run.CompleteRoom(run.PendingEntry.Id);
+            var attempt = run.BeginEnter(dest);
+            Assert.NotNull(attempt);
+            run.ConfirmEnter(attempt.Id);
+            run.CompleteRoom(attempt.Id);
         }
 
         var initialSteps = run.Steps;
@@ -176,14 +226,15 @@ public static class LobbyExplorationRecoveryTests
     public static void CurrentRoomPositionRestored()
     {
         // Arrange
-        var run = JigsawRun.Create(111111, budget: 15);
+        var run = ReadyMinimalLayout(seed: 111111, budget: 15);
 
         // Enter a room (don't complete it yet - stay in room)
         var dest = run.AvailableDestinations.FirstOrDefault();
         if (dest > 0)
         {
-            run.BeginEnter(dest);
-            run.ConfirmEnter(run.PendingEntry!.Id);
+            var attempt = run.BeginEnter(dest);
+            Assert.NotNull(attempt);
+            run.ConfirmEnter(attempt.Id);
             // Note: we don't call CompleteRoom yet, so CurrentNode should be set
         }
 

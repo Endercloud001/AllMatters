@@ -8,17 +8,64 @@ namespace AllMatters.Tests;
 /// <summary>Tests for save state recovery in multiplayer disconnection scenarios.</summary>
 public static class SaveStateRecoveryTests
 {
+    /// <summary>
+    /// Creates a minimal JigsawRun ready for exploration (Ancient phase completed).
+    /// </summary>
+    private static JigsawRun ReadyMinimalLayout(int seed = 74, int budget = 15, bool doubleBoss = false, IEnumerable<ulong>? players = null)
+    {
+        var run = JigsawRun.Create(seed, budget, doubleBoss, players);
+        var playerList = players?.ToList() ?? [1UL];
+        var firstPlayer = playerList[0];
+
+        Place(run, firstPlayer, 0, 3, 0);
+        Ok(run.AddEdge(firstPlayer, 0, 1));
+
+        // All players must vote to authorize inspection
+        foreach (var player in playerList)
+        {
+            Ok(run.ChooseEnd(player, EndChoice.Manual));
+        }
+
+        Ok(run.Inspect());
+
+        // Complete Ancient phase for all players
+        foreach (var player in playerList)
+        {
+            Ok(run.CompleteAncient(player));
+        }
+
+        // Continue for all players
+        foreach (var player in playerList)
+        {
+            Ok(run.Continue(player));
+        }
+
+        return run;
+    }
+
+    private static void Ok(JigsawResult result)
+    {
+        if (!result.Success)
+            throw new InvalidOperationException($"Setup failed: {result.Reason}");
+    }
+
+    private static void Place(JigsawRun run, ulong player, int piece, int x, int y)
+    {
+        Ok(run.Take(player, piece));
+        Ok(run.Drop(player, new(x, y)));
+    }
+
     [Fact(DisplayName = "Save state recovery initializes from checkpoint")]
     public static void InitializeFromCheckpoint()
     {
         // Arrange
-        var pool = JigsawPool.Create(12345, doubleBoss: false);
-        var run = JigsawRun.Create(12345, budget: 15, players: [1UL, 2UL]);
+        var run = ReadyMinimalLayout(seed: 12345, budget: 15, players: [1UL, 2UL]);
 
         // Progress through exploration
-        run.BeginEnter(1);
-        run.ConfirmEnter(run.PendingEntry!.Id);
-        run.CompleteRoom(run.PendingEntry!.Id);
+        var attempt = run.BeginEnter(1);
+        Assert.NotNull(attempt);
+        run.ConfirmEnter(attempt.Id);
+        run.CompleteRoom(attempt.Id);
 
         var save = run.CreateSave();
 
@@ -38,11 +85,12 @@ public static class SaveStateRecoveryTests
     public static void PlayerConnectionTracking()
     {
         // Arrange
-        var run = JigsawRun.Create(99999, budget: 15, players: [10UL, 20UL], originalPlayers: [10UL, 20UL]);
+        var run = ReadyMinimalLayout(seed: 99999, budget: 15, players: [10UL, 20UL]);
 
-        run.BeginEnter(1);
-        run.ConfirmEnter(run.PendingEntry!.Id);
-        run.CompleteRoom(run.PendingEntry!.Id);
+        var attempt = run.BeginEnter(1);
+        Assert.NotNull(attempt);
+        run.ConfirmEnter(attempt.Id);
+        run.CompleteRoom(attempt.Id);
 
         var save = run.CreateSave();
 
@@ -62,12 +110,13 @@ public static class SaveStateRecoveryTests
     public static void ReconnectionWithinTimeout()
     {
         // Arrange
-        var run = JigsawRun.Create(88888, budget: 15, players: [5UL, 6UL], originalPlayers: [5UL, 6UL]);
+        var run = ReadyMinimalLayout(seed: 88888, budget: 15, players: [5UL, 6UL]);
 
         // Progress in exploration
-        run.BeginEnter(1);
-        run.ConfirmEnter(run.PendingEntry!.Id);
-        run.CompleteRoom(run.PendingEntry!.Id);
+        var attempt = run.BeginEnter(1);
+        Assert.NotNull(attempt);
+        run.ConfirmEnter(attempt.Id);
+        run.CompleteRoom(attempt.Id);
 
         // Player 6 disconnects
         run.Disconnect(6UL);
@@ -89,7 +138,7 @@ public static class SaveStateRecoveryTests
     public static void TimeoutDetection()
     {
         // Arrange
-        var run = JigsawRun.Create(77777, budget: 15, players: [7UL, 8UL], originalPlayers: [7UL, 8UL]);
+        var run = ReadyMinimalLayout(seed: 77777, budget: 15, players: [7UL, 8UL]);
 
         // Player 8 disconnects
         run.Disconnect(8UL);
@@ -111,11 +160,12 @@ public static class SaveStateRecoveryTests
     public static void StateConflictResolution()
     {
         // Arrange
-        var run = JigsawRun.Create(66666, budget: 15, players: [9UL], originalPlayers: [9UL]);
+        var run = ReadyMinimalLayout(seed: 66666, budget: 15, players: [9UL]);
 
-        run.BeginEnter(1);
-        run.ConfirmEnter(run.PendingEntry!.Id);
-        run.CompleteRoom(run.PendingEntry!.Id);
+        var attempt = run.BeginEnter(1);
+        Assert.NotNull(attempt);
+        run.ConfirmEnter(attempt.Id);
+        run.CompleteRoom(attempt.Id);
 
         var save = run.CreateSave();
 
@@ -135,12 +185,13 @@ public static class SaveStateRecoveryTests
     public static void MultiplePlayerReconnection()
     {
         // Arrange
-        var run = JigsawRun.Create(55555, budget: 15, players: [11UL, 12UL, 13UL], originalPlayers: [11UL, 12UL, 13UL]);
+        var run = ReadyMinimalLayout(seed: 55555, budget: 15, players: [11UL, 12UL, 13UL]);
 
         // All players progress
-        run.BeginEnter(1);
-        run.ConfirmEnter(run.PendingEntry!.Id);
-        run.CompleteRoom(run.PendingEntry!.Id);
+        var attempt = run.BeginEnter(1);
+        Assert.NotNull(attempt);
+        run.ConfirmEnter(attempt.Id);
+        run.CompleteRoom(attempt.Id);
 
         // Two players disconnect
         run.Disconnect(12UL);
@@ -167,11 +218,12 @@ public static class SaveStateRecoveryTests
     public static void NetworkPartitionRecovery()
     {
         // Arrange
-        var run = JigsawRun.Create(44444, budget: 15, players: [14UL, 15UL], originalPlayers: [14UL, 15UL]);
+        var run = ReadyMinimalLayout(seed: 44444, budget: 15, players: [14UL, 15UL]);
 
-        run.BeginEnter(1);
-        run.ConfirmEnter(run.PendingEntry!.Id);
-        run.CompleteRoom(run.PendingEntry!.Id);
+        var attempt = run.BeginEnter(1);
+        Assert.NotNull(attempt);
+        run.ConfirmEnter(attempt.Id);
+        run.CompleteRoom(attempt.Id);
 
         // Both players disconnect (network partition)
         run.Disconnect(14UL);
@@ -196,7 +248,7 @@ public static class SaveStateRecoveryTests
     public static void UnknownPlayerRejection()
     {
         // Arrange
-        var run = JigsawRun.Create(33333, budget: 15, players: [16UL], originalPlayers: [16UL]);
+        var run = ReadyMinimalLayout(seed: 33333, budget: 15, players: [16UL]);
 
         var save = run.CreateSave();
         var restored = JigsawRun.Restore(save, [16UL]);
@@ -213,11 +265,12 @@ public static class SaveStateRecoveryTests
     public static void InventoryStatePersistence()
     {
         // Arrange
-        var run = JigsawRun.Create(22222, budget: 15, players: [17UL], originalPlayers: [17UL]);
+        var run = ReadyMinimalLayout(seed: 22222, budget: 15, players: [17UL]);
 
-        run.BeginEnter(1);
-        run.ConfirmEnter(run.PendingEntry!.Id);
-        run.CompleteRoom(run.PendingEntry!.Id);
+        var attempt = run.BeginEnter(1);
+        Assert.NotNull(attempt);
+        run.ConfirmEnter(attempt.Id);
+        run.CompleteRoom(attempt.Id);
 
         var save = run.CreateSave();
 
@@ -242,7 +295,7 @@ public static class SaveStateRecoveryTests
     public static void HuntingPhaseRecovery()
     {
         // Arrange
-        var run = JigsawRun.Create(11111, budget: 5);
+        var run = ReadyMinimalLayout(seed: 11111, budget: 5);
 
         // Exceed budget to enter hunting phase
         for (int i = 0; i < 7; i++)
@@ -250,11 +303,11 @@ public static class SaveStateRecoveryTests
             var dest = run.AvailableDestinations.FirstOrDefault();
             if (dest == 0) break;
 
-            run.BeginEnter(dest);
-            if (run.PendingEntry != null)
+            var attempt = run.BeginEnter(dest);
+            if (attempt != null)
             {
-                run.ConfirmEnter(run.PendingEntry.Id);
-                run.CompleteRoom(run.PendingEntry.Id);
+                run.ConfirmEnter(attempt.Id);
+                run.CompleteRoom(attempt.Id);
             }
         }
 
