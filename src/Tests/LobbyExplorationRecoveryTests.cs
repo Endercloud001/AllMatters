@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 using AllMatters.Jigsaw;
-using MegaCrit.Sts2.Core.Runs;
+
 
 namespace AllMatters.Tests;
 
@@ -249,5 +249,81 @@ public static class LobbyExplorationRecoveryTests
         {
             Assert.Equal(nodeInRoom, restored.CurrentNode);
         }
+    }
+
+    /// <summary>
+    /// Issue #92, late player. In-process simulation, not a real network (非真实网络):
+    /// one rostered player is disconnected while the others advance the map, then he
+    /// reconnects and reads the recovery. The visit record is one shared set on the
+    /// run, not a copy per player — the issue text's "per-player visit record" does
+    /// not exist in the production code, so the late player necessarily reads exactly
+    /// what the early players produced.
+    /// </summary>
+    [Fact(DisplayName = "Issue 92 late player reads the shared visit record (非真实网络)")]
+    public static void LatePlayerReadsSharedVisitRecord()
+    {
+        var run = ReadyMinimalLayout(seed: 92, budget: 15, players: [1UL, 2UL, 3UL]);
+        run.Disconnect(3UL);
+        Assert.DoesNotContain(3UL, run.ActivePlayers);
+
+        var attempt = run.BeginEnter(run.AvailableDestinations.First());
+        Assert.NotNull(attempt);
+        Assert.True(run.ConfirmEnter(attempt.Id).Success);
+        Assert.True(run.CompleteRoom(attempt.Id).Success);
+        var sharedVisited = run.Visited.OrderBy(id => id).ToArray();
+        var sharedCompleted = run.Completed.OrderBy(id => id).ToArray();
+        Assert.True(sharedVisited.Length > 1, "The connected players made no progress before the late player arrived.");
+
+        var save = run.CreateSave();
+        // JigsawSave carries exactly one Visited array; nothing in the save is keyed by player.
+        Assert.Equal(sharedVisited, save.Visited.OrderBy(id => id).ToArray());
+
+        var restored = JigsawRun.Restore(save, [1UL, 2UL]);
+        var before = restored.Visited.OrderBy(id => id).ToArray();
+        Assert.True(restored.Reconnect(3UL).Success);
+
+        Assert.Equal(sharedVisited, restored.Visited.OrderBy(id => id).ToArray());
+        Assert.Equal(before, restored.Visited.OrderBy(id => id).ToArray());
+        Assert.Equal(sharedCompleted, restored.Completed.OrderBy(id => id).ToArray());
+        Assert.Equal(run.Steps, restored.Steps);
+        Assert.Contains(3UL, restored.ActivePlayers);
+
+        // The recovery snapshot the late player reads is built from the same single save.
+        var snapshot = ExplorationRecoveryTests.CreateExplorationSnapshotFromSave(save);
+        Assert.Equal(sharedVisited, snapshot.VisitedNodes.OrderBy(id => id).ToArray());
+        Assert.Equal(sharedVisited.Length, snapshot.VisitedNodes.Count);
+    }
+
+    /// <summary>
+    /// Issue #92, absent player. In-process simulation, not a real network (非真实网络):
+    /// one of the three rostered players never reconnects. Recovery still exposes exactly
+    /// one shared visit record; the absent player does not get an empty record of his own.
+    /// </summary>
+    [Fact(DisplayName = "Issue 92 absent player has no separate visit record (非真实网络)")]
+    public static void AbsentPlayerHasNoSeparateVisitRecord()
+    {
+        var run = ReadyMinimalLayout(seed: 9202, budget: 15, players: [1UL, 2UL, 3UL]);
+        run.Disconnect(2UL);
+        var attempt = run.BeginEnter(run.AvailableDestinations.First());
+        Assert.NotNull(attempt);
+        Assert.True(run.ConfirmEnter(attempt.Id).Success);
+        Assert.True(run.CompleteRoom(attempt.Id).Success);
+        var sharedVisited = run.Visited.OrderBy(id => id).ToArray();
+        var sharedCompleted = run.Completed.OrderBy(id => id).ToArray();
+
+        var save = run.CreateSave();
+        var restored = JigsawRun.Restore(save, [1UL, 3UL]);
+
+        Assert.Equal(sharedVisited, restored.Visited.OrderBy(id => id).ToArray());
+        Assert.Equal(sharedCompleted, restored.Completed.OrderBy(id => id).ToArray());
+        Assert.Equal(run.Steps, restored.Steps);
+        Assert.Equal(new ulong[] { 1UL, 3UL }, restored.ActivePlayers.OrderBy(id => id).ToArray());
+        Assert.DoesNotContain(2UL, restored.ActivePlayers);
+
+        // The save and the recovery snapshot each hold one shared set, never a per-player map.
+        Assert.Equal(sharedVisited, save.Visited.OrderBy(id => id).ToArray());
+        var snapshot = ExplorationRecoveryTests.CreateExplorationSnapshotFromSave(save);
+        Assert.Equal(sharedVisited, snapshot.VisitedNodes.OrderBy(id => id).ToArray());
+        Assert.Equal(sharedCompleted, snapshot.CompletedNodes.OrderBy(id => id).ToArray());
     }
 }
