@@ -4,7 +4,7 @@
 
 涉及卡牌、能力、牌池、展示或事件流程时，先从 `docs/game-mechanics.md` 定位目标分支源码；API 查询、测试和日志命令见 `docs/development.md`。开始工单或准备 PR 时运行 `tools/ReviewScope.ps1`；审查时读取 `docs/agents/review.md`。
 
-**并行实施**多张工单前，读取 `docs/development.md` 的「并行实施与 worktree」。
+**并行实施**多张工单前，读取 `docs/development.md` 的「并行实施与 worktree」。创建 worktree 后，首次提交前立即运行 `git ls-files .local/ .scratch/ docs/local/ docs/references/` 和 `git status --short`，确认忽略目录未被跟踪；如有输出，使用 `git rm --cached -r -- <path>` 移除索引但保留本地文件。
 
 **编写任何 Harmony patch** 前，必须先在 `.local/api/queries/` 查到目标类型的反编译文件，确认目标方法名和参数列表确实存在；不得凭猜测使用 API 成员。详见 `CODING_STANDARDS.md`。
 

@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Block commits that stage files from machine-local or scratch directories.
+# Install this hook through the repository's hook manager or copy it to .git/hooks/pre-commit.
+set -euo pipefail
+
+blocked=()
+while IFS= read -r path; do
+    case "$path" in
+        .local|.local/*|.scratch|.scratch/*|docs/local|docs/local/*|docs/references|docs/references/*)
+            blocked+=("$path")
+            ;;
+    esac
+done < <(git diff --cached --name-only --diff-filter=ACMR)
+
+if ((${#blocked[@]} > 0)); then
+    printf '%s\n' 'ERROR: commit blocked because staged files are in ignored local directories:' >&2
+    printf '  %s\n' "${blocked[@]}" >&2
+    printf '%s\n' 'Remove them from the index without deleting local files:' >&2
+    printf '%s\n' '  git rm --cached -r -- <path>' >&2
+    exit 1
+fi
+
+exit 0

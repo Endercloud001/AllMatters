@@ -26,6 +26,25 @@
    git stash clear  # 需确认意图，无法恢复
    ```
 
+## Worktree 初始化安全清单
+
+创建 worktree 后，首次提交前立即执行以下检查：
+
+```powershell
+git ls-files .local/ .scratch/ docs/local/ docs/references/
+# 预期输出为空；如有输出，说明忽略目录已被跟踪
+git status --short
+# 预期不包含上述目录
+```
+
+如发现已跟踪路径，先从索引移除但保留本地文件：
+
+```powershell
+git rm --cached -r -- <path>
+```
+
+随后重新运行上述两项检查，确认干净后再继续开发。提交时，`tools/hooks/pre-commit` 会阻止这些目录进入暂存区。
+
 ## Worktree 清理安全规范（强制执行）
 
 **清理任何 worktree 前，必须严格按「检查 → 备份 → 报告 → 用户确认 → 执行」顺序操作，不得跳过或颠倒。**
