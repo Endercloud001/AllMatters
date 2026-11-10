@@ -173,7 +173,7 @@ public sealed class SaveStateRecoveryStrategy : IRecoveryStrategy
             // Simulate remote endpoint call with timeout
             using var cts = new System.Threading.CancellationTokenSource(DefaultTimeoutMs);
 
-            // Simulate fetching save state from real multiplayer endpoint
+            // Placeholder: no endpoint exists yet
             var result = await FetchSaveStateFromEndpointAsync(context.SessionId, context.ConnectedPlayers, cts.Token);
 
             if (!result)
@@ -206,8 +206,8 @@ public sealed class SaveStateRecoveryStrategy : IRecoveryStrategy
     }
 
     /// <summary>
-    /// Fetch save state from real multiplayer endpoint (simulated in tests).
-    /// In production, this would call the actual network endpoint.
+    /// Placeholder for a future save-state endpoint call. Not wired to any network or save data.
+    /// Returns true whenever at least one player is connected.
     /// </summary>
     private async Task<bool> FetchSaveStateFromEndpointAsync(
         ulong sessionId,

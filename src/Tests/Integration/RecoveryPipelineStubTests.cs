@@ -8,17 +8,17 @@ using Xunit;
 namespace AllMatters.Tests.Integration;
 
 /// <summary>
-/// End-to-end integration tests for multiplayer recovery pipeline.
-/// Tests the complete recovery flow from connection through state restoration.
+/// Phase-transition tests for MultiplayerRecoveryOrchestrator wired to the placeholder strategies.
+/// Not end-to-end: no endpoints, no checkpoint (checkpointData is null) and no game state are involved.
 /// </summary>
-public sealed class MultiplayerRecoveryE2ETests
+public sealed class RecoveryPipelineStubTests
 {
     /// <summary>
-    /// Test single-player reconnection scenario.
-    /// Player disconnects and reconnects; recovery should restore session state.
+    /// One connected player: every stub phase passes.
+    /// No session state is restored; only phase transitions are checked.
     /// </summary>
-    [Fact(DisplayName = "Single player reconnection should complete recovery pipeline")]
-    public async Task SinglePlayerReconnection_Should_RestoreSessionState()
+    [Fact(DisplayName = "Pipeline reaches Completed with one connected player (stub strategies)")]
+    public async Task OneConnectedPlayer_ReachesCompleted()
     {
         // Arrange: Set up a multiplayer session with one player
         const ulong playerId = 1001UL;
@@ -45,11 +45,11 @@ public sealed class MultiplayerRecoveryE2ETests
     }
 
     /// <summary>
-    /// Test multi-player simultaneous disconnection and reconnection.
-    /// Multiple players disconnect; recovery should sync all upon reconnection.
+    /// Full roster connected: every stub phase passes.
+    /// No endpoints are synced; counts are the values the stub copied from its inputs.
     /// </summary>
-    [Fact(DisplayName = "Multi-player simultaneous reconnection should sync all players")]
-    public async Task MultiPlayerSimultaneousDisconnection_Should_SyncAllPlayers()
+    [Fact(DisplayName = "Pipeline reaches Completed with full roster connected (stub strategies)")]
+    public async Task FullRosterConnected_ReachesCompleted()
     {
         // Arrange: Set up session with 3 players
         const ulong sessionId = 200UL;
@@ -78,11 +78,11 @@ public sealed class MultiplayerRecoveryE2ETests
     }
 
     /// <summary>
-    /// Test network partition recovery with partial reconnection.
-    /// Multiple players disconnect; only some reconnect within timeout window.
+    /// Partial roster connected: every stub phase passes.
+    /// No network partition or timeout is simulated.
     /// </summary>
-    [Fact(DisplayName = "Partial player reconnection should complete with degraded roster")]
-    public async Task NetworkPartition_Should_HandlePartialReconnection()
+    [Fact(DisplayName = "Pipeline reaches Completed with partial roster connected (stub strategies)")]
+    public async Task PartialRosterConnected_ReachesCompleted()
     {
         // Arrange: Set up session with 3 players, only 2 reconnect
         const ulong sessionId = 300UL;

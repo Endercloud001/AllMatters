@@ -78,9 +78,9 @@ Supports partial recovery when not all players reconnect:
 
 ### Testing
 
-See `src/Tests/Integration/MultiplayerRecoveryE2ETests.cs` for test scenarios:
-1. Single-player reconnection
-2. Multi-player simultaneous disconnection
-3. Network partition with partial reconnection
+See `src/Tests/Integration/RecoveryPipelineStubTests.cs` for test scenarios:
+1. One connected player reaches Completed (stub strategies)
+2. Full roster connected reaches Completed (stub strategies)
+3. Partial roster connected reaches Completed (stub strategies)
 
 Test implementations pending completion of #92 and #93.

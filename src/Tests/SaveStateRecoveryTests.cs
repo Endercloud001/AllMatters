@@ -352,11 +352,11 @@ public static class SaveStateRecoveryTests
         Assert.Equal(3, restored.ActivePlayers.Count());
     }
 
-    [Fact(DisplayName = "30s timeout window: player remains recoverable within window")]
-    public static void TimeoutWindowValidation()
+    [Fact(DisplayName = "Disconnected player can reconnect immediately after restore")]
+    public static void ImmediateReconnectAfterRestore()
     {
-        // Arrange: Create a run with multiple players
-        var run = ReadyMinimalLayout(seed: 34567, budget: 15, players: [30UL, 31UL]);
+        // Covers immediate reconnection only. The 30s timeout window is not exercised here.
+        var run = ReadyMinimalLayout(seed: 34567, budget: 15, doubleBoss: false, players: [30UL, 31UL]);
 
         // Simulate a player disconnect after some progress
         var attempt = run.BeginEnter(1);
@@ -371,17 +371,17 @@ public static class SaveStateRecoveryTests
         // Act - Restore with only player 30, then verify player 31 can reconnect
         var restored = JigsawRun.Restore(save, [30UL]);
 
-        // Assert: Player 31 should be recoverable within the timeout window
+        // Assert: Player 31 reconnects successfully
         var reconnectResult = restored.Reconnect(31UL);
-        Assert.True(reconnectResult.Success, "Player should reconnect within timeout window");
+        Assert.True(reconnectResult.Success, "Player should reconnect after restore");
         Assert.Contains(31UL, restored.ActivePlayers);
     }
 
-    [Fact(DisplayName = "Corrupted checkpoint fallback: graceful degradation on missing fields")]
-    public static void CorruptedCheckpointFallback()
+    [Fact(DisplayName = "Intact save round-trips steps, budget and roster")]
+    public static void IntactSaveRoundTrip()
     {
-        // Arrange: Create a save and verify recovery handles it even if fields are null
-        var run = ReadyMinimalLayout(seed: 45678, budget: 15, players: [40UL, 41UL]);
+        // Covers an intact save only. Corrupted or missing checkpoint fallback is not exercised here.
+        var run = ReadyMinimalLayout(seed: 45678, budget: 15, doubleBoss: false, players: [40UL, 41UL]);
 
         var attempt = run.BeginEnter(1);
         Assert.NotNull(attempt);
@@ -390,20 +390,20 @@ public static class SaveStateRecoveryTests
 
         var save = run.CreateSave();
 
-        // Act: Restore and verify it completes normally (checkpoint data is properly handled)
+        // Act: Restore the intact save
         var restored = JigsawRun.Restore(save, [40UL, 41UL]);
 
-        // Assert: Recovery should complete successfully despite potential data gaps
+        // Assert: Roster, steps and budget survive the round trip
         Assert.Equal(2, restored.ActivePlayers.Count());
         Assert.Equal(save.Steps, restored.Steps);
         Assert.Equal(save.Budget, restored.Budget);
     }
 
-    [Fact(DisplayName = "Inventory isolation: player states remain independent")]
-    public static void InventoryStateIsolation()
+    [Fact(DisplayName = "Two-player save round-trips active roster and step budget")]
+    public static void TwoPlayerRosterRoundTrip()
     {
-        // Arrange: Create a multi-player run
-        var run = ReadyMinimalLayout(seed: 56789, budget: 15, players: [50UL, 51UL]);
+        // Covers roster and step counters only. Per-player inventory (relics, cards, potions) is not exercised here.
+        var run = ReadyMinimalLayout(seed: 56789, budget: 15, doubleBoss: false, players: [50UL, 51UL]);
 
         var attempt = run.BeginEnter(1);
         Assert.NotNull(attempt);
@@ -413,17 +413,10 @@ public static class SaveStateRecoveryTests
         var save = run.CreateSave();
         var restored = JigsawRun.Restore(save, [50UL, 51UL]);
 
-        // Act: Verify both players can be tracked independently through save/restore
-        var stepsRestored = restored.Steps;
-        var budgetRestored = restored.Budget;
-
-        // Player states should be isolated (each has their own resources)
-        var activePlayers = restored.ActivePlayers.Count();
-
-        // Assert: All players tracked and steps preserved
-        Assert.Equal(2, activePlayers);
-        Assert.Equal(save.Steps, stepsRestored);
-        Assert.Equal(save.Budget, budgetRestored);
+        // Assert: Both players remain active and steps/budget are preserved
+        Assert.Equal(2, restored.ActivePlayers.Count());
+        Assert.Equal(save.Steps, restored.Steps);
+        Assert.Equal(save.Budget, restored.Budget);
     }
 
     [Fact(DisplayName = "Multiple player partial reconnection: some players reconnect, others stay disconnected")]

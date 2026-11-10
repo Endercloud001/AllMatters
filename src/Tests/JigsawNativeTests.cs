@@ -134,6 +134,36 @@ internal static class JigsawNativeTests
         }
     }
 
+    private static async Task LobbyRecoveryConcurrentInitialize()
+    {
+        var participants = Enumerable.Range(1, 3).Select(id => MegaCrit.Sts2.Core.Entities.Players.Player.CreateForNewRun(
+            ModelDb.Character<MegaCrit.Sts2.Core.Models.Characters.Ironclad>(),
+            MegaCrit.Sts2.Core.Unlocks.UnlockState.all, (ulong)id)).ToArray();
+        var native = RunState.CreateForTest(participants, acts: [ModelDb.Act<Overgrowth>()], seed: "LOBBY_RECOVERY_CONCURRENT_INIT");
+        RunManager.Instance.SetUpTest(native, new NetSingleplayerGameService());
+        try
+        {
+            JigsawCheckpoint.Capture(native, JigsawRun.Create(92, players: [1UL, 2UL, 3UL]));
+            var recovery = LobbyRecovery.GetOrCreate(native)!;
+            using var start = new ManualResetEventSlim(false);
+            var inits = Enumerable.Range(0, 16).Select(_ => Task.Run(() =>
+            {
+                start.Wait();
+                return recovery.InitializeFromCheckpoint();
+            })).ToArray();
+            start.Set();
+            var results = await Task.WhenAll(inits);
+
+            Require(results.Count(ok => ok) == 1, "Concurrent checkpoint loads initialize the lobby roster exactly once.");
+            var state = recovery.GetLobbyState();
+            Require(state.OriginalPlayerCount == 3, "Concurrent checkpoint loads do not duplicate or drop roster entries.");
+        }
+        finally
+        {
+            RunManager.Instance.CleanUp(false);
+        }
+    }
+
     private static async Task CanonicalLobby(bool twoPlayers=false,bool invalidRoster=false)
     {
         var participants=Enumerable.Range(1,twoPlayers?2:1).Select(id=>MegaCrit.Sts2.Core.Entities.Players.Player.CreateForNewRun(ModelDb.Character<MegaCrit.Sts2.Core.Models.Characters.Ironclad>(),MegaCrit.Sts2.Core.Unlocks.UnlockState.all,(ulong)id)).ToArray();
@@ -232,6 +262,7 @@ internal static class JigsawNativeTests
     public static readonly (string Name, Func<Task> Test)[] Cases =
     [ ("Jigsaw native stale endpoint queue resynchronizes", StaleEndpointQueue), (JigsawNetworkTests.Name, JigsawNetworkTests.Run), (JigsawActivationTests.Name, JigsawActivationTests.Run), ("Jigsaw native routed editor uses native ordered action", RoutedEditorQueue),
       ("Jigsaw native lobby recovery rejects unknown and duplicate concurrent joins", LobbyRecoveryDeterminism),
+      ("Jigsaw native lobby recovery initializes its roster once under concurrent checkpoint loads", LobbyRecoveryConcurrentInitialize),
       ("Jigsaw native known lobby document rejects lost identity and incomplete data", ()=>MissingModeData("Budget",identityLost:true)),
       ("Jigsaw native lobby canonicalization and response preserve checkpoint", ()=>CanonicalLobby()),
       ("Jigsaw native lobby rejects a substituted saved player", ()=>CanonicalLobby(true,true)),
