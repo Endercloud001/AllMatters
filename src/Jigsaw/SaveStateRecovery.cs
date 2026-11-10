@@ -4,82 +4,187 @@ using MegaCrit.Sts2.Core.Runs;
 
 namespace AllMatters.Jigsaw;
 
+/// <summary>Why a recovery query or initialization did not succeed.</summary>
+public enum RecoveryFailure
+{
+    None,
+    /// <summary>Initialization has not run, or ran and failed (see the reason).</summary>
+    NotInitialized,
+    /// <summary>Initialization was already completed; the existing snapshot is kept.</summary>
+    AlreadyInitialized,
+    /// <summary>The run carries no jigsaw checkpoint at all.</summary>
+    MissingCheckpoint,
+    /// <summary>A checkpoint exists but its map is null.</summary>
+    MissingMap,
+    /// <summary>The map is present but cannot be read or fails <c>JigsawSaveValidation</c>.</summary>
+    CorruptMap,
+    /// <summary>The player is not tracked, or is not part of the original roster.</summary>
+    UnknownPlayer,
+    /// <summary>The player disconnected longer than the reconnection window ago.</summary>
+    TimedOut,
+}
+
+/// <summary>Explicit success or failure for recovery queries; a failure never carries a fake empty value.</summary>
+public readonly record struct RecoveryResult<T>(RecoveryFailure Failure, string Reason, T? Value)
+{
+    public bool Success => Failure == RecoveryFailure.None;
+    public static RecoveryResult<T> Ok(T value) => new(RecoveryFailure.None, "", value);
+    public static RecoveryResult<T> Fail(RecoveryFailure failure, string reason) => new(failure, reason, default);
+}
+
 /// <summary>
 /// Handles multiplayer game state recovery for save files.
-/// Tracks player inventory (cards, relics, potions), progress (Act, Floor, defeated bosses),
-/// and resources (gold, health) across disconnects/reconnects.
+/// Tracks the checkpoint-derived progress (Act, Budget, Steps, Phase, roster) and per-player
+/// resources and inventory across disconnects/reconnects.
+/// The native card/relic/potion inventory lives on the native Player and is verified in the
+/// batch 3 in-game acceptance; this class covers what the checkpoint and its callers can express.
 /// </summary>
 public sealed class SaveStateRecovery
 {
-    private static readonly ConditionalWeakTable<RunState, SaveStateRecovery> recoveries = new();
+    /// <summary>Reconnection window: a disconnected player stays recoverable for this long.</summary>
+    public const long PlayerTimeoutMs = 30000;
+
+    // Kept in a nested type so that loading SaveStateRecovery does not load RunState
+    // (the xUnit project exercises this class through the internal checkpoint-reader seam).
+    private static class Registry
+    {
+        public static readonly ConditionalWeakTable<RunState, SaveStateRecovery> Recoveries = new();
+    }
 
     /// <summary>Get or create save state recovery for a native run session.</summary>
-    public static SaveStateRecovery? GetOrCreate(RunState native)
+    /// <param name="clock">Time source used when the instance is created; defaults to <see cref="DateTimeOffset.UtcNow"/>.</param>
+    public static SaveStateRecovery? GetOrCreate(RunState native, Func<DateTimeOffset>? clock = null)
     {
-        if (!recoveries.TryGetValue(native, out var recovery))
+        if (!Registry.Recoveries.TryGetValue(native, out var recovery))
         {
-            recovery = new SaveStateRecovery(native);
-            recoveries.Add(native, recovery);
+            recovery = new SaveStateRecovery(NativeReader(native), clock);
+            Registry.Recoveries.Add(native, recovery);
         }
         return recovery;
     }
 
-    private readonly RunState nativeRun;
+    private static CheckpointReader NativeReader(RunState native) => (out JigsawCheckpointData? data) =>
+    {
+        bool found = JigsawCheckpoint.Slot.TryGet(native, out var value);
+        data = value;
+        return found;
+    };
+
+    /// <summary>Reads the jigsaw checkpoint of a run; returns false when there is none.</summary>
+    internal delegate bool CheckpointReader(out JigsawCheckpointData? data);
+
+    /// <summary>Test seam: build a recovery over an arbitrary checkpoint source and clock.</summary>
+    internal static SaveStateRecovery CreateForTest(CheckpointReader reader, Func<DateTimeOffset>? clock = null) =>
+        new(reader, clock);
+
+    private readonly CheckpointReader readCheckpoint;
+    private readonly Func<DateTimeOffset> clock;
     private SaveStateSnapshot? snapshot;
+    private RecoveryResult<SaveStateSnapshot> lastInitialization =
+        RecoveryResult<SaveStateSnapshot>.Fail(RecoveryFailure.NotInitialized, "Initialization has not been attempted.");
     private readonly Dictionary<ulong, PlayerStateSnapshot> playerStates = [];
     private readonly Dictionary<ulong, long> playerLastUpdateTime = [];
-    private const long PLAYER_TIMEOUT_MS = 30000; // 30 seconds reconnection timeout
 
     /// <summary>Whether save state recovery has been initialized from checkpoint.</summary>
     public bool IsInitialized => snapshot != null;
 
-    private SaveStateRecovery(RunState native)
+    /// <summary>Outcome of the most recent initialization attempt.</summary>
+    public RecoveryResult<SaveStateSnapshot> LastInitialization => lastInitialization;
+
+    private SaveStateRecovery(CheckpointReader reader, Func<DateTimeOffset>? clock)
     {
-        nativeRun = native;
+        readCheckpoint = reader;
+        this.clock = clock ?? (() => DateTimeOffset.UtcNow);
     }
 
+    private long NowMs() => clock().ToUnixTimeMilliseconds();
+
     /// <summary>Initialize save state from checkpoint.</summary>
-    /// <returns>True if recovery initialization succeeded.</returns>
-    public bool InitializeFromCheckpoint()
+    /// <returns>True if recovery initialization succeeded. Use <see cref="TryInitialize"/> for the failure reason.</returns>
+    public bool InitializeFromCheckpoint() => TryInitialize().Success;
+
+    /// <summary>
+    /// Initialize from the checkpoint and report why it failed.
+    /// Missing checkpoint, missing map and invalid map each fail without writing any recovered state.
+    /// </summary>
+    public RecoveryResult<SaveStateSnapshot> TryInitialize()
     {
         if (snapshot != null)
-            return false;
+            return RecoveryResult<SaveStateSnapshot>.Fail(RecoveryFailure.AlreadyInitialized, "Save state recovery is already initialized.");
 
-        // Extract jigsaw checkpoint containing save state
-        if (JigsawCheckpoint.Slot.TryGet(nativeRun, out var checkpointData) &&
-            checkpointData?.Map is { } mapSave)
+        var result = Load();
+        lastInitialization = result;
+        return result;
+    }
+
+    private RecoveryResult<SaveStateSnapshot> Load()
+    {
+        JigsawCheckpointData? checkpointData;
+        try
         {
-            snapshot = new SaveStateSnapshot
+            if (!readCheckpoint(out checkpointData))
+            {
+                Console.WriteLine("[SaveStateRecovery] No checkpoint found");
+                return RecoveryResult<SaveStateSnapshot>.Fail(RecoveryFailure.MissingCheckpoint, "The run has no jigsaw checkpoint.");
+            }
+        }
+        catch (Exception error)
+        {
+            Console.WriteLine($"[SaveStateRecovery] Checkpoint unreadable: {error.Message}");
+            return RecoveryResult<SaveStateSnapshot>.Fail(RecoveryFailure.CorruptMap, "The checkpoint could not be read: " + error.Message);
+        }
+
+        if (checkpointData?.Map is not { } mapSave)
+        {
+            Console.WriteLine("[SaveStateRecovery] Checkpoint found but no save state");
+            return RecoveryResult<SaveStateSnapshot>.Fail(RecoveryFailure.MissingMap, "The checkpoint has no map.");
+        }
+
+        SaveStateSnapshot loaded;
+        ulong[] players;
+        try
+        {
+            // Restore runs JigsawSaveValidation plus the geometry and automatic-witness checks.
+            JigsawRun.Restore(mapSave);
+            players = [.. (mapSave.Players ?? []).Distinct()];
+            loaded = new SaveStateSnapshot
             {
                 Act = checkpointData.Act,
                 Budget = mapSave.Budget,
                 Steps = mapSave.Steps,
-                OriginalPlayers = [.. mapSave.OriginalPlayers ?? []],
+                OriginalPlayers = [.. mapSave.OriginalPlayers ?? mapSave.Players ?? []],
                 Phase = mapSave.Phase
             };
-
-            // Initialize player states from native run
-            foreach (var playerId in mapSave.Players ?? [])
-            {
-                playerStates[playerId] = new PlayerStateSnapshot
-                {
-                    PlayerId = playerId,
-                    IsConnected = true,
-                    LastHeartbeat = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-                };
-                playerLastUpdateTime[playerId] = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-            }
-
-            Console.WriteLine($"[SaveStateRecovery] Initialized: " +
-                $"Act={snapshot.Act}, " +
-                $"Budget={snapshot.Budget}, " +
-                $"Steps={snapshot.Steps}, " +
-                $"Players={snapshot.OriginalPlayers.Length}");
-            return true;
+        }
+        catch (Exception error)
+        {
+            Console.WriteLine($"[SaveStateRecovery] Checkpoint map rejected: {error.Message}");
+            return RecoveryResult<SaveStateSnapshot>.Fail(RecoveryFailure.CorruptMap, "The checkpoint map is invalid: " + error.Message);
         }
 
-        Console.WriteLine("[SaveStateRecovery] Checkpoint found but no save state");
-        return false;
+        // Commit only after everything above succeeded.
+        long now = NowMs();
+        snapshot = loaded;
+        playerStates.Clear();
+        playerLastUpdateTime.Clear();
+        foreach (var playerId in players)
+        {
+            // Resource and inventory fields stay unknown (null): the checkpoint does not carry them.
+            playerStates[playerId] = new PlayerStateSnapshot
+            {
+                PlayerId = playerId,
+                IsConnected = true,
+                LastHeartbeat = now
+            };
+            playerLastUpdateTime[playerId] = now;
+        }
+
+        Console.WriteLine($"[SaveStateRecovery] Initialized: " +
+            $"Act={loaded.Act}, " +
+            $"Budget={loaded.Budget}, " +
+            $"Steps={loaded.Steps}, " +
+            $"Players={loaded.OriginalPlayers.Length}");
+        return RecoveryResult<SaveStateSnapshot>.Ok(loaded);
     }
 
     /// <summary>Record player connection event and update heartbeat.</summary>
@@ -88,7 +193,7 @@ public sealed class SaveStateRecovery
         if (snapshot == null)
             return;
 
-        var now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        var now = NowMs();
         if (!playerStates.TryGetValue(playerId, out var state))
         {
             // New connection - validate against original roster
@@ -116,22 +221,30 @@ public sealed class SaveStateRecovery
         if (playerStates.TryGetValue(playerId, out var state))
         {
             state.IsConnected = false;
-            state.DisconnectedTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            state.DisconnectedTime = NowMs();
             Console.WriteLine($"[SaveStateRecovery] Player disconnected: NetId={playerId}");
         }
     }
 
-    /// <summary>Update player game state (inventory, resources, progress).</summary>
+    /// <summary>
+    /// Update player game state (inventory, resources). A null argument means "not provided":
+    /// the previously known value is kept, and a field never provided stays unknown.
+    /// </summary>
     /// <param name="playerId">The network ID of the player.</param>
     /// <param name="gold">Current gold amount.</param>
     /// <param name="health">Current health.</param>
     /// <param name="maxHealth">Maximum health.</param>
     /// <param name="cardsCount">Number of cards in deck.</param>
     /// <param name="relicsCount">Number of relics owned.</param>
-    public void UpdatePlayerState(ulong playerId, int gold, int health, int maxHealth, int cardsCount, int relicsCount)
+    /// <param name="relicIds">Relic model ids owned (the list, not just the count).</param>
+    /// <param name="cardIds">Card model ids in the deck (the list, not just the count).</param>
+    /// <returns>False when recovery is uninitialized or the player is not in the original roster.</returns>
+    public bool UpdatePlayerState(ulong playerId, int? gold = null, int? health = null, int? maxHealth = null,
+        int? cardsCount = null, int? relicsCount = null,
+        IReadOnlyList<string>? relicIds = null, IReadOnlyList<string>? cardIds = null)
     {
-        if (snapshot == null)
-            return;
+        if (snapshot == null || !snapshot.OriginalPlayers.Contains(playerId))
+            return false;
 
         if (!playerStates.TryGetValue(playerId, out var state))
         {
@@ -139,17 +252,33 @@ public sealed class SaveStateRecovery
             playerStates[playerId] = state;
         }
 
-        state.Gold = gold;
-        state.Health = health;
-        state.MaxHealth = maxHealth;
-        state.CardsCount = cardsCount;
-        state.RelicsCount = relicsCount;
-        state.LastHeartbeat = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        state.Gold = gold ?? state.Gold;
+        state.Health = health ?? state.Health;
+        state.MaxHealth = maxHealth ?? state.MaxHealth;
+        state.CardsCount = cardsCount ?? state.CardsCount;
+        state.RelicsCount = relicsCount ?? state.RelicsCount;
+        if (relicIds != null)
+            state.RelicIds = [.. relicIds];
+        if (cardIds != null)
+            state.CardIds = [.. cardIds];
+        state.LastHeartbeat = NowMs();
         playerLastUpdateTime[playerId] = state.LastHeartbeat.Value;
+        return true;
     }
 
-    /// <summary>Get current save state snapshot.</summary>
+    /// <summary>Get current save state snapshot; null when recovery is not initialized.</summary>
     public SaveStateSnapshot? GetSnapshot() => snapshot;
+
+    /// <summary>Get the snapshot, or an explicit failure saying why there is none.</summary>
+    public RecoveryResult<SaveStateSnapshot> QuerySnapshot()
+    {
+        if (snapshot != null)
+            return RecoveryResult<SaveStateSnapshot>.Ok(snapshot);
+        var failure = lastInitialization.Failure is RecoveryFailure.None or RecoveryFailure.AlreadyInitialized
+            ? RecoveryFailure.NotInitialized
+            : lastInitialization.Failure;
+        return RecoveryResult<SaveStateSnapshot>.Fail(failure, lastInitialization.Reason);
+    }
 
     /// <summary>Get player state if connected or within timeout window.</summary>
     public PlayerStateSnapshot? GetPlayerState(ulong playerId)
@@ -158,18 +287,29 @@ public sealed class SaveStateRecovery
             return null;
 
         // If player is disconnected and beyond timeout, return null
-        if (!state.IsConnected && state.DisconnectedTime.HasValue)
+        if (IsTimedOut(state))
         {
-            var now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-            if (now - state.DisconnectedTime.Value > PLAYER_TIMEOUT_MS)
-            {
-                Console.WriteLine($"[SaveStateRecovery] Player timeout exceeded: NetId={playerId}");
-                return null;
-            }
+            Console.WriteLine($"[SaveStateRecovery] Player timeout exceeded: NetId={playerId}");
+            return null;
         }
 
         return state;
     }
+
+    /// <summary>Get player state, or an explicit failure (not initialized, unknown player, timed out).</summary>
+    public RecoveryResult<PlayerStateSnapshot> QueryPlayerState(ulong playerId)
+    {
+        if (snapshot == null)
+            return RecoveryResult<PlayerStateSnapshot>.Fail(QuerySnapshot().Failure, lastInitialization.Reason);
+        if (!playerStates.TryGetValue(playerId, out var state))
+            return RecoveryResult<PlayerStateSnapshot>.Fail(RecoveryFailure.UnknownPlayer, $"Player {playerId} has no tracked state.");
+        if (IsTimedOut(state))
+            return RecoveryResult<PlayerStateSnapshot>.Fail(RecoveryFailure.TimedOut, $"Player {playerId} exceeded the {PlayerTimeoutMs} ms reconnection window.");
+        return RecoveryResult<PlayerStateSnapshot>.Ok(state);
+    }
+
+    private bool IsTimedOut(PlayerStateSnapshot state) =>
+        !state.IsConnected && state.DisconnectedTime.HasValue && NowMs() - state.DisconnectedTime.Value > PlayerTimeoutMs;
 
     /// <summary>Check if a player is within the timeout recovery window.</summary>
     public bool IsPlayerRecoverable(ulong playerId)
@@ -184,10 +324,7 @@ public sealed class SaveStateRecovery
 
         // Disconnected players are recoverable if within timeout
         if (state.DisconnectedTime.HasValue)
-        {
-            var now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-            return now - state.DisconnectedTime.Value <= PLAYER_TIMEOUT_MS;
-        }
+            return !IsTimedOut(state);
 
         return true;
     }
@@ -204,10 +341,30 @@ public sealed class SaveStateRecovery
         return playerStates.Keys.Where(IsPlayerRecoverable);
     }
 
-    /// <summary>Resolve state conflict when player reconnects with server state.</summary>
-    /// <returns>True if conflict resolved (server state takes precedence).</returns>
+    /// <summary>
+    /// Players that receive a reward granted now: connected and recoverable. Absent players
+    /// (not in the loaded roster, disconnected, or timed out) are excluded. Ordered as in the
+    /// checkpoint's original roster. This only decides recipients; granting is game logic.
+    /// </summary>
+    public RecoveryResult<IReadOnlyList<ulong>> GetRewardRecipients()
+    {
+        if (snapshot == null)
+            return RecoveryResult<IReadOnlyList<ulong>>.Fail(QuerySnapshot().Failure, lastInitialization.Reason);
+        IReadOnlyList<ulong> recipients = [.. snapshot.OriginalPlayers
+            .Where(id => playerStates.TryGetValue(id, out var s) && s.IsConnected && IsPlayerRecoverable(id))];
+        return RecoveryResult<IReadOnlyList<ulong>>.Ok(recipients);
+    }
+
+    /// <summary>
+    /// Resolve state conflict when player reconnects with server state: the server's resource and
+    /// inventory fields replace the local ones; the local connection tracking is kept.
+    /// </summary>
+    /// <returns>True if conflict resolved. False when uninitialized or the player is not in the original roster.</returns>
     public bool ResolveStateConflict(ulong playerId, PlayerStateSnapshot serverState)
     {
+        if (snapshot == null || !snapshot.OriginalPlayers.Contains(playerId))
+            return false;
+
         if (!playerStates.TryGetValue(playerId, out var localState))
         {
             playerStates[playerId] = serverState;
@@ -219,7 +376,20 @@ public sealed class SaveStateRecovery
             $"Local(Gold={localState.Gold}, Health={localState.Health}) -> " +
             $"Server(Gold={serverState.Gold}, Health={serverState.Health})");
 
-        playerStates[playerId] = serverState;
+        playerStates[playerId] = new PlayerStateSnapshot
+        {
+            PlayerId = playerId,
+            IsConnected = localState.IsConnected,
+            LastHeartbeat = localState.LastHeartbeat,
+            DisconnectedTime = localState.DisconnectedTime,
+            Gold = serverState.Gold,
+            Health = serverState.Health,
+            MaxHealth = serverState.MaxHealth,
+            CardsCount = serverState.CardsCount,
+            RelicsCount = serverState.RelicsCount,
+            RelicIds = serverState.RelicIds,
+            CardIds = serverState.CardIds,
+        };
         return true;
     }
 
@@ -233,7 +403,10 @@ public sealed class SaveStateRecovery
         public required ulong[] OriginalPlayers { get; init; }
     }
 
-    /// <summary>Snapshot of individual player state for recovery.</summary>
+    /// <summary>
+    /// Snapshot of individual player state for recovery. A null resource or list means unknown,
+    /// never zero or empty.
+    /// </summary>
     public sealed class PlayerStateSnapshot
     {
         public required ulong PlayerId { get; init; }
@@ -241,12 +414,51 @@ public sealed class SaveStateRecovery
         public long? LastHeartbeat { get; set; }
         public long? DisconnectedTime { get; set; }
 
-        // Inventory and resource state
-        public int Gold { get; set; }
-        public int Health { get; set; }
-        public int MaxHealth { get; set; }
-        public int CardsCount { get; set; }
-        public int RelicsCount { get; set; }
+        // Resource state; null = unknown.
+        public int? Gold { get; set; }
+        public int? Health { get; set; }
+        public int? MaxHealth { get; set; }
+        public int? CardsCount { get; set; }
+        public int? RelicsCount { get; set; }
+
+        // Inventory lists; null = unknown, not "empty".
+        public IReadOnlyList<string>? RelicIds { get; set; }
+        public IReadOnlyList<string>? CardIds { get; set; }
+
+        /// <summary>
+        /// True only when both lists are known and agree with the counts. An empty list counts as
+        /// complete only when its count is known to be zero; a list that disagrees with a known
+        /// count, or a count without a list, is incomplete.
+        /// </summary>
+        public bool InventoryComplete =>
+            ListComplete(RelicIds, RelicsCount) && ListComplete(CardIds, CardsCount);
+
+        private static bool ListComplete(IReadOnlyList<string>? ids, int? count) =>
+            ids != null && (ids.Count == 0 ? count == 0 : count == null || count == ids.Count);
+
+        /// <summary>Names of the resource and inventory fields that are still unknown.</summary>
+        public IReadOnlyList<string> UnknownFields
+        {
+            get
+            {
+                var unknown = new List<string>();
+                if (Gold == null)
+                    unknown.Add(nameof(Gold));
+                if (Health == null)
+                    unknown.Add(nameof(Health));
+                if (MaxHealth == null)
+                    unknown.Add(nameof(MaxHealth));
+                if (CardsCount == null)
+                    unknown.Add(nameof(CardsCount));
+                if (RelicsCount == null)
+                    unknown.Add(nameof(RelicsCount));
+                if (RelicIds == null)
+                    unknown.Add(nameof(RelicIds));
+                if (CardIds == null)
+                    unknown.Add(nameof(CardIds));
+                return unknown;
+            }
+        }
     }
 }
 
