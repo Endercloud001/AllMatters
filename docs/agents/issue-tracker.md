@@ -2,6 +2,35 @@
 
 仓库：`Endercloud001/AllMatters`。使用 `gh`，在其他工作目录操作时显式指定 `-R Endercloud001/AllMatters`。
 
+## 优先使用 gh CLI
+
+GitHub API 调用优先使用 `gh` CLI，比直接 HTTP API 调用更稳定且错误诊断更清晰：
+
+```powershell
+gh issue view <number> --json title,body,labels,state
+```
+
+## API 调用失败处理
+
+失败时**不要质疑 issue 内容质量**。改为诊断原因：
+
+1. **检查网络连接与权限**：
+   ```powershell
+   gh auth status       # 验证 GitHub 认证
+   gh api rate_limit    # 查看 API 速率限制状态
+   ```
+
+2. **验证 issue 编号与权限**：
+   - 编号是否正确
+   - 是否有权限访问该仓库/issue
+
+3. **自动重试**（指数退避）：
+   - 第 1 次失败：等待 1 秒后重试
+   - 第 2 次失败：等待 2 秒后重试
+   - 第 3 次失败：报告具体错误，不做推断
+
+**禁止**：在首次 API 调用失败后推断 issue 描述混乱或格式错误。必须先诊断 API 错误原因。
+
 - 读取：`gh issue view <number> --comments`。
 - 列出：`gh issue list --json number,title,labels`。
 - 发布任务：`gh issue create --title <title> --body-file <file>`。
