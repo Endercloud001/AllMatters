@@ -60,7 +60,7 @@ public static class ExplorationRecoveryTests
     public static void CreateSnapshotFromSave()
     {
         // Arrange
-        var run = ReadyMinimalLayout(seed: 12345, budget: 15, players: [1UL, 2UL]);
+        var run = ReadyMinimalLayout(seed: 12345, budget: 15, doubleBoss: false, players: [1UL, 2UL]);
 
         // Simulate exploration progress
         var attempt = run.BeginEnter(1);
@@ -90,7 +90,7 @@ public static class ExplorationRecoveryTests
     public static void RestorePreservesVisited()
     {
         // Arrange
-        var run = ReadyMinimalLayout(seed: 54321, budget: 15, players: [3UL]);
+        var run = ReadyMinimalLayout(seed: 54321, budget: 15, doubleBoss: false, players: [3UL]);
 
         // Visit and complete multiple rooms
         var nodeIds = new List<int>();
@@ -121,7 +121,7 @@ public static class ExplorationRecoveryTests
     public static void HandlePlayerReconnection()
     {
         // Arrange
-        var run = ReadyMinimalLayout(seed: 99999, budget: 15, players: [10UL, 20UL]);
+        var run = ReadyMinimalLayout(seed: 99999, budget: 15, doubleBoss: false, players: [10UL, 20UL]);
 
         // Progress in exploration
         var attempt = run.BeginEnter(1);
@@ -153,7 +153,7 @@ public static class ExplorationRecoveryTests
     public static void StepTrackingPersists()
     {
         // Arrange
-        var run = ReadyMinimalLayout(seed: 11111, budget: 10);
+        var run = ReadyMinimalLayout(seed: 11111, budget: 10, doubleBoss: false);
 
         // Make several room entries to increment steps
         for (int i = 0; i < 5; i++)
@@ -184,7 +184,7 @@ public static class ExplorationRecoveryTests
     public static void DetectHuntingPhase()
     {
         // Arrange: Create a save with steps exceeding budget
-        var run = ReadyMinimalLayout(seed: 22222, budget: 5);
+        var run = ReadyMinimalLayout(seed: 22222, budget: 5, doubleBoss: false);
 
         // Progress through multiple rooms to exceed budget
         for (int i = 0; i < 7; i++)
@@ -215,7 +215,7 @@ public static class ExplorationRecoveryTests
     public static void MultiPlayerStateIndependent()
     {
         // Arrange: Two-player exploration where they follow different paths
-        var run = ReadyMinimalLayout(seed: 33333, budget: 15, players: [100UL, 200UL]);
+        var run = ReadyMinimalLayout(seed: 33333, budget: 15, doubleBoss: false, players: [100UL, 200UL]);
 
         // Both enter first room and complete it (visited set will be updated)
         var firstDest = run.AvailableDestinations.First();

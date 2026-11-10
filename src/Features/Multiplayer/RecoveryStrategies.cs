@@ -13,8 +13,8 @@ public sealed class ConnectionRecoveryStrategy : IRecoveryStrategy
 
     public bool CanRecover(RecoveryContext context)
     {
-        return context.CurrentPhase == RecoveryPhase.Connection &&
-               context.ConnectedPlayers.Count > 0;
+        // Player count is checked in RecoverAsync so an empty roster yields a retryable failure.
+        return context.CurrentPhase == RecoveryPhase.Connection;
     }
 
     public async Task<RecoveryResult> RecoverAsync(RecoveryContext context)

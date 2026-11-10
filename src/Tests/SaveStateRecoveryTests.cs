@@ -59,7 +59,7 @@ public static class SaveStateRecoveryTests
     public static void InitializeFromCheckpoint()
     {
         // Arrange
-        var run = ReadyMinimalLayout(seed: 12345, budget: 15, players: [1UL, 2UL]);
+        var run = ReadyMinimalLayout(seed: 12345, budget: 15, doubleBoss: false, players: [1UL, 2UL]);
 
         // Progress through exploration
         var attempt = run.BeginEnter(1);
@@ -85,7 +85,7 @@ public static class SaveStateRecoveryTests
     public static void PlayerConnectionTracking()
     {
         // Arrange
-        var run = ReadyMinimalLayout(seed: 99999, budget: 15, players: [10UL, 20UL]);
+        var run = ReadyMinimalLayout(seed: 99999, budget: 15, doubleBoss: false, players: [10UL, 20UL]);
 
         var attempt = run.BeginEnter(1);
         Assert.NotNull(attempt);
@@ -110,7 +110,7 @@ public static class SaveStateRecoveryTests
     public static void ReconnectionWithinTimeout()
     {
         // Arrange
-        var run = ReadyMinimalLayout(seed: 88888, budget: 15, players: [5UL, 6UL]);
+        var run = ReadyMinimalLayout(seed: 88888, budget: 15, doubleBoss: false, players: [5UL, 6UL]);
 
         // Progress in exploration
         var attempt = run.BeginEnter(1);
@@ -138,7 +138,7 @@ public static class SaveStateRecoveryTests
     public static void TimeoutDetection()
     {
         // Arrange
-        var run = ReadyMinimalLayout(seed: 77777, budget: 15, players: [7UL, 8UL]);
+        var run = ReadyMinimalLayout(seed: 77777, budget: 15, doubleBoss: false, players: [7UL, 8UL]);
 
         // Player 8 disconnects
         run.Disconnect(8UL);
