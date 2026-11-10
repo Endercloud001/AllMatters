@@ -97,6 +97,43 @@ internal static class JigsawNativeTests
         }
         finally {RunManager.Instance.CleanUp(false);}
     }
+    private static async Task LobbyRecoveryDeterminism()
+    {
+        var participants = Enumerable.Range(1, 3).Select(id => MegaCrit.Sts2.Core.Entities.Players.Player.CreateForNewRun(
+            ModelDb.Character<MegaCrit.Sts2.Core.Models.Characters.Ironclad>(),
+            MegaCrit.Sts2.Core.Unlocks.UnlockState.all, (ulong)id)).ToArray();
+        var native = RunState.CreateForTest(participants, acts: [ModelDb.Act<Overgrowth>()], seed: "LOBBY_RECOVERY_DETERMINISM");
+        RunManager.Instance.SetUpTest(native, new NetSingleplayerGameService());
+        try
+        {
+            var map = JigsawRun.Create(91, players: [1UL, 2UL, 3UL]);
+            JigsawCheckpoint.Capture(native, map);
+            var recovery = LobbyRecovery.GetOrCreate(native)!;
+            Require(recovery.InitializeFromCheckpoint(), "Lobby recovery loads the checkpoint roster before accepting joins.");
+            Require(recovery.OnPlayerConnected(99UL) == LobbyRecovery.ConnectionResult.UnknownPlayer,
+                "Unknown joins are rejected with a deterministic result.");
+
+            var joins = Enumerable.Range(0, 12).Select(_ => Task.Run(() =>
+            {
+                foreach (ulong playerId in new ulong[] { 3, 1, 2, 1, 3, 2 })
+                    recovery.OnPlayerConnected(playerId);
+            })).ToArray();
+            await Task.WhenAll(joins);
+
+            var state = recovery.GetLobbyState();
+            Require(state.ConnectedPlayerIds.SequenceEqual(new ulong[] { 1, 2, 3 }),
+                "Concurrent joins produce one roster in original checkpoint order.");
+            Require(state.ConnectedPlayerCount == state.ConnectedPlayerIds.Length && state.IsOriginalRosterReady,
+                "A lobby snapshot keeps roster IDs, count and readiness consistent.");
+            Require(recovery.OnPlayerConnected(2UL) == LobbyRecovery.ConnectionResult.Duplicate,
+                "A repeated join is an idempotent duplicate rather than a second admission.");
+        }
+        finally
+        {
+            RunManager.Instance.CleanUp(false);
+        }
+    }
+
     private static async Task CanonicalLobby(bool twoPlayers=false,bool invalidRoster=false)
     {
         var participants=Enumerable.Range(1,twoPlayers?2:1).Select(id=>MegaCrit.Sts2.Core.Entities.Players.Player.CreateForNewRun(ModelDb.Character<MegaCrit.Sts2.Core.Models.Characters.Ironclad>(),MegaCrit.Sts2.Core.Unlocks.UnlockState.all,(ulong)id)).ToArray();
@@ -194,6 +231,7 @@ internal static class JigsawNativeTests
     private enum EntryFailureKind { None, BeforeReady, RestoredBeforeReady, AfterReady, RetryAfterReady, BeforeSave, Abandon, AbandonBeforeSave, AbandonRestored, AbandonWriteFailure, AfterCompletedAbandon }
     public static readonly (string Name, Func<Task> Test)[] Cases =
     [ ("Jigsaw native stale endpoint queue resynchronizes", StaleEndpointQueue), (JigsawNetworkTests.Name, JigsawNetworkTests.Run), (JigsawActivationTests.Name, JigsawActivationTests.Run), ("Jigsaw native routed editor uses native ordered action", RoutedEditorQueue),
+      ("Jigsaw native lobby recovery rejects unknown and duplicate concurrent joins", LobbyRecoveryDeterminism),
       ("Jigsaw native known lobby document rejects lost identity and incomplete data", ()=>MissingModeData("Budget",identityLost:true)),
       ("Jigsaw native lobby canonicalization and response preserve checkpoint", ()=>CanonicalLobby()),
       ("Jigsaw native lobby rejects a substituted saved player", ()=>CanonicalLobby(true,true)),

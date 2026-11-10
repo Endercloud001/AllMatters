@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Entities.Players;
@@ -11,6 +12,19 @@ namespace AllMatters.Jigsaw;
 /// <summary>Lobby recovery for multiplayer sessions. Handles reconnection and roster sync.</summary>
 public sealed class LobbyRecovery
 {
+    /// <summary>Outcome of a <see cref="OnPlayerConnected"/> call.</summary>
+    public enum ConnectionResult
+    {
+        /// <summary>Player was newly admitted to the connected set.</summary>
+        Admitted,
+        /// <summary>Player was already in the connected set; no change.</summary>
+        Duplicate,
+        /// <summary>Player is not in the original checkpoint roster; rejected.</summary>
+        UnknownPlayer,
+        /// <summary>Recovery has not been initialized from a checkpoint yet.</summary>
+        NotInitialized,
+    }
+
     private static readonly ConditionalWeakTable<RunState, LobbyRecovery> recoveries = new();
 
     /// <summary>Get or create lobby recovery for a native run session.</summary>
@@ -25,9 +39,11 @@ public sealed class LobbyRecovery
     }
 
     private readonly RunState nativeRun;
+    // Ordered list from checkpoint; never mutated after InitializeFromCheckpoint returns true.
     private readonly List<ulong> originalPlayers = [];
-    private readonly HashSet<ulong> connectedPlayerIds = [];
-    private bool recovered;
+    // Concurrent-safe connected set.
+    private readonly ConcurrentDictionary<ulong, bool> connectedSet = new();
+    private volatile bool recovered;
 
     /// <summary>Whether lobby recovery has been initialized.</summary>
     public bool IsRecovered => recovered;
@@ -48,7 +64,7 @@ public sealed class LobbyRecovery
         if (JigsawCheckpoint.Slot.TryGet(nativeRun, out var checkpointData) &&
             checkpointData?.Map is { } mapSave && mapSave.OriginalPlayers is { } originalPlayerList)
         {
-            // Store original players from checkpoint
+            // Store original players from checkpoint in checkpoint order.
             originalPlayers.Clear();
             originalPlayers.AddRange(originalPlayerList);
             Console.WriteLine($"[LobbyRecovery] Loaded checkpoint with {originalPlayers.Count} original players (Act {checkpointData.Act})");
@@ -60,20 +76,35 @@ public sealed class LobbyRecovery
         return false;
     }
 
-    /// <summary>Sync player connection state to lobby.</summary>
+    /// <summary>
+    /// Sync player connection state to lobby.
+    /// Thread-safe: may be called concurrently from multiple connection events.
+    /// </summary>
     /// <param name="playerId">The network ID of the connecting player.</param>
-    public void OnPlayerConnected(ulong playerId)
+    /// <returns>
+    /// <see cref="ConnectionResult.Admitted"/> on first join,
+    /// <see cref="ConnectionResult.Duplicate"/> when already connected,
+    /// <see cref="ConnectionResult.UnknownPlayer"/> when not in the original roster,
+    /// <see cref="ConnectionResult.NotInitialized"/> when called before checkpoint load.
+    /// </returns>
+    public ConnectionResult OnPlayerConnected(ulong playerId)
     {
         if (!recovered)
-            return;
+            return ConnectionResult.NotInitialized;
 
-        if (connectedPlayerIds.Add(playerId))
+        if (!originalPlayers.Contains(playerId))
+        {
+            Console.WriteLine($"[LobbyRecovery] Rejected unknown player: NetId={playerId}");
+            return ConnectionResult.UnknownPlayer;
+        }
+
+        bool added = connectedSet.TryAdd(playerId, true);
+        if (added)
         {
             Console.WriteLine($"[LobbyRecovery] Player connected: NetId={playerId}");
-
-            // TODO: Validate player matches original roster
-            // TODO: Broadcast updated lobby state to all connected players
+            return ConnectionResult.Admitted;
         }
+        return ConnectionResult.Duplicate;
     }
 
     /// <summary>Handle player disconnection during recovery.</summary>
@@ -82,30 +113,28 @@ public sealed class LobbyRecovery
         if (!recovered)
             return;
 
-        if (connectedPlayerIds.Remove(playerId))
+        if (connectedSet.TryRemove(playerId, out _))
         {
             Console.WriteLine($"[LobbyRecovery] Player disconnected: NetId={playerId}");
-
-            // TODO: Update lobby state to reflect disconnection
-            // TODO: Check if remaining players can continue (quorum logic)
         }
     }
 
-    /// <summary>Check if lobby is ready to proceed (all expected players reconnected).</summary>
+    /// <summary>Check if lobby is ready to proceed (all original players reconnected).</summary>
     public bool IsLobbyReady()
     {
         if (!recovered)
             return false;
 
-        // TODO: Implement quorum check
-        // - All original players reconnected? Or
-        // - Minimum player count reached?
-        return connectedPlayerIds.Count > 0;
+        return originalPlayers.Count > 0 &&
+            originalPlayers.All(id => connectedSet.ContainsKey(id));
     }
 
     /// <summary>Get current lobby state snapshot with save and exploration state.</summary>
     public LobbyState GetLobbyState()
     {
+        // Build connected IDs in original checkpoint order for deterministic snapshots.
+        var orderedConnected = originalPlayers.Where(id => connectedSet.ContainsKey(id)).ToArray();
+
         // Capture save state recovery info if available
         SaveStateRecovery.SaveStateSnapshot? saveState = null;
         if (SaveStateRecovery.GetOrCreate(nativeRun) is { } saveRecovery && saveRecovery.IsInitialized)
@@ -120,12 +149,11 @@ public sealed class LobbyRecovery
         return new LobbyState
         {
             OriginalPlayerCount = originalPlayers.Count,
-            ConnectedPlayerCount = connectedPlayerIds.Count,
+            ConnectedPlayerCount = orderedConnected.Length,
             IsRecovered = recovered,
-            ConnectedPlayerIds = [.. connectedPlayerIds],
+            ConnectedPlayerIds = orderedConnected,
             IsOriginalRosterReady = recovered && originalPlayers.Count > 0 &&
-                connectedPlayerIds.Count == originalPlayers.Count &&
-                originalPlayers.All(id => connectedPlayerIds.Contains(id)),
+                orderedConnected.Length == originalPlayers.Count,
             SaveState = saveState != null ? new SaveStateInfo
             {
                 Act = saveState.Act,
