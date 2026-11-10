@@ -1,3 +1,4 @@
+#Requires -Version 7
 param([ValidateSet('public', 'public-beta', 'All')][string]$Branch = 'All')
 $ErrorActionPreference = 'Stop'
 $repoDir = Split-Path -Parent $PSScriptRoot
@@ -38,6 +39,25 @@ try {
         Invoke-Check 'Git whitespace' {
             & git diff --check HEAD
             if ($LASTEXITCODE -ne 0) { throw "Git whitespace check failed (exit $LASTEXITCODE)." }
+        }
+        Invoke-Check 'Placeholder scan' {
+            $hits = @()
+            $srcRoot = Join-Path $repoDir 'src'
+            # Scans src/**/*.cs outside src/Tests/; a tree without src/ has nothing to scan.
+            if (Test-Path -LiteralPath $srcRoot) {
+                foreach ($file in Get-ChildItem -LiteralPath $srcRoot -Filter '*.cs' -File -Recurse) {
+                    $firstSegment = [IO.Path]::GetRelativePath($srcRoot, $file.FullName).Split([IO.Path]::DirectorySeparatorChar)[0]
+                    if ([string]::Equals($firstSegment, 'Tests', [StringComparison]::OrdinalIgnoreCase)) { continue }
+                    $lineNumber = 0
+                    foreach ($line in [IO.File]::ReadLines($file.FullName)) {
+                        $lineNumber++
+                        if ($line -match 'Placeholder|In a real implementation|TODO: Implement') {
+                            $hits += "$($file.FullName.Substring($repoDir.Length + 1)):${lineNumber}: $($line.Trim())"
+                        }
+                    }
+                }
+            }
+            if ($hits.Count) { throw ($hits -join [Environment]::NewLine) }
         }
         Invoke-Check 'Resources' { & (Join-Path $PSScriptRoot 'ExportResources.ps1') }
         $skipReason = if ($results[-1].Status -ne 'PASS') { 'Fresh resource export failed.' } else { '' }

@@ -28,3 +28,6 @@ try {
     }
 } finally { $reader.Dispose() }
 [pscustomobject]$summary
+# Smoke gate: a usable run shows a pass count and at most one unassociated-mod hint.
+if ($null -eq $summary.Passed -or $summary.ModMetadataErrors -gt 1) { exit 1 }
+exit 0

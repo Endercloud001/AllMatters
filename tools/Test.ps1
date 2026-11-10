@@ -1,3 +1,4 @@
+#Requires -Version 7
 param(
     [ValidateSet('public', 'public-beta', 'All')][string]$Branch = 'public-beta',
     [string]$GodotPath,
