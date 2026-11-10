@@ -12,7 +12,7 @@ public static class SaveStateRecoveryTests
     public static void InitializeFromCheckpoint()
     {
         // Arrange
-        var pool = JigsawPool.Create(12345);
+        var pool = JigsawPool.Create(12345, doubleBoss: false);
         var run = JigsawRun.Create(12345, budget: 15, players: [1UL, 2UL]);
 
         // Progress through exploration

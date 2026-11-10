@@ -12,7 +12,7 @@ public static class ExplorationRecoveryTests
     public static void CreateSnapshotFromSave()
     {
         // Arrange
-        var pool = JigsawPool.Create(12345);
+        var pool = JigsawPool.Create(12345, doubleBoss: false);
         var run = JigsawRun.Create(12345, budget: 15, players: [1UL, 2UL]);
 
         // Simulate exploration progress
@@ -42,7 +42,7 @@ public static class ExplorationRecoveryTests
     public static void RestorePreservesVisited()
     {
         // Arrange
-        var pool = JigsawPool.Create(54321);
+        var pool = JigsawPool.Create(54321, doubleBoss: false);
         var run = JigsawRun.Create(54321, budget: 15, players: [3UL]);
 
         // Visit and complete multiple rooms
@@ -136,7 +136,7 @@ public static class ExplorationRecoveryTests
     public static void DetectHuntingPhase()
     {
         // Arrange: Create a save with steps exceeding budget
-        var pool = JigsawPool.Create(22222);
+        var pool = JigsawPool.Create(22222, doubleBoss: false);
         var run = JigsawRun.Create(22222, budget: 5);
 
         // Progress through multiple rooms to exceed budget
