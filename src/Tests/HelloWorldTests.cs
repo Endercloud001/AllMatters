@@ -31,8 +31,7 @@ internal static class HelloWorldTests
         // Install host lifecycle substitutes before framework patches prepare game methods.
         new Harmony("AllMatters.TestHost").PatchAll(typeof(HelloWorldTests).Assembly);
         STS2RitsuLib.RitsuLibFramework.Initialize();
-        // Register the test initializer so that the mod is loaded and its types are registered by ModManager.
-        ModManager.TestInitializers[ModEntry.ModId] = ModEntry.Initialize;
+        ModEntry.Initialize();
         try
         {
             await ModManager.Initialize(null!, null, null);
