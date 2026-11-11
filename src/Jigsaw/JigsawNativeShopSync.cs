@@ -18,6 +18,7 @@ internal static class JigsawNativeShopSync
     private sealed class SequenceState
     {
         internal readonly Dictionary<ulong, long> Applied = [];
+        internal readonly Dictionary<ulong, long> NativePurchases = [];
         internal long Next;
         internal JigsawShopStockUpdate? Pending;
         internal bool Submitted;
@@ -42,12 +43,36 @@ internal static class JigsawNativeShopSync
 
     internal static void ThrowIfUnsettled(JigsawNativeSession session)
     {
-        if (!sequences.TryGetValue(session, out var state) || state.Pending is not { } pending)
+        if (!sequences.TryGetValue(session, out var state))
             return;
-        if (!state.Submitted)
-            state.Submitted = Request(pending);
-        if (state.Pending != null)
-            throw new InvalidOperationException("The completed native shop purchase has not reached the ordered action on this endpoint; save must be retried.");
+        if (state.Pending is { } pending)
+        {
+            if (!state.Submitted)
+                state.Submitted = Request(pending);
+            if (state.Pending != null)
+                throw new InvalidOperationException("The completed native shop purchase has not reached the ordered action on this endpoint; save must be retried.");
+        }
+        if (state.NativePurchases.Any(purchase => purchase.Value > state.Applied.GetValueOrDefault(purchase.Key)))
+            throw new InvalidOperationException("A remote native shop purchase has not reached its complete stock update; save must be retried.");
+    }
+
+    internal static void NativePurchaseStarted(ulong owner)
+    {
+        var session = JigsawNativeSession.Current;
+        if (session?.Map is not { CurrentNode: not null } map || session.Native.CurrentRoom is not MerchantRoom ||
+            owner == RunManager.Instance.NetService.NetId || !map.ActivePlayers.Contains(owner))
+            return;
+        var state = sequences.GetValue(session, _ => new());
+        state.NativePurchases[owner] = state.NativePurchases.GetValueOrDefault(owner) + 1;
+    }
+
+    internal static void NativePurchaseCancelled(ulong owner)
+    {
+        var session = JigsawNativeSession.Current;
+        if (session == null || !sequences.TryGetValue(session, out var state))
+            return;
+        if (state.NativePurchases.TryGetValue(owner, out long count) && count > 0)
+            state.NativePurchases[owner] = count - 1;
     }
 
     internal static void Purchased(MerchantEntry entry)
@@ -99,6 +124,36 @@ internal static class JigsawNativeShopSync
             state.Pending = null;
             state.Submitted = false;
         }
+    }
+}
+
+[HarmonyPatch(typeof(MegaCrit.Sts2.Core.Multiplayer.Game.RewardSynchronizer), "HandleGoldLostMessage")]
+internal static class JigsawNativeShopGoldReceived
+{
+    private static void Prefix(ulong senderId) => JigsawNativeShopSync.NativePurchaseStarted(senderId);
+}
+
+[HarmonyPatch(typeof(MegaCrit.Sts2.Core.Multiplayer.Game.OneOffSynchronizer), "HandleMerchantCardRemoval")]
+internal static class JigsawNativeShopRemovalReceived
+{
+    private static void Prefix(ulong senderId) => JigsawNativeShopSync.NativePurchaseStarted(senderId);
+}
+
+[HarmonyPatch(typeof(MegaCrit.Sts2.Core.Multiplayer.Game.OneOffSynchronizer), "DoMerchantCardRemoval")]
+internal static class JigsawNativeShopRemovalSettled
+{
+    private static void Postfix(Player player, ref Task<bool> __result)
+    {
+        if (player.NetId != RunManager.Instance.NetService.NetId)
+            __result = Track(__result, player.NetId);
+    }
+
+    private static async Task<bool> Track(Task<bool> purchase, ulong owner)
+    {
+        bool completed = await purchase;
+        if (!completed)
+            JigsawNativeShopSync.NativePurchaseCancelled(owner);
+        return completed;
     }
 }
 
