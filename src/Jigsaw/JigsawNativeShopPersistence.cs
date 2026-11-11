@@ -79,6 +79,20 @@ internal static class JigsawNativeShopPersistence
         var stock = saved.NativeStock ?? throw new InvalidDataException("商店检查点缺少完整原生库存，不能重新抽取。");
         if (stock.CharacterCards == null || stock.ColorlessCards == null || stock.Relics == null || stock.Potions == null)
             throw new InvalidDataException("商店检查点的库存列表不完整。");
+        var addedCards = new List<CardModel>();
+        try
+        { return RestoreCore(player, stock, addedCards); }
+        catch
+        {
+            foreach (var card in addedCards)
+                if (!player.Deck.Cards.Contains(card) && player.RunState.ContainsCard(card))
+                    player.RunState.RemoveCard(card);
+            throw;
+        }
+    }
+
+    private static MerchantInventory RestoreCore(Player player, JigsawNativeShopStock stock, List<CardModel> addedCards)
+    {
         var inventory = new MerchantInventory(player);
         MerchantCardEntry Card(JigsawNativeShopCard value, int index)
         {
@@ -93,12 +107,14 @@ internal static class JigsawNativeShopPersistence
                 ValidateCard(original);
                 var card = CardModel.FromSerializable(original);
                 player.RunState.AddCard(card, player);
+                addedCards.Add(card);
                 creation = new(card);
                 if (value.Modified is { } modified)
                 {
                     ValidateCard(modified);
                     var result = CardModel.FromSerializable(modified);
                     player.RunState.AddCard(result, player);
+                    addedCards.Add(result);
                     creation.ModifyCard(result);
                 }
                 Require(value.ModifyingRelics != null, "卡牌修改来源缺失。");

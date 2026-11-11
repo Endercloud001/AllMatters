@@ -19,9 +19,12 @@ internal static class JigsawNativeShopSync
     {
         internal readonly Dictionary<ulong, long> Applied = [];
         internal long Next;
+        internal JigsawShopStockUpdate? Pending;
+        internal bool Submitted;
     }
 
     private static readonly ConditionalWeakTable<JigsawNativeSession, SequenceState> sequences = new();
+    internal static Func<JigsawShopStockUpdate, bool>? RequestOverride;
     private static readonly RitsuLibManagedNetActionDescriptor<JigsawShopStockUpdate> descriptor = new(
         ModEntry.ModId, "jigsaw-shop-stock",
         message => JsonSerializer.SerializeToUtf8Bytes(message),
@@ -33,6 +36,19 @@ internal static class JigsawNativeShopSync
         }, GameActionType.NonCombat);
 
     internal static void Initialize() => RitsuLibManagedNetActions.Register(descriptor);
+
+    private static bool Request(JigsawShopStockUpdate update) => RequestOverride?.Invoke(update) ??
+        RitsuLibManagedNetActions.Request(RunManager.Instance, descriptor, update);
+
+    internal static void ThrowIfUnsettled(JigsawNativeSession session)
+    {
+        if (!sequences.TryGetValue(session, out var state) || state.Pending is not { } pending)
+            return;
+        if (!state.Submitted)
+            state.Submitted = Request(pending);
+        if (state.Pending != null)
+            throw new InvalidOperationException("The completed native shop purchase has not reached the ordered action on this endpoint; save must be retried.");
+    }
 
     internal static void Purchased(MerchantEntry entry)
     {
@@ -49,8 +65,12 @@ internal static class JigsawNativeShopSync
         var state = sequences.GetValue(session, _ => new());
         var update = new JigsawShopStockUpdate(session.Native.CurrentActIndex, node, map.CreateSave().NextEntry,
             session.EntryRound, ++state.Next, stock);
-        if (!RitsuLibManagedNetActions.Request(RunManager.Instance, descriptor, update))
+        state.Pending = update;
+        state.Submitted = false;
+        if (!Request(update))
             throw new InvalidOperationException("Could not synchronize the completed native shop purchase.");
+        if (state.Pending == update)
+            state.Submitted = true;
     }
 
     internal static void Apply(Player sender, JigsawShopStockUpdate update)
@@ -73,6 +93,12 @@ internal static class JigsawNativeShopSync
             session.CaptureCurrentShop();
         }
         state.Applied[sender.NetId] = update.Sequence;
+        if (sender.NetId == RunManager.Instance.NetService.NetId &&
+            state.Pending is { } pending && update.Sequence >= pending.Sequence)
+        {
+            state.Pending = null;
+            state.Submitted = false;
+        }
     }
 }
 

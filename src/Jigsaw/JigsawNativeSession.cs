@@ -1394,6 +1394,7 @@ internal static class JigsawCaptureNativePoint
     {
         if (JigsawNativeSession.SaveSession is not { Map: not null } session)
             return true;
+        JigsawNativeShopSync.ThrowIfUnsettled(session);
         session.CaptureCurrentShop();
         JigsawCheckpoint.Capture(session.Native, session.Map);
         if (session.FailedEntryCheckpoint is { } pending)

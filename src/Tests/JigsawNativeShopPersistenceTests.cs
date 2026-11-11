@@ -22,8 +22,10 @@ internal static class JigsawNativeShopPersistenceTests
     internal const string Name = "Jigsaw native shop purchases and complete stock survive a new session revisit";
     internal const string FaultName = "Jigsaw native shop rejects missing and incomplete persisted stock without rerolling";
     internal const string AdapterName = "Jigsaw native shop reconstruction preserves full stock and actual purchase hooks";
+    internal const string SyncFailureName = "Jigsaw native shop refuses a save after ordered purchase submission fails";
 
     internal static Task Revisit() => Revisit(null);
+    internal static Task SyncFailure() => Revisit("failed-request");
     internal static async Task Faults()
     {
         foreach (string fault in new[] { "missing-stock", "missing-price" })
@@ -49,6 +51,16 @@ internal static class JigsawNativeShopPersistenceTests
             string expected = Stock(original);
             ulong rng = HeadlessTestSetup.RngPosition(player.PlayerRng.Shops);
             var saved = JsonSerializer.Deserialize<JigsawShopInventory>(JsonSerializer.Serialize(JigsawNativeShopPersistence.Capture(original)))!;
+            string runBeforeInvalid = JsonSerializer.Serialize(RunManager.Instance.ToSave(null));
+            var invalidRelics = saved.NativeStock!.Relics.ToArray();
+            invalidRelics[0] = invalidRelics[0] with { Slot = -1 };
+            bool rejectedInvalid = false;
+            try { JigsawNativeShopPersistence.Apply(original, saved with
+                { NativeStock = saved.NativeStock with { Relics = invalidRelics } }); }
+            catch (InvalidDataException) { rejectedInvalid = true; }
+            Require(rejectedInvalid && JsonSerializer.Serialize(RunManager.Instance.ToSave(null)) == runBeforeInvalid &&
+                ReferenceEquals(((MerchantRoom)native.CurrentRoom!).Inventories.Single(), original),
+                "A rejected late shop slot leaves no restored stock cards or replaced inventory.");
             var restored = JigsawNativeShopPersistence.Restore(player, saved);
             Require(Stock(restored) == expected && HeadlessTestSetup.RngPosition(player.PlayerRng.Shops) == rng,
                 "Rebuilding actual native stock retains all serialized properties without drawing new stock or prices.");
@@ -106,6 +118,33 @@ internal static class JigsawNativeShopPersistenceTests
             Require(native.CurrentRoom is MerchantRoom, "The logical shop enters a real native MerchantRoom.");
             var inventory = ((MerchantRoom)native.CurrentRoom).Inventories.Single();
             var cards = inventory.CardEntries.ToArray();
+            if (fault == "failed-request")
+            {
+                int goldBefore = player.Gold, deckBefore = player.Deck.Cards.Count;
+                JigsawShopStockUpdate? update = null;
+                JigsawNativeShopSync.RequestOverride = message => { update = message; return false; };
+                try
+                {
+                    try { await cards[0].OnTryPurchaseWrapper(inventory); }
+                    catch (InvalidOperationException) { }
+                    Require(player.Gold < goldBefore && player.Deck.Cards.Count == deckBefore + 1 &&
+                        !cards[0].IsStocked && update != null,
+                        "A failed stock submission follows an already completed native purchase with its slot sold out.");
+                    bool rejected = false;
+                    try { _ = RunManager.Instance.ToSave(null); }
+                    catch (InvalidOperationException) { rejected = true; }
+                    Require(rejected, "A failed submission cannot be saved as a complete shop transaction.");
+                    JigsawNativeShopSync.RequestOverride = message => { update = message; return true; };
+                    rejected = false;
+                    try { _ = RunManager.Instance.ToSave(null); }
+                    catch (InvalidOperationException) { rejected = true; }
+                    Require(rejected && update != null, "Retry remains unsettled until its local ordered echo arrives.");
+                    JigsawNativeShopSync.Apply(player, update!);
+                    _ = RunManager.Instance.ToSave(null);
+                }
+                finally { JigsawNativeShopSync.RequestOverride = null; }
+                return;
+            }
             CardCmd.Upgrade(cards[1].CreationResult!.Card);
             CardCmd.Enchant<Sharp>(cards[1].CreationResult!.Card, 1);
             inventory.RelicEntries[0].Model!.FloorAddedToDeck = 17;
