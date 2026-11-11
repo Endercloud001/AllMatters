@@ -17,7 +17,7 @@ internal static class JigsawEntrySetupBarrier
     internal static async Task Wait(INetGameService service, IReadOnlyCollection<ulong> active, long round)
     {
         var members = active.ToHashSet();
-        if (!members.Contains(service.NetId) || members.Count < 2)
+        if (!members.Contains(service.NetId))
             throw new InvalidOperationException("进入恢复的联机成员不完整。");
         bool host = service is NetHostGameService;
         ulong hostId = service switch
@@ -26,6 +26,12 @@ internal static class JigsawEntrySetupBarrier
             NetClientGameService client => client.HostNetId,
             _ => throw new InvalidOperationException("进入恢复需要联机传输。")
         };
+        if (members.Count == 1)
+        {
+            if (!host)
+                throw new InvalidOperationException("进入恢复缺少 Host。");
+            return;
+        }
         var received = new HashSet<ulong> { service.NetId };
         var done = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         using var subscription = RitsuLibSidecarTypedMessageRegistry.Subscribe(descriptor, context =>
