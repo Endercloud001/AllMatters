@@ -500,6 +500,8 @@ internal static class JigsawNetworkTests
                     throw new Exception("The fresh Client vote shows one portrait on every peer and never substitutes a Host ballot.");
                 File.WriteAllText(Path.Combine(directory, role + ".fresh-map-vote"), "visible");
                 await Until(() => remainingRoles.All(peer => File.Exists(Path.Combine(directory, peer + ".fresh-map-vote"))), "every fresh native endpoint observes the Client's first portrait");
+                if (Environment.GetEnvironmentVariable("JIGSAW_ENTRY_TRANSITION") is { } transitionMode)
+                    await JigsawEntryTransitionNetworkProbe.Run(session, mapScreen, role, directory, target, Until, transitionMode);
             }
             File.WriteAllText(Path.Combine(directory,role+".ready-to-stop"),"ready");
             if(host!=null)

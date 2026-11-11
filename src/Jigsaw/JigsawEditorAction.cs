@@ -6,7 +6,7 @@ using STS2RitsuLib.Networking.ManagedActions;
 
 namespace AllMatters.Jigsaw;
 
-public enum JigsawEditorOperation { Take, Rotate, Drop, Cancel, ReturnToPool, SelectEndpoint, ChooseEnd, CompleteAncient, ContinueAncient, Reset, FinalizeAutomatic, Disconnect, CompleteRoom, VoteDestination, FinalizeDestination, EntryReady, EntryFailed, ConfirmEntry, RetryEntry, AbandonEntry, RecoverEntry }
+public enum JigsawEditorOperation { Take, Rotate, Drop, Cancel, ReturnToPool, SelectEndpoint, ChooseEnd, CompleteAncient, ContinueAncient, Reset, FinalizeAutomatic, Disconnect, CompleteRoom, VoteDestination, FinalizeDestination, EntryReady, EntryFailed, ConfirmEntry, RetryEntry, AbandonEntry, RecoverEntry, EntryFadeReady }
 public sealed record JigsawEditorIntent(int Act, JigsawEditorOperation Operation, int Piece = 0, GridPoint Point = default, int? NodeId = null, EndChoice? Choice = null, long Sequence = 0, long EditRevision = 0, int? FirstEndpoint = null, bool? DesiredAdd = null, ulong? CompletedOwner = null, JigsawLayout? Layout = null, string? AutomaticFailure = null, long EntryRevision = 0, long EntryRound = 0, string? EntryCheckpoint = null);
 
 internal static class JigsawEditorAction
@@ -38,7 +38,7 @@ internal static class JigsawEditorAction
                 if (message.Sequence <= input.Accepted.GetValueOrDefault(context.Player.NetId))
                     return;
                 input.Accepted[context.Player.NetId] = message.Sequence;
-                bool entry = message.Operation is JigsawEditorOperation.EntryReady or JigsawEditorOperation.EntryFailed or JigsawEditorOperation.ConfirmEntry or JigsawEditorOperation.RetryEntry or JigsawEditorOperation.AbandonEntry or JigsawEditorOperation.RecoverEntry;
+                bool entry = UsesEntryQueue(message.Operation);
                 bool exploration = entry || message.Operation is JigsawEditorOperation.CompleteRoom or JigsawEditorOperation.VoteDestination or JigsawEditorOperation.FinalizeDestination;
                 var result = message.Operation != JigsawEditorOperation.Disconnect && (message.EditRevision != map.EditRevision || exploration && message.EntryRevision != map.CreateSave().NextEntry) ? JigsawResult.Reject("拼图阶段已变化，请重试。") : context.Message.Operation switch
                 {
@@ -58,6 +58,7 @@ internal static class JigsawEditorAction
                     JigsawEditorOperation.VoteDestination => message.NodeId is { } voted ? map.VoteDestination(context.Player.NetId, voted) : JigsawResult.Reject(JigsawFailure.UnknownNode),
                     JigsawEditorOperation.FinalizeDestination => IsHost(context.Player.NetId) && message.NodeId is { } selected ? map.FinalizeDestination(selected) : JigsawResult.Reject("Only Host can finalize a destination."),
                     JigsawEditorOperation.EntryReady => message.CompletedOwner == context.Player.NetId ? session.AcceptEntryReady(context.Player.NetId) : JigsawResult.Reject("Only the native room owner can report readiness."),
+                    JigsawEditorOperation.EntryFadeReady => message.CompletedOwner == context.Player.NetId ? session.AcceptEntryFadeReady(context.Player.NetId) : JigsawResult.Reject("Only the local transition owner can report readiness."),
                     JigsawEditorOperation.EntryFailed => message.CompletedOwner == context.Player.NetId ? session.AcceptEntryFailure(context.Player.NetId) : JigsawResult.Reject("Only the native room owner can report failure."),
                     JigsawEditorOperation.ConfirmEntry => IsHost(context.Player.NetId) ? session.ConfirmSharedEntry() : JigsawResult.Reject("Only Host can confirm entry."),
                     JigsawEditorOperation.RetryEntry or JigsawEditorOperation.AbandonEntry => IsHost(context.Player.NetId) ? session.RequestEntryRecovery(message.Operation == JigsawEditorOperation.AbandonEntry) : JigsawResult.Reject("Only Host can choose entry recovery."),
@@ -102,7 +103,7 @@ internal static class JigsawEditorAction
         descriptor with { ActionKey = "jigsaw-entry", ActionType = GameActionType.Any };
 
     private static bool UsesEntryQueue(JigsawEditorOperation operation) =>
-        operation is JigsawEditorOperation.Disconnect or JigsawEditorOperation.EntryReady or
+        operation is JigsawEditorOperation.Disconnect or JigsawEditorOperation.EntryReady or JigsawEditorOperation.EntryFadeReady or
             JigsawEditorOperation.EntryFailed or JigsawEditorOperation.ConfirmEntry or
             JigsawEditorOperation.RetryEntry or JigsawEditorOperation.AbandonEntry or
             JigsawEditorOperation.RecoverEntry;

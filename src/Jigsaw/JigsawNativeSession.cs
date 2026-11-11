@@ -103,6 +103,9 @@ public sealed class JigsawNativeSession
     private readonly HashSet<ulong> entryReadyPlayers = [];
     private long nativeReadyAttempt;
     private TaskCompletionSource<bool>? entryDecision;
+    private readonly HashSet<ulong> entryFadePlayers = [];
+    private long entryFadeAttempt;
+    private TaskCompletionSource<bool>? entryFadeDecision;
     private Task? enteringTask;
     internal long EntryRound { get; private set; }
     internal void SetEntryRound(long round) => EntryRound = round;
@@ -178,6 +181,8 @@ public sealed class JigsawNativeSession
             return JigsawResult.Reject(JigsawFailure.UnknownPlayer);
         Map.Disconnect(player);
         entryReadyPlayers.Remove(player);
+        entryFadePlayers.Remove(player);
+        CompleteEntryFadeIfReady();
         MaybeConfirmSharedEntry();
         OnAncientCompleted();
         return JigsawResult.Ok;
@@ -795,8 +800,39 @@ public sealed class JigsawNativeSession
         entryConfirmQueued = false;
         entryReadyPlayers.Clear();
         entryDecision?.TrySetResult(false);
+        entryFadeDecision?.TrySetResult(false);
         ShowMap();
         return JigsawResult.Ok;
+    }
+
+    private TaskCompletionSource<bool> EntryFadeDecision()
+    {
+        if (entryFadeAttempt != Map!.PendingEntry!.Id)
+        {
+            entryFadeAttempt = Map.PendingEntry.Id;
+            entryFadePlayers.Clear();
+            entryFadeDecision = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        }
+        // EntryFailed can arrive while this endpoint is still awaiting its fade,
+        // before it has created a local decision. Never wait for a rejected ready.
+        if (entryFailed)
+            entryFadeDecision!.TrySetResult(false);
+        return entryFadeDecision!;
+    }
+    internal JigsawResult AcceptEntryFadeReady(ulong player)
+    {
+        if (Map?.PendingEntry == null || entryFailed || !Map.ActivePlayers.Contains(player))
+            return JigsawResult.Reject(JigsawFailure.StaleEntry);
+        _ = EntryFadeDecision();
+        entryFadePlayers.Add(player);
+        CompleteEntryFadeIfReady();
+        return JigsawResult.Ok;
+    }
+    private void CompleteEntryFadeIfReady()
+    {
+        if (!entryFailed && Map is { PendingEntry: { } pending } && pending.Id == entryFadeAttempt &&
+            Map.ActivePlayers.Count > 0 && Map.ActivePlayers.All(entryFadePlayers.Contains))
+            entryFadeDecision?.TrySetResult(true);
     }
 
     internal JigsawResult ConfirmSharedEntry()
@@ -949,6 +985,76 @@ public sealed class JigsawNativeSession
         var attempt = Map.PendingEntry ?? Map.BeginEnter(node);
         if (attempt == null || attempt.NodeId != node)
             return;
+        var view = GodotObject.IsInstanceValid(screen) ? screen : null;
+        var processMode = view?.ProcessMode;
+        JigsawEntryTransition? transition = null;
+        Exception? failure = null;
+        bool nativeStarted = false;
+        try
+        {
+            if (GodotObject.IsInstanceValid(view))
+            { view!.ProcessMode = Node.ProcessModeEnum.Disabled; view.SetProcessInput(false); }
+            transition = JigsawEntryTransition.Begin(this);
+            if (transition != null)
+                await transition.FadeOut();
+            if (Current != this || Map.PendingEntry?.Id != attempt.Id || paused || BeforeAncient != null || entryRecoveryRequested)
+                throw new OperationCanceledException("进入目标或会话已改变。");
+            if (netService is not NetSingleplayerGameService)
+            {
+                if (entryFailed)
+                    throw new IOException("队友房间过场失败；本次未计步。");
+                var decision = EntryFadeDecision().Task;
+                var submitted = JigsawEditorAction.Submit(this, JigsawEditorOperation.EntryFadeReady, completedOwner: LocalPlayerId);
+                if (!submitted.Success || !await decision.WaitAsync(ClosedToken))
+                    throw new IOException("队友房间过场失败；本次未计步。");
+                // Once local fade readiness was sent, visual ownership no longer
+                // retracts this endpoint from native sync. A later visual takeover
+                // only prevents our reveal; disconnects remain native lifecycle.
+                if (Current != this || Map.PendingEntry?.Id != attempt.Id || entryFailed || entryRecoveryRequested)
+                    throw new OperationCanceledException("进入目标或过场已改变。");
+            }
+            await EnterPreparedCore(node, attempt, transition, () => nativeStarted = true);
+        }
+        catch (Exception error)
+        {
+            failure = error;
+            if (!nativeStarted && Current == this && Map.PendingEntry?.Id == attempt.Id && netService is not NetSingleplayerGameService)
+            {
+                // Before fade readiness, no native state has changed. Preparation
+                // failures after readiness already retain their before-entry point.
+                entryCheckpoint ??= JigsawSaveSource.Copy(RunManager.Instance.ToSave(null));
+                if (!entryFailed)
+                {
+                    entryFailed = true;
+                    entryFadeDecision?.TrySetResult(false);
+                    RunManager.Instance.RunLocationTargetedBuffer.OnLocationChanged(Native.RunLocation);
+                    JigsawEditorAction.Submit(this, JigsawEditorOperation.EntryFailed, completedOwner: LocalPlayerId);
+                    RunManager.Instance.ActionExecutor.Unpause();
+                }
+            }
+            if (Current == this && (transition?.IsCurrent == true || NGame.Instance?.Transition == null))
+                ShowMap();
+            throw;
+        }
+        finally
+        {
+            try
+            { if (transition != null) await transition.Reveal(); }
+            catch (Exception error) when (failure != null)
+            { Console.Error.WriteLine($"Jigsaw room reveal failed after entry failure: {error}"); }
+            finally
+            {
+                transition?.Dispose();
+                if (Current == this && GodotObject.IsInstanceValid(view))
+                { view!.ProcessMode = processMode!.Value; view.SetProcessInput(!paused); }
+            }
+        }
+    }
+
+    private async Task EnterPreparedCore(int node, JigsawEnterAttempt attempt, JigsawEntryTransition? transition, Action startingNative)
+    {
+        if (Map == null)
+            return;
         entryDecision = null;
         entryReadyPlayers.Clear();
         entryConfirmQueued = false;
@@ -1002,7 +1108,9 @@ public sealed class JigsawNativeSession
         }
         try
         {
-            await RunManager.Instance.EnterMapCoord(projection.Point.coord);
+            startingNative();
+            using (transition?.NativeEntry())
+                await RunManager.Instance.EnterMapCoord(projection.Point.coord);
             if (Current != this)
                 return;
             if (!ready)
