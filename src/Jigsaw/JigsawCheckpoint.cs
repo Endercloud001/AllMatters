@@ -16,6 +16,7 @@ public sealed class JigsawCheckpointData
     [JsonRequired] public int Version { get; set; }
     [JsonRequired] public int Act { get; set; }
     [JsonRequired] public JigsawSave? Map { get; set; }
+    public Dictionary<int, HashSet<int>>? RevisitedHistoryIndices { get; set; }
 }
 
 /// <summary>Run data lives inside the native save, never in a second run file.</summary>
@@ -26,7 +27,14 @@ public static class JigsawCheckpoint
     public static void Initialize() { _ = Slot; _ = JigsawNewRunMode.Slot; }
 
     public static void Capture(RunState native, JigsawRun map) =>
-        Slot.Set(native, new() { Version = 1, Act = native.CurrentActIndex, Map = map.CreateSave() });
+        Slot.Set(native, new()
+        {
+            Version = 1,
+            Act = native.CurrentActIndex,
+            Map = map.CreateSave(),
+            RevisitedHistoryIndices = Slot.TryGet(native, out var previous) && previous.RevisitedHistoryIndices is { } indices
+                ? indices.ToDictionary(pair => pair.Key, pair => new HashSet<int>(pair.Value)) : null
+        });
 }
 
 // RitsuLib 0.6.7 otherwise reopens the primary path after native recovery. Bind the

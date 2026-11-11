@@ -1,4 +1,4 @@
-﻿using AllMatters.Jigsaw;
+using AllMatters.Jigsaw;
 using MegaCrit.Sts2.Core.Multiplayer;
 using MegaCrit.Sts2.Core.Runs;
 using MegaCrit.Sts2.Core.Saves.Managers;
@@ -262,7 +262,7 @@ internal static class JigsawNativeTests
     }
     private enum EntryFailureKind { None, BeforeReady, RestoredBeforeReady, AfterReady, RetryAfterReady, BeforeSave, Abandon, AbandonBeforeSave, AbandonRestored, AbandonWriteFailure, AfterCompletedAbandon }
     public static readonly (string Name, Func<Task> Test)[] Cases =
-    [ (JigsawDeferredAncientTests.Name, JigsawDeferredAncientTests.Run), (JigsawNativeShopPersistenceTests.AdapterName, JigsawNativeShopPersistenceTests.Reconstruct), (JigsawNativeShopPersistenceTests.Name, JigsawNativeShopPersistenceTests.Revisit), (JigsawNativeShopPersistenceTests.FaultName, JigsawNativeShopPersistenceTests.Faults), (JigsawMultiplayerRestoreTests.DeferredName, JigsawMultiplayerRestoreTests.DeferredActivation), (JigsawMultiplayerRestoreTests.SetupName, JigsawMultiplayerRestoreTests.HostSetup), ("Jigsaw native stale endpoint queue resynchronizes", StaleEndpointQueue), (JigsawNetworkTests.Name, JigsawNetworkTests.Run), (JigsawActivationTests.Name, JigsawActivationTests.Run), ("Jigsaw native routed editor uses native ordered action", RoutedEditorQueue),
+    [ ..JigsawNativeProgressTests.Cases, (JigsawDeferredAncientTests.Name, JigsawDeferredAncientTests.Run), (JigsawNativeShopPersistenceTests.AdapterName, JigsawNativeShopPersistenceTests.Reconstruct), (JigsawNativeShopPersistenceTests.Name, JigsawNativeShopPersistenceTests.Revisit), (JigsawNativeShopPersistenceTests.FaultName, JigsawNativeShopPersistenceTests.Faults), (JigsawMultiplayerRestoreTests.DeferredName, JigsawMultiplayerRestoreTests.DeferredActivation), (JigsawMultiplayerRestoreTests.SetupName, JigsawMultiplayerRestoreTests.HostSetup), ("Jigsaw native stale endpoint queue resynchronizes", StaleEndpointQueue), (JigsawNetworkTests.Name, JigsawNetworkTests.Run), (JigsawActivationTests.Name, JigsawActivationTests.Run), ("Jigsaw native routed editor uses native ordered action", RoutedEditorQueue),
       ("Jigsaw native lobby recovery rejects unknown and duplicate concurrent joins", LobbyRecoveryDeterminism),
       ("Jigsaw native lobby recovery initializes its roster once under concurrent checkpoint loads", LobbyRecoveryConcurrentInitialize),
       ("Jigsaw native known lobby document rejects lost identity and incomplete data", ()=>MissingModeData("Budget",identityLost:true)),
