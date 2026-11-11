@@ -136,7 +136,7 @@ public sealed class JigsawNativeSession
     private static IEnumerable<ulong> ActivePlayers(RunState native)
     {
         var lobby = RunManager.Instance.RunLobby;
-        if (lobby == null)
+        if (RunManager.Instance.NetService is NetSingleplayerGameService || lobby == null)
             return native.Players.Select(player => player.NetId);
 #if STS2_PUBLIC
         return lobby.ConnectedPlayerIds;
@@ -147,7 +147,7 @@ public sealed class JigsawNativeSession
     private ulong[] ActivePlayerIds => (Map?.ActivePlayers ?? ActivePlayers(Native)).ToArray();
     private void AttachLobby()
     {
-        var lobby = RunManager.Instance.RunLobby;
+        var lobby = netService is NetSingleplayerGameService ? null : RunManager.Instance.RunLobby;
         if (ReferenceEquals(boundLobby, lobby))
             return;
         if (boundLobby != null)
