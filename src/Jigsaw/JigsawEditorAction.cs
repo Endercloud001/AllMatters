@@ -51,7 +51,7 @@ internal static class JigsawEditorAction
                     JigsawEditorOperation.ChooseEnd => map.ChooseEnd(context.Player.NetId, context.Message.Choice),
                     JigsawEditorOperation.CompleteAncient => IsHost(context.Player.NetId) && message.CompletedOwner is { } owner && (RunManager.Instance.NetService.NetId != context.Player.NetId || session.NativeAncientFinished(owner)) ? map.RecordNativeAncientCompletion(owner) : JigsawResult.Reject("Ancient reward unfinished."),
                     JigsawEditorOperation.ContinueAncient => map.Continue(context.Player.NetId),
-                    JigsawEditorOperation.CompleteRoom => message.CompletedOwner == context.Player.NetId && (context.Player.NetId != RunManager.Instance.NetService.NetId || session.NativeRoomFinished(context.Player.NetId)) ? map.RecordRoomCompletion(context.Player.NetId) : JigsawResult.Reject("Room flow unfinished."),
+                    JigsawEditorOperation.CompleteRoom => message.CompletedOwner == context.Player.NetId && JigsawNativeExploration.NativeFlowFinished(session, context.Player.NetId) ? map.RecordRoomCompletion(context.Player.NetId) : JigsawResult.Reject("Room flow unfinished."),
                     JigsawEditorOperation.VoteDestination => message.NodeId is { } voted ? map.VoteDestination(context.Player.NetId, voted) : JigsawResult.Reject(JigsawFailure.UnknownNode),
                     JigsawEditorOperation.FinalizeDestination => IsHost(context.Player.NetId) && message.NodeId is { } selected ? map.FinalizeDestination(selected) : JigsawResult.Reject("Only Host can finalize a destination."),
                     _ => JigsawResult.Reject("未知拼图操作。")
@@ -126,6 +126,8 @@ internal static class JigsawEditorAction
             return JigsawResult.Reject("拼图会话已结束。");
         if (session.Map is not { } map)
             return JigsawResult.Reject("当前没有拼图。");
+        if (operation == JigsawEditorOperation.CompleteRoom && (completedOwner != RunManager.Instance.NetService.NetId || !JigsawNativeExploration.LocalCompletionWasObserved(session, completedOwner.Value)))
+            return JigsawResult.Reject("Room flow unfinished.");
         var input = inputs.GetValue(map, _ => new());
         var player = RunManager.Instance.NetService.NetId;
         if (!input.Pending || input.Revision != map.EditRevision)

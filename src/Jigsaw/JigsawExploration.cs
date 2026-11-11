@@ -117,7 +117,7 @@ internal static class JigsawNativeExploration
 
     internal static bool MarkLocalExit(JigsawNativeSession session, bool canTravel)
     {
-        if (session.Map?.ActivePlayers.Count == 1 && !canTravel || !NativeFlowFinished(session, RunManager.Instance.NetService.NetId))
+        if (session.Map?.ActivePlayers.Count == 1 && !canTravel || !NativeFlowFinished(session, RunManager.Instance.NetService.NetId, requireLocalSignals: true))
             return false;
         State(session).LocalExit = Entry(session);
         return true;
@@ -125,9 +125,11 @@ internal static class JigsawNativeExploration
 
     internal static bool LocalCompletionWasObserved(JigsawNativeSession session, ulong player) =>
         player == RunManager.Instance.NetService.NetId && State(session).LocalExit == Entry(session) &&
-        NativeFlowFinished(session, player);
+        NativeFlowFinished(session, player, requireLocalSignals: true);
 
-    private static bool NativeFlowFinished(JigsawNativeSession session, ulong player)
+    internal static bool NativeFlowFinished(JigsawNativeSession session, ulong player) => NativeFlowFinished(session, player, requireLocalSignals: false);
+
+    private static bool NativeFlowFinished(JigsawNativeSession session, ulong player, bool requireLocalSignals)
     {
         if (session.Map?.CurrentNode == null || session.Native.CurrentRoomCount > 1)
             return false;
@@ -141,10 +143,10 @@ internal static class JigsawNativeExploration
             CombatRoom combat => combat.IsPreFinished,
             EventRoom => RunManager.Instance.EventSynchronizer.GetEventForPlayer(nativePlayer)?.IsFinished == true,
             RestSiteRoom => RunManager.Instance.RestSiteSynchronizer.GetChosenOptionIndex(player) != null,
-            TreasureRoom => State(session).TreasureOpen == Entry(session) &&
+            TreasureRoom => (!requireLocalSignals || State(session).TreasureOpen == Entry(session)) &&
                 (RunManager.Instance.TreasureRoomRelicSynchronizer.CurrentRelics?.Count is not > 0 ||
                  RunManager.Instance.TreasureRoomRelicSynchronizer.GetPlayerVote(nativePlayer)?.voteReceived == true),
-            MerchantRoom => State(session).MerchantExit == Entry(session),
+            MerchantRoom => !requireLocalSignals || State(session).MerchantExit == Entry(session),
             _ => false
         };
     }

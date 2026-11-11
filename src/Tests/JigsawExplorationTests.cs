@@ -29,9 +29,13 @@ internal static class JigsawExplorationTests
         Ok(run.VoteDestination(2, destinations[0]));
         Check(run.DestinationVotes.Count == 2 && run.ProposedDestination == null,
             "Repeated clicks keep one ballot and a missing player prevents the draw.");
+        Check(!run.FinalizeDestination(destinations[0]).Success && run.PendingEntry == null,
+            "A Host result cannot finalize while an active player has not voted.");
         Ok(run.VoteDestination(3, destinations[1]));
         int selected = run.ProposedDestination!.Value;
         Check(selected == destinations[0], "State one selects the first of three player ballots, including duplicate destinations.");
+        Check(!run.FinalizeDestination(destinations[1]).Success && run.PendingEntry == null,
+            "A forged target cannot replace the deterministic ballot result.");
         Ok(run.FinalizeDestination(selected));
         Check(run.PendingEntry?.NodeId == selected && run.Steps == 0 && run.DestinationVotes.Count == 0,
             "Finalization records one retryable target without counting entry or retaining ballots.");
@@ -63,6 +67,8 @@ internal static class JigsawExplorationTests
 
         int next = restoredPending.VotingDestinations.First();
         Check(!restoredPending.VoteDestination(1, next).Success, "A player cannot vote before finishing their room flow.");
+        Check(!restoredPending.VoteDestination(2, next).Success && restoredPending.DestinationVotes.Count == 0,
+            "An unfinished teammate cannot submit a destination through the same domain boundary.");
         Ok(restoredPending.RecordRoomCompletion(1));
         Ok(restoredPending.VoteDestination(1, next));
         Check(restoredPending.ProposedDestination == null && restoredPending.CurrentNode == first,
