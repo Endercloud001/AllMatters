@@ -497,7 +497,7 @@ public partial class JigsawScreen : Control
     private void ExplainEnding()
     {
         if (map.Phase == JigsawPhase.Editing && !Reading)
-            Tip("end", "手动审视会检查你的拼图；自动决定将重新安排布局。两种结束按钮须全员同选，选择后本人禁编辑；激活同一按钮撤票，另一按钮改选。");
+            Tip("end", "令先古之民决定将重新安排地图整体布局，请谨慎选择。");
     }
     private void ReturnHeld() { if (!Reading && map.Holdings.TryGetValue(player, out var h)) Apply(ReturnRequested?.Invoke(h.PieceId) ?? map.ReturnToPool(player, h.PieceId)); }
     private void Choose(EndChoice choice)
