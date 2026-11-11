@@ -25,6 +25,7 @@ public partial class JigsawScreen : Control
     private Func<ulong, Texture2D?>? avatar;
     private Func<ulong, Color>? playerColor;
     private readonly HBoxContainer manualVoters = new(), autoVoters = new();
+    private readonly HBoxContainer continueVoters = new() { Name = "ContinueVoters" };
     private int helpIndex;
     private readonly Theme adaptiveTheme = new();
     private JigsawNativeArt art = null!;
@@ -117,6 +118,11 @@ public partial class JigsawScreen : Control
         return view;
     }
     private static string L(string text) => TranslationServer.Translate(text);
+    public override void _Ready()
+    {
+        if (MegaCrit.Sts2.Core.Nodes.NRun.Instance?.GlobalUi.MultiplayerPlayerContainer is { } hud)
+            _ = new JigsawMultiplayerHud(this, hud);
+    }
     private Button MakeButton(string text, Action pressed)
     {
         var b = new Button { Text = L(text), AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new(0, 42), SizeFlagsHorizontal = SizeFlags.ExpandFill };
@@ -250,6 +256,7 @@ public partial class JigsawScreen : Control
         decisions.AddChild(manual);
         decisions.AddChild(autoVoters);
         decisions.AddChild(automatic);
+        decisions.AddChild(continueVoters);
         decisions.AddChild(resume);
         abandon.Text = L("放弃进入");
         abandon.Pressed += () => { if (abandonRequested != null) RunAsync(abandonRequested()); };
@@ -355,6 +362,7 @@ public partial class JigsawScreen : Control
         automatic.Text = L("令先古之民决定");
         UpdateVoters(manualVoters, EndChoice.Manual);
         UpdateVoters(autoVoters, EndChoice.Automatic);
+        UpdateVoters(continueVoters, map.Phase == JigsawPhase.Ancient ? map.ContinuedPlayers : []);
         resume.Visible = map.Phase == JigsawPhase.Ancient || map.PendingEntry != null;
         resume.Disabled = Reading;
         resume.Text = L(map.PendingEntry != null ? "重试进入" : "继续前行");
@@ -371,12 +379,14 @@ public partial class JigsawScreen : Control
     }
     private TextureRect Portrait(ulong id) => new() { Texture = avatar?.Invoke(id), CustomMinimumSize = new(32, 32), Size = new(32, 32), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, MouseFilter = MouseFilterEnum.Ignore };
     private void UpdateVoters(HBoxContainer row, EndChoice choice)
+        => UpdateVoters(row, map.Choices.Where(x => x.Value == choice).Select(x => x.Key));
+    private void UpdateVoters(HBoxContainer row, IEnumerable<ulong> players)
     {
         foreach (var child in row.GetChildren())
         { row.RemoveChild(child); child.QueueFree(); }
-        foreach (var voter in map.Choices.Where(x => x.Value == choice))
-            row.AddChild(Portrait(voter.Key));
-        row.Visible = map.Choices.Any(x => x.Value == choice);
+        foreach (var voter in players)
+            row.AddChild(Portrait(voter));
+        row.Visible = row.GetChildCount() > 0;
     }
     private string CurrentInstruction()
     {
@@ -858,7 +868,7 @@ public partial class JigsawScreen : Control
                 target.AddChild(icon);
             }
             icon.Show();
-            icon.Texture = art.Icon(n.Room);
+            icon.Texture = art.Icon(n.Room, map.Visited.Contains(n.Id) ? map.ResolvedRoom(n.Id) : null);
             icon.Position = at;
             icon.BaseScale = size / Math.Max(icon.Texture.GetWidth(), icon.Texture.GetHeight());
             icon.Available = available;

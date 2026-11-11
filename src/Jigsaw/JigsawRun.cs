@@ -14,6 +14,7 @@ public sealed partial class JigsawRun
     public IReadOnlyCollection<ulong> OriginalPlayers => originalPlayers.ToArray();
     public IReadOnlyCollection<ulong> ActivePlayers => players.ToArray();
     private readonly HashSet<ulong> ancientCompleted = [], continued = [];
+    public IReadOnlyCollection<ulong> ContinuedPlayers => continued.ToArray();
     private readonly HashSet<int> visited = [0], completed = [0];
     private readonly Dictionary<(int nodeId, ulong playerId), JigsawShopInventory> shopInventories = [];
     private (int nodeId, ulong playerId, JigsawShopInventory? checkpoint)? shopTransactionCheckpoint;
