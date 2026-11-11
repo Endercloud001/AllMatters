@@ -36,10 +36,32 @@ internal static class JigsawRecoveryNetworkTests
 {
     private sealed class CancelRemovalSelector : ICardSelector
     {
+        internal TaskCompletionSource<IEnumerable<CardModel>> Selection = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        internal bool Started;
+        internal CardModel? Choice;
+        internal void Reset() { Selection = new(TaskCreationOptions.RunContinuationsAsynchronously); Started = false; Choice = null; }
         public Task<IEnumerable<CardModel>> GetSelectedCards(IEnumerable<CardModel> options, int minSelect, int maxSelect) =>
-            Task.FromResult<IEnumerable<CardModel>>([]);
+            Select(options);
+        private Task<IEnumerable<CardModel>> Select(IEnumerable<CardModel> options)
+        {
+            Choice = options.First();
+            Started = true;
+            return Selection.Task;
+        }
         public CardRewardSelection GetSelectedCardReward(IReadOnlyList<CardCreationResult> options,
             IReadOnlyList<CardRewardAlternative> alternatives) => throw new InvalidOperationException("Unexpected reward selection.");
+    }
+
+    private static TaskCompletionSource<bool>? canceledRemovalCompletion;
+    private static void ObserveCanceledRemoval(ulong owner, Task<bool> __result)
+    {
+        if (owner == 2 && canceledRemovalCompletion is { } completion)
+            _ = CompleteCanceledRemoval(__result, completion);
+    }
+    private static async Task CompleteCanceledRemoval(Task<bool> removal, TaskCompletionSource<bool> completion)
+    {
+        try { completion.TrySetResult(await removal); }
+        catch (Exception error) { completion.TrySetException(error); }
     }
 
     private const string Prefix = "Jigsaw recovery native load lobby";
@@ -303,6 +325,12 @@ internal static class JigsawRecoveryNetworkTests
         using var eventScope = deferred || unfinishedAncient || shopLag || shopFault ? HeadlessCombatInProgress.EnterEvent() : null;
         using var atlases = deferred || unfinishedAncient || shopLag || shopFault ? HeadlessTestSetup.LoadAtlases("card_atlas", "relic_atlas", "ui_atlas") : null;
         var rewardHarmony = new HarmonyLib.Harmony("AllMatters.Tests.RecoveryDeferred");
+        if (shopFault)
+        {
+            canceledRemovalCompletion = new(TaskCreationOptions.RunContinuationsAsynchronously);
+            rewardHarmony.Patch(HarmonyLib.AccessTools.Method(typeof(JigsawNativeShopRemovalReceived), "Track"),
+                postfix: new HarmonyLib.HarmonyMethod(typeof(JigsawRecoveryNetworkTests), nameof(ObserveCanceledRemoval)));
+        }
         if (deferred || unfinishedAncient)
             rewardHarmony.Patch(HarmonyLib.AccessTools.Method(typeof(EventSynchronizer), nameof(EventSynchronizer.BeginEvent)),
                 prefix: new HarmonyLib.HarmonyMethod(typeof(JigsawNetworkTests), nameof(JigsawNetworkTests.ForceReward)));
@@ -475,14 +503,38 @@ internal static class JigsawRecoveryNetworkTests
                     }, "the same full stock update settles after the owner retries");
                     Signal("shop-save-settled");
                     await Until(() => remaining.All(peer => Signaled(peer, "shop-save-settled")), "all endpoints save only the complete purchase");
-                    using var cancelSelector = CardSelectCmd.UseSelector(new CancelRemovalSelector());
-                    var cancelOwner = listener.Native.Players.Single(player => player.NetId == 3);
+                    var selectorState = new CancelRemovalSelector();
+                    using var cancelSelector = CardSelectCmd.UseSelector(selectorState);
+                    var cancelOwner = listener.Native.Players.Single(player => player.NetId == 2);
                     int cancelGold = cancelOwner.Gold, cancelDeck = cancelOwner.Deck.Cards.Count;
-                    if (net.NetId == 3)
+                    Signal("shop-cancel-ready");
+                    await Until(() => remaining.All(peer => Signaled(peer, "shop-cancel-ready")),
+                        "all endpoints install the cancellation selector before the native request");
+                    Task<bool>? canceledPurchase = null;
+                    if (net.NetId == 2)
                     {
-                        var removalInventory = inventories.Single(inventory => inventory.Player.NetId == 3);
-                        Require(!await removalInventory.CardRemovalEntry.OnTryPurchaseWrapper(removalInventory),
-                            "The third owner cancels the real native card-removal service.");
+                        var removalInventory = ((MerchantRoom)listener.Native.CurrentRoom!).Inventories.Single(inventory => inventory.Player.NetId == 2);
+                        canceledPurchase = removalInventory.CardRemovalEntry.OnTryPurchaseWrapper(removalInventory);
+                    }
+                    await Until(() => selectorState.Started,
+                        "this endpoint enters its real native card-removal selection");
+                    Signal("shop-cancel-started");
+                    await Until(() => remaining.All(peer => Signaled(peer, "shop-cancel-started")),
+                        "all endpoints enter native removal before cancellation");
+                    bool pendingRemovalBlocked = false;
+                    try { _ = RunManager.Instance.ToSave(null); }
+                    catch (InvalidOperationException error) when (error.Message.Contains("shop purchase", StringComparison.Ordinal)) { pendingRemovalBlocked = true; }
+                    Require(net.NetId == 2 || pendingRemovalBlocked,
+                        "Remote saves reject a native removal while its selection is still open.");
+                    selectorState.Selection.TrySetResult([]);
+                    if (canceledPurchase != null)
+                        Require(!await canceledPurchase, "The purchasing client cancels the real native card-removal service.");
+                    if (net.NetId != 2)
+                    {
+                        await Until(() => canceledRemovalCompletion!.Task.IsCompleted,
+                            "this endpoint finishes its real native card-removal task");
+                        Require(!await canceledRemovalCompletion!.Task,
+                            "The native removal task reports cancellation on this endpoint.");
                     }
                     await Until(() =>
                     {
@@ -493,6 +545,56 @@ internal static class JigsawRecoveryNetworkTests
                     }, "remote canceled removal releases its pending shop save");
                     Signal("shop-cancel-saved");
                     await Until(() => remaining.All(peer => Signaled(peer, "shop-cancel-saved")), "all endpoints save after cancellation");
+                    canceledRemovalCompletion = new(TaskCreationOptions.RunContinuationsAsynchronously);
+                    selectorState.Reset();
+                    var delayedSelectorState = selectorState;
+                    Signal("shop-removal-ready");
+                    await Until(() => remaining.All(peer => Signaled(peer, "shop-removal-ready")),
+                        "all endpoints prepare a delayed successful native removal");
+                    Task<bool>? completedPurchase = null;
+                    if (net.NetId == 2)
+                    {
+                        var removalInventory = ((MerchantRoom)listener.Native.CurrentRoom!).Inventories.Single(inventory => inventory.Player.NetId == 2);
+                        completedPurchase = removalInventory.CardRemovalEntry.OnTryPurchaseWrapper(removalInventory);
+                    }
+                    await Until(() => delayedSelectorState.Started,
+                        "all native removal tasks reach their card selection");
+                    if (net.NetId == 2)
+                    {
+                        delayedSelectorState.Selection.TrySetResult([delayedSelectorState.Choice!]);
+                        Require(await completedPurchase!, "The owner completes a real removal while remote native tasks are delayed.");
+                    }
+                    if (net.NetId != 2)
+                    {
+                        await Until(() => ((MerchantRoom)listener.Native.CurrentRoom!).Inventories.Single(inventory => inventory.Player.NetId == 2).CardRemovalEntry.Used,
+                            "the complete stock update arrives while native removal is still pending");
+                        Require(!canceledRemovalCompletion!.Task.IsCompleted,
+                            "The remote native removal task is still pending after stock settles.");
+                        bool blockedDuringRemoval = false;
+                        try { _ = RunManager.Instance.ToSave(null); }
+                        catch (InvalidOperationException error) when (error.Message.Contains("shop purchase", StringComparison.Ordinal)) { blockedDuringRemoval = true; }
+                        Require(blockedDuringRemoval,
+                            "A remote save rejects stock settled before the native card removal finishes.");
+                    }
+                    Signal("shop-removal-blocked");
+                    await Until(() => remaining.All(peer => Signaled(peer, "shop-removal-blocked")),
+                        "all endpoints observe stock before remote native removal completion");
+                    if (net.NetId != 2)
+                    {
+                        delayedSelectorState.Selection.TrySetResult([delayedSelectorState.Choice!]);
+                        await Until(() => canceledRemovalCompletion!.Task.IsCompleted,
+                            "the delayed remote native removal completes");
+                        Require(await canceledRemovalCompletion.Task,
+                            "The remote native removal task reports the completed purchase.");
+                    }
+                    await Until(() =>
+                    {
+                        try { _ = RunManager.Instance.ToSave(null); return true; }
+                        catch (InvalidOperationException error) when (error.Message.Contains("shop purchase", StringComparison.Ordinal)) { return false; }
+                    }, "all endpoints save after the native removal and stock both settle");
+                    Signal("shop-removal-saved");
+                    await Until(() => remaining.All(peer => Signaled(peer, "shop-removal-saved")),
+                        "every endpoint saves the completed native removal");
                 }
                 else
                 {
@@ -664,6 +766,7 @@ internal static class JigsawRecoveryNetworkTests
         finally
         {
             rewardHarmony.UnpatchAll(rewardHarmony.Id);
+            canceledRemovalCompletion = null;
             JigsawNativeShopSync.RequestOverride = null;
             RunManager.Instance.RoomEntered -= NativeReady;
             JigsawEntryFailureHost.Reset();

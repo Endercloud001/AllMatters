@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using System.Reflection.Emit;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Entities.Merchant;
 using MegaCrit.Sts2.Core.Entities.Multiplayer;
@@ -19,6 +20,7 @@ internal static class JigsawNativeShopSync
     {
         internal readonly Dictionary<ulong, long> Applied = [];
         internal readonly Dictionary<ulong, long> NativePurchases = [];
+        internal readonly Dictionary<ulong, int> NativeRemovalsInFlight = [];
         internal long Next;
         internal JigsawShopStockUpdate? Pending;
         internal bool Submitted;
@@ -54,9 +56,11 @@ internal static class JigsawNativeShopSync
         }
         if (state.NativePurchases.Any(purchase => purchase.Value > state.Applied.GetValueOrDefault(purchase.Key)))
             throw new InvalidOperationException("A remote native shop purchase has not reached its complete stock update; save must be retried.");
+        if (state.NativeRemovalsInFlight.Values.Any(count => count > 0))
+            throw new InvalidOperationException("A remote native shop purchase is still removing a card; save must be retried.");
     }
 
-    internal static void NativePurchaseStarted(ulong owner)
+    internal static void NativePurchaseStarted(ulong owner, bool removal = false)
     {
         var session = JigsawNativeSession.Current;
         if (session?.Map is not { CurrentNode: not null } map || session.Native.CurrentRoom is not MerchantRoom ||
@@ -64,14 +68,17 @@ internal static class JigsawNativeShopSync
             return;
         var state = sequences.GetValue(session, _ => new());
         state.NativePurchases[owner] = state.NativePurchases.GetValueOrDefault(owner) + 1;
+        if (removal)
+            state.NativeRemovalsInFlight[owner] = state.NativeRemovalsInFlight.GetValueOrDefault(owner) + 1;
     }
 
-    internal static void NativePurchaseCancelled(ulong owner)
+    internal static void NativeRemovalFinished(JigsawNativeSession session, ulong owner, bool completed)
     {
-        var session = JigsawNativeSession.Current;
-        if (session == null || !sequences.TryGetValue(session, out var state))
+        if (!sequences.TryGetValue(session, out var state))
             return;
-        if (state.NativePurchases.TryGetValue(owner, out long count) && count > 0)
+        if (state.NativeRemovalsInFlight.TryGetValue(owner, out int inFlight) && inFlight > 0)
+            state.NativeRemovalsInFlight[owner] = inFlight - 1;
+        if (!completed && state.NativePurchases.TryGetValue(owner, out long count) && count > 0)
             state.NativePurchases[owner] = count - 1;
     }
 
@@ -136,23 +143,35 @@ internal static class JigsawNativeShopGoldReceived
 [HarmonyPatch(typeof(MegaCrit.Sts2.Core.Multiplayer.Game.OneOffSynchronizer), "HandleMerchantCardRemoval")]
 internal static class JigsawNativeShopRemovalReceived
 {
-    private static void Prefix(ulong senderId) => JigsawNativeShopSync.NativePurchaseStarted(senderId);
-}
+    private static void Prefix(ulong senderId) => JigsawNativeShopSync.NativePurchaseStarted(senderId, removal: true);
 
-[HarmonyPatch(typeof(MegaCrit.Sts2.Core.Multiplayer.Game.OneOffSynchronizer), "DoMerchantCardRemoval")]
-internal static class JigsawNativeShopRemovalSettled
-{
-    private static void Postfix(Player player, ref Task<bool> __result)
+    private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
     {
-        if (player.NetId != RunManager.Instance.NetService.NetId)
-            __result = Track(__result, player.NetId);
+        var nativeCall = AccessTools.Method(typeof(MegaCrit.Sts2.Core.Multiplayer.Game.OneOffSynchronizer),
+            "DoMerchantCardRemoval", [typeof(Player), typeof(int), typeof(bool)]);
+        var trackCall = AccessTools.Method(typeof(JigsawNativeShopRemovalReceived), nameof(Track));
+        int matches = 0;
+        foreach (var instruction in instructions)
+        {
+            yield return instruction;
+            if ((instruction.opcode == OpCodes.Call || instruction.opcode == OpCodes.Callvirt) &&
+                Equals(instruction.operand, nativeCall))
+            {
+                matches++;
+                yield return new CodeInstruction(OpCodes.Ldarg_2);
+                yield return new CodeInstruction(OpCodes.Call, trackCall);
+            }
+        }
+        if (matches != 1)
+            throw new InvalidOperationException($"Expected one native merchant removal task call, found {matches}.");
     }
 
     private static async Task<bool> Track(Task<bool> purchase, ulong owner)
     {
+        var session = JigsawNativeSession.Current;
         bool completed = await purchase;
-        if (!completed)
-            JigsawNativeShopSync.NativePurchaseCancelled(owner);
+        if (session != null)
+            JigsawNativeShopSync.NativeRemovalFinished(session, owner, completed);
         return completed;
     }
 }
