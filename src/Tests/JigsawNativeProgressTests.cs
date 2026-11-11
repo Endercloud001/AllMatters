@@ -21,7 +21,8 @@ internal static class JigsawNativeProgressTests
     [
         ("Jigsaw native progress shop revisits preserve history without advancing native consumers", ShopProgress),
         ("Jigsaw native progress Lantern Key retains native unknown and next event hooks", LanternContext),
-        ("Jigsaw native progress rejects corrupt history indices and leaves ordinary runs unchanged", IsolationAndCorruption)
+        ("Jigsaw native progress rejects corrupt history indices and leaves ordinary runs unchanged", IsolationAndCorruption),
+        ("Jigsaw native progress failed revisit preserves its complete before-entry point", FailedRevisit)
     ];
 
     private static JigsawRun Ready(JigsawRoom firstRoom)
@@ -144,6 +145,52 @@ internal static class JigsawNativeProgressTests
                 "A real unknown entry honors Lantern Key's event-only odds and next-event override in the third act.");
         }
         finally { JigsawNativeSaveHost.Save = null; RunManager.Instance.CleanUp(false); }
+    }
+
+    private static async Task FailedRevisit()
+    {
+        using var atlases = HeadlessTestSetup.LoadAtlases("card_atlas", "relic_atlas", "ui_atlas");
+        using var scope = HeadlessCombatInProgress.EnterEvent();
+        var native = Native();
+        var io = new MockGodotFileIo("native-progress-failed-revisit-memory-only");
+        var saves = new RunSaveManager(81, io, new MigrationManager(io), forceSynchronous: true);
+        RunManager.Instance.SetUpTest(native, new NetSingleplayerGameService());
+        JigsawNativeSaveHost.Save = room => saves.SaveRun(RunManager.Instance.ToSave(room), false);
+        void FailBeforeConfirmation() => throw new IOException("Injected revisit callback failure before native confirmation.");
+        try
+        {
+            native.ExtraFields.StartedWithNeow = true;
+            RunManager.Instance.GenerateRooms();
+            await RunManager.Instance.GenerateMap();
+            native.AppendToMapPointHistory(MegaCrit.Sts2.Core.Map.MapPointType.Ancient, RoomType.Event, null);
+            native.AddVisitedMapCoord(native.Map.StartingMapPoint.coord);
+            JigsawCheckpoint.Capture(native, Ready(JigsawRoom.Shop));
+            JigsawNativeSession.Restore(native);
+            var session = JigsawNativeSession.TryGet(native)!;
+            await session.Enter(1);
+            Check(session.Map!.CompleteRoom(session.Map.CreateSave().NextEntry).Success, "Leave the first actual shop.");
+            RunManager.Instance.RoomEntered += FailBeforeConfirmation;
+            bool failed = false;
+            try { await session.Enter(1); }
+            catch (IOException) { failed = true; }
+            finally { RunManager.Instance.RoomEntered -= FailBeforeConfirmation; }
+            Check(failed && session.FailedEntryCheckpoint != null && native.MapPointHistory[0].Count == 3,
+                "The genuine revisit appends native history then fails before the session confirms it.");
+            var protectedPoint = RunManager.Instance.ToSave(null);
+            Check(protectedPoint.MapPointHistory[0].Count == 2, "Serialization retains the complete history from before the failed revisit.");
+            await saves.SaveRun(protectedPoint, false);
+            var loaded = saves.LoadRunSave();
+            Check(loaded.Success && loaded.SaveData != null, "The complete failure point remains readable through native saving.");
+            var restored = RunState.FromSerializable(loaded.SaveData!);
+            Check(restored.TotalFloor == 2 && restored.MapPointHistory[0].Count == 2,
+                "Live revisit indices never contaminate the shorter protected native point.");
+        }
+        finally
+        {
+            RunManager.Instance.RoomEntered -= FailBeforeConfirmation;
+            JigsawNativeSaveHost.Save = null;
+            RunManager.Instance.CleanUp(false);
+        }
     }
 
     private static Task IsolationAndCorruption()

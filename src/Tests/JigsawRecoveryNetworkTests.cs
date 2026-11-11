@@ -33,7 +33,8 @@ internal static class JigsawRecoveryNetworkTests
         (from phase in new[] { "editing", "generating", "ancient", "exploring", "visited", "pending" }
          from roster in new[] { "all", "absent", "late", "leave" }
          select ($"{Prefix} {phase} {roster}", (Func<Task>)(() => Run(phase, roster))))
-        .Append(($"{Prefix} deferred all", (Func<Task>)(() => Run("deferred", "all")))).ToArray();
+        .Concat(new[] { "deferred", "deferred-pending", "entry-retry", "entry-abandon", "entry-after" }
+            .Select(phase => ($"{Prefix} {phase} all", (Func<Task>)(() => Run(phase, "all"))))).ToArray();
 
     // These are existing native reward/failure paths, previously opt-in by environment.
     // Register each scenario so the full suite actually executes the specified inputs.
@@ -75,6 +76,7 @@ internal static class JigsawRecoveryNetworkTests
         internal Task? Loading;
         internal RunState? Native;
         internal string? RestoredMap;
+        internal bool AllowEntryFailure;
         public void BeginRun() => Loading = Load();
         private async Task Load()
         {
@@ -86,7 +88,8 @@ internal static class JigsawRecoveryNetworkTests
             Require(JsonNode.DeepEquals(JsonNode.Parse(JsonSerializer.Serialize(expectedMap)), JsonNode.Parse(RestoredMap)), "Setup preserves every persisted map field; only this session's active roster changes.");
             RunManager.Instance.Launch();
             await RunManager.Instance.GenerateMap();
-            await RunManager.Instance.LoadIntoLatestMapCoord(null);
+            try { await RunManager.Instance.LoadIntoLatestMapCoord(null); }
+            catch (IOException) when (AllowEntryFailure) { }
         }
 #if STS2_PUBLIC
         public void PlayerConnected(ulong playerId) { }
@@ -121,7 +124,7 @@ internal static class JigsawRecoveryNetworkTests
         {
             RunManager.Instance.GenerateRooms();
             await RunManager.Instance.GenerateMap();
-            if (phase == "deferred")
+            if (phase.StartsWith("deferred", StringComparison.Ordinal))
             {
                 native.ExtraFields.StartedWithNeow = true;
                 native.AppendToMapPointHistory(MegaCrit.Sts2.Core.Map.MapPointType.Ancient, RoomType.Event, null);
@@ -134,8 +137,19 @@ internal static class JigsawRecoveryNetworkTests
                 await MegaCrit.Sts2.Core.Commands.PlayerCmd.GainGold((int)player.NetId * 17, player);
                 await MegaCrit.Sts2.Core.Commands.PotionCmd.TryToProcure<MegaCrit.Sts2.Core.Models.Potions.FirePotion>(player);
             }
-            var map = JigsawRun.Create(81, players: players.Select(player => player.NetId));
-            if (phase == "editing")
+            bool entryFault = phase.StartsWith("entry-", StringComparison.Ordinal);
+            var map = entryFault ? Enumerable.Range(0, 100).Select(seed => JigsawRun.Create(seed, players: players.Select(player => player.NetId)))
+                .First(candidate => candidate.Pool[0].Nodes[0].Room == JigsawRoom.Treasure) : JigsawRun.Create(81, players: players.Select(player => player.NetId));
+            if (entryFault)
+            {
+                Require(map.Take(1, 0).Success && map.Drop(1, new(3, 0)).Success && map.AddEdge(1, 0, 1).Success, "Failure fixture has a real reachable Treasure.");
+                foreach (var player in players) Require(map.ChooseEnd(player.NetId, EndChoice.Manual).Success, "The fault fixture uses genuine manual consensus.");
+                Require(map.Inspect().Success, "The fault fixture passes production validation.");
+                foreach (var player in players) Require(map.CompleteAncient(player.NetId).Success, "Fault fixture owners have completed Ancient.");
+                foreach (var player in players) Require(map.Continue(player.NetId).Success, "Fault fixture owners continue exploration.");
+                Require(map.BeginEnter(1) != null, "The checkpoint keeps its already chosen Treasure destination.");
+            }
+            else if (phase == "editing")
             {
                 Require(map.Take(1, 0).Success && map.Drop(1, new(3, 0)).Success, "Editing fixture contains a real accepted placement.");
                 Require(map.Take(2, 1).Success, "Editing fixture has a held piece that must be cleared in the new session.");
@@ -148,7 +162,7 @@ internal static class JigsawRecoveryNetworkTests
                     Require(map.FinishAutomatic(map.AutomaticOperation!, JigsawAutomatic.Solve(map, 0)).Success, "Fixture uses an accepted production layout.");
                     if (phase != "ancient")
                     {
-                        if (phase == "deferred") map.Disconnect(3);
+                        if (phase.StartsWith("deferred", StringComparison.Ordinal)) map.Disconnect(3);
                         foreach (ulong owner in map.ActivePlayers) Require(map.CompleteAncient(owner).Success, "Fixture completes the active owners' logical Ancient boundary.");
                         foreach (ulong owner in map.ActivePlayers) Require(map.Continue(owner).Success, "Fixture enters shared exploration.");
                         if (phase == "visited")
@@ -156,7 +170,7 @@ internal static class JigsawRecoveryNetworkTests
                             var entry = map.BeginEnter(map.AvailableDestinations.First())!;
                             Require(map.ConfirmEnter(entry.Id).Success && map.CompleteRoom(entry.Id).Success, "Visited fixture has one completed shared destination.");
                         }
-                        if (phase == "pending") Require(map.BeginEnter(map.AvailableDestinations.First()) != null, "Pending fixture already chose its destination.");
+                        if (phase is "pending" or "deferred-pending") Require(map.BeginEnter(map.AvailableDestinations.First()) != null, "Pending fixture already chose its destination.");
                     }
                 }
             }
@@ -182,8 +196,12 @@ internal static class JigsawRecoveryNetworkTests
         start.Environment["JIGSAW_RECOVERY_DIR"] = directory;
         if (port != null) start.Environment["JIGSAW_RECOVERY_PORT"] = port.ToString();
         var process = Process.Start(start)!;
-        process.OutputDataReceived += (_, args) => { if (args.Data != null) File.AppendAllText(Path.Combine(directory, role + ".log"), args.Data + Environment.NewLine); };
-        process.ErrorDataReceived += (_, args) => { if (args.Data != null) File.AppendAllText(Path.Combine(directory, role + ".err"), args.Data + Environment.NewLine); };
+        TextWriter Writer(string extension) => TextWriter.Synchronized(new StreamWriter(new FileStream(
+            Path.Combine(directory, role + extension), FileMode.Create, System.IO.FileAccess.Write, FileShare.ReadWrite)) { AutoFlush = true });
+        var output = Writer(".log");
+        var errors = Writer(".err");
+        process.OutputDataReceived += (_, args) => { if (args.Data != null) output.WriteLine(args.Data); else output.Dispose(); };
+        process.ErrorDataReceived += (_, args) => { if (args.Data != null) errors.WriteLine(args.Data); else errors.Dispose(); };
         process.BeginOutputReadLine(); process.BeginErrorReadLine();
         return process;
     }
@@ -203,7 +221,7 @@ internal static class JigsawRecoveryNetworkTests
             Console.WriteLine($"RECOVERY evidence={evidence} host exit={process.ExitCode}");
             Require(process.ExitCode == 0, "Native recovery Host failed; inspect " + evidence);
             foreach (string errorLog in Directory.EnumerateFiles(evidence, "*.err"))
-                Require(!File.ReadLines(errorLog).Any(line => line.StartsWith("ERROR:") || line.StartsWith("FATAL:")),
+                Require(!File.ReadLines(errorLog).Any(line => line.StartsWith("ERROR:", StringComparison.Ordinal) || line.StartsWith("FATAL:", StringComparison.Ordinal) || line.StartsWith("[ERROR]", StringComparison.Ordinal) || line.StartsWith("[FATAL]", StringComparison.Ordinal)),
                     "Native recovery endpoint reported an engine error; inspect " + errorLog);
             return;
         }
@@ -234,11 +252,20 @@ internal static class JigsawRecoveryNetworkTests
         void Signal(string stage) => File.WriteAllText(Path.Combine(directory, role + "." + stage), "ready");
         bool Signaled(string peer, string stage) => File.Exists(Path.Combine(directory, peer + "." + stage));
         var listener = new LoadListener();
+        bool entryFault = phase.StartsWith("entry-", StringComparison.Ordinal);
+        listener.AllowEntryFailure = entryFault && role == "2";
+        if (listener.AllowEntryFailure)
+        {
+            JigsawEntryFailureHost.Fail = phase != "entry-after";
+            JigsawEntryFailureHost.Late = phase == "entry-after";
+        }
         JigsawScreen? screen = null;
-        using var eventScope = phase == "deferred" ? HeadlessCombatInProgress.EnterEvent() : null;
-        using var atlases = phase == "deferred" ? HeadlessTestSetup.LoadAtlases("card_atlas", "relic_atlas") : null;
+        bool deferred = phase.StartsWith("deferred", StringComparison.Ordinal);
+        bool unfinishedAncient = phase is "editing" or "generating" or "ancient";
+        using var eventScope = deferred || unfinishedAncient ? HeadlessCombatInProgress.EnterEvent() : null;
+        using var atlases = deferred || unfinishedAncient ? HeadlessTestSetup.LoadAtlases("card_atlas", "relic_atlas") : null;
         var rewardHarmony = new HarmonyLib.Harmony("AllMatters.Tests.RecoveryDeferred");
-        if (phase == "deferred")
+        if (deferred || unfinishedAncient)
             rewardHarmony.Patch(HarmonyLib.AccessTools.Method(typeof(EventSynchronizer), nameof(EventSynchronizer.BeginEvent)),
                 prefix: new HarmonyLib.HarmonyMethod(typeof(JigsawNetworkTests), nameof(JigsawNetworkTests.ForceReward)));
         try
@@ -264,6 +291,7 @@ internal static class JigsawRecoveryNetworkTests
                 if (role == "3" && roster == "late") await Until(() => Signaled("host", "two-in-lobby"), "late original player waits for the two-player lobby");
                 var transport = new ENetClient(client!);
                 client!.Initialize(transport, PlatformType.None);
+                net.RegisterMessageHandler<InitialGameInfoMessage>((_, _) => { }); // NGame normally consumes the native handshake's display metadata.
                 var connect = transport.ConnectToHost(ulong.Parse(role), "127.0.0.1", ushort.Parse(Environment.GetEnvironmentVariable("JIGSAW_RECOVERY_PORT")!), CancellationToken.None);
                 await Until(() => connect.IsCompleted, "native transport handshake");
                 Require(!(await connect).HasValue, "Native transport connects.");
@@ -305,7 +333,7 @@ internal static class JigsawRecoveryNetworkTests
             if (phase == "pending") Require(map.Steps == 1 && map.PendingEntry == null && map.CurrentNode != null, "Native readiness confirms the already chosen pending destination exactly once.");
             foreach (var original in expected.Players)
                 Require(JsonNode.DeepEquals(JsonNode.Parse(JsonSerializer.Serialize(original)), JsonNode.Parse(JsonSerializer.Serialize(listener.Native.Players.Single(player => player.NetId == original.NetId).ToSerializable()))), "Native load restores the complete player document, including upgraded cards, relics and potions.");
-            if (phase == "deferred")
+            if (deferred)
             {
                 var completed = listener.Native!.Players.Where(player => player.NetId != 3)
                     .ToDictionary(player => player.NetId, player => JsonSerializer.Serialize(player.ToSerializable()));
@@ -329,11 +357,14 @@ internal static class JigsawRecoveryNetworkTests
                 }
                 await Until(() => session.AncientReady && session.BeforeAncient == null, "Host records the owing player's completed native option on every endpoint");
                 await RunManager.Instance.EventSynchronizer.AwaitPendingOptionTasks();
-                await session.Continue();
-                await Until(() => listener.Native.CurrentRoom is MapRoom && session.DeferredAncient == null, "every endpoint returns to its preserved exploration source");
+                int? chosen = map.PendingEntry?.NodeId;
+                var continuation = session.Continue();
+                await Until(() => continuation.IsCompleted, "native pending-room continuation completes while transport is pumped");
+                await continuation;
+                await Until(() => session.DeferredAncient == null && (chosen == null ? listener.Native.CurrentRoom is MapRoom : map.CurrentNode == chosen), "every endpoint returns to its preserved exploration source");
                 Require(completed.All(pair => JsonSerializer.Serialize(listener.Native.Players.Single(player => player.NetId == pair.Key).ToSerializable()) == pair.Value),
                     "Settling the returning owner never repeats completed owners' full native reward effects.");
-                Require(map.Steps == 0 && map.FirstProgress == 0 && map.CurrentNode == null && map.PendingEntry == null &&
+                Require(map.Steps == (chosen == null ? 0 : 1) && map.FirstProgress == (chosen == null ? 0 : 1) && map.CurrentNode == chosen && map.PendingEntry == null &&
                     map.CreateSave().AncientCompleted.Order().SequenceEqual(new ulong[] { 1, 2, 3 }), "Deferred reward changes no exploration entry or progress.");
                 listener.RestoredMap = JsonSerializer.Serialize(map.CreateSave());
             }
@@ -349,7 +380,75 @@ internal static class JigsawRecoveryNetworkTests
             await Until(() => remaining.All(peer => Signaled(peer, "restored")), "all production endpoints restore before Host exit");
             foreach (string peer in remaining)
                 Require(JsonNode.DeepEquals(JsonNode.Parse(listener.RestoredMap!), JsonNode.Parse(File.ReadAllText(Path.Combine(directory, peer + ".map.json")))), "All endpoints have the same complete map, RNG, operation input and exploration document after native setup.");
-            if (phase is "exploring" or "visited")
+            if (entryFault)
+            {
+                RunManager.Instance.ActionExecutor.Unpause();
+                if (phase == "entry-after")
+                {
+                    await Until(() => map.PendingEntry == null && map.CurrentNode == 1 && map.Steps == 1, "a callback failure after readiness still confirms the one common entry");
+                }
+                else
+                {
+                    await Until(() => session.FailedEntryCheckpoint != null, "the failed endpoint makes the shared entry retryable on every replica");
+                    Require(map.PendingEntry?.NodeId == 1 && map.CurrentNode == null && map.Steps == 0, "Failure before reliable readiness charges no endpoint.");
+                    Signal("failed");
+                    await Until(() => remaining.All(peer => Signaled(peer, "failed")), "all endpoints observe the failure before Host chooses recovery");
+                    if (host != null)
+                    {
+                        var recovery = phase == "entry-abandon" ? session.AbandonEntry() : session.Enter(1);
+                        await Until(() => recovery.IsCompleted, "Host recovery request finishes while transport is pumped");
+                        await recovery;
+                    }
+                    await Until(() => JigsawNativeSession.Current is { } current && current != session &&
+                        (phase == "entry-abandon" ? current.Map?.PendingEntry == null && current.Map?.CurrentNode == null : current.Map?.CurrentNode == 1),
+                        "native multiplayer reload replaces the whole failed run on every endpoint");
+                    session = JigsawNativeSession.Current!;
+                    map = session.Map!;
+                    Require(ReferenceEquals(RunManager.Instance.NetService, net) && net.IsConnected && map.ActivePlayers.Order().SequenceEqual(active),
+                        "Whole-run recovery preserves the original authenticated transport and active roster.");
+                    Require(map.Steps == (phase == "entry-abandon" ? 0 : 1) && map.PendingEntry == null &&
+                        map.OriginalPlayers.Order().SequenceEqual(new ulong[] { 1, 2, 3 }), "Retry charges once; abandonment restores selection and preserves all original characters.");
+                }
+                File.WriteAllText(Path.Combine(directory, role + ".fault-result"), $"{map.CurrentNode}:{map.Steps}:{map.CreateSave().DestinationRandomState}");
+                Signal("fault-done");
+                await Until(() => remaining.All(peer => Signaled(peer, "fault-done")), "all endpoints finish the recovery decision");
+                foreach (string peer in remaining)
+                    Require(File.ReadAllText(Path.Combine(directory, peer + ".fault-result")) == File.ReadAllText(Path.Combine(directory, role + ".fault-result")), "All replicas agree after native entry recovery.");
+            }
+            if (unfinishedAncient)
+            {
+                RunManager.Instance.ActionExecutor.Unpause();
+                if (phase == "editing")
+                {
+                    var button = (Button)HarmonyLib.AccessTools.Field(typeof(JigsawScreen), "automatic").GetValue(screen)!;
+                    var position = button.GetGlobalRect().GetCenter();
+                    Require(!button.Disabled && button.IsVisibleInTree(), "The recovered editor exposes its real automatic-consensus button.");
+                    Input.ParseInputEvent(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true, Position = position, GlobalPosition = position });
+                    await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
+                    Input.ParseInputEvent(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false, Position = position, GlobalPosition = position });
+                }
+                await Until(() => map.Phase == JigsawPhase.Ancient && listener.Native!.CurrentRoom is EventRoom,
+                    "recovered editor or generation continues through production consensus into native Ancient");
+                Signal("ancient-ready");
+                await Until(() => remaining.All(peer => Signaled(peer, "ancient-ready")), "all native Ancient endpoints are ready for their individual options");
+                using var selector = MegaCrit.Sts2.Core.Commands.CardSelectCmd.UseSelector(new JigsawNetworkTests.LegalSelector());
+#if STS2_PUBLIC
+                const string reward = "PRECISE_SCISSORS";
+#else
+                const string reward = "POMANDER";
+#endif
+                int option = RunManager.Instance.EventSynchronizer.GetLocalEvent().CurrentOptions.ToList().FindIndex(item => item.Relic?.Id.Entry == reward);
+                Require(option >= 0, "Every current player can continue the recovered real Ancient.");
+                RunManager.Instance.EventSynchronizer.ChooseLocalOption(option);
+                await Until(() => session.AncientReady && session.BeforeAncient == null, "all current owners finish real native rewards");
+                await RunManager.Instance.EventSynchronizer.AwaitPendingOptionTasks();
+                await session.Continue();
+                await Until(() => map.Phase == JigsawPhase.Exploring, "new-session continue votes finish and expose exploration");
+                session.ShowMap();
+                RunManager.Instance.ActionExecutor.Unpause();
+                await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
+            }
+            if (phase is "exploring" or "visited" || unfinishedAncient)
             {
                 RunManager.Instance.ActionExecutor.Unpause();
                 await Until(() => map.AvailableDestinations.Count > 1, "the recovered map exposes distinct destination ballots");
@@ -391,7 +490,8 @@ internal static class JigsawRecoveryNetworkTests
         finally
         {
             rewardHarmony.UnpatchAll(rewardHarmony.Id);
-            screen?.Free();
+            JigsawEntryFailureHost.Reset();
+            if (GodotObject.IsInstanceValid(screen)) screen!.Free();
             foreach (var child in children) { if (!child.HasExited) child.Kill(true); child.Dispose(); }
             RunManager.Instance.CleanUp(false);
             JigsawNativeSaveHost.Save = null;

@@ -37,18 +37,21 @@ public sealed partial class JigsawRun
             if (CurrentNode == null)
                 return AvailableDestinations;
 
-            var completedForVote = completed.Append(CurrentNode.Value).ToHashSet();
-            var candidates = Edges.SelectMany(e => new[] { (From: e.First, To: e.Second), (From: e.Second, To: e.First) })
-                .Where(e => completedForVote.Contains(e.From) && (!visited.Contains(e.To) || ResolvedRoom(e.To) == JigsawRoom.Shop) && e.To != 0)
-                .Select(e => e.To).Distinct().ToArray();
-            var secondBoss = Nodes.FirstOrDefault(n => n.Room == JigsawRoom.SecondBoss);
-            var firstBoss = Nodes.FirstOrDefault(n => n.Room == JigsawRoom.Boss);
-            if (secondBoss != null && firstBoss != null && !completedForVote.Contains(firstBoss.Id))
-                candidates = candidates.Where(id => id != secondBoss.Id).ToArray();
-            return candidates;
+            return DestinationsAfter(completed.Append(CurrentNode.Value).ToHashSet());
         }
     }
 
+    private IReadOnlyCollection<int> DestinationsAfter(IReadOnlySet<int> completedNodes)
+    {
+        var candidates = Edges.SelectMany(e => new[] { (From: e.First, To: e.Second), (From: e.Second, To: e.First) })
+            .Where(e => completedNodes.Contains(e.From) && (!visited.Contains(e.To) || ResolvedRoom(e.To) == JigsawRoom.Shop) && e.To != 0)
+            .Select(e => e.To).Distinct().ToArray();
+        var secondBoss = Nodes.FirstOrDefault(n => n.Room == JigsawRoom.SecondBoss);
+        var firstBoss = Nodes.FirstOrDefault(n => n.Room == JigsawRoom.Boss);
+        if (secondBoss != null && firstBoss != null && !completedNodes.Contains(firstBoss.Id))
+            candidates = candidates.Where(id => id != secondBoss.Id).ToArray();
+        return candidates;
+    }
     public JigsawResult RecordRoomCompletion(ulong player)
     {
         if (Phase != JigsawPhase.Exploring || HasDeferredAncient || CurrentNode == null || !players.Contains(player))

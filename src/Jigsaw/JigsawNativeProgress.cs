@@ -148,7 +148,7 @@ internal static class JigsawBindSerializedScore
 [HarmonyPatch(typeof(RunManager), nameof(RunManager.ToSave))]
 internal static class JigsawBindSavedProgressHistory
 {
-    [HarmonyPriority(Priority.Last - 1)]
+    [HarmonyPriority(Priority.Last)]
     private static void Postfix(SerializableRun __result) => JigsawNativeProgress.Bind(__result);
 }
 
@@ -167,7 +167,7 @@ internal static class JigsawBindLoadedProgressHistory
         yield return AccessTools.Method(typeof(RunSaveManager), nameof(RunSaveManager.LoadRunSave));
         yield return AccessTools.Method(typeof(RunSaveManager), nameof(RunSaveManager.LoadMultiplayerRunSave));
     }
-    [HarmonyPriority(Priority.Last - 1)]
+    [HarmonyPriority(Priority.Last)]
     private static void Postfix(ReadSaveResult<SerializableRun> __result)
     {
         if (__result.Success && __result.SaveData is { } save)

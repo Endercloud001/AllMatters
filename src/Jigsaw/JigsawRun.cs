@@ -364,17 +364,7 @@ public sealed partial class JigsawRun
         {
             if (Phase != JigsawPhase.Exploring || HasDeferredAncient || CurrentNode != null || PendingEntry != null)
                 return [];
-            var candidates = Edges.SelectMany(e => new[] { (From: e.First, To: e.Second), (From: e.Second, To: e.First) })
-                .Where(e => completed.Contains(e.From) && (!visited.Contains(e.To) || ResolvedRoom(e.To) == JigsawRoom.Shop) && e.To != 0)
-                .Select(e => e.To).Distinct().ToArray();
-
-            // Dual boss sequence: second boss only available after first boss completed
-            var secondBoss = Nodes.FirstOrDefault(n => n.Room == JigsawRoom.SecondBoss);
-            var firstBoss = Nodes.FirstOrDefault(n => n.Room == JigsawRoom.Boss);
-            if (secondBoss != null && firstBoss != null && !completed.Contains(firstBoss.Id))
-                candidates = candidates.Where(id => id != secondBoss.Id).ToArray();
-
-            return candidates;
+            return DestinationsAfter(completed);
         }
     }
     public bool IsEndgame

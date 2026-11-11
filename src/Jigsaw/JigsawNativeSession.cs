@@ -767,7 +767,7 @@ public sealed class JigsawNativeSession
         if (attempt == null || attempt.NodeId != node)
             return;
         // Also retain a complete point before native AddVisited/exit/sync can fail.
-        entryCheckpoint ??= RunManager.Instance.ToSave(null);
+        entryCheckpoint ??= JigsawSaveSource.Copy(RunManager.Instance.ToSave(null));
         var destination = Map.Nodes.Single(n => n.Id == node);
         var projection = JigsawEntryProjection.Append(Native.Map,
             NextProjectionRow,
@@ -833,7 +833,7 @@ public sealed class JigsawNativeSession
     internal void CapturePendingEntry(SerializableRun checkpoint)
     {
         if (Map?.PendingEntry != null && Native.CurrentRoomCount == 0)
-            entryCheckpoint = checkpoint;
+            entryCheckpoint = JigsawSaveSource.Copy(checkpoint);
     }
     private int NextProjectionRow => Math.Max(0, (Native.MapPointHistory.ElementAtOrDefault(Native.CurrentActIndex)?.Count ?? 1) - 1);
     // Before native entry the latest coordinate is still the completed source;
@@ -1147,7 +1147,7 @@ internal static class JigsawRestoreSession
 [HarmonyPatch(typeof(RunManager), nameof(RunManager.ToSave))]
 internal static class JigsawCaptureNativePoint
 {
-    [HarmonyPriority(Priority.Last)]
+    [HarmonyPriority(Priority.VeryLow)]
     private static void Postfix(ref SerializableRun __result)
     {
         if (JigsawNativeSession.SaveSession is not { } session)
