@@ -120,8 +120,13 @@ internal static class JigsawNativeExploration
 
     internal static void MerchantExited(JigsawNativeSession session) => State(session).MerchantExit = Entry(session);
     internal static void TreasureOpened(JigsawNativeSession session) => State(session).TreasureOpen = Entry(session);
-    internal static void TerminalRewardsFinished(JigsawNativeSession session) =>
+    internal static void TerminalRewardsFinished(JigsawNativeSession session)
+    {
+        // Native terminal Proceed leaves unclaimed rewards on the stack until room
+        // exit. Exploration needs that same local exit before it can vote to leave.
+        RunManager.Instance.RewardsSetSynchronizer.BeforeLeavingRoom();
         State(session).TerminalRewards[RunManager.Instance.NetService.NetId] = Entry(session);
+    }
 
     internal static void RewardSetBegan(JigsawNativeSession session, RewardsSet rewards)
     {
