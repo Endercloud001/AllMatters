@@ -482,8 +482,10 @@ internal static class JigsawNetworkTests
                 HeadlessUiHost.EnsureInputActions();
                 using var nativeUi = new JigsawNativeMapUiHost();
                 var mapScreen = await nativeUi.Open(session);
-                if (!mapScreen.IsProcessingInput() || session.Map.ActivePlayers.Count != 3)
-                    throw new Exception("A fresh native lobby retains all three map voters and enables each production screen.");
+                ulong[] expectedVoters = remainingRoles.Select(peer => peer == "host" ? 1UL : ulong.Parse(peer)).Order().ToArray();
+                if (!mapScreen.IsProcessingInput() || !session.Map.ActivePlayers.Order().SequenceEqual(expectedVoters) ||
+                    session.Map.OriginalPlayers.Count != 3 || native.Players.Count != 3)
+                    throw new Exception("A native lobby enables each remaining map voter while preserving its original three-player roster.");
                 int target = session.Map.AvailableDestinations.First();
                 if (role == "2")
                 {
