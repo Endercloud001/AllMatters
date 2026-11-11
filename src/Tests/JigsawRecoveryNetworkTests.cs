@@ -323,7 +323,7 @@ internal static class JigsawRecoveryNetworkTests
         bool unfinishedAncient = phase is "editing" or "generating" or "ancient";
         bool shopLag = phase == "shop-lag", shopFault = phase == "shop-fault";
         using var eventScope = deferred || unfinishedAncient || shopLag || shopFault ? HeadlessCombatInProgress.EnterEvent() : null;
-        using var atlases = deferred || unfinishedAncient || shopLag || shopFault ? HeadlessTestSetup.LoadAtlases("card_atlas", "relic_atlas", "ui_atlas") : null;
+        using var atlases = HeadlessTestSetup.LoadAtlases("card_atlas", "relic_atlas", "ui_atlas");
         var rewardHarmony = new HarmonyLib.Harmony("AllMatters.Tests.RecoveryDeferred");
         if (shopFault)
         {
@@ -733,7 +733,7 @@ internal static class JigsawRecoveryNetworkTests
                 RunManager.Instance.ActionExecutor.Unpause();
                 await Until(() => map.AvailableDestinations.Count > 1, "the recovered map exposes distinct destination ballots");
                 int[] choices = map.AvailableDestinations.Order().ToArray();
-                int choice = choices[(int)(net.NetId % (ulong)Math.Min(2, choices.Length))];
+                int choice = choices[net.NetId == 1 ? 0 : 1];
                 int steps = map.Steps;
                 var target = map.Nodes.Single(node => node.Id == choice);
                 var position = screen.MapControl.GlobalPosition + screen.GridToCanvas(target.Center);
@@ -741,7 +741,22 @@ internal static class JigsawRecoveryNetworkTests
                 await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
                 Input.ParseInputEvent(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false, Position = position, GlobalPosition = position });
                 Console.WriteLine($"RECOVERY ballot role={role} target={choice} at={position} canvas={screen.MapControl.GetGlobalRect()} votes={string.Join(',', map.DestinationVotes.Select(v => v.Key + ":" + v.Value))}");
+                await Until(() => map.DestinationVotes.Count == active.Length, "all owners' actual engine clicks reach the shared ballot");
+                Require(map.PendingEntry == null && map.Steps == steps && map.ProposedDestination == null,
+                    "Different votes never enter, including a Host vote while clients choose another node.");
+                Signal("split-ballot");
+                await Until(() => remaining.All(peer => Signaled(peer, "split-ballot")), "every endpoint observes split votes before anyone changes a choice");
+                if (net.NetId == 2)
+                    await Until(() => map.DestinationVotes.Where(vote => vote.Key != 2).All(vote => vote.Value == choices[0]) &&
+                        remaining.Where(peer => peer != "2").All(peer => Signaled(peer, "agreed-ballot")),
+                        "the Client waits until all other owners have selected its final destination");
+                position = screen.MapControl.GlobalPosition + screen.GridToCanvas(map.Nodes.Single(node => node.Id == choices[0]).Center);
+                Input.ParseInputEvent(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true, Position = position, GlobalPosition = position });
+                await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
+                Input.ParseInputEvent(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false, Position = position, GlobalPosition = position });
+                Signal("agreed-ballot");
                 await Until(() => map.CurrentNode != null && map.Steps == steps + 1, "engine-routed votes choose and natively enter one common destination");
+                Require(map.CurrentNode == choices[0], "The final Client click enters exactly the unanimously selected node.");
                 Require(map.PendingEntry == null && map.DestinationVotes.Count == 0 && listener.Native!.CurrentRoom is not (null or MapRoom), "Native RoomEntered confirms one room, consumes all ballots and charges exactly once.");
                 File.WriteAllText(Path.Combine(directory, role + ".destination"), $"{map.CurrentNode}:{map.Steps}:{map.CreateSave().DestinationRandomState}");
                 Signal("entered");

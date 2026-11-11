@@ -28,18 +28,21 @@ internal static class JigsawExplorationTests
         Ok(run.VoteDestination(1, destinations[0]));
         Ok(run.VoteDestination(2, destinations[0]));
         Check(run.DestinationVotes.Count == 2 && run.ProposedDestination == null,
-            "Repeated clicks keep one ballot and a missing player prevents the draw.");
+            "Repeated clicks keep one ballot and a missing player prevents entry.");
         Check(!run.FinalizeDestination(destinations[0]).Success && run.PendingEntry == null,
             "A Host result cannot finalize while an active player has not voted.");
         Ok(run.VoteDestination(3, destinations[1]));
+        Check(run.ProposedDestination == null && !run.FinalizeDestination(destinations[0]).Success,
+            "Different destination votes cannot enter until all active players choose the same node.");
+        Ok(run.VoteDestination(3, destinations[0]));
         int selected = run.ProposedDestination!.Value;
-        Check(selected == destinations[0], "State one selects the first of three player ballots, including duplicate destinations.");
+        Check(selected == destinations[0], "Only the destination chosen by all active players can be proposed.");
         Check(!run.FinalizeDestination(destinations[1]).Success && run.PendingEntry == null,
-            "A forged target cannot replace the deterministic ballot result.");
+            "A forged target cannot replace the unanimously selected destination.");
         Ok(run.FinalizeDestination(selected));
         Check(run.PendingEntry?.NodeId == selected && run.Steps == 0 && run.DestinationVotes.Count == 0,
             "Finalization records one retryable target without counting entry or retaining ballots.");
-        Check(!run.FinalizeDestination(selected).Success, "A delayed duplicate cannot draw again.");
+        Check(!run.FinalizeDestination(selected).Success, "A delayed duplicate cannot finalize again.");
         return Task.CompletedTask;
     }
 
