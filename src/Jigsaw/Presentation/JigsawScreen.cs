@@ -26,6 +26,7 @@ public partial class JigsawScreen : Control
     private Func<ulong, Color>? playerColor;
     private readonly HBoxContainer manualVoters = new(), autoVoters = new();
     private readonly HBoxContainer continueVoters = new() { Name = "ContinueVoters" };
+    private JigsawMultiplayerHud? multiplayerHud;
     private int helpIndex;
     private readonly Theme adaptiveTheme = new();
     private JigsawNativeArt art = null!;
@@ -121,7 +122,12 @@ public partial class JigsawScreen : Control
     public override void _Ready()
     {
         if (MegaCrit.Sts2.Core.Nodes.NRun.Instance?.GlobalUi.MultiplayerPlayerContainer is { } hud)
-            _ = new JigsawMultiplayerHud(this, hud);
+            BindMultiplayerHud(hud);
+    }
+    internal void BindMultiplayerHud(CanvasItem hud)
+    {
+        multiplayerHud?.Dispose();
+        multiplayerHud = new JigsawMultiplayerHud(this, hud, () => map.Phase is JigsawPhase.Editing or JigsawPhase.Inspecting or JigsawPhase.Generating or JigsawPhase.Ancient);
     }
     private Button MakeButton(string text, Action pressed)
     {
@@ -318,6 +324,7 @@ public partial class JigsawScreen : Control
     public void ClearRecent() { recent = ""; secondError = ""; errorRemaining = 0; }
     public void Refresh()
     {
+        multiplayerHud?.Update();
         foreach (var id in bossVisuals.Keys.Where(id => !map.Nodes.Any(n => n.Id == id)).ToArray())
         { bossVisuals[id].QueueFree(); bossVisuals.Remove(id); }
         poolFrame.Visible = pool.Visible = map.Phase is JigsawPhase.Editing or JigsawPhase.Inspecting or JigsawPhase.Generating;

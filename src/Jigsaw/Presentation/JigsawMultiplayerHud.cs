@@ -7,23 +7,25 @@ internal sealed class JigsawMultiplayerHud : IDisposable
 {
     private readonly Control screen;
     private readonly CanvasItem hud;
+    private readonly Func<bool> isPuzzle;
     private bool? previousVisibility;
     private bool disposed;
 
-    internal JigsawMultiplayerHud(Control screen, CanvasItem hud)
+    internal JigsawMultiplayerHud(Control screen, CanvasItem hud, Func<bool>? isPuzzle = null)
     {
         this.screen = screen;
         this.hud = hud;
+        this.isPuzzle = isPuzzle ?? (() => true);
         screen.VisibilityChanged += Update;
         screen.TreeExiting += Dispose;
         Update();
     }
 
-    private void Update()
+    internal void Update()
     {
-        if (!GodotObject.IsInstanceValid(hud))
+        if (disposed || !GodotObject.IsInstanceValid(hud))
             return;
-        if (screen.IsVisibleInTree())
+        if (screen.IsVisibleInTree() && isPuzzle())
         {
             previousVisibility ??= hud.Visible;
             hud.Hide();

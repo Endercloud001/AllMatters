@@ -13,17 +13,23 @@ internal static class JigsawFeedbackPresentationTests
 
     private static async Task HudVisibility()
     {
-        var screen = new Control();
+        using var atlases = HeadlessTestSetup.LoadAtlases("ui_atlas", "compressed");
+        var map = Ancient(1);
+        HeadlessUiHost.EnsureInputActions();
+        var screen = JigsawScreen.Create(map, 1, () => {}, () => Task.CompletedTask, () => Task.CompletedTask, _ => Task.CompletedTask, () => {}, new MemoryJigsawTutorialProfile { Sentence = 6 });
         var hud = new Control();
         try
         {
             await HeadlessUiHost.Mount(screen, hud);
-            using var scope = new JigsawMultiplayerHud(screen, hud);
+            screen.BindMultiplayerHud(hud);
             Require(!hud.Visible, "A visible puzzle hides the overlapping multiplayer HUD.");
             screen.Hide();
             Require(hud.Visible, "Returning to a native room restores the previously visible HUD.");
             screen.Show();
             Require(!hud.Visible, "Reopening the puzzle hides the HUD again.");
+            Require(map.Continue(1).Success, "The player finishes Ancient.");
+            screen.Refresh();
+            Require(hud.Visible, "Changing the same visible screen to exploration restores the multiplayer HUD.");
             screen.GetParent().RemoveChild(screen);
             Require(hud.Visible, "External screen removal restores the HUD even without HideMap.");
             hud.Hide();
@@ -134,5 +140,3 @@ internal static class JigsawFeedbackPresentationTests
     }
     private static void Require(bool value, string message) { if (!value) throw new InvalidOperationException(message); }
 }
-
-
