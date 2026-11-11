@@ -54,10 +54,16 @@ internal static class JigsawFeedbackPresentationTests
     {
         using var atlases = HeadlessTestSetup.LoadAtlases("ui_atlas", "compressed");
         HeadlessUiHost.EnsureInputActions();
-        var map = Ancient(1, 2);
         var tree = (SceneTree)Engine.GetMainLoop();
         var originalSize = tree.Root.Size;
-        tree.Root.Size = new(1280, 720);
+        try
+        {
+        foreach (var size in new[] { new Vector2I(1280, 720), new Vector2I(1920, 1080) })
+        foreach (int playerCount in new[] { 1, 2, 3 })
+        {
+        var players = Enumerable.Range(1, playerCount).Select(id => (ulong)id).ToArray();
+        var map = Ancient(players);
+        tree.Root.Size = size;
         JigsawScreen? view = null;
         view = JigsawScreen.Create(map, 1, () => {}, () => Task.CompletedTask,
             () => { map.Continue(1); view!.Refresh(); return Task.CompletedTask; },
@@ -66,6 +72,7 @@ internal static class JigsawFeedbackPresentationTests
         {
             await HeadlessUiHost.Mount(view);
             var button = view.DecisionControl.GetChildren().OfType<Button>().Single(b => b.Text == "继续前行");
+            Require(button.Size.X <= size.X * .25f, "Continue stays compact rather than filling the two-choice region.");
             async Task Click()
             {
                 var at = button.GetGlobalRect().GetCenter();
@@ -77,16 +84,41 @@ internal static class JigsawFeedbackPresentationTests
             }
             await Click();
             Require(map.ContinuedPlayers.Contains(1UL), "The engine click reaches the actual Continue command.");
+            if (playerCount == 1)
+            {
+                Require(map.Phase == JigsawPhase.Exploring, "Solo Continue advances immediately.");
+                continue;
+            }
             Require(map.Phase == JigsawPhase.Ancient, "The first player's engine click must wait for the second player.");
-            var voters = view.DecisionControl.GetNodeOrNull<HBoxContainer>("ContinueVoters");
+            var voters = button.GetNodeOrNull<HBoxContainer>("ContinueVoters");
             Require(voters is { Visible: true } && voters.GetChildCount() == 1, "The waiting continue button must show the first player's portrait.");
+            void CheckPortraitPosition()
+            {
+                var row = voters!.GetGlobalRect();
+                var target = button.GetGlobalRect();
+                Require(row.End.Y <= target.Position.Y && Math.Abs(row.GetCenter().X - target.GetCenter().X) < 2,
+                    "Consent portraits sit centered above Continue without covering its label.");
+            }
+            CheckPortraitPosition();
             await Click();
             Require(voters!.GetChildCount() == 1 && map.Phase == JigsawPhase.Ancient, "Repeated input must neither duplicate nor revoke consent.");
-            Require(map.Continue(2).Success, "The second original player can consent.");
+            if (playerCount == 3)
+            {
+                Require(map.Continue(2).Success, "The second original player can consent.");
+                view.Refresh();
+                await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
+                await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
+                Require(voters.GetChildCount() == 2 && map.Phase == JigsawPhase.Ancient, "Two portraits still wait for the third player.");
+                CheckPortraitPosition();
+            }
+            Require(map.Continue(players[^1]).Success, "The final original player can consent.");
             view.Refresh();
             Require(map.Phase == JigsawPhase.Exploring && !voters.Visible, "Exploration begins only after both players and removes the consent portraits.");
         }
-        finally { view.Free(); tree.Root.Size = originalSize; }
+        finally { view.Free(); }
+        }
+        }
+        finally { tree.Root.Size = originalSize; }
     }
 
     private static async Task ResolvedIcon()

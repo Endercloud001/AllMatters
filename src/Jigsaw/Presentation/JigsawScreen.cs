@@ -264,7 +264,10 @@ public partial class JigsawScreen : Control
         decisions.AddChild(manual);
         decisions.AddChild(autoVoters);
         decisions.AddChild(automatic);
-        decisions.AddChild(continueVoters);
+        resume.AddChild(continueVoters);
+        continueVoters.MouseFilter = MouseFilterEnum.Ignore;
+        continueVoters.Resized += PositionContinueVoters;
+        resume.Resized += PositionContinueVoters;
         decisions.AddChild(resume);
         abandon.Text = L("放弃进入");
         abandon.Pressed += () => { if (abandonRequested != null) RunAsync(abandonRequested()); };
@@ -388,6 +391,8 @@ public partial class JigsawScreen : Control
         RestoreFocus();
     }
     private TextureRect Portrait(ulong id) => new() { Texture = avatar?.Invoke(id), CustomMinimumSize = new(32, 32), Size = new(32, 32), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, MouseFilter = MouseFilterEnum.Ignore };
+    private void PositionContinueVoters() => continueVoters.Position = new(
+        (resume.Size.X - continueVoters.Size.X) / 2, -continueVoters.Size.Y - 4 * Math.Max(.75f, Size.Y / 1080f));
     private void UpdateDestinationVoters()
     {
         foreach (var row in destinationVoters.Values)
@@ -613,7 +618,8 @@ public partial class JigsawScreen : Control
         poolFrame.CustomMinimumSize = new(poolWidth, 0);
         foreach (var card in poolButtons)
             card.CustomMinimumSize = new(0, Math.Max(105, 126 * scale));
-        decisions.CustomMinimumSize = new(buttonWidth * 2 + 12 * scale, 0);
+        bool continueOnly = map.Phase == JigsawPhase.Ancient && map.PendingEntry == null;
+        decisions.CustomMinimumSize = new(continueOnly ? buttonWidth : buttonWidth * 2 + 12 * scale, 0);
         decisions.AddThemeConstantOverride("separation", (int)(12 * scale));
         foreach (var button in new[] { manual, automatic, resume, abandon })
         {
@@ -621,6 +627,7 @@ public partial class JigsawScreen : Control
             button.SizeFlagsVertical = SizeFlags.ShrinkCenter;
             button.CustomMinimumSize = new(buttonWidth, 88 * scale);
         }
+        PositionContinueVoters();
         bottom.CustomMinimumSize = new(0, Size.Y <= 800 ? 112 : 140 * scale);
         bottom.SizeFlagsVertical = SizeFlags.ShrinkEnd;
         dialog.CustomMinimumSize = Vector2.Zero;
