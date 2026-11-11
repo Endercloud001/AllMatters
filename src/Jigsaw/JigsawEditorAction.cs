@@ -6,8 +6,8 @@ using STS2RitsuLib.Networking.ManagedActions;
 
 namespace AllMatters.Jigsaw;
 
-public enum JigsawEditorOperation { Take, Rotate, Drop, Cancel, ReturnToPool, SelectEndpoint, ChooseEnd, CompleteAncient, ContinueAncient, Reset, FinalizeAutomatic, Disconnect }
-public sealed record JigsawEditorIntent(int Act, JigsawEditorOperation Operation, int Piece = 0, GridPoint Point = default, int? NodeId = null, EndChoice? Choice = null, long Sequence = 0, long EditRevision = 0, int? FirstEndpoint = null, bool? DesiredAdd = null, ulong? CompletedOwner = null, JigsawLayout? Layout = null, string? AutomaticFailure = null);
+public enum JigsawEditorOperation { Take, Rotate, Drop, Cancel, ReturnToPool, SelectEndpoint, ChooseEnd, CompleteAncient, ContinueAncient, Reset, FinalizeAutomatic, Disconnect, CompleteRoom, VoteDestination, FinalizeDestination }
+public sealed record JigsawEditorIntent(int Act, JigsawEditorOperation Operation, int Piece = 0, GridPoint Point = default, int? NodeId = null, EndChoice? Choice = null, long Sequence = 0, long EditRevision = 0, int? FirstEndpoint = null, bool? DesiredAdd = null, ulong? CompletedOwner = null, JigsawLayout? Layout = null, string? AutomaticFailure = null, long EntryRevision = 0);
 
 internal static class JigsawEditorAction
 {
@@ -36,7 +36,8 @@ internal static class JigsawEditorAction
                 if (message.Sequence <= input.Accepted.GetValueOrDefault(context.Player.NetId))
                     return;
                 input.Accepted[context.Player.NetId] = message.Sequence;
-                var result = message.Operation != JigsawEditorOperation.Disconnect && message.EditRevision != map.EditRevision ? JigsawResult.Reject("拼图编辑阶段已变化，请重试。") : context.Message.Operation switch
+                bool exploration = message.Operation is JigsawEditorOperation.CompleteRoom or JigsawEditorOperation.VoteDestination or JigsawEditorOperation.FinalizeDestination;
+                var result = message.Operation != JigsawEditorOperation.Disconnect && (message.EditRevision != map.EditRevision || exploration && message.EntryRevision != map.CreateSave().NextEntry) ? JigsawResult.Reject("拼图阶段已变化，请重试。") : context.Message.Operation switch
                 {
                     JigsawEditorOperation.FinalizeAutomatic => IsHost(context.Player.NetId) ? session.ApplyAutomatic(message.Layout, message.AutomaticFailure) : JigsawResult.Reject("只有 Host 可以提交自动拼图。"),
                     JigsawEditorOperation.Disconnect => IsHost(context.Player.NetId) && message.CompletedOwner is { } departed ? session.ApplyDisconnect(departed) : JigsawResult.Reject("Only Host can disconnect."),
@@ -50,6 +51,9 @@ internal static class JigsawEditorAction
                     JigsawEditorOperation.ChooseEnd => map.ChooseEnd(context.Player.NetId, context.Message.Choice),
                     JigsawEditorOperation.CompleteAncient => IsHost(context.Player.NetId) && message.CompletedOwner is { } owner && (RunManager.Instance.NetService.NetId != context.Player.NetId || session.NativeAncientFinished(owner)) ? map.RecordNativeAncientCompletion(owner) : JigsawResult.Reject("Ancient reward unfinished."),
                     JigsawEditorOperation.ContinueAncient => map.Continue(context.Player.NetId),
+                    JigsawEditorOperation.CompleteRoom => message.CompletedOwner == context.Player.NetId && (context.Player.NetId != RunManager.Instance.NetService.NetId || session.NativeRoomFinished(context.Player.NetId)) ? map.RecordRoomCompletion(context.Player.NetId) : JigsawResult.Reject("Room flow unfinished."),
+                    JigsawEditorOperation.VoteDestination => message.NodeId is { } voted ? map.VoteDestination(context.Player.NetId, voted) : JigsawResult.Reject(JigsawFailure.UnknownNode),
+                    JigsawEditorOperation.FinalizeDestination => IsHost(context.Player.NetId) && message.NodeId is { } selected ? map.FinalizeDestination(selected) : JigsawResult.Reject("Only Host can finalize a destination."),
                     _ => JigsawResult.Reject("未知拼图操作。")
                 };
                 if (context.Player.NetId == RunManager.Instance.NetService.NetId && message.Sequence >= input.Next)
@@ -66,6 +70,10 @@ internal static class JigsawEditorAction
                     session.OnEdited();
                 if (result.Success && context.Message.Operation is JigsawEditorOperation.ChooseEnd or JigsawEditorOperation.Disconnect)
                     session.OnOrderedConsensus();
+                if (result.Success && message.Operation is JigsawEditorOperation.VoteDestination or JigsawEditorOperation.CompleteRoom or JigsawEditorOperation.Disconnect)
+                    session.OnDestinationBallotChanged();
+                if (result.Success && message.Operation == JigsawEditorOperation.FinalizeDestination && message.NodeId is { } destination)
+                    session.OnDestinationFinalized(destination);
                 if (message.Operation == JigsawEditorOperation.Reset && context.Player.NetId == RunManager.Instance.NetService.NetId && input.Resets.TryGetValue(message.Sequence, out var completion))
                 {
                     try
@@ -150,7 +158,7 @@ internal static class JigsawEditorAction
             }
         }
         input.Pending = true;
-        var message = new JigsawEditorIntent(session.Native.CurrentActIndex, operation, piece, point, nodeId, choice, ++input.Next, map.EditRevision, first, add, completedOwner, layout, automaticFailure);
+        var message = new JigsawEditorIntent(session.Native.CurrentActIndex, operation, piece, point, nodeId, choice, ++input.Next, map.EditRevision, first, add, completedOwner, layout, automaticFailure, map.CreateSave().NextEntry);
         if (RitsuLibManagedNetActions.Request(RunManager.Instance, descriptor, message))
             return JigsawResult.Ok;
         input.Pending = false;

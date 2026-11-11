@@ -267,6 +267,7 @@ public sealed class JigsawNativeSession
         screen.DropRequested = point => JigsawEditorAction.Submit(this, JigsawEditorOperation.Drop, point: point);
         screen.EndpointRequested = node => JigsawEditorAction.Submit(this, JigsawEditorOperation.SelectEndpoint, nodeId: node);
         screen.ChoiceRequested = choice => JigsawEditorAction.Submit(this, JigsawEditorOperation.ChooseEnd, choice: choice);
+        screen.VoteRequested = node => JigsawEditorAction.Submit(this, JigsawEditorOperation.VoteDestination, nodeId: node);
         return screen;
     }
     internal void RefreshEditor()
@@ -675,6 +676,26 @@ public sealed class JigsawNativeSession
         return enteringTask = EnterCore(node);
     }
 
+    internal bool NativeRoomFinished(ulong player) => JigsawNativeExploration.LocalCompletionWasObserved(this, player);
+
+    internal void OnDestinationBallotChanged()
+    {
+        if (!JigsawEditorAction.IsHost(LocalPlayerId) || Map?.ProposedDestination is not { } selected)
+            return;
+        _ = Defer(() =>
+        {
+            if (Map?.ProposedDestination == selected)
+                JigsawEditorAction.Submit(this, JigsawEditorOperation.FinalizeDestination, nodeId: selected);
+            return Task.CompletedTask;
+        });
+    }
+
+    internal void OnDestinationFinalized(int node)
+    {
+        OnEdited();
+        _ = Defer(() => Enter(node));
+    }
+
     public Task AbandonEntry()
     {
         if (Current != this || enteringTask is { IsCompleted: false })
@@ -728,6 +749,8 @@ public sealed class JigsawNativeSession
             await RetryEntry();
             return;
         }
+        if (Map.ActivePlayers.Count > 1 && Map.PendingEntry?.NodeId != node)
+            return;
         var attempt = Map.PendingEntry ?? Map.BeginEnter(node);
         if (attempt == null || attempt.NodeId != node)
             return;
@@ -736,7 +759,7 @@ public sealed class JigsawNativeSession
         var destination = Map.Nodes.Single(n => n.Id == node);
         var projection = JigsawEntryProjection.Append(Native.Map,
             NextProjectionRow,
-            destination.Room);
+            Map.ResolvedRoom(node));
         Native.Map = projection.Map;
         JigsawCheckpoint.Capture(Native, Map);
         // Keep the opaque map over the previous room until native has mounted
@@ -753,11 +776,14 @@ public sealed class JigsawNativeSession
                 // The real native post-EnterInternal event is the confirmation seam.
                 ready = Map.ConfirmEnter(attempt.Id).Success;
                 if (ready)
+                {
+                    Map.RecordResolvedRoom(node, ActualRoom(room, destination.Room));
                     HideMap();
+                }
             }
         }
         RunManager.Instance.RoomEntered += RoomReady;
-        bool shop = destination.Room == JigsawRoom.Shop;
+        bool shop = Map.ResolvedRoom(node) is JigsawRoom.Shop or JigsawRoom.Unknown;
         if (shop)
         {
             Map.CreateShopTransactionCheckpoint(node, LocalPlayerId);
@@ -889,11 +915,15 @@ public sealed class JigsawNativeSession
 
     public void CompleteCurrentRoom(bool canTravel)
     {
-        if (!canTravel || Map?.CurrentNode == null || Native.CurrentRoomCount > 1)
+        if (Map?.CurrentNode == null || !JigsawNativeExploration.MarkLocalExit(this, canTravel))
             return;
-        var save = Map.CreateSave();
-        Map.CompleteRoom(save.NextEntry);
-        OnEdited();
+        if (Map.ActivePlayers.Count == 1)
+        {
+            Map.CompleteRoom(Map.CreateSave().NextEntry);
+            OnEdited();
+        }
+        else
+            JigsawEditorAction.Submit(this, JigsawEditorOperation.CompleteRoom, completedOwner: LocalPlayerId);
     }
 
     public bool ShouldInterceptAncient(MapCoord coord) => !enteringAncient &&
@@ -904,11 +934,54 @@ public sealed class JigsawNativeSession
     {
         if (Current == this && Map?.PendingEntry is { } pending && Native.CurrentRoom is not (null or MapRoom))
         {
-            Map.ConfirmEnter(pending.Id);
+            if (!Map.ConfirmEnter(pending.Id).Success)
+                return;
+            var declared = Map.Nodes.Single(node => node.Id == pending.NodeId).Room;
+            Map.RecordResolvedRoom(pending.NodeId, ActualRoom(Native.CurrentRoom, declared));
             entryCheckpoint = null;
             entryFailed = false;
             JigsawCheckpoint.Capture(Native, Map);
         }
+    }
+
+    private static JigsawRoom ActualRoom(AbstractRoom room, JigsawRoom declared) => room switch
+    {
+        MerchantRoom => JigsawRoom.Shop,
+        CombatRoom => JigsawRoom.Combat,
+        RestSiteRoom => JigsawRoom.Rest,
+        TreasureRoom => JigsawRoom.Treasure,
+        EventRoom => JigsawRoom.Unknown,
+        _ => declared
+    };
+}
+
+[HarmonyPatch(typeof(MegaCrit.Sts2.Core.Nodes.Rooms.NMerchantRoom), "HideScreen")]
+internal static class JigsawMerchantExitSignal
+{
+    private static void Prefix()
+    {
+        if (JigsawNativeSession.Current is { } session)
+            JigsawNativeExploration.MerchantExited(session);
+    }
+}
+
+[HarmonyPatch(typeof(MegaCrit.Sts2.Core.Nodes.Rooms.NTreasureRoom), "OpenChest")]
+internal static class JigsawTreasureOpenSignal
+{
+    private static void Prefix()
+    {
+        if (JigsawNativeSession.Current is { } session)
+            JigsawNativeExploration.TreasureOpened(session);
+    }
+}
+
+[HarmonyPatch(typeof(TreasureRoom), nameof(TreasureRoom.DoNormalRewards))]
+internal static class JigsawTreasureRewardSignal
+{
+    private static void Prefix()
+    {
+        if (JigsawNativeSession.Current is { } session)
+            JigsawNativeExploration.TreasureOpened(session);
     }
 }
 
@@ -990,6 +1063,8 @@ internal static class JigsawTerminalRoomCompletion
     private static async Task Complete(Task original, JigsawNativeSession session)
     {
         await original;
+        if (session.Map?.CurrentNode != null)
+            JigsawNativeExploration.TerminalRewardsFinished(session);
         if (session.Native.CurrentRoom is { } room && (room.IsPreFinished || room is TreasureRoom))
         {
             session.CompleteCurrentRoom(true);

@@ -21,6 +21,7 @@ public partial class JigsawScreen : Control
     internal Func<GridPoint, JigsawResult>? DropRequested { get; set; }
     internal Func<int?, JigsawResult>? EndpointRequested { get; set; }
     internal Func<EndChoice, JigsawResult>? ChoiceRequested { get; set; }
+    internal Func<int, JigsawResult>? VoteRequested { get; set; }
     private Func<ulong, Texture2D?>? avatar;
     private Func<ulong, Color>? playerColor;
     private readonly HBoxContainer manualVoters = new(), autoVoters = new();
@@ -649,10 +650,19 @@ public partial class JigsawScreen : Control
     {
         if (Reading)
             return;
-        if (CanReturnToRoom)
+        if (CanReturnToRoom && !(map.Phase == JigsawPhase.Exploring && map.RoomCompletedPlayers.Contains(player)))
             return;
         if (map.Phase == JigsawPhase.Exploring)
-        { if (id != null && !secondary) RunAsync(enter(id.Value)); return; }
+        {
+            if (id != null && !secondary)
+            {
+                if (VoteRequested != null)
+                    Apply(VoteRequested(id.Value));
+                else
+                    RunAsync(enter(id.Value));
+            }
+            return;
+        }
         if (secondary)
         {
             if (map.Holdings.ContainsKey(player))
@@ -824,7 +834,7 @@ public partial class JigsawScreen : Control
     {
         float size = Cell * (n.Radius * 2 + 1);
         var rect = new Rect2(at - new Vector2(size, size) / 2, new(size, size));
-        bool available = map.AvailableDestinations.Contains(n.Id);
+        bool available = (map.CurrentNode != null && map.RoomCompletedPlayers.Contains(player) ? map.VotingDestinations : map.AvailableDestinations).Contains(n.Id);
         float pulse = available ? 1 + .12f * (float)Math.Sin(Time.GetTicksMsec() / 260d) : 1;
         rect = new Rect2(rect.GetCenter() - rect.Size * pulse / 2, rect.Size * pulse);
 

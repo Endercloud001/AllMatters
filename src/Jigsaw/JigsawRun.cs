@@ -1,7 +1,7 @@
 namespace AllMatters.Jigsaw;
 
 /// <summary>Authoritative accepted-order map state. UI and native adapters submit intentions here.</summary>
-public sealed class JigsawRun
+public sealed partial class JigsawRun
 {
     private readonly Dictionary<int, JigsawPlacement> placements = [];
     private readonly List<JigsawEdge> external = [];
@@ -43,6 +43,7 @@ public sealed class JigsawRun
     {
         var run = new JigsawRun(JigsawPool.Create(seed, doubleBoss), budget, players, originalPlayers);
         run.generationRandomState = (ulong)(uint)seed + 1;
+        run.destinationRandomState = (ulong)(uint)seed + 1;
         run.AutomaticWitness = JigsawAutomatic.Witness(run);
         return run;
     }
@@ -204,6 +205,8 @@ public sealed class JigsawRun
         holdings.Remove(player);
         ClearEndpoint(player);
         choices.Remove(player);
+        destinationVotes.Remove(player);
+        roomCompleted.Remove(player);
         players.Remove(player);
         if (Phase == JigsawPhase.Editing)
             AuthorizeIfUnanimous();
@@ -361,7 +364,7 @@ public sealed class JigsawRun
             if (Phase != JigsawPhase.Exploring || CurrentNode != null || PendingEntry != null)
                 return [];
             var candidates = Edges.SelectMany(e => new[] { (From: e.First, To: e.Second), (From: e.Second, To: e.First) })
-                .Where(e => completed.Contains(e.From) && (!visited.Contains(e.To) || Nodes.Single(n => n.Id == e.To).Room == JigsawRoom.Shop) && e.To != 0)
+                .Where(e => completed.Contains(e.From) && (!visited.Contains(e.To) || ResolvedRoom(e.To) == JigsawRoom.Shop) && e.To != 0)
                 .Select(e => e.To).Distinct().ToArray();
 
             // Dual boss sequence: second boss only available after first boss completed
@@ -389,6 +392,7 @@ public sealed class JigsawRun
     {
         if (!AvailableDestinations.Contains(node))
             return null;
+        destinationVotes.Clear();
         PendingEntry = new(++nextEntry, node);
         return PendingEntry;
     }
@@ -397,6 +401,7 @@ public sealed class JigsawRun
         if (PendingEntry?.Id != attempt)
             return JigsawResult.Reject(JigsawFailure.StaleEntry);
         PendingEntry = null;
+        destinationVotes.Clear();
         return JigsawResult.Ok;
     }
     public JigsawResult ConfirmEnter(long attempt)
@@ -406,6 +411,8 @@ public sealed class JigsawRun
         CurrentNode = PendingEntry.NodeId;
         currentEntry = attempt;
         PendingEntry = null;
+        roomCompleted.Clear();
+        destinationVotes.Clear();
         Steps++;
         if (visited.Add(CurrentNode.Value))
             FirstProgress++;
@@ -418,6 +425,8 @@ public sealed class JigsawRun
         completed.Add(CurrentNode.Value);
         CurrentNode = null;
         currentEntry = null;
+        roomCompleted.Clear();
+        destinationVotes.Clear();
         // Commit any pending shop transaction on room completion
         if (shopTransactionCheckpoint != null)
             CommitShopTransaction();
@@ -477,6 +486,8 @@ public sealed class JigsawRun
         CurrentNode = null;
         currentEntry = null;
         PendingEntry = null;
+        roomCompleted.Clear();
+        destinationVotes.Clear();
         ancientCompleted.Clear();
         continued.Clear();
         Phase = JigsawPhase.Ancient;
@@ -493,7 +504,7 @@ public sealed class JigsawRun
     {
         // TODO #09: Restore full mask points before final boss reward
     }
-    public JigsawSave CreateSave() => new(Pool.Select(p => p with { Nodes = p.Nodes.ToArray(), InternalEdges = p.InternalEdges.ToArray() }).ToArray(), placements.Values.ToArray(), external.ToArray(), Phase, Budget, players.ToArray(), Steps, FirstProgress, visited.ToArray(), completed.ToArray(), CurrentNode, PendingEntry, nextEntry, ancientCompleted.ToArray()) { OriginalPlayers = originalPlayers.ToArray(), AutomaticWitness = AutomaticWitness is { } witness ? new(witness.Placements.ToArray(), witness.Edges.ToArray()) : null, AutomaticOperation = AutomaticOperation is { } operation ? operation with { CandidateOrder = operation.CandidateOrder.ToArray() } : null, GenerationRandomState = generationRandomState, ShopStates = shopInventories.Count > 0 ? shopInventories.ToDictionary(kv => $"{kv.Key.nodeId}_{kv.Key.playerId}", kv => (object)kv.Value) : null };
+    public JigsawSave CreateSave() => new(Pool.Select(p => p with { Nodes = p.Nodes.ToArray(), InternalEdges = p.InternalEdges.ToArray() }).ToArray(), placements.Values.ToArray(), external.ToArray(), Phase, Budget, players.ToArray(), Steps, FirstProgress, visited.ToArray(), completed.ToArray(), CurrentNode, PendingEntry, nextEntry, ancientCompleted.ToArray()) { OriginalPlayers = originalPlayers.ToArray(), AutomaticWitness = AutomaticWitness is { } witness ? new(witness.Placements.ToArray(), witness.Edges.ToArray()) : null, AutomaticOperation = AutomaticOperation is { } operation ? operation with { CandidateOrder = operation.CandidateOrder.ToArray() } : null, GenerationRandomState = generationRandomState, DestinationRandomState = destinationRandomState, ResolvedRooms = resolvedRooms.Count == 0 ? null : new(resolvedRooms), ShopStates = shopInventories.Count > 0 ? shopInventories.ToDictionary(kv => $"{kv.Key.nodeId}_{kv.Key.playerId}", kv => (object)kv.Value) : null };
     public static JigsawRun Restore(JigsawSave save, IEnumerable<ulong>? activePlayers = null)
     {
         JigsawSaveValidation.Validate(save);
@@ -503,6 +514,10 @@ public sealed class JigsawRun
             run.placements.Add(p.PieceId, p);
         run.external.AddRange(save.ExternalEdges);
         run.generationRandomState = save.GenerationRandomState;
+        run.destinationRandomState = save.DestinationRandomState;
+        if (save.ResolvedRooms != null)
+            foreach (var (node, room) in save.ResolvedRooms)
+                run.resolvedRooms.Add(node, room);
         run.AutomaticWitness = save.AutomaticWitness;
         run.AutomaticOperation = save.AutomaticOperation;
         if (run.AutomaticWitness is { } witness && !JigsawAutomatic.Validate(run, witness).Success)

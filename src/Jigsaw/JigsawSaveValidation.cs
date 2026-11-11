@@ -7,6 +7,7 @@ internal static class JigsawSaveValidation
         void Require(bool condition, string reason)
         { if (!condition) throw new ArgumentException(reason, nameof(save)); }
         Require(Enum.IsDefined(save.Phase), "Unknown phase.");
+        Require(save.DestinationRandomState != 0, "Invalid destination random state.");
         if (save.AutomaticOperation != null || save.Phase == JigsawPhase.Generating)
             Require(save.GenerationRandomState != 0 && save.AutomaticOperation is { Algorithm: JigsawAutomatic.Algorithm, ExpansionBudget: >= 0, RandomState: > 0 } operation && operation.CandidateOrder.Order().SequenceEqual(save.Pool.Select(p => p.Id).Order()), "Unsupported or incomplete authorized generation input.");
         Require(save.Pool.Length == 14 && Enum.GetValues<JigsawShape>().All(s => save.Pool.Count(p => p.Shape == s) == 2), "Checkpoint must preserve the fourteen-piece pool.");
@@ -57,6 +58,7 @@ internal static class JigsawSaveValidation
         Require(save.Steps >= 0 && save.FirstProgress >= 0 && save.FirstProgress <= save.Steps && save.NextEntry >= save.Steps, "Invalid exploration progress.");
         Require(save.Visited.Contains(0) && save.Completed.Contains(0) && save.Visited.All(placedIds.Contains) && save.Completed.All(save.Visited.Contains), "Invalid explored node IDs.");
         Require(save.Visited.Distinct().Count() == save.Visited.Length && save.Completed.Distinct().Count() == save.Completed.Length && save.FirstProgress == save.Visited.Length - 1, "Invalid first-entry progress.");
+        Require(save.ResolvedRooms == null || save.ResolvedRooms.All(entry => save.Visited.Contains(entry.Key) && entry.Key != 0 && Enum.IsDefined(entry.Value) && entry.Value != JigsawRoom.Ancient), "Invalid resolved room.");
         Require(save.ExternalEdges.All(e => !e.Internal), "External edge collection cannot contain internal paths.");
         var originals = save.OriginalPlayers ?? save.Players;
         Require(originals.Distinct().Count() == originals.Length && save.Players.Distinct().Count() == save.Players.Length && save.Players.All(originals.Contains) && save.AncientCompleted.All(originals.Contains), "Invalid player completion.");

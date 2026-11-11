@@ -1,0 +1,151 @@
+using System.Runtime.CompilerServices;
+using MegaCrit.Sts2.Core.Rooms;
+using MegaCrit.Sts2.Core.Runs;
+
+namespace AllMatters.Jigsaw;
+
+public sealed partial class JigsawRun
+{
+    private readonly Dictionary<ulong, int> destinationVotes = [];
+    private readonly HashSet<ulong> roomCompleted = [];
+    private readonly Dictionary<int, JigsawRoom> resolvedRooms = [];
+    private ulong destinationRandomState = 1;
+
+    public IReadOnlyDictionary<ulong, int> DestinationVotes => new System.Collections.ObjectModel.ReadOnlyDictionary<ulong, int>(destinationVotes);
+    public IReadOnlyCollection<ulong> RoomCompletedPlayers => roomCompleted.ToArray();
+    public JigsawRoom ResolvedRoom(int node) => resolvedRooms.GetValueOrDefault(node, Nodes.Single(n => n.Id == node).Room);
+
+    public JigsawResult RecordResolvedRoom(int node, JigsawRoom room)
+    {
+        if (CurrentNode != node || Phase != JigsawPhase.Exploring || room == JigsawRoom.Ancient || !Enum.IsDefined(room))
+            return JigsawResult.Reject(JigsawFailure.StaleEntry);
+        if (resolvedRooms.TryGetValue(node, out var previous) && previous != room)
+            return JigsawResult.Reject(JigsawFailure.StaleEntry);
+        resolvedRooms[node] = room;
+        return JigsawResult.Ok;
+    }
+
+    public IReadOnlyCollection<int> VotingDestinations
+    {
+        get
+        {
+            if (Phase != JigsawPhase.Exploring || PendingEntry != null)
+                return [];
+            if (CurrentNode == null)
+                return AvailableDestinations;
+
+            var completedForVote = completed.Append(CurrentNode.Value).ToHashSet();
+            var candidates = Edges.SelectMany(e => new[] { (From: e.First, To: e.Second), (From: e.Second, To: e.First) })
+                .Where(e => completedForVote.Contains(e.From) && (!visited.Contains(e.To) || ResolvedRoom(e.To) == JigsawRoom.Shop) && e.To != 0)
+                .Select(e => e.To).Distinct().ToArray();
+            var secondBoss = Nodes.FirstOrDefault(n => n.Room == JigsawRoom.SecondBoss);
+            var firstBoss = Nodes.FirstOrDefault(n => n.Room == JigsawRoom.Boss);
+            if (secondBoss != null && firstBoss != null && !completedForVote.Contains(firstBoss.Id))
+                candidates = candidates.Where(id => id != secondBoss.Id).ToArray();
+            return candidates;
+        }
+    }
+
+    public JigsawResult RecordRoomCompletion(ulong player)
+    {
+        if (Phase != JigsawPhase.Exploring || CurrentNode == null || !players.Contains(player))
+            return JigsawResult.Reject(JigsawFailure.StaleCompletion);
+        roomCompleted.Add(player);
+        return JigsawResult.Ok;
+    }
+
+    public JigsawResult VoteDestination(ulong player, int node)
+    {
+        if (!players.Contains(player))
+            return JigsawResult.Reject(JigsawFailure.UnknownPlayer);
+        if (CurrentNode != null && !roomCompleted.Contains(player))
+            return JigsawResult.Reject(JigsawFailure.StaleCompletion);
+        if (!VotingDestinations.Contains(node))
+            return JigsawResult.Reject(JigsawFailure.UnknownNode);
+        destinationVotes[player] = node;
+        return JigsawResult.Ok;
+    }
+
+    public int? ProposedDestination
+    {
+        get
+        {
+            if (players.Count == 0 || players.Any(player => !destinationVotes.ContainsKey(player)) ||
+                CurrentNode != null && players.Any(player => !roomCompleted.Contains(player)))
+                return null;
+            var ballots = players.Order().Select(player => destinationVotes[player]).ToArray();
+            return ballots[(int)(NextDestinationState(destinationRandomState) % (ulong)ballots.Length)];
+        }
+    }
+
+    public JigsawResult FinalizeDestination(int node)
+    {
+        if (ProposedDestination != node || !VotingDestinations.Contains(node) || PendingEntry != null)
+            return JigsawResult.Reject(JigsawFailure.StaleEntry);
+        if (CurrentNode != null && !CompleteRoom(currentEntry!.Value).Success)
+            return JigsawResult.Reject(JigsawFailure.StaleCompletion);
+        destinationRandomState = NextDestinationState(destinationRandomState);
+        return BeginEnter(node) == null ? JigsawResult.Reject(JigsawFailure.StaleEntry) : JigsawResult.Ok;
+    }
+
+    private static ulong NextDestinationState(ulong state)
+    {
+        state ^= state << 13;
+        state ^= state >> 7;
+        state ^= state << 17;
+        return state;
+    }
+}
+
+internal static class JigsawNativeExploration
+{
+    private sealed class ExitState
+    {
+        internal long MerchantExit;
+        internal long TreasureOpen;
+        internal long LocalExit;
+        internal long TerminalRewards;
+    }
+
+    private static readonly ConditionalWeakTable<JigsawNativeSession, ExitState> exits = new();
+    private static ExitState State(JigsawNativeSession session) => exits.GetValue(session, _ => new());
+    private static long Entry(JigsawNativeSession session) => session.Map?.CreateSave().NextEntry ?? 0;
+
+    internal static void MerchantExited(JigsawNativeSession session) => State(session).MerchantExit = Entry(session);
+    internal static void TreasureOpened(JigsawNativeSession session) => State(session).TreasureOpen = Entry(session);
+    internal static void TerminalRewardsFinished(JigsawNativeSession session) => State(session).TerminalRewards = Entry(session);
+
+    internal static bool MarkLocalExit(JigsawNativeSession session, bool canTravel)
+    {
+        if (session.Map?.ActivePlayers.Count == 1 && !canTravel || !NativeFlowFinished(session, RunManager.Instance.NetService.NetId))
+            return false;
+        State(session).LocalExit = Entry(session);
+        return true;
+    }
+
+    internal static bool LocalCompletionWasObserved(JigsawNativeSession session, ulong player) =>
+        player == RunManager.Instance.NetService.NetId && State(session).LocalExit == Entry(session) &&
+        NativeFlowFinished(session, player);
+
+    private static bool NativeFlowFinished(JigsawNativeSession session, ulong player)
+    {
+        if (session.Map?.CurrentNode == null || session.Native.CurrentRoomCount > 1)
+            return false;
+        if (State(session).TerminalRewards == Entry(session))
+            return true;
+        var nativePlayer = session.Native.Players.FirstOrDefault(candidate => candidate.NetId == player);
+        if (nativePlayer == null)
+            return false;
+        return session.Native.CurrentRoom switch
+        {
+            CombatRoom combat => combat.IsPreFinished,
+            EventRoom => RunManager.Instance.EventSynchronizer.GetEventForPlayer(nativePlayer)?.IsFinished == true,
+            RestSiteRoom => RunManager.Instance.RestSiteSynchronizer.GetChosenOptionIndex(player) != null,
+            TreasureRoom => State(session).TreasureOpen == Entry(session) &&
+                (RunManager.Instance.TreasureRoomRelicSynchronizer.CurrentRelics?.Count is not > 0 ||
+                 RunManager.Instance.TreasureRoomRelicSynchronizer.GetPlayerVote(nativePlayer)?.voteReceived == true),
+            MerchantRoom => State(session).MerchantExit == Entry(session),
+            _ => false
+        };
+    }
+}
