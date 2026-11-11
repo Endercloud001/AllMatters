@@ -51,14 +51,19 @@ internal static class JigsawNativeShopPersistenceTests
             string expected = Stock(original);
             ulong rng = HeadlessTestSetup.RngPosition(player.PlayerRng.Shops);
             var saved = JsonSerializer.Deserialize<JigsawShopInventory>(JsonSerializer.Serialize(JigsawNativeShopPersistence.Capture(original)))!;
-            string runBeforeInvalid = JsonSerializer.Serialize(RunManager.Instance.ToSave(null));
+            var runBeforeInvalid = JsonSerializer.SerializeToNode(RunManager.Instance.ToSave(null))!.AsObject();
             var invalidRelics = saved.NativeStock!.Relics.ToArray();
             invalidRelics[0] = invalidRelics[0] with { Slot = -1 };
             bool rejectedInvalid = false;
             try { JigsawNativeShopPersistence.Apply(original, saved with
                 { NativeStock = saved.NativeStock with { Relics = invalidRelics } }); }
             catch (InvalidDataException) { rejectedInvalid = true; }
-            Require(rejectedInvalid && JsonSerializer.Serialize(RunManager.Instance.ToSave(null)) == runBeforeInvalid &&
+            var runAfterInvalid = JsonSerializer.SerializeToNode(RunManager.Instance.ToSave(null))!.AsObject();
+            // Native ToSave samples both clocks anew; crossing a second is not
+            // evidence that rejected stock mutated cards, inventory or RNG.
+            foreach (string clock in new[] { "save_time", "run_time" })
+                runAfterInvalid[clock] = runBeforeInvalid[clock]!.DeepClone();
+            Require(rejectedInvalid && JsonNode.DeepEquals(runAfterInvalid, runBeforeInvalid) &&
                 ReferenceEquals(((MerchantRoom)native.CurrentRoom!).Inventories.Single(), original),
                 "A rejected late shop slot leaves no restored stock cards or replaced inventory.");
             var restored = JigsawNativeShopPersistence.Restore(player, saved);
