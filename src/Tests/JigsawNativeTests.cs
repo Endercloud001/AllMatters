@@ -1373,6 +1373,7 @@ internal static class JigsawDelayedIoHost
 [HarmonyPatch(typeof(TreasureRoom), nameof(TreasureRoom.EnterInternal))]
 internal static class JigsawEntryFailureHost
 {
+    internal static Func<Task, Task>? Wrap;
     internal static Action? Loading;
     internal static bool Early;
     internal static bool Fail;
@@ -1380,6 +1381,7 @@ internal static class JigsawEntryFailureHost
     internal static string[]? Relics;
     private static void Postfix(ref Task __result)
     {
+        if (Wrap != null) __result = Wrap(__result);
         Loading?.Invoke();
         if (Late) { Late = false; __result = InstallLateFailure(__result); return; }
         if (!Fail) return;
@@ -1398,7 +1400,7 @@ internal static class JigsawEntryFailureHost
     }
     internal static void Reset()
     {
-        Early = Fail = Late = false; Relics = null; Loading = null;
+        Early = Fail = Late = false; Relics = null; Loading = null; Wrap = null;
         RunManager.Instance.RoomEntered -= ThrowAfterReady;
     }
     private static async Task FailAfterContents(Task original)

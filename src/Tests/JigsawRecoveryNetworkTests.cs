@@ -33,7 +33,7 @@ internal static class JigsawRecoveryNetworkTests
         (from phase in new[] { "editing", "generating", "ancient", "exploring", "visited", "pending" }
          from roster in new[] { "all", "absent", "late", "leave" }
          select ($"{Prefix} {phase} {roster}", (Func<Task>)(() => Run(phase, roster))))
-        .Concat(new[] { "deferred", "deferred-pending", "entry-retry", "entry-abandon", "entry-after" }
+        .Concat(new[] { "deferred", "deferred-pending", "entry-retry", "entry-abandon", "entry-after", "entry-disconnect" }
             .Select(phase => ($"{Prefix} {phase} all", (Func<Task>)(() => Run(phase, "all"))))).ToArray();
 
     // These are existing native reward/failure paths, previously opt-in by environment.
@@ -254,10 +254,23 @@ internal static class JigsawRecoveryNetworkTests
         var listener = new LoadListener();
         bool entryFault = phase.StartsWith("entry-", StringComparison.Ordinal);
         listener.AllowEntryFailure = entryFault;
-        if (entryFault && role == "2")
+        if (entryFault && phase != "entry-disconnect" && role == "2")
         {
             JigsawEntryFailureHost.Fail = phase != "entry-after";
             JigsawEntryFailureHost.Late = phase == "entry-after";
+        }
+        void NativeReady() => Signal("native-ready");
+        if (phase == "entry-disconnect")
+        {
+            RunManager.Instance.RoomEntered += NativeReady;
+            if (role == "3")
+                JigsawEntryFailureHost.Wrap = async original =>
+                {
+                    await original;
+                    await Until(() => Signaled("host", "native-ready") && Signaled("2", "native-ready"), "both remaining endpoints report real native readiness before this endpoint leaves");
+                    net.Disconnect(NetError.Quit, true);
+                    throw new IOException("Injected disconnection before RoomEntered, after the other two endpoints are ready.");
+                };
         }
         JigsawScreen? screen = null;
         bool deferred = phase.StartsWith("deferred", StringComparison.Ordinal);
@@ -316,13 +329,16 @@ internal static class JigsawRecoveryNetworkTests
                 }
                 await Until(() => Signaled("3", "left") && Connected(listener.Lobby).Count() == 2, "native disconnect removes only the current member");
             }
-            ulong[] active = roster is "absent" or "leave" ? [1, 2] : [1, 2, 3];
+            ulong[] active = roster is "absent" or "leave" || phase == "entry-disconnect" ? [1, 2] : [1, 2, 3];
             var expected = listener.Lobby.Run;
             Require(expected.Players.Count == 3, "The native packet retains all three original inventories.");
             listener.Lobby.SetReady(true);
             await Until(() => listener.Loading?.IsCompleted == true, "native ready/start callback finishes real saved setup and room restoration");
             await listener.Loading!;
+            if (phase == "entry-disconnect" && role == "3") return;
             var session = JigsawNativeSession.Current;
+            if (phase == "entry-disconnect")
+                await Until(() => session?.Map?.ActivePlayers.Count == 2, "Host removes the departed original player from the current entry quorum");
             Require(session?.Map != null && session.Map.ActivePlayers.Order().SequenceEqual(active), "The restored production map uses the actual load-lobby participants.");
             var map = session!.Map!;
             Require(map.OriginalPlayers.Order().SequenceEqual(new ulong[] { 1, 2, 3 }), "Absent original characters remain in the map.");
@@ -383,7 +399,7 @@ internal static class JigsawRecoveryNetworkTests
             if (entryFault)
             {
                 RunManager.Instance.ActionExecutor.Unpause();
-                if (phase == "entry-after")
+                if (phase is "entry-after" or "entry-disconnect")
                 {
                     await Until(() => map.PendingEntry == null && map.CurrentNode == 1 && map.Steps == 1, "a callback failure after readiness still confirms the one common entry");
                 }
@@ -399,8 +415,12 @@ internal static class JigsawRecoveryNetworkTests
                         await Until(() => recovery.IsCompleted, "Host recovery request finishes while transport is pumped");
                         await recovery;
                     }
-                    await Until(() => JigsawNativeSession.Current is { } current && current != session &&
-                        (phase == "entry-abandon" ? current.Map?.PendingEntry == null && current.Map?.CurrentNode == null : current.Map?.CurrentNode == 1),
+                    await Until(() =>
+                    {
+                        if (session.EntryRecoveryTask is { IsFaulted: true } failure) failure.GetAwaiter().GetResult();
+                        return JigsawNativeSession.Current is { } current && current != session &&
+                            (phase == "entry-abandon" ? current.Map?.PendingEntry == null && current.Map?.CurrentNode == null : current.Map?.CurrentNode == 1);
+                    },
                         "native multiplayer reload replaces the whole failed run on every endpoint");
                     session = JigsawNativeSession.Current!;
                     map = session.Map!;
@@ -499,6 +519,7 @@ internal static class JigsawRecoveryNetworkTests
         finally
         {
             rewardHarmony.UnpatchAll(rewardHarmony.Id);
+            RunManager.Instance.RoomEntered -= NativeReady;
             JigsawEntryFailureHost.Reset();
             if (GodotObject.IsInstanceValid(screen)) screen!.Free();
             foreach (var child in children) { if (!child.HasExited) child.Kill(true); child.Dispose(); }
