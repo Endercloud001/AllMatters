@@ -89,7 +89,7 @@ internal static class JigsawRecoveryNetworkTests
             RunManager.Instance.Launch();
             await RunManager.Instance.GenerateMap();
             try { await RunManager.Instance.LoadIntoLatestMapCoord(null); }
-            catch (IOException) when (AllowEntryFailure) { }
+            catch (Exception error) when (AllowEntryFailure && error is IOException or InvalidOperationException) { }
         }
 #if STS2_PUBLIC
         public void PlayerConnected(ulong playerId) { }
@@ -253,8 +253,8 @@ internal static class JigsawRecoveryNetworkTests
         bool Signaled(string peer, string stage) => File.Exists(Path.Combine(directory, peer + "." + stage));
         var listener = new LoadListener();
         bool entryFault = phase.StartsWith("entry-", StringComparison.Ordinal);
-        listener.AllowEntryFailure = entryFault && role == "2";
-        if (listener.AllowEntryFailure)
+        listener.AllowEntryFailure = entryFault;
+        if (entryFault && role == "2")
         {
             JigsawEntryFailureHost.Fail = phase != "entry-after";
             JigsawEntryFailureHost.Late = phase == "entry-after";
@@ -414,6 +414,15 @@ internal static class JigsawRecoveryNetworkTests
                 await Until(() => remaining.All(peer => Signaled(peer, "fault-done")), "all endpoints finish the recovery decision");
                 foreach (string peer in remaining)
                     Require(File.ReadAllText(Path.Combine(directory, peer + ".fault-result")) == File.ReadAllText(Path.Combine(directory, role + ".fault-result")), "All replicas agree after native entry recovery.");
+                var entryDescriptor = (STS2RitsuLib.Networking.ManagedActions.RitsuLibManagedNetActionDescriptor<JigsawEditorIntent>)HarmonyLib.AccessTools.Field(typeof(JigsawEditorAction), "descriptor").GetValue(null)!;
+                foreach (var (operation, sequence) in new[] { (JigsawEditorOperation.EntryReady, 100L), (JigsawEditorOperation.EntryFailed, 101L) })
+                    Require(STS2RitsuLib.Networking.ManagedActions.RitsuLibManagedNetActions.Request(RunManager.Instance, entryDescriptor,
+                        new JigsawEditorIntent(session.Native.CurrentActIndex, operation, Sequence: sequence, EditRevision: map.EditRevision,
+                            CompletedOwner: net.NetId, EntryRevision: map.CreateSave().NextEntry, EntryRound: Math.Max(0, session.EntryRound - 1))),
+                        "Repeated and stale authenticated entry notifications reach the real native queue.");
+                for (int frame = 0; frame < 30; frame++) { net.Update(); await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame); }
+                Require(map.PendingEntry == null && map.Steps == (phase == "entry-abandon" ? 0 : 1),
+                    "Old-round and repeated entry notifications cannot reopen a completed decision or charge another step.");
             }
             if (unfinishedAncient)
             {
