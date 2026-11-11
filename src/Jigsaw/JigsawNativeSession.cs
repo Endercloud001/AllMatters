@@ -1011,6 +1011,7 @@ public sealed class JigsawNativeSession
                 {
                     entryFailed = true;
                     JigsawEditorAction.Submit(this, JigsawEditorOperation.EntryFailed, completedOwner: LocalPlayerId);
+                    RunManager.Instance.ActionExecutor.Unpause();
                 }
                 if (Map?.PendingEntry != null)
                     ShowMap();
@@ -1088,7 +1089,11 @@ public sealed class JigsawNativeSession
             if (netService is not NetSingleplayerGameService && !NativeEntryWasReady && !entryFailed)
                 JigsawEditorAction.Submit(this, JigsawEditorOperation.EntryFailed, completedOwner: LocalPlayerId);
             if (!NativeEntryWasReady)
+            {
                 entryFailed = true;
+                if (netService is not NetSingleplayerGameService)
+                    RunManager.Instance.ActionExecutor.Unpause();
+            }
             ShowMap();
         }
     }
