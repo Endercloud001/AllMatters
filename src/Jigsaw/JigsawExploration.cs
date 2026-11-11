@@ -112,6 +112,7 @@ internal static class JigsawNativeExploration
         internal long LocalExit;
         internal readonly Dictionary<ulong, long> TerminalRewards = [];
         internal readonly Dictionary<(long Entry, ulong Player), HashSet<int>> RewardSets = [];
+        internal readonly Dictionary<(long Entry, ulong Player), List<Task>> RewardSelections = [];
     }
 
     private static readonly ConditionalWeakTable<JigsawNativeSession, ExitState> exits = new();
@@ -144,6 +145,41 @@ internal static class JigsawNativeExploration
         ids.Add(rewards.Id);
     }
 
+    internal static void RewardSelectionBegan(JigsawNativeSession session, Reward reward, Task selection)
+    {
+        if (session.Map?.Phase != JigsawPhase.Exploring || session.Map.CurrentNode == null && session.Map.PendingEntry == null)
+            return;
+        var key = (Entry(session), reward.Player.NetId);
+        if (!State(session).RewardSelections.TryGetValue(key, out var selections))
+            State(session).RewardSelections[key] = selections = [];
+        selections.Add(selection);
+    }
+
+    internal static async Task<bool> WaitForStartedRewards(JigsawNativeSession session, ulong player)
+    {
+        var map = session.Map;
+        int act = session.Native.CurrentActIndex;
+        long entry = Entry(session);
+        try
+        {
+            if (State(session).RewardSelections.TryGetValue((entry, player), out var selections))
+                await Task.WhenAll(selections.Where(task => !task.IsCompleted).ToArray()).WaitAsync(session.ClosedToken);
+        }
+        catch (OperationCanceledException) when (session.ClosedToken.IsCancellationRequested) { return false; }
+        return ReferenceEquals(JigsawNativeSession.Current, session) && ReferenceEquals(session.Map, map) &&
+            session.Native.CurrentActIndex == act && Entry(session) == entry;
+    }
+
+    internal static async Task<bool> ReceiveRoomCompletion(JigsawNativeSession session, ulong player)
+    {
+        // A finished native room authenticates the boundary; only selections that
+        // have already started on this replica may delay its ordered completion.
+        if (!NativeFlowFinished(session, player, requireLocalSignals: false, checkRewards: false) ||
+            !await WaitForStartedRewards(session, player))
+            return false;
+        return NativeFlowFinished(session, player);
+    }
+
     internal static bool MarkLocalExit(JigsawNativeSession session, bool canTravel)
     {
         if (session.Map?.ActivePlayers.Count == 1 && !canTravel || !NativeFlowFinished(session, RunManager.Instance.NetService.NetId, requireLocalSignals: true))
@@ -158,14 +194,14 @@ internal static class JigsawNativeExploration
 
     internal static bool NativeFlowFinished(JigsawNativeSession session, ulong player) => NativeFlowFinished(session, player, requireLocalSignals: false);
 
-    private static bool NativeFlowFinished(JigsawNativeSession session, ulong player, bool requireLocalSignals)
+    private static bool NativeFlowFinished(JigsawNativeSession session, ulong player, bool requireLocalSignals, bool checkRewards = true)
     {
         if (session.Map?.CurrentNode == null || session.Native.CurrentRoomCount > 1)
             return false;
         var nativePlayer = session.Native.Players.FirstOrDefault(candidate => candidate.NetId == player);
         if (nativePlayer == null)
             return false;
-        if (State(session).RewardSets.TryGetValue((Entry(session), player), out var ids) &&
+        if (checkRewards && State(session).RewardSets.TryGetValue((Entry(session), player), out var ids) &&
             ids.Any(id => !RunManager.Instance.RewardsSetSynchronizer.IsRewardsSetCompleted(nativePlayer, id)))
             return false;
         if (State(session).TerminalRewards.GetValueOrDefault(player) == Entry(session))
@@ -181,6 +217,18 @@ internal static class JigsawNativeExploration
             MerchantRoom => !requireLocalSignals || State(session).MerchantExit == Entry(session),
             _ => false
         };
+    }
+}
+
+[HarmonyPatch]
+internal static class JigsawObserveRewardSelection
+{
+    private static System.Reflection.MethodBase TargetMethod() => AccessTools.GetDeclaredMethods(typeof(RewardsSetSynchronizer))
+        .Single(method => method.Name == "SelectRewardForPlayer" && method.GetParameters() is { Length: 2 } parameters && parameters[1].ParameterType == typeof(Reward));
+    private static void Postfix(Reward reward, Task __result)
+    {
+        if (JigsawNativeSession.Current is { } session)
+            JigsawNativeExploration.RewardSelectionBegan(session, reward, __result);
     }
 }
 

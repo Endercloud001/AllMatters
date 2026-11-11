@@ -66,11 +66,27 @@ internal static class JigsawRecoveryNetworkTests
 
     private const string Prefix = "Jigsaw recovery native load lobby";
     private static bool SkipProfilePersistence() => false;
+    private static TaskCompletionSource<bool>? slowRewardCompletion;
+    private static bool slowRewardStarted;
+    private static bool slowLocalReward;
+    private static void DelayCombatReward(Reward __instance, ref Task<bool> __result)
+    {
+        if (__instance.Player.NetId == 2 &&
+            (RunManager.Instance.NetService.NetId == 2) == slowLocalReward)
+            __result = Delay(__result);
+        static async Task<bool> Delay(Task<bool> original)
+        {
+            bool result = await original;
+            slowRewardStarted = true;
+            await slowRewardCompletion!.Task;
+            return result;
+        }
+    }
     public static readonly (string Name, Func<Task> Test)[] Cases =
         (from phase in new[] { "editing", "generating", "ancient", "exploring", "visited", "pending" }
          from roster in new[] { "all", "absent", "late", "leave" }
          select ($"{Prefix} {phase} {roster}", (Func<Task>)(() => Run(phase, roster))))
-        .Concat(new[] { "deferred", "deferred-pending", "entry-retry", "entry-abandon", "entry-after", "entry-disconnect", "shop-lag", "shop-fault", "combat-exit" }
+        .Concat(new[] { "deferred", "deferred-pending", "entry-retry", "entry-abandon", "entry-after", "entry-disconnect", "shop-lag", "shop-fault", "combat-exit", "combat-lag", "combat-local-lag" }
             .Select(phase => ($"{Prefix} {phase} all", (Func<Task>)(() => Run(phase, "all"))))).ToArray();
 
     // These are existing native reward/failure paths, previously opt-in by environment.
@@ -164,7 +180,7 @@ internal static class JigsawRecoveryNetworkTests
         {
             RunManager.Instance.GenerateRooms();
             await RunManager.Instance.GenerateMap();
-            if (phase is "exploring" or "visited" or "pending" or "combat-exit" || phase.StartsWith("deferred", StringComparison.Ordinal) || phase.StartsWith("shop-", StringComparison.Ordinal) || phase.StartsWith("entry-", StringComparison.Ordinal))
+            if (phase is "exploring" or "visited" or "pending" || phase.StartsWith("combat-", StringComparison.Ordinal) || phase.StartsWith("deferred", StringComparison.Ordinal) || phase.StartsWith("shop-", StringComparison.Ordinal) || phase.StartsWith("entry-", StringComparison.Ordinal))
             {
                 native.ExtraFields.StartedWithNeow = true;
                 native.AppendToMapPointHistory(MegaCrit.Sts2.Core.Map.MapPointType.Ancient, RoomType.Event, null);
@@ -179,7 +195,7 @@ internal static class JigsawRecoveryNetworkTests
             }
             bool entryFault = phase.StartsWith("entry-", StringComparison.Ordinal);
             bool shop = phase.StartsWith("shop-", StringComparison.Ordinal);
-            bool combatExit = phase == "combat-exit";
+            bool combatExit = phase.StartsWith("combat-", StringComparison.Ordinal);
             var map = entryFault || shop ? Enumerable.Range(0, 100).Select(seed => JigsawRun.Create(seed, players: players.Select(player => player.NetId)))
                 .First(candidate => candidate.Pool[0].Nodes[0].Room == (shop ? JigsawRoom.Shop : phase == "entry-disconnect" ? JigsawRoom.Combat : JigsawRoom.Treasure)) : JigsawRun.Create(81, players: players.Select(player => player.NetId));
             if (entryFault || shop)
@@ -328,7 +344,7 @@ internal static class JigsawRecoveryNetworkTests
         using var eventScope = deferred || unfinishedAncient || shopLag || shopFault ? HeadlessCombatInProgress.EnterEvent() : null;
         using var atlases = HeadlessTestSetup.LoadAtlases("card_atlas", "relic_atlas", "ui_atlas");
         var rewardHarmony = new HarmonyLib.Harmony("AllMatters.Tests.RecoveryDeferred");
-        if (phase == "combat-exit")
+        if (phase.StartsWith("combat-", StringComparison.Ordinal))
         {
             // Own profile/replay persistence only; the real native victory, room,
             // action synchronizer, rewards, completion and map input still execute.
@@ -337,6 +353,14 @@ internal static class JigsawRecoveryNetworkTests
                 HarmonyLib.AccessTools.Method(typeof(SaveManager), nameof(SaveManager.SaveProgressFile)),
                 HarmonyLib.AccessTools.Method(typeof(SaveManager), nameof(SaveManager.UpdateProgressAfterCombatWon)) })
                 rewardHarmony.Patch(method, prefix: new HarmonyLib.HarmonyMethod(typeof(JigsawRecoveryNetworkTests), nameof(SkipProfilePersistence)));
+            if (phase != "combat-exit")
+            {
+                slowLocalReward = phase == "combat-local-lag";
+                slowRewardStarted = false;
+                slowRewardCompletion = new(TaskCreationOptions.RunContinuationsAsynchronously);
+                rewardHarmony.Patch(HarmonyLib.AccessTools.Method(typeof(Reward), nameof(Reward.SelectUnsynchronized)),
+                    postfix: new HarmonyLib.HarmonyMethod(typeof(JigsawRecoveryNetworkTests), nameof(DelayCombatReward)));
+            }
         }
         if (shopFault)
         {
@@ -467,7 +491,7 @@ internal static class JigsawRecoveryNetworkTests
             await Until(() => remaining.All(peer => Signaled(peer, "restored")), "all production endpoints restore before Host exit");
             foreach (string peer in remaining)
                 Require(JsonNode.DeepEquals(JsonNode.Parse(listener.RestoredMap!), JsonNode.Parse(File.ReadAllText(Path.Combine(directory, peer + ".map.json")))), "All endpoints have the same complete map, RNG, operation input and exploration document after native setup.");
-            if (phase == "combat-exit")
+            if (phase.StartsWith("combat-", StringComparison.Ordinal))
             {
                 Require(listener.Native!.CurrentRoom is CombatRoom && map.CurrentNode != null,
                     "The native restored pending entry enters an actual combat room.");
@@ -480,13 +504,42 @@ internal static class JigsawRecoveryNetworkTests
                 var rewards = new List<RewardsSet>();
                 foreach (var owner in listener.Native.Players)
                 {
-                    var set = await RewardsCmd.GenerateForRoomEnd(owner, combat);
+                    var set = phase == "combat-exit" ? await RewardsCmd.GenerateForRoomEnd(owner, combat) :
+                        new RewardsSet(owner).EmptyForRoom(combat).WithCustomRewards([new GoldReward(17, owner)]);
                     await set.GenerateWithoutOffering();
                     _ = synchronizer.BeginRewardsSet(set);
                     rewards.Add(set);
                 }
+                int goldBefore = listener.Native.Players.Single(owner => owner.NetId == 2).Gold;
                 Signal("combat-rewards-ready");
                 await Until(() => remaining.All(peer => Signaled(peer, "combat-rewards-ready")), "all endpoints offer actual native combat rewards");
+                if (phase != "combat-exit")
+                {
+                    var localRewards = rewards.Single(set => set.Player.NetId == net.NetId);
+                    var selection = synchronizer.SelectLocalReward(localRewards.Rewards.Single());
+                    if (slowLocalReward && net.NetId == 2)
+                    {
+                        await Until(() => slowRewardStarted, "the local real reward selection pauses after applying gold");
+                        var proceeding = RunManager.Instance.ProceedFromTerminalRewardsScreen();
+                        for (int frame = 0; frame < 30; frame++) { net.Update(); await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame); }
+                        Require(!proceeding.IsCompleted && !synchronizer.IsRewardsSetCompleted(localRewards) && !map.RoomCompletedPlayers.Contains(2UL),
+                            "Proceed waits for an already-started local reward instead of skipping it or completing the room.");
+                        slowRewardCompletion!.TrySetResult(true);
+                        await selection;
+                        await proceeding;
+                    }
+                    else { await selection; await RunManager.Instance.ProceedFromTerminalRewardsScreen(); }
+                    Signal("all-rewards-proceeded");
+                    await Until(() => remaining.All(peer => Signaled(peer, "all-rewards-proceeded")), "all owners claim every reward and proceed through native messages");
+                    if (!slowLocalReward && net.NetId != 2)
+                    {
+                        await Until(() => slowRewardStarted, "the remote native reward Task is actually delayed");
+                        for (int frame = 0; frame < 30; frame++) { net.Update(); await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame); }
+                        slowRewardCompletion!.TrySetResult(true);
+                    }
+                }
+                else
+                {
                 if (net.NetId == 1)
                 {
                     await RunManager.Instance.ProceedFromTerminalRewardsScreen();
@@ -499,8 +552,14 @@ internal static class JigsawRecoveryNetworkTests
                 await Until(() => remaining.All(peer => Signaled(peer, "other-rewards-preserved")), "all endpoints preserve the other owners' rewards before they proceed");
                 // Native terminal Proceed leaves unclaimed rewards until BeforeLeavingRoom.
                 if (net.NetId != 1) await RunManager.Instance.ProceedFromTerminalRewardsScreen();
+                }
                 await Until(() => map.RoomCompletedPlayers.Count == active.Length,
                     "native combat rewards proceed records every owner's completion on every endpoint");
+                if (phase != "combat-exit")
+                    Require(listener.Native.Players.Single(owner => owner.NetId == 2).Gold == goldBefore + 17 && rewards.All(synchronizer.IsRewardsSetCompleted),
+                        "Delayed native selections retain the earned gold and settle every set before the next room.");
+                int historyCount = listener.Native.MapPointHistory[listener.Native.CurrentActIndex].Count;
+                string battleHistory = JsonSerializer.Serialize(listener.Native.MapPointHistory[listener.Native.CurrentActIndex].Last());
                 session.ShowMap();
                 await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
                 int next = map.VotingDestinations.First();
@@ -513,6 +572,10 @@ internal static class JigsawRecoveryNetworkTests
                 Signal("combat-entered");
                 await Until(() => remaining.All(peer => Signaled(peer, "combat-entered")),
                     "every endpoint confirms native entry after combat before Host shutdown");
+                Require(listener.Native.MapPointHistory[listener.Native.CurrentActIndex].Count == historyCount + 1 &&
+                    JsonSerializer.Serialize(listener.Native.MapPointHistory[listener.Native.CurrentActIndex][historyCount - 1]) == battleHistory &&
+                    (phase == "combat-exit" || listener.Native.Players.Single(owner => owner.NetId == 2).Gold == goldBefore + 17),
+                    "Native entry preserves the completed battle history and earned inventory without delayed writes to the next room.");
             }
             if (shopLag || shopFault)
             {

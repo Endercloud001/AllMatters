@@ -48,6 +48,7 @@ public sealed class JigsawNativeSession
     private bool closed;
     private readonly MegaCrit.Sts2.Core.Multiplayer.Game.INetGameService netService;
     private readonly CancellationTokenSource closedCancellation = new();
+    internal CancellationToken ClosedToken => closedCancellation.Token;
     private void OnDisconnected(NetErrorInfo info) => Close();
     internal void Close()
     {
@@ -1310,7 +1311,11 @@ internal static class JigsawTerminalRoomCompletion
     {
         await original;
         if (session.Map?.CurrentNode != null)
+        {
+            if (!await JigsawNativeExploration.WaitForStartedRewards(session, RunManager.Instance.NetService.NetId))
+                return;
             JigsawNativeExploration.TerminalRewardsFinished(session);
+        }
         if (session.Native.CurrentRoom is { } room && (room.IsPreFinished || room is TreasureRoom))
         {
             session.CompleteCurrentRoom(true);
