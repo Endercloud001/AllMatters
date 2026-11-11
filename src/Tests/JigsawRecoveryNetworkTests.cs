@@ -66,6 +66,19 @@ internal static class JigsawRecoveryNetworkTests
 
     private const string Prefix = "Jigsaw recovery native load lobby";
     private static bool SkipProfilePersistence() => false;
+    private static Task LeaveReloadedRewardsUnclaimed(RewardsSet rewards)
+    {
+        rewards.ThrowInTestIfRewardsNotTaken = false;
+        return Task.CompletedTask;
+    }
+    private static JsonNode InventoryDocument(object player)
+    {
+        var original = JsonNode.Parse(JsonSerializer.Serialize(player))!;
+        var inventory = new JsonObject();
+        foreach (string field in new[] { "net_id", "current_hp", "max_hp", "gold", "deck", "relics", "potions" })
+            inventory[field] = original[field]?.DeepClone();
+        return inventory;
+    }
     private static TaskCompletionSource<bool>? slowRewardCompletion;
     private static bool slowRewardStarted;
     private static bool slowLocalReward;
@@ -86,7 +99,7 @@ internal static class JigsawRecoveryNetworkTests
         (from phase in new[] { "editing", "generating", "ancient", "exploring", "visited", "pending" }
          from roster in new[] { "all", "absent", "late", "leave" }
          select ($"{Prefix} {phase} {roster}", (Func<Task>)(() => Run(phase, roster))))
-        .Concat(new[] { "deferred", "deferred-pending", "entry-retry", "entry-abandon", "entry-after", "entry-disconnect", "shop-lag", "shop-fault", "combat-exit", "combat-lag", "combat-local-lag" }
+        .Concat(new[] { "deferred", "deferred-pending", "entry-retry", "entry-abandon", "entry-after", "entry-disconnect", "shop-lag", "shop-fault", "combat-exit", "combat-lag", "combat-local-lag", "combat-reload" }
             .Select(phase => ($"{Prefix} {phase} all", (Func<Task>)(() => Run(phase, "all"))))).ToArray();
 
     // These are existing native reward/failure paths, previously opt-in by environment.
@@ -144,7 +157,7 @@ internal static class JigsawRecoveryNetworkTests
             Require(JsonNode.DeepEquals(JsonNode.Parse(JsonSerializer.Serialize(expectedMap)), JsonNode.Parse(RestoredMap)), "Setup preserves every persisted map field; only this session's active roster changes.");
             RunManager.Instance.Launch();
             await RunManager.Instance.GenerateMap();
-            try { await RunManager.Instance.LoadIntoLatestMapCoord(null); }
+            try { await RunManager.Instance.LoadIntoLatestMapCoord(Lobby.Run.PreFinishedRoom is { RoomType: RoomType.Monster or RoomType.Elite or RoomType.Boss } finished ? CombatRoom.FromSerializable(finished, Native) : null); }
             catch (Exception error) when (AllowEntryFailure && error is IOException or InvalidOperationException) { }
         }
 #if STS2_PUBLIC
@@ -282,6 +295,21 @@ internal static class JigsawRecoveryNetworkTests
             foreach (string errorLog in Directory.EnumerateFiles(evidence, "*.err"))
                 Require(!File.ReadLines(errorLog).Any(line => line.StartsWith("ERROR:", StringComparison.Ordinal) || line.StartsWith("FATAL:", StringComparison.Ordinal) || line.StartsWith("[ERROR]", StringComparison.Ordinal) || line.StartsWith("[FATAL]", StringComparison.Ordinal)),
                     "Native recovery endpoint reported an engine error; inspect " + errorLog);
+            if (phase == "combat-reload")
+            {
+                string resumed = Path.Combine(evidence, "reloaded");
+                Directory.CreateDirectory(resumed);
+                File.Copy(Path.Combine(evidence, "combat-checkpoint.json"), Path.Combine(resumed, "combat-checkpoint.json"));
+                using var reloaded = Launch("host", resumed, name);
+                try { await reloaded.WaitForExitAsync().WaitAsync(TimeSpan.FromSeconds(50)); }
+                finally { if (!reloaded.HasExited) reloaded.Kill(true); }
+                reloaded.WaitForExit();
+                Console.WriteLine($"RECOVERY combat reload evidence={resumed} host exit={reloaded.ExitCode}");
+                Require(reloaded.ExitCode == 0, "Native post-combat reload failed; inspect " + resumed);
+                foreach (string errorLog in Directory.EnumerateFiles(resumed, "*.err"))
+                    Require(!File.ReadLines(errorLog).Any(line => line.StartsWith("ERROR:", StringComparison.Ordinal) || line.StartsWith("FATAL:", StringComparison.Ordinal) || line.StartsWith("[ERROR]", StringComparison.Ordinal) || line.StartsWith("[FATAL]", StringComparison.Ordinal)),
+                        "Reloaded combat endpoint reported an engine error; inspect " + errorLog);
+            }
             return;
         }
         MegaCrit.Sts2.Core.Multiplayer.Serialization.MessageTypes.Initialize();
@@ -289,6 +317,9 @@ internal static class JigsawRecoveryNetworkTests
         var originalSize = tree.Root.Size;
         tree.Root.Size = new(1280, 720);
         string directory = Environment.GetEnvironmentVariable("JIGSAW_RECOVERY_DIR")!;
+        bool combatReloaded = phase == "combat-reload" && File.Exists(Path.Combine(directory, "combat-checkpoint.json"));
+        var previousRewardsSelector = RewardsSet.testSelector;
+        if (combatReloaded) RewardsSet.testSelector = LeaveReloadedRewardsUnclaimed;
         var children = new List<Process>();
 #if STS2_PUBLIC
         var host = role == "host" ? new NetHostGameService() : null;
@@ -353,7 +384,7 @@ internal static class JigsawRecoveryNetworkTests
                 HarmonyLib.AccessTools.Method(typeof(SaveManager), nameof(SaveManager.SaveProgressFile)),
                 HarmonyLib.AccessTools.Method(typeof(SaveManager), nameof(SaveManager.UpdateProgressAfterCombatWon)) })
                 rewardHarmony.Patch(method, prefix: new HarmonyLib.HarmonyMethod(typeof(JigsawRecoveryNetworkTests), nameof(SkipProfilePersistence)));
-            if (phase != "combat-exit")
+            if (phase is "combat-lag" or "combat-local-lag")
             {
                 slowLocalReward = phase == "combat-local-lag";
                 slowRewardStarted = false;
@@ -378,7 +409,7 @@ internal static class JigsawRecoveryNetworkTests
             JigsawNativeSaveHost.Save = room => saves.SaveRun(RunManager.Instance.ToSave(room), true);
             if (host != null)
             {
-                var save = await Fixture(saves, phase);
+                var save = combatReloaded ? JigsawSaveSource.Deserialize(File.ReadAllText(Path.Combine(directory, "combat-checkpoint.json"))) : await Fixture(saves, phase);
                 using var socket = new System.Net.Sockets.UdpClient(0);
                 ushort port = (ushort)((System.Net.IPEndPoint)socket.Client.LocalEndPoint!).Port;
                 socket.Close();
@@ -442,7 +473,7 @@ internal static class JigsawRecoveryNetworkTests
             if (phase == "editing") Require(map.Phase == JigsawPhase.Editing && map.Holdings.Count == 0 && map.Placements.Count == 1, "Editing keeps accepted placements and clears the former session's holdings.");
             if (phase is "generating" or "ancient") Require(map.Phase == JigsawPhase.Ancient && listener.Native!.CurrentRoom is EventRoom, "The production resume callback completes generation or reopens the unfinished Ancient.");
             if (phase == "pending") Require(map.Steps == 1 && map.PendingEntry == null && map.CurrentNode != null, "Native readiness confirms the already chosen pending destination exactly once.");
-            foreach (var original in phase.StartsWith("shop-", StringComparison.Ordinal) ? [] : expected.Players)
+            foreach (var original in phase.StartsWith("shop-", StringComparison.Ordinal) || combatReloaded ? [] : expected.Players)
                 Require(JsonNode.DeepEquals(JsonNode.Parse(JsonSerializer.Serialize(original)), JsonNode.Parse(JsonSerializer.Serialize(listener.Native.Players.Single(player => player.NetId == original.NetId).ToSerializable()))), "Native load restores the complete player document, including upgraded cards, relics and potions.");
             if (deferred)
             {
@@ -491,7 +522,7 @@ internal static class JigsawRecoveryNetworkTests
             await Until(() => remaining.All(peer => Signaled(peer, "restored")), "all production endpoints restore before Host exit");
             foreach (string peer in remaining)
                 Require(JsonNode.DeepEquals(JsonNode.Parse(listener.RestoredMap!), JsonNode.Parse(File.ReadAllText(Path.Combine(directory, peer + ".map.json")))), "All endpoints have the same complete map, RNG, operation input and exploration document after native setup.");
-            if (phase.StartsWith("combat-", StringComparison.Ordinal))
+            if (phase.StartsWith("combat-", StringComparison.Ordinal) && !combatReloaded)
             {
                 Require(listener.Native!.CurrentRoom is CombatRoom && map.CurrentNode != null,
                     "The native restored pending entry enters an actual combat room.");
@@ -531,7 +562,7 @@ internal static class JigsawRecoveryNetworkTests
                     else { await selection; await RunManager.Instance.ProceedFromTerminalRewardsScreen(); }
                     Signal("all-rewards-proceeded");
                     await Until(() => remaining.All(peer => Signaled(peer, "all-rewards-proceeded")), "all owners claim every reward and proceed through native messages");
-                    if (!slowLocalReward && net.NetId != 2)
+                    if (phase == "combat-lag" && net.NetId != 2)
                     {
                         await Until(() => slowRewardStarted, "the remote native reward Task is actually delayed");
                         for (int frame = 0; frame < 30; frame++) { net.Update(); await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame); }
@@ -560,6 +591,20 @@ internal static class JigsawRecoveryNetworkTests
                         "Delayed native selections retain the earned gold and settle every set before the next room.");
                 int historyCount = listener.Native.MapPointHistory[listener.Native.CurrentActIndex].Count;
                 string battleHistory = JsonSerializer.Serialize(listener.Native.MapPointHistory[listener.Native.CurrentActIndex].Last());
+                if (phase == "combat-reload")
+                {
+                    await session.WaitForSave();
+                    var persisted = saves.LoadAndCanonicalizeMultiplayerRunSave(1);
+                    Require(persisted.Success && persisted.SaveData?.PreFinishedRoom is { IsPreFinished: true },
+                        "The actual native victory save is a canonical completed-combat checkpoint.");
+                    Require(persisted.SaveData.Players.Single(owner => owner.NetId == 2).Gold == goldBefore,
+                        "Native victory saves before reward selection; reload legally returns to that checkpoint instead of synthesizing an after-reward save.");
+                    if (host != null) File.WriteAllText(Path.Combine(directory, "combat-checkpoint.json"), JigsawSaveSource.Serialize(persisted.SaveData!));
+                    Signal("combat-saved");
+                    await Until(() => remaining.All(peer => Signaled(peer, "combat-saved")), "all endpoints save the completed combat before transport shutdown");
+                }
+                else
+                {
                 session.ShowMap();
                 await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
                 int next = map.VotingDestinations.First();
@@ -576,6 +621,31 @@ internal static class JigsawRecoveryNetworkTests
                     JsonSerializer.Serialize(listener.Native.MapPointHistory[listener.Native.CurrentActIndex][historyCount - 1]) == battleHistory &&
                     (phase == "combat-exit" || listener.Native.Players.Single(owner => owner.NetId == 2).Gold == goldBefore + 17),
                     "Native entry preserves the completed battle history and earned inventory without delayed writes to the next room.");
+                }
+            }
+            if (combatReloaded)
+            {
+                Require(map.Steps == 1 && map.CurrentNode != null && listener.Native!.CurrentRoom is CombatRoom { IsPreFinished: true },
+                    $"The original load lobby restores the completed real combat without entering or charging another room. current={map.CurrentNode} room={listener.Native!.CurrentRoom?.GetType().Name} finished={listener.Native.CurrentRoom?.IsPreFinished}");
+                var checkpoint = JigsawSaveSource.Deserialize(File.ReadAllText(Path.Combine(directory, "combat-checkpoint.json")));
+                Require(checkpoint.Players.All(owner => JsonNode.DeepEquals(InventoryDocument(owner),
+                    InventoryDocument(listener.Native.Players.Single(player => player.NetId == owner.NetId).ToSerializable()))),
+                    "Reload restores the actual saved pre-reward inventory without retaining or duplicating post-checkpoint reward selections.");
+                await RunManager.Instance.ProceedFromTerminalRewardsScreen();
+                await Until(() => map.RoomCompletedPlayers.Count == active.Length, "all reloaded owners finish native terminal rewards");
+                session.ShowMap();
+                await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
+                int next = map.VotingDestinations.First();
+                var position = screen.MapControl.GlobalPosition + screen.GridToCanvas(map.Nodes.Single(node => node.Id == next).Center);
+                Input.ParseInputEvent(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true, Position = position, GlobalPosition = position });
+                await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
+                Input.ParseInputEvent(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false, Position = position, GlobalPosition = position });
+                await Until(() => map.CurrentNode == next && map.Steps == 2, "all reloaded owners' actual same-target clicks enter the next room once");
+                Signal("combat-reloaded-entered");
+                await Until(() => remaining.All(peer => Signaled(peer, "combat-reloaded-entered")), "every reloaded endpoint confirms the same next native room");
+                Require(checkpoint.Players.All(owner => JsonNode.DeepEquals(InventoryDocument(owner),
+                    InventoryDocument(listener.Native.Players.Single(player => player.NetId == owner.NetId).ToSerializable()))),
+                    "The next room preserves all earned inventory after the reloaded reward screen is dismissed.");
             }
             if (shopLag || shopFault)
             {
@@ -908,6 +978,7 @@ internal static class JigsawRecoveryNetworkTests
         finally
         {
             rewardHarmony.UnpatchAll(rewardHarmony.Id);
+            RewardsSet.testSelector = previousRewardsSelector;
             canceledRemovalCompletion = null;
             JigsawNativeShopSync.RequestOverride = null;
             RunManager.Instance.RoomEntered -= NativeReady;
