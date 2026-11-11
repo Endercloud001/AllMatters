@@ -18,7 +18,6 @@
   <Import Project="$(RitsuLibDir)/RitsuLib.References.props" />
   <ItemGroup>
     <Compile Include="*.cs" />
-    <Compile Include="Integration/*.cs" />
     <ProjectReference Include="../../AllMatters.csproj" />
     <Reference Include="sts2" HintPath="$(GameDataDir)/sts2.dll" />
     <Reference Include="Steamworks.NET" HintPath="$(GameDataDir)/Steamworks.NET.dll" />

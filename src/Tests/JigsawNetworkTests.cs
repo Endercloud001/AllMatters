@@ -35,14 +35,14 @@ internal static class JigsawNetworkTests
 #else
     private const string Reward="POMANDER";
 #endif
-    private static void ForceReward(ref Action<EventModel>? debugOnStart)
+    internal static void ForceReward(ref Action<EventModel>? debugOnStart)
     {
         var original=debugOnStart;
         debugOnStart=e=>{original?.Invoke(e);if(e is AncientEventModel ancient)ancient.DebugOption=Reward;};
     }
     private static readonly TaskCompletionSource<IEnumerable<CardModel>> pendingSelection = new();
     private static CardModel[] pendingCards = [];
-    private sealed class LegalSelector : ICardSelector
+    internal sealed class LegalSelector : ICardSelector
     {
         public Task<IEnumerable<CardModel>> GetSelectedCards(IEnumerable<CardModel> options,int minSelect,int maxSelect) {
             var cards=options.Take(minSelect).ToArray();
