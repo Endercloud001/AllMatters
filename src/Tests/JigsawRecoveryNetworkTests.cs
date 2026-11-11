@@ -82,6 +82,9 @@ internal static class JigsawRecoveryNetworkTests
         {
             Native = RunState.FromSerializable(Lobby.Run);
             await RunManager.Instance.SetUpSavedMultiplayer(Native, Lobby);
+            foreach (var original in Lobby.Run.Players)
+                Require(JsonNode.DeepEquals(JsonNode.Parse(JsonSerializer.Serialize(original)), JsonNode.Parse(JsonSerializer.Serialize(Native.Players.Single(player => player.NetId == original.NetId).ToSerializable()))),
+                    "Native setup restores the complete saved player before any resumed room consumes its RNG.");
             RestoredMap = JsonSerializer.Serialize(JigsawNativeSession.Current!.Map!.CreateSave());
             Require(JigsawCheckpoint.Slot.TryGet(Native, out var checkpoint) && checkpoint.Map != null, "Native load retains the complete source extension.");
             var expectedMap = checkpoint.Map! with { Players = Connected(Lobby).ToArray() };
@@ -124,7 +127,7 @@ internal static class JigsawRecoveryNetworkTests
         {
             RunManager.Instance.GenerateRooms();
             await RunManager.Instance.GenerateMap();
-            if (phase.StartsWith("deferred", StringComparison.Ordinal))
+            if (phase.StartsWith("deferred", StringComparison.Ordinal) || phase == "shop-lag" || phase.StartsWith("entry-", StringComparison.Ordinal))
             {
                 native.ExtraFields.StartedWithNeow = true;
                 native.AppendToMapPointHistory(MegaCrit.Sts2.Core.Map.MapPointType.Ancient, RoomType.Event, null);
@@ -134,7 +137,7 @@ internal static class JigsawRecoveryNetworkTests
             {
                 MegaCrit.Sts2.Core.Commands.CardCmd.Upgrade(player.Deck.Cards[0]);
                 player.AddRelicInternal(ModelDb.Relic<MegaCrit.Sts2.Core.Models.Relics.GoldenPearl>().ToMutable());
-                await MegaCrit.Sts2.Core.Commands.PlayerCmd.GainGold((int)player.NetId * 17, player);
+                await MegaCrit.Sts2.Core.Commands.PlayerCmd.GainGold((int)player.NetId * 17 + (phase == "shop-lag" ? 1000 : 0), player);
                 await MegaCrit.Sts2.Core.Commands.PotionCmd.TryToProcure<MegaCrit.Sts2.Core.Models.Potions.FirePotion>(player);
             }
             bool entryFault = phase.StartsWith("entry-", StringComparison.Ordinal);
@@ -248,7 +251,8 @@ internal static class JigsawRecoveryNetworkTests
                 if (timer.Elapsed.TotalSeconds > 20)
                 {
                     var executor = RunManager.Instance.ActionExecutor;
-                    throw new TimeoutException($"Recovery {role}: {stage}; paused={executor.IsPaused} running={executor.IsRunning} action={executor.CurrentlyRunningAction} recovery={JigsawNativeSession.Current?.EntryRecoveryTask?.Status} round={JigsawNativeSession.Current?.EntryRound}; evidence={directory}");
+                    var state = JigsawNativeSession.Current?.Map;
+                    throw new TimeoutException($"Recovery {role}: {stage}; paused={executor.IsPaused} running={executor.IsRunning} action={executor.CurrentlyRunningAction} recovery={JigsawNativeSession.Current?.EntryRecoveryTask?.Status} round={JigsawNativeSession.Current?.EntryRound} steps={state?.Steps} current={state?.CurrentNode} pending={state?.PendingEntry?.Id} completed={string.Join(',', state?.RoomCompletedPlayers ?? [])} votes={string.Join(',', state?.DestinationVotes.Select(pair => pair.Key + ":" + pair.Value) ?? [])}; evidence={directory}");
                 }
                 net.Update();
                 await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
@@ -353,7 +357,7 @@ internal static class JigsawRecoveryNetworkTests
             if (phase == "editing") Require(map.Phase == JigsawPhase.Editing && map.Holdings.Count == 0 && map.Placements.Count == 1, "Editing keeps accepted placements and clears the former session's holdings.");
             if (phase is "generating" or "ancient") Require(map.Phase == JigsawPhase.Ancient && listener.Native!.CurrentRoom is EventRoom, "The production resume callback completes generation or reopens the unfinished Ancient.");
             if (phase == "pending") Require(map.Steps == 1 && map.PendingEntry == null && map.CurrentNode != null, "Native readiness confirms the already chosen pending destination exactly once.");
-            foreach (var original in expected.Players)
+            foreach (var original in phase == "shop-lag" ? [] : expected.Players)
                 Require(JsonNode.DeepEquals(JsonNode.Parse(JsonSerializer.Serialize(original)), JsonNode.Parse(JsonSerializer.Serialize(listener.Native.Players.Single(player => player.NetId == original.NetId).ToSerializable()))), "Native load restores the complete player document, including upgraded cards, relics and potions.");
             if (deferred)
             {
@@ -440,6 +444,24 @@ internal static class JigsawRecoveryNetworkTests
                 foreach (string peer in remaining)
                     Require(JsonNode.DeepEquals(JsonNode.Parse(stock), JsonNode.Parse(File.ReadAllText(Path.Combine(directory, peer + ".shop-stock")))),
                         "Every endpoint saves the same complete stock after one owner buys and another later removes a card.");
+                var shopRandom = listener.Native.Players.ToDictionary(player => player.NetId, player => HeadlessTestSetup.RngPosition(player.PlayerRng.Shops));
+                JigsawNativeExploration.MerchantExited(session); // Headless host substitutes only the absent NMerchantRoom exit button signal.
+                session.CompleteCurrentRoom(true);
+                await Until(() => map.RoomCompletedPlayers.Contains(net.NetId), "each owner actually leaves their native shop before voting to revisit");
+                Require(JigsawEditorAction.Submit(session, JigsawEditorOperation.VoteDestination, nodeId: 1).Success, "Every owner votes to revisit the same real shop.");
+                await Until(() =>
+                {
+                    if (HarmonyLib.AccessTools.Field(typeof(JigsawNativeSession), "enteringTask").GetValue(session) is Task { IsFaulted: true } failedEntry)
+                        failedEntry.GetAwaiter().GetResult();
+                    return map.Steps == 2 && map.CurrentNode == 1 && map.PendingEntry == null;
+                }, "the Host admits a new common shop entry once all owners leave");
+                var revisited = (MerchantRoom)listener.Native.CurrentRoom!;
+                Require(!revisited.Inventories.Single(inventory => inventory.Player.NetId == 1).CardEntries.First().IsStocked &&
+                    revisited.Inventories.Single(inventory => inventory.Player.NetId == 2).CardRemovalEntry.Used && map.FirstProgress == 1 &&
+                    listener.Native.Players.All(player => HeadlessTestSetup.RngPosition(player.PlayerRng.Shops) == shopRandom[player.NetId]),
+                    "A genuine second native entry retains sold and used slots without rerolling inventories or increasing first progress.");
+                Signal("shop-revisited");
+                await Until(() => remaining.All(peer => Signaled(peer, "shop-revisited")), "all endpoints confirm the second shop entry before the Host ends");
             }
             if (entryFault)
             {
