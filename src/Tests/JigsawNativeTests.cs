@@ -1071,6 +1071,9 @@ internal static class JigsawNativeTests
                 int rewardGold=await treasure.DoNormalRewards();
                 await treasure.DoExtraRewardsIfNeeded();
                 Require(restored.Players[0].Gold==gold+rewardGold,"Real native chest reward commands apply the rolled gold exactly once.");
+                JigsawNativeExploration.TerminalRewardsFinished(resumed);
+                Require(!JigsawNativeExploration.NativeFlowFinished(resumed, ulong.MaxValue),
+                    "A local terminal reward callback cannot complete an unrelated player.");
                 // Deliver the actual accepted native skip action. The headless host
                 // omits the UI/action-loop pump, so execute this queued action directly.
                 var skip=new MegaCrit.Sts2.Core.GameActions.PickRelicAction(restored.Players[0],null);

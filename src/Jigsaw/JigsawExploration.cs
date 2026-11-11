@@ -1,4 +1,7 @@
 using System.Runtime.CompilerServices;
+using HarmonyLib;
+using MegaCrit.Sts2.Core.Multiplayer.Game;
+using MegaCrit.Sts2.Core.Rewards;
 using MegaCrit.Sts2.Core.Rooms;
 using MegaCrit.Sts2.Core.Runs;
 
@@ -104,7 +107,8 @@ internal static class JigsawNativeExploration
         internal long MerchantExit;
         internal long TreasureOpen;
         internal long LocalExit;
-        internal long TerminalRewards;
+        internal readonly Dictionary<ulong, long> TerminalRewards = [];
+        internal readonly Dictionary<(long Entry, ulong Player), HashSet<int>> RewardSets = [];
     }
 
     private static readonly ConditionalWeakTable<JigsawNativeSession, ExitState> exits = new();
@@ -113,7 +117,19 @@ internal static class JigsawNativeExploration
 
     internal static void MerchantExited(JigsawNativeSession session) => State(session).MerchantExit = Entry(session);
     internal static void TreasureOpened(JigsawNativeSession session) => State(session).TreasureOpen = Entry(session);
-    internal static void TerminalRewardsFinished(JigsawNativeSession session) => State(session).TerminalRewards = Entry(session);
+    internal static void TerminalRewardsFinished(JigsawNativeSession session) =>
+        State(session).TerminalRewards[RunManager.Instance.NetService.NetId] = Entry(session);
+
+    internal static void RewardSetBegan(JigsawNativeSession session, RewardsSet rewards)
+    {
+        if (session.Map?.Phase != JigsawPhase.Exploring ||
+            session.Map.CurrentNode == null && session.Map.PendingEntry == null || rewards.Id < 0)
+            return;
+        var key = (Entry(session), rewards.Player.NetId);
+        if (!State(session).RewardSets.TryGetValue(key, out var ids))
+            State(session).RewardSets[key] = ids = [];
+        ids.Add(rewards.Id);
+    }
 
     internal static bool MarkLocalExit(JigsawNativeSession session, bool canTravel)
     {
@@ -133,11 +149,14 @@ internal static class JigsawNativeExploration
     {
         if (session.Map?.CurrentNode == null || session.Native.CurrentRoomCount > 1)
             return false;
-        if (State(session).TerminalRewards == Entry(session))
-            return true;
         var nativePlayer = session.Native.Players.FirstOrDefault(candidate => candidate.NetId == player);
         if (nativePlayer == null)
             return false;
+        if (State(session).RewardSets.TryGetValue((Entry(session), player), out var ids) &&
+            ids.Any(id => !RunManager.Instance.RewardsSetSynchronizer.IsRewardsSetCompleted(nativePlayer, id)))
+            return false;
+        if (State(session).TerminalRewards.GetValueOrDefault(player) == Entry(session))
+            return true;
         return session.Native.CurrentRoom switch
         {
             CombatRoom combat => combat.IsPreFinished,
@@ -149,5 +168,15 @@ internal static class JigsawNativeExploration
             MerchantRoom => !requireLocalSignals || State(session).MerchantExit == Entry(session),
             _ => false
         };
+    }
+}
+
+[HarmonyPatch(typeof(RewardsSetSynchronizer), nameof(RewardsSetSynchronizer.BeginRewardsSet))]
+internal static class JigsawObserveRoomRewards
+{
+    private static void Postfix(RewardsSet set)
+    {
+        if (JigsawNativeSession.Current is { } session)
+            JigsawNativeExploration.RewardSetBegan(session, set);
     }
 }
