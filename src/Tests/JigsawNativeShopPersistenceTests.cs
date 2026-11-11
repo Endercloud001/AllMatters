@@ -54,6 +54,14 @@ internal static class JigsawNativeShopPersistenceTests
                 "Rebuilding actual native stock retains all serialized properties without drawing new stock or prices.");
             Require(await restored.CardEntries.ElementAt(1).OnTryPurchaseWrapper(restored),
                 "A rebuilt native entry supports an actual card purchase and original update callbacks.");
+            var synchronized = JigsawNativeShopPersistence.Capture(restored);
+            ulong beforeApply = HeadlessTestSetup.RngPosition(player.PlayerRng.Shops);
+            var replacedStockCard = original.CardEntries.ElementAt(1).CreationResult!.Card;
+            JigsawNativeShopPersistence.Apply(original, synchronized);
+            Require(Stock(((MerchantRoom)native.CurrentRoom!).Inventories.Single()) == Stock(restored) &&
+                HeadlessTestSetup.RngPosition(player.PlayerRng.Shops) == beforeApply &&
+                !native.ContainsCard(replacedStockCard),
+                "Applying an owner's completed native purchase replaces remote stock without another shop roll or orphan card.");
             player.ExtraFields.CardShopRemovalsUsed++;
             var repriced = JigsawNativeShopPersistence.Restore(player, saved);
             Require(repriced.CardRemovalEntry!.Cost == new MerchantCardRemovalEntry(player).Cost,

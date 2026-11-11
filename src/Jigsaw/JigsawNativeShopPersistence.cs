@@ -161,6 +161,23 @@ internal static class JigsawNativeShopPersistence
         return inventory;
     }
 
+    internal static void Apply(MerchantInventory current, JigsawShopInventory saved)
+    {
+        if (current.Player.RunState.CurrentRoom is not MegaCrit.Sts2.Core.Rooms.MerchantRoom room)
+            throw new InvalidOperationException("The native shop is no longer active.");
+        int index = room.Inventories.IndexOf(current);
+        if (index < 0)
+            throw new InvalidOperationException("The current native shop inventory is missing.");
+        var replacement = Restore(current.Player, saved);
+        foreach (var card in current.CardEntries.SelectMany(entry => entry.CreationResult is { } result
+            ? new CardModel[] { result.originalCard, result.Card } : []).Distinct())
+        {
+            if (!current.Player.Deck.Cards.Contains(card) && current.Player.RunState.ContainsCard(card))
+                current.Player.RunState.RemoveCard(card);
+        }
+        room.Inventories[index] = replacement;
+    }
+
     private static void ValidateCard(SerializableCard card)
     {
         Require(card.Id != null && card.CurrentUpgradeLevel >= 0, "卡牌原生数据无效。");
