@@ -33,12 +33,14 @@ internal static class JigsawEditorAction
             {
                 var input = inputs.GetValue(map, _ => new());
                 var message = context.Message;
+                if (message.EntryRound != session.EntryRound)
+                    return;
                 if (message.Sequence <= input.Accepted.GetValueOrDefault(context.Player.NetId))
                     return;
                 input.Accepted[context.Player.NetId] = message.Sequence;
                 bool entry = message.Operation is JigsawEditorOperation.EntryReady or JigsawEditorOperation.EntryFailed or JigsawEditorOperation.ConfirmEntry or JigsawEditorOperation.RetryEntry or JigsawEditorOperation.AbandonEntry or JigsawEditorOperation.RecoverEntry;
                 bool exploration = entry || message.Operation is JigsawEditorOperation.CompleteRoom or JigsawEditorOperation.VoteDestination or JigsawEditorOperation.FinalizeDestination;
-                var result = message.Operation != JigsawEditorOperation.Disconnect && (message.EditRevision != map.EditRevision || exploration && (message.EntryRevision != map.CreateSave().NextEntry || entry && message.EntryRound != session.EntryRound)) ? JigsawResult.Reject("拼图阶段已变化，请重试。") : context.Message.Operation switch
+                var result = message.Operation != JigsawEditorOperation.Disconnect && (message.EditRevision != map.EditRevision || exploration && message.EntryRevision != map.CreateSave().NextEntry) ? JigsawResult.Reject("拼图阶段已变化，请重试。") : context.Message.Operation switch
                 {
                     JigsawEditorOperation.FinalizeAutomatic => IsHost(context.Player.NetId) ? session.ApplyAutomatic(message.Layout, message.AutomaticFailure) : JigsawResult.Reject("只有 Host 可以提交自动拼图。"),
                     JigsawEditorOperation.Disconnect => IsHost(context.Player.NetId) && message.CompletedOwner is { } departed ? session.ApplyDisconnect(departed) : JigsawResult.Reject("Only Host can disconnect."),
@@ -80,6 +82,8 @@ internal static class JigsawEditorAction
                     session.OnDestinationBallotChanged();
                 if (result.Success && message.Operation == JigsawEditorOperation.FinalizeDestination && message.NodeId is { } destination)
                     session.OnDestinationFinalized(destination);
+                if (!result.Success && message.Operation is JigsawEditorOperation.RecoverEntry or JigsawEditorOperation.ConfirmEntry)
+                    Console.Error.WriteLine($"Jigsaw entry {message.Operation} rejected: {result.Reason}");
                 if (message.Operation == JigsawEditorOperation.Reset && context.Player.NetId == RunManager.Instance.NetService.NetId && input.Resets.TryGetValue(message.Sequence, out var completion))
                 {
                     try

@@ -97,6 +97,7 @@ public sealed class JigsawNativeSession
     private SerializableRun? entryCheckpoint;
     private bool entryFailed;
     private bool entryRecoveryRequested;
+    internal Task? EntryRecoveryTask { get; private set; }
     private readonly HashSet<ulong> entryReadyPlayers = [];
     private long nativeReadyAttempt;
     private TaskCompletionSource<bool>? entryDecision;
@@ -785,8 +786,27 @@ public sealed class JigsawNativeSession
             return JigsawResult.Reject(JigsawFailure.StaleEntry);
         entryRecoveryRequested = true;
         if (JigsawEditorAction.IsHost(LocalPlayerId))
-            _ = Defer(() => SendEntryRecovery(abandon));
+            TrackEntryRecovery(() => SendEntryRecovery(abandon));
         return JigsawResult.Ok;
+    }
+
+    private void TrackEntryRecovery(Func<Task> work)
+    {
+        var task = EntryRecoveryTask = Defer(work);
+        _ = ReportEntryRecoveryFailure(task);
+    }
+
+    private async Task ReportEntryRecoveryFailure(Task task)
+    {
+        try
+        { await task; }
+        catch (Exception error)
+        {
+            entryRecoveryRequested = false;
+            if (Current == this)
+                screen?.ShowNotice("进入恢复失败，请检查联机连接后重试。");
+            Console.Error.WriteLine($"Jigsaw entry recovery failed: {error}");
+        }
     }
 
     private async Task SendEntryRecovery(bool abandon)
@@ -833,7 +853,7 @@ public sealed class JigsawNativeSession
         catch (Exception error) { return JigsawResult.Reject(error.Message); }
         var active = Map.ActivePlayers.ToArray();
         long round = EntryRound + 1;
-        _ = Defer(() => LoadCheckpoint(checkpoint, restored, active, round));
+        TrackEntryRecovery(() => LoadCheckpoint(checkpoint, restored, active, round));
         return JigsawResult.Ok;
     }
 
