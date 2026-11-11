@@ -32,7 +32,7 @@ public sealed partial class JigsawRun
     {
         get
         {
-            if (Phase != JigsawPhase.Exploring || PendingEntry != null)
+            if (Phase != JigsawPhase.Exploring || HasDeferredAncient || PendingEntry != null)
                 return [];
             if (CurrentNode == null)
                 return AvailableDestinations;
@@ -51,7 +51,7 @@ public sealed partial class JigsawRun
 
     public JigsawResult RecordRoomCompletion(ulong player)
     {
-        if (Phase != JigsawPhase.Exploring || CurrentNode == null || !players.Contains(player))
+        if (Phase != JigsawPhase.Exploring || HasDeferredAncient || CurrentNode == null || !players.Contains(player))
             return JigsawResult.Reject(JigsawFailure.StaleCompletion);
         roomCompleted.Add(player);
         return JigsawResult.Ok;

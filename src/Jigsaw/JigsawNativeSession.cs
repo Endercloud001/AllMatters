@@ -98,6 +98,7 @@ public sealed class JigsawNativeSession
     private Task? enteringTask;
     private RunLobby? boundLobby;
     public SerializableRun? BeforeAncient { get; private set; }
+    internal JigsawDeferredAncient? DeferredAncient { get; private set; }
     public bool AncientReady => Map is { } map && ActivePlayerIds.All(map.CreateSave().AncientCompleted.Contains);
     public bool CanResetLayout => Map?.Phase == JigsawPhase.Editing && Native.CurrentRoom is MapRoom &&
         !paused && (TestMode.IsOn || screen is { Visible: true } && screen.IsProcessingInput());
@@ -220,7 +221,7 @@ public sealed class JigsawNativeSession
             throw new InvalidDataException("拼图原队员与原生存档角色名单不一致，不能替换角色恢复。");
         bool validating = JigsawLobbyCheckpoint.IsValidating || native.Players.Count > 1 &&
             !ReferenceEquals(RunManager.Instance.DebugOnlyGetState(), native);
-        var restoredMap = JigsawRun.Restore(mapData, validating ? null : ActivePlayers(native));
+        var restoredMap = validating ? JigsawRun.Restore(mapData) : JigsawRun.RestoreForDeferredAncient(mapData, ActivePlayers(native));
         // The native lobby validates/rebuilds saves before a live session exists.
         // Validate the document here without activating multiplayer gameplay.
         if (validating)
@@ -228,6 +229,12 @@ public sealed class JigsawNativeSession
         var session = Enable(native);
         session.act = data.Act;
         session.Map = restoredMap;
+        if (restoredMap.HasDeferredAncient)
+        {
+            if (checkpoint == null)
+                throw new InvalidDataException("补领 Ancient 需要同一原生存档的完整检查点。");
+            session.DeferredAncient = new(session, checkpoint);
+        }
         session.BeginExploration();
         if (session.Map.PendingEntry != null && checkpoint != null)
             session.entryCheckpoint = JigsawSaveSource.Copy(checkpoint);
@@ -414,7 +421,7 @@ public sealed class JigsawNativeSession
     {
         var map = Map;
         var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        Callable.From(async () => { try { if (Current == this && ReferenceEquals(Map, map)) await work(); completion.TrySetResult(); } catch (Exception error) { completion.TrySetException(error); } }).CallDeferred();
+        Callable.From((Action)(async () => { try { if (Current == this && ReferenceEquals(Map, map)) await work(); completion.TrySetResult(); } catch (Exception error) { completion.TrySetException(error); } })).CallDeferred();
         return completion.Task;
     }
     public Task Automatic()
@@ -649,6 +656,11 @@ public sealed class JigsawNativeSession
 
     public async Task Continue()
     {
+        if (DeferredAncient is { } deferred)
+        {
+            await deferred.Resume();
+            return;
+        }
         if (Map is { Phase: JigsawPhase.Ancient } waiting && !AncientReady && Native.CurrentRoom is MapRoom)
         {
             OnEdited();
@@ -912,7 +924,7 @@ public sealed class JigsawNativeSession
 
     public void CompleteCurrentRoom(bool canTravel)
     {
-        if (Map?.CurrentNode == null || !JigsawNativeExploration.MarkLocalExit(this, canTravel))
+        if (BeforeAncient != null || DeferredAncient is { IsResuming: false } || Map?.CurrentNode == null || !JigsawNativeExploration.MarkLocalExit(this, canTravel))
             return;
         CaptureCurrentShop();
         if (Map.ActivePlayers.Count == 1)
@@ -923,6 +935,14 @@ public sealed class JigsawNativeSession
         else
             JigsawEditorAction.Submit(this, JigsawEditorOperation.CompleteRoom, completedOwner: LocalPlayerId);
     }
+
+    internal void BeginDeferredAncient(SerializableRun point)
+    {
+        BeforeAncient = JigsawSaveSource.Copy(point);
+        HideMap();
+    }
+
+    internal void FinishDeferredAncient() => DeferredAncient = null;
 
     public bool ShouldInterceptAncient(MapCoord coord) => !enteringAncient &&
         Native.Map.GetPoint(coord)?.PointType == MapPointType.Ancient &&
@@ -1134,6 +1154,10 @@ internal static class JigsawCaptureNativePoint
             return;
         if (session.BeforeAncient is { } before)
             __result = JigsawSaveSource.Copy(before);
+        else if (session.FailedEntryCheckpoint is { } failed)
+            __result = JigsawSaveSource.Copy(failed);
+        else if (session.DeferredAncient is { IsRunning: true } deferred)
+            deferred.RestoreSaveRoom(__result);
         var identity = ModelDb.Modifier<AllMattersJigsawMode>();
         if (!__result.Modifiers.Any(modifier => modifier.Id == identity.Id))
             __result.Modifiers.Add(identity.ToMutable().ToSerializable());
@@ -1146,7 +1170,7 @@ internal static class JigsawCaptureNativePoint
         session.CaptureCurrentShop();
         JigsawCheckpoint.Capture(session.Native, session.Map);
         if (session.FailedEntryCheckpoint is { } pending)
-        { __result = pending; return false; }
+        { __result = JigsawSaveSource.Copy(pending); return false; }
         if (session.BeforeAncient == null)
             return true;
         __result = JigsawSaveSource.Copy(session.BeforeAncient);
@@ -1157,12 +1181,17 @@ internal static class JigsawCaptureNativePoint
 [HarmonyPatch(typeof(RunManager), nameof(RunManager.LoadIntoLatestMapCoord))]
 internal static class JigsawResumePhase
 {
-    private static bool Prefix(ref Task __result, out Action? __state)
+    private static bool Prefix(AbstractRoom? preFinishedRoom, ref Task __result, out Action? __state)
     {
         __state = null;
         if (JigsawNativeSession.Current is not { Map: not null } session)
             return true;
         var map = session.Map;
+        if (session.DeferredAncient is { IsResuming: false } deferred)
+        {
+            __result = deferred.Enter(preFinishedRoom);
+            return false;
+        }
         if (map.PendingEntry != null && !session.HasNativeEntryCoordinate)
         {
             session.Native.ActFloor = map.FirstProgress;
@@ -1190,7 +1219,10 @@ internal static class JigsawResumePhase
     private static void Postfix(ref Task __result, Action? __state)
     {
         if (JigsawNativeSession.Current is { Map: not null } session)
-            __result = Resume(__result, session, __state);
+        {
+            if (session.DeferredAncient is not { IsResuming: false })
+                __result = Resume(__result, session, __state);
+        }
         else if (__state != null)
             RunManager.Instance.RoomEntered -= __state;
     }

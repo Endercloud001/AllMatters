@@ -357,11 +357,12 @@ public sealed partial class JigsawRun
             Phase = JigsawPhase.Exploring;
         return JigsawResult.Ok;
     }
+    public bool HasDeferredAncient => Phase == JigsawPhase.Exploring && players.Any(player => !ancientCompleted.Contains(player));
     public IReadOnlyCollection<int> AvailableDestinations
     {
         get
         {
-            if (Phase != JigsawPhase.Exploring || CurrentNode != null || PendingEntry != null)
+            if (Phase != JigsawPhase.Exploring || HasDeferredAncient || CurrentNode != null || PendingEntry != null)
                 return [];
             var candidates = Edges.SelectMany(e => new[] { (From: e.First, To: e.Second), (From: e.Second, To: e.First) })
                 .Where(e => completed.Contains(e.From) && (!visited.Contains(e.To) || ResolvedRoom(e.To) == JigsawRoom.Shop) && e.To != 0)
@@ -406,7 +407,7 @@ public sealed partial class JigsawRun
     }
     public JigsawResult ConfirmEnter(long attempt)
     {
-        if (PendingEntry?.Id != attempt || Phase != JigsawPhase.Exploring)
+        if (PendingEntry?.Id != attempt || Phase != JigsawPhase.Exploring || HasDeferredAncient)
             return JigsawResult.Reject(JigsawFailure.StaleEntry);
         CurrentNode = PendingEntry.NodeId;
         currentEntry = attempt;
@@ -420,7 +421,7 @@ public sealed partial class JigsawRun
     }
     public JigsawResult CompleteRoom(long attempt)
     {
-        if (Phase != JigsawPhase.Exploring || CurrentNode == null || currentEntry != attempt)
+        if (Phase != JigsawPhase.Exploring || HasDeferredAncient || CurrentNode == null || currentEntry != attempt)
             return JigsawResult.Reject(JigsawFailure.StaleCompletion);
         completed.Add(CurrentNode.Value);
         CurrentNode = null;
@@ -506,6 +507,12 @@ public sealed partial class JigsawRun
     }
     public JigsawSave CreateSave() => new(Pool.Select(p => p with { Nodes = p.Nodes.ToArray(), InternalEdges = p.InternalEdges.ToArray() }).ToArray(), placements.Values.ToArray(), external.ToArray(), Phase, Budget, players.ToArray(), Steps, FirstProgress, visited.ToArray(), completed.ToArray(), CurrentNode, PendingEntry, nextEntry, ancientCompleted.ToArray()) { OriginalPlayers = originalPlayers.ToArray(), AutomaticWitness = AutomaticWitness is { } witness ? new(witness.Placements.ToArray(), witness.Edges.ToArray()) : null, AutomaticOperation = AutomaticOperation is { } operation ? operation with { CandidateOrder = operation.CandidateOrder.ToArray() } : null, GenerationRandomState = generationRandomState, DestinationRandomState = destinationRandomState, ResolvedRooms = resolvedRooms.Count == 0 ? null : new(resolvedRooms), ShopStates = shopInventories.Count > 0 ? shopInventories.ToDictionary(kv => $"{kv.Key.nodeId}_{kv.Key.playerId}", kv => (object)kv.Value) : null };
     public static JigsawRun Restore(JigsawSave save, IEnumerable<ulong>? activePlayers = null)
+        => RestoreCore(save, activePlayers, allowDeferredAncient: false);
+
+    internal static JigsawRun RestoreForDeferredAncient(JigsawSave save, IEnumerable<ulong> activePlayers)
+        => RestoreCore(save, activePlayers, allowDeferredAncient: true);
+
+    private static JigsawRun RestoreCore(JigsawSave save, IEnumerable<ulong>? activePlayers, bool allowDeferredAncient)
     {
         JigsawSaveValidation.Validate(save);
         var run = new JigsawRun(save.Pool, save.Budget, save.OriginalPlayers ?? save.Players) { Phase = save.Phase, Steps = save.Steps, FirstProgress = save.FirstProgress, CurrentNode = save.CurrentNode, PendingEntry = save.PendingEntry, nextEntry = save.NextEntry, currentEntry = save.CurrentNode == null ? null : save.NextEntry };
@@ -562,7 +569,7 @@ public sealed partial class JigsawRun
             var connected = activePlayers.ToHashSet();
             if (!connected.IsSubsetOf(run.originalPlayers))
                 throw new ArgumentException("A new player cannot replace an original saved character.", nameof(activePlayers));
-            if (run.Phase == JigsawPhase.Exploring && !connected.All(run.ancientCompleted.Contains))
+            if (!allowDeferredAncient && run.Phase == JigsawPhase.Exploring && !connected.All(run.ancientCompleted.Contains))
                 throw new ArgumentException("Returning players must complete Ancient before exploration can resume.", nameof(activePlayers));
             run.players.Clear();
             run.players.UnionWith(connected);
