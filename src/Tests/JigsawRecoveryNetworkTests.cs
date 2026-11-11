@@ -369,6 +369,7 @@ internal static class JigsawRecoveryNetworkTests
                 };
         }
         JigsawScreen? screen = null;
+        JigsawNativeMapUiHost? nativeUi = null;
         bool deferred = phase.StartsWith("deferred", StringComparison.Ordinal);
         bool unfinishedAncient = phase is "editing" or "generating" or "ancient";
         bool shopLag = phase == "shop-lag", shopFault = phase == "shop-fault";
@@ -511,8 +512,10 @@ internal static class JigsawRecoveryNetworkTests
                 listener.RestoredMap = JsonSerializer.Serialize(map.CreateSave());
             }
             HeadlessUiHost.EnsureInputActions();
-            screen = session.CreateScreen(new MemoryJigsawTutorialProfile { Sentence = 6 });
-            await HeadlessUiHost.Mount(screen);
+            if (phase == "exploring")
+            { nativeUi = new(); screen = await nativeUi.Open(session); }
+            else
+            { screen = session.CreateScreen(new MemoryJigsawTutorialProfile { Sentence = 6 }); await HeadlessUiHost.Mount(screen); }
             Require(screen.IsInsideTree() && screen.IsVisibleInTree(), "The actual production screen presents the recovered map.");
             if (phase is "exploring" or "visited") Require(map.AvailableDestinations.Count > 0, "Recovered exploration exposes the next decision.");
             File.WriteAllText(Path.Combine(directory, role + ".map.json"), listener.RestoredMap);
@@ -926,30 +929,41 @@ internal static class JigsawRecoveryNetworkTests
                 RunManager.Instance.ActionExecutor.Unpause();
                 await Until(() => map.AvailableDestinations.Count > 1, "the recovered map exposes distinct destination ballots");
                 int[] choices = map.AvailableDestinations.Order().ToArray();
-                int choice = choices[net.NetId == 1 ? 0 : 1];
                 int steps = map.Steps;
-                var target = map.Nodes.Single(node => node.Id == choice);
-                var position = screen.MapControl.GlobalPosition + screen.GridToCanvas(target.Center);
-                Input.ParseInputEvent(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true, Position = position, GlobalPosition = position });
-                await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
-                Input.ParseInputEvent(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false, Position = position, GlobalPosition = position });
-                Console.WriteLine($"RECOVERY ballot role={role} target={choice} at={position} canvas={screen.MapControl.GetGlobalRect()} votes={string.Join(',', map.DestinationVotes.Select(v => v.Key + ":" + v.Value))}");
-                await Until(() => map.DestinationVotes.Count == active.Length, "all owners' actual engine clicks reach the shared ballot");
-                Require(map.PendingEntry == null && map.Steps == steps && map.ProposedDestination == null,
-                    "Different votes never enter, including a Host vote while clients choose another node.");
-                Signal("split-ballot");
-                await Until(() => remaining.All(peer => Signaled(peer, "split-ballot")), "every endpoint observes split votes before anyone changes a choice");
-                if (net.NetId == 2)
-                    await Until(() => map.DestinationVotes.Where(vote => vote.Key != 2).All(vote => vote.Value == choices[0]) &&
-                        remaining.Where(peer => peer != "2").All(peer => Signaled(peer, "agreed-ballot")),
-                        "the Client waits until all other owners have selected its final destination");
-                position = screen.MapControl.GlobalPosition + screen.GridToCanvas(map.Nodes.Single(node => node.Id == choices[0]).Center);
-                Input.ParseInputEvent(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true, Position = position, GlobalPosition = position });
-                await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
-                Input.ParseInputEvent(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false, Position = position, GlobalPosition = position });
-                Signal("agreed-ballot");
+                async Task Click(int destination)
+                {
+                    Require(screen.IsProcessingInput(), "The production map accepts input on every local endpoint.");
+                    var position = screen.MapControl.GlobalPosition + screen.GridToCanvas(map.Nodes.Single(node => node.Id == destination).Center);
+                    Input.ParseInputEvent(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true, Position = position, GlobalPosition = position });
+                    await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
+                    Input.ParseInputEvent(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false, Position = position, GlobalPosition = position });
+                }
+                if (net.NetId == 2) await Click(choices[0]);
+                await Until(() => map.DestinationVotes.ContainsKey(2), "the Client's first real click independently casts its own ballot");
+                Require(!map.DestinationVotes.ContainsKey(1) && map.PendingEntry == null && map.Steps == steps,
+                    "A Client vote never becomes the Host's vote or enters before the other players.");
+                Require(screen.MapControl.GetParent().FindChild("DestinationVoters" + choices[0], true, false) is HBoxContainer portraits &&
+                    portraits.GetChildren().OfType<TextureRect>().Any(portrait => portrait.Name == "Voter2" && portrait.Texture != null),
+                    "The Client's first vote is visible as its character portrait on every replica.");
+                Signal("first-client-ballot");
+                await Until(() => remaining.All(peer => Signaled(peer, "first-client-ballot")), "all replicas see the Client portrait before it changes its selection");
+                if (net.NetId == 2) await Click(choices[1]);
+                await Until(() => map.DestinationVotes.GetValueOrDefault(2UL) == choices[1], "the Client changes its own destination through a second click");
+                Require(screen.MapControl.GetParent().FindChild("DestinationVoters" + choices[1], true, false) is HBoxContainer moved && moved.GetChildCount() == 1,
+                    "Changing the Client ballot moves the portrait to its new node.");
+                Signal("client-moved");
+                await Until(() => remaining.All(peer => Signaled(peer, "client-moved")), "the moved portrait reaches every replica");
+                // Native room scene startup is owned by the existing logical test host.
+                // End the NGame shell after observing production parent/input ownership.
+                nativeUi?.ReleaseSceneOwnership();
+                if (net.NetId != 1) await Click(choices[1]);
+                await Until(() => map.DestinationVotes.Count == active.Length - 1, "all Clients can choose while the Host has not voted");
+                Require(map.PendingEntry == null && map.Steps == steps, "All Client votes still wait for the Host's one ballot.");
+                Signal("clients-voted");
+                await Until(() => remaining.All(peer => Signaled(peer, "clients-voted")), "all endpoints wait before the final Host ballot");
+                if (net.NetId == 1) await Click(choices[0]);
                 await Until(() => map.CurrentNode != null && map.Steps == steps + 1, "engine-routed votes choose and natively enter one common destination");
-                Require(map.CurrentNode == choices[0], "The final Client click enters exactly the unanimously selected node.");
+                Require(choices.Contains(map.CurrentNode!.Value), "The final Host ballot enters exactly one of the voted destinations.");
                 Require(map.PendingEntry == null && map.DestinationVotes.Count == 0 && listener.Native!.CurrentRoom is not (null or MapRoom), "Native RoomEntered confirms one room, consumes all ballots and charges exactly once.");
                 File.WriteAllText(Path.Combine(directory, role + ".destination"), $"{map.CurrentNode}:{map.Steps}:{map.CreateSave().DestinationRandomState}");
                 Signal("entered");
@@ -984,6 +998,7 @@ internal static class JigsawRecoveryNetworkTests
             RunManager.Instance.RoomEntered -= NativeReady;
             JigsawEntryFailureHost.Reset();
             if (GodotObject.IsInstanceValid(screen)) screen!.Free();
+            nativeUi?.Dispose();
             foreach (var child in children) { if (!child.HasExited) child.Kill(true); child.Dispose(); }
             RunManager.Instance.CleanUp(false);
             JigsawNativeSaveHost.Save = null;

@@ -26,6 +26,7 @@ public partial class JigsawScreen : Control
     private Func<ulong, Color>? playerColor;
     private readonly HBoxContainer manualVoters = new(), autoVoters = new();
     private readonly HBoxContainer continueVoters = new() { Name = "ContinueVoters" };
+    private readonly Dictionary<int, HBoxContainer> destinationVoters = [];
     private JigsawMultiplayerHud? multiplayerHud;
     private int helpIndex;
     private readonly Theme adaptiveTheme = new();
@@ -325,6 +326,7 @@ public partial class JigsawScreen : Control
     public void Refresh()
     {
         multiplayerHud?.Update();
+        UpdateDestinationVoters();
         foreach (var id in bossVisuals.Keys.Where(id => !map.Nodes.Any(n => n.Id == id)).ToArray())
         { bossVisuals[id].QueueFree(); bossVisuals.Remove(id); }
         poolFrame.Visible = pool.Visible = map.Phase is JigsawPhase.Editing or JigsawPhase.Inspecting or JigsawPhase.Generating;
@@ -385,6 +387,26 @@ public partial class JigsawScreen : Control
         RestoreFocus();
     }
     private TextureRect Portrait(ulong id) => new() { Texture = avatar?.Invoke(id), CustomMinimumSize = new(32, 32), Size = new(32, 32), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, MouseFilter = MouseFilterEnum.Ignore };
+    private void UpdateDestinationVoters()
+    {
+        foreach (var row in destinationVoters.Values)
+        { overlay.RemoveChild(row); row.QueueFree(); }
+        destinationVoters.Clear();
+        if (map.Phase != JigsawPhase.Exploring)
+            return;
+        foreach (var ballots in map.DestinationVotes.GroupBy(ballot => ballot.Value))
+        {
+            var row = new HBoxContainer { Name = "DestinationVoters" + ballots.Key, MouseFilter = MouseFilterEnum.Ignore };
+            foreach (var ballot in ballots.OrderBy(ballot => ballot.Key))
+            {
+                var portrait = Portrait(ballot.Key);
+                portrait.Name = "Voter" + ballot.Key;
+                row.AddChild(portrait);
+            }
+            destinationVoters.Add(ballots.Key, row);
+            overlay.AddChild(row);
+        }
+    }
     private void UpdateVoters(HBoxContainer row, EndChoice choice)
         => UpdateVoters(row, map.Choices.Where(x => x.Value == choice).Select(x => x.Key));
     private void UpdateVoters(HBoxContainer row, IEnumerable<ulong> players)
@@ -809,6 +831,11 @@ public partial class JigsawScreen : Control
     }
     internal void DrawMarkers(CanvasItem target)
     {
+        foreach (var (node, row) in destinationVoters)
+        {
+            var at = GridToCanvas(map.Nodes.Single(candidate => candidate.Id == node).Center);
+            row.Position = at + new Vector2(-row.Size.X / 2, Cell * .65f);
+        }
         foreach (var n in map.Nodes)
         {
             float size = Cell * (n.Radius * 2 + 1);

@@ -80,7 +80,7 @@ public sealed partial class JigsawRun
                 CurrentNode != null && players.Any(player => !roomCompleted.Contains(player)))
                 return null;
             var ballots = players.Order().Select(player => destinationVotes[player]).ToArray();
-            return ballots.All(node => node == ballots[0]) ? ballots[0] : null;
+            return ballots[(int)(NextDestinationState(destinationRandomState) % (ulong)ballots.Length)];
         }
     }
 

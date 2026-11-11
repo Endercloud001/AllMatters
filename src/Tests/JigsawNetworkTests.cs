@@ -477,6 +477,28 @@ internal static class JigsawNetworkTests
             if(!session.AncientReady)throw new Exception("Every connected player must finish their own Ancient reward before shared continuation.");
             await session.Continue();
             await Until(()=>session.Map.Phase==JigsawPhase.Exploring,"all-player continuation consensus enters exploration");
+            if (!absentAncient)
+            {
+                HeadlessUiHost.EnsureInputActions();
+                using var nativeUi = new JigsawNativeMapUiHost();
+                var mapScreen = await nativeUi.Open(session);
+                if (!mapScreen.IsProcessingInput() || session.Map.ActivePlayers.Count != 3)
+                    throw new Exception("A fresh native lobby retains all three map voters and enables each production screen.");
+                int target = session.Map.AvailableDestinations.First();
+                if (role == "2")
+                {
+                    var position = mapScreen.MapControl.GlobalPosition + mapScreen.GridToCanvas(session.Map.Nodes.Single(node => node.Id == target).Center);
+                    Input.ParseInputEvent(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true, Position = position, GlobalPosition = position });
+                    await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
+                    Input.ParseInputEvent(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false, Position = position, GlobalPosition = position });
+                }
+                await Until(() => session.Map.DestinationVotes.ContainsKey(2), "a fresh Client casts its first exploration ballot through production ShowMap");
+                if (session.Map.DestinationVotes.Count != 1 || session.Map.PendingEntry != null || session.Map.Steps != 0 ||
+                    mapScreen.MapControl.GetParent().FindChild("DestinationVoters" + target, true, false) is not HBoxContainer row || row.GetChildCount() != 1)
+                    throw new Exception("The fresh Client vote shows one portrait on every peer and never substitutes a Host ballot.");
+                File.WriteAllText(Path.Combine(directory, role + ".fresh-map-vote"), "visible");
+                await Until(() => remainingRoles.All(peer => File.Exists(Path.Combine(directory, peer + ".fresh-map-vote"))), "every fresh native endpoint observes the Client's first portrait");
+            }
             File.WriteAllText(Path.Combine(directory,role+".ready-to-stop"),"ready");
             if(host!=null)
             {
