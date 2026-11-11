@@ -83,10 +83,20 @@ internal static class JigsawSaveSource
     // A retry must keep an independent complete point for another failed load.
     public static SerializableRun Copy(SerializableRun save)
     {
+        return Deserialize(Serialize(save));
+    }
+
+    internal static string Serialize(SerializableRun save)
+    {
         var type = JsonSerializationUtility.GetTypeInfo<SerializableRun>();
         var bytes = JsonSerializer.SerializeToUtf8Bytes(save, type);
         bytes = (byte[])inject.Invoke(null, [bytes, save])!;
-        string json = System.Text.Encoding.UTF8.GetString(bytes);
+        return System.Text.Encoding.UTF8.GetString(bytes);
+    }
+
+    internal static SerializableRun Deserialize(string json)
+    {
+        var type = JsonSerializationUtility.GetTypeInfo<SerializableRun>();
         var copy = JsonSerializer.Deserialize(json, type) ?? throw new InvalidDataException("进入检查点无法复制。");
         var identity = ModelDb.Modifier<AllMattersJigsawMode>();
         if (!copy.Modifiers.Any(m => m.Id == identity.Id))
