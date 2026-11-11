@@ -57,6 +57,7 @@ internal static class HelloWorldTests
             (string Name, Func<Task> Test)[] cases =
             [
                 ("Test host registers mod assembly correctly without association warnings", ModAssociationRegistration),
+                ("Temporary combat capture is isolated and observes a real native entry", CombatCaptureTests.Run),
                 ("Test host watchdog renews each case and reports a stalled case", WatchdogPerCase),
                 ("Upgrade does not add Innate", UpgradeWithoutInnate),
                 ("Ordinary single source keeps original behavior", OrdinarySingle),
