@@ -179,7 +179,7 @@ internal static class JigsawRecoveryNetworkTests
             bool entryFault = phase.StartsWith("entry-", StringComparison.Ordinal);
             bool shop = phase.StartsWith("shop-", StringComparison.Ordinal);
             var map = entryFault || shop ? Enumerable.Range(0, 100).Select(seed => JigsawRun.Create(seed, players: players.Select(player => player.NetId)))
-                .First(candidate => candidate.Pool[0].Nodes[0].Room == (shop ? JigsawRoom.Shop : JigsawRoom.Treasure)) : JigsawRun.Create(81, players: players.Select(player => player.NetId));
+                .First(candidate => candidate.Pool[0].Nodes[0].Room == (shop ? JigsawRoom.Shop : phase == "entry-disconnect" ? JigsawRoom.Combat : JigsawRoom.Treasure)) : JigsawRun.Create(81, players: players.Select(player => player.NetId));
             if (entryFault || shop)
             {
                 Require(map.Take(1, 0).Success && map.Drop(1, new(3, 0)).Success && map.AddEdge(1, 0, 1).Success, "Failure fixture has a real reachable destination.");
@@ -393,6 +393,8 @@ internal static class JigsawRecoveryNetworkTests
             if (phase == "entry-disconnect")
             {
                 await Until(() => session?.Map?.ActivePlayers.Count == 2, "Host removes the departed original player from the current entry quorum");
+                Require(listener.Native!.CurrentRoom is CombatRoom,
+                    "The remaining peers confirm a real combat room while the third peer disconnects.");
                 if (host != null) Signal("entry-peer-left");
             }
             Require(session?.Map != null && session.Map.ActivePlayers.Order().SequenceEqual(active), "The restored production map uses the actual load-lobby participants.");

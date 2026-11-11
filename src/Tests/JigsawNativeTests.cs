@@ -1411,6 +1411,15 @@ internal static class JigsawEntryFailureHost
     }
 }
 
+[HarmonyPatch(typeof(CombatRoom), nameof(CombatRoom.EnterInternal))]
+internal static class JigsawCombatEntryFailureHost
+{
+    private static void Postfix(ref Task __result)
+    {
+        if (JigsawEntryFailureHost.Wrap is { } wrap) __result = wrap(__result);
+    }
+}
+
 [HarmonyPatch(typeof(RunManager), nameof(RunManager.EnterMapPointInternal))]
 internal static class JigsawEarlyEntryFailureHost
 {
