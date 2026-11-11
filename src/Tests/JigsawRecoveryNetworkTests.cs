@@ -487,8 +487,18 @@ internal static class JigsawRecoveryNetworkTests
                 }
                 Signal("combat-rewards-ready");
                 await Until(() => remaining.All(peer => Signaled(peer, "combat-rewards-ready")), "all endpoints offer actual native combat rewards");
+                if (net.NetId == 1)
+                {
+                    await RunManager.Instance.ProceedFromTerminalRewardsScreen();
+                    Signal("host-rewards-proceeded");
+                }
+                await Until(() => Signaled("host", "host-rewards-proceeded"), "Host proceeds before the other players choose rewards");
+                Require(rewards.Where(set => set.Player.NetId != 1).All(set => !synchronizer.IsRewardsSetCompleted(set)),
+                    "Host proceeding preserves every other player's unclaimed native rewards.");
+                Signal("other-rewards-preserved");
+                await Until(() => remaining.All(peer => Signaled(peer, "other-rewards-preserved")), "all endpoints preserve the other owners' rewards before they proceed");
                 // Native terminal Proceed leaves unclaimed rewards until BeforeLeavingRoom.
-                await RunManager.Instance.ProceedFromTerminalRewardsScreen();
+                if (net.NetId != 1) await RunManager.Instance.ProceedFromTerminalRewardsScreen();
                 await Until(() => map.RoomCompletedPlayers.Count == active.Length,
                     "native combat rewards proceed records every owner's completion on every endpoint");
                 session.ShowMap();

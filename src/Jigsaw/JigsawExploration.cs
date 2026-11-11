@@ -124,7 +124,12 @@ internal static class JigsawNativeExploration
     {
         // Native terminal Proceed leaves unclaimed rewards on the stack until room
         // exit. Exploration needs that same local exit before it can vote to leave.
-        RunManager.Instance.RewardsSetSynchronizer.BeforeLeavingRoom();
+        var synchronizer = RunManager.Instance.RewardsSetSynchronizer;
+        var player = session.Native.Players.Single(owner => owner.NetId == RunManager.Instance.NetService.NetId);
+        if (State(session).RewardSets.TryGetValue((Entry(session), player.NetId), out var ids))
+            foreach (int id in ids.OrderDescending())
+                if (!synchronizer.IsRewardsSetCompleted(player, id))
+                    synchronizer.SkipLocalRewardsSet();
         State(session).TerminalRewards[RunManager.Instance.NetService.NetId] = Entry(session);
     }
 
