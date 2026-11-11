@@ -22,6 +22,7 @@ public partial class JigsawScreen : Control
     internal Func<int?, JigsawResult>? EndpointRequested { get; set; }
     internal Func<EndChoice, JigsawResult>? ChoiceRequested { get; set; }
     internal Func<int, JigsawResult>? VoteRequested { get; set; }
+    internal Func<bool>? CanVoteRequested { get; set; }
     private Func<ulong, Texture2D?>? avatar;
     private Func<ulong, Color>? playerColor;
     private readonly HBoxContainer manualVoters = new(), autoVoters = new();
@@ -689,7 +690,7 @@ public partial class JigsawScreen : Control
     {
         if (Reading)
             return;
-        if (CanReturnToRoom && !(map.Phase == JigsawPhase.Exploring && map.RoomCompletedPlayers.Contains(player)))
+        if (CanReturnToRoom && !(map.Phase == JigsawPhase.Exploring && (CanVoteRequested?.Invoke() ?? map.RoomCompletedPlayers.Contains(player))))
             return;
         if (map.Phase == JigsawPhase.Exploring)
         {

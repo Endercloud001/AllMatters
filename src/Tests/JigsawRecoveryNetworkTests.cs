@@ -34,6 +34,9 @@ using Environment = System.Environment;
 // canonicalization, setup, logical restoration and production screen remain real.
 internal static class JigsawRecoveryNetworkTests
 {
+    private static MegaCrit.Sts2.Core.Nodes.Screens.Map.NMapScreen? merchantMapScreen;
+    private static bool MerchantMapInstance(ref MegaCrit.Sts2.Core.Nodes.Screens.Map.NMapScreen __result)
+    { __result = merchantMapScreen!; return false; }
     private sealed class CancelRemovalSelector : ICardSelector
     {
         internal TaskCompletionSource<IEnumerable<CardModel>> Selection = new(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -187,10 +190,11 @@ internal static class JigsawRecoveryNetworkTests
     {
         var players = Enumerable.Range(1, 3).Select(id => Player.CreateForNewRun(
             ModelDb.Character<Ironclad>(), UnlockState.all, (ulong)id)).ToArray();
-        var native = RunState.CreateForTest(players: players, acts: [ModelDb.Act<Overgrowth>()], seed: "RECOVERY_81");
+        var native = RunState.CreateForTest(players: players, acts: phase == "shop-lag" ? new ActModel[] { ModelDb.Act<Overgrowth>(), ModelDb.Act<Hive>() } : [ModelDb.Act<Overgrowth>()], seed: "RECOVERY_81");
         RunManager.Instance.SetUpTest(native, new NetSingleplayerGameService());
         try
         {
+            if (phase == "shop-lag") native.CurrentActIndex = 1;
             RunManager.Instance.GenerateRooms();
             await RunManager.Instance.GenerateMap();
             if (phase is "exploring" or "visited" or "pending" || phase.StartsWith("combat-", StringComparison.Ordinal) || phase.StartsWith("deferred", StringComparison.Ordinal) || phase.StartsWith("shop-", StringComparison.Ordinal) || phase.StartsWith("entry-", StringComparison.Ordinal))
@@ -370,6 +374,7 @@ internal static class JigsawRecoveryNetworkTests
         }
         JigsawScreen? screen = null;
         JigsawNativeMapUiHost? nativeUi = null;
+        JigsawNativeMapUiHost? merchantUi = null;
         bool deferred = phase.StartsWith("deferred", StringComparison.Ordinal);
         bool unfinishedAncient = phase is "editing" or "generating" or "ancient";
         bool shopLag = phase == "shop-lag", shopFault = phase == "shop-fault";
@@ -822,10 +827,31 @@ internal static class JigsawRecoveryNetworkTests
                     Require(JsonNode.DeepEquals(JsonNode.Parse(stock), JsonNode.Parse(File.ReadAllText(Path.Combine(directory, peer + ".shop-stock")))),
                         "Every endpoint saves the same complete stock after one owner buys and another later removes a card.");
                 var shopRandom = listener.Native.Players.ToDictionary(player => player.NetId, player => HeadlessTestSetup.RngPosition(player.PlayerRng.Shops));
-                JigsawNativeExploration.MerchantExited(session); // Headless host substitutes only the absent NMerchantRoom exit button signal.
-                session.CompleteCurrentRoom(true);
-                await Until(() => map.RoomCompletedPlayers.Contains(net.NetId), "each owner actually leaves their native shop before voting to revisit");
-                Require(JigsawEditorAction.Submit(session, JigsawEditorOperation.VoteDestination, nodeId: 1).Success, "Every owner votes to revisit the same real shop.");
+                screen.Free();
+                merchantUi = new();
+                screen = await merchantUi.Open(session);
+                session.HideMap();
+                merchantMapScreen = new();
+                HarmonyLib.AccessTools.Property(typeof(MegaCrit.Sts2.Core.Nodes.Screens.Map.NMapScreen), "IsTravelEnabled").SetValue(merchantMapScreen, true);
+                rewardHarmony.Patch(HarmonyLib.AccessTools.PropertyGetter(typeof(MegaCrit.Sts2.Core.Nodes.Screens.Map.NMapScreen), "Instance"),
+                    prefix: new HarmonyLib.HarmonyMethod(typeof(JigsawRecoveryNetworkTests), nameof(MerchantMapInstance)));
+                merchantMapScreen.Open(true);
+                Require(screen.Visible && screen.CanReturnToRoom && map.RoomCompletedPlayers.Count == 0,
+                    "Opening the merchant map previews it without completing any player's room.");
+                Signal("merchant-map-ready");
+                await Until(() => remaining.All(peer => Signaled(peer, "merchant-map-ready")), "all players open the actual merchant map");
+                if (net.NetId != 1)
+                    await Until(() => Signaled("host", "merchant-first-checked"), "the Host chooses first without completing another owner");
+                var merchantTarget = screen.MapControl.GlobalPosition + screen.GridToCanvas(map.Nodes.Single(node => node.Id == 1).Center);
+                Input.ParseInputEvent(new InputEventMouseButton { Position = merchantTarget, GlobalPosition = merchantTarget, ButtonIndex = MouseButton.Left, Pressed = true });
+                if (net.NetId == 1)
+                {
+                    await Until(() => map.RoomCompletedPlayers.Contains(1UL), "the first actual click completes only its owner");
+                    Require(map.RoomCompletedPlayers.SequenceEqual(new ulong[] { 1 }) && map.Steps == 1 && map.PendingEntry == null,
+                        "The first merchant vote cannot complete or move the other players.");
+                    Signal("merchant-first-checked");
+                }
+                merchantUi.ReleaseSceneOwnership();
                 await Until(() =>
                 {
                     if (HarmonyLib.AccessTools.Field(typeof(JigsawNativeSession), "enteringTask").GetValue(session) is Task { IsFaulted: true } failedEntry)
@@ -999,6 +1025,8 @@ internal static class JigsawRecoveryNetworkTests
             JigsawEntryFailureHost.Reset();
             if (GodotObject.IsInstanceValid(screen)) screen!.Free();
             nativeUi?.Dispose();
+            merchantUi?.Dispose();
+            merchantMapScreen?.Free(); merchantMapScreen = null;
             foreach (var child in children) { if (!child.HasExited) child.Kill(true); child.Dispose(); }
             RunManager.Instance.CleanUp(false);
             JigsawNativeSaveHost.Save = null;

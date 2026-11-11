@@ -286,8 +286,24 @@ public sealed class JigsawNativeSession
         screen.DropRequested = point => JigsawEditorAction.Submit(this, JigsawEditorOperation.Drop, point: point);
         screen.EndpointRequested = node => JigsawEditorAction.Submit(this, JigsawEditorOperation.SelectEndpoint, nodeId: node);
         screen.ChoiceRequested = choice => JigsawEditorAction.Submit(this, JigsawEditorOperation.ChooseEnd, choice: choice);
-        screen.VoteRequested = node => JigsawEditorAction.Submit(this, JigsawEditorOperation.VoteDestination, nodeId: node);
+        screen.CanVoteRequested = () => Map?.RoomCompletedPlayers.Contains(LocalPlayerId) == true || CanLeaveMerchant;
+        screen.VoteRequested = VoteDestination;
         return screen;
+    }
+    private bool CanLeaveMerchant => Native.CurrentRoom is MerchantRoom && NMapScreen.Instance?.IsTravelEnabled == true;
+    private JigsawResult VoteDestination(int node)
+    {
+        if (Current != this)
+            return JigsawResult.Reject("拼图会话已结束。");
+        if (Map?.CurrentNode != null && Map.VotingDestinations.Contains(node) && CanLeaveMerchant)
+        {
+            JigsawNativeExploration.MerchantExited(this);
+            CompleteCurrentRoom(true);
+            // In singleplayer, completion removes CurrentNode. Update the preview
+            // only after an actual destination choice, preserving return-to-shop.
+            ShowMap();
+        }
+        return JigsawEditorAction.Submit(this, JigsawEditorOperation.VoteDestination, nodeId: node);
     }
     internal void RefreshEditor()
     {
