@@ -558,9 +558,21 @@ internal static class JigsawDomainTests
     // T06: Dual boss and endgame tests on generated maps
     private static Task DualBossSequence()
     {
-        var run = ExploreGenerated(75, doubled: true);
+        CheckDualBossRoute(ExploreGenerated(75, doubled: true));
+        return Task.CompletedTask;
+    }
+
+    internal static void CheckDualBossRoute(JigsawRun run)
+    {
         var boss = run.Nodes.Single(n => n.Room == JigsawRoom.Boss).Id;
         var secondBoss = run.Nodes.Single(n => n.Room == JigsawRoom.SecondBoss).Id;
+
+        int shop = run.AvailableDestinations.First(id => !IsBoss(run, id));
+        var shopEntry = run.BeginEnter(shop)!;
+        Ok(run.ConfirmEnter(shopEntry.Id));
+        Ok(run.RecordResolvedRoom(shop, JigsawRoom.Shop));
+        Ok(run.CompleteRoom(shopEntry.Id));
+        Check(run.AvailableDestinations.Contains(shop), "An actual recorded shop remains revisitable before the first Boss.");
 
         WalkUntil(run, () =>
         {
@@ -568,9 +580,27 @@ internal static class JigsawDomainTests
             return run.AvailableDestinations.Contains(boss);
         }, "First boss becomes reachable.");
 
-        Step(run, boss);
-        Check(run.AvailableDestinations.Contains(secondBoss), "Second boss available after first boss completion.");
-        return Task.CompletedTask;
+        var firstEntry = run.BeginEnter(boss)!;
+        Ok(run.ConfirmEnter(firstEntry.Id));
+        var otherNodes = run.Nodes.Where(n => n.Id != secondBoss && n.Id != 0).Select(n => n.Id).ToArray();
+        Check(run.VotingDestinations.SequenceEqual(new[] { secondBoss }), "First Boss completion preview permits only the second Boss, not ordinary rooms or shop revisits.");
+        Check(!run.VoteDestination(1, secondBoss).Success, "Boss preview still requires the player's native reward completion.");
+        foreach (ulong player in run.ActivePlayers)
+        {
+            Ok(run.RecordRoomCompletion(player));
+            foreach (int node in otherNodes)
+                Check(!run.VoteDestination(player, node).Success, "Every non-final destination is rejected after the first Boss.");
+        }
+        var restoredCurrent = JigsawRun.Restore(run.CreateSave());
+        Check(restoredCurrent.CurrentNode == boss && restoredCurrent.VotingDestinations.SequenceEqual(new[] { secondBoss }), "Reload at the completed first Boss retains the final-only choice before personal completions are recollected.");
+        Ok(run.CompleteRoom(firstEntry.Id));
+        Check(run.AvailableDestinations.SequenceEqual(new[] { secondBoss }), "Only the second Boss is available after first Boss completion.");
+        foreach (int node in otherNodes)
+            Check(run.BeginEnter(node) == null, "Direct entry cannot bypass the final Boss restriction.");
+        var restored = JigsawRun.Restore(run.CreateSave());
+        Check(restored.AvailableDestinations.SequenceEqual(new[] { secondBoss }), "Reload after leaving the first Boss preserves the final-only route.");
+        Step(restored, secondBoss);
+        Check(restored.AvailableDestinations.Count == 0 && restored.VotingDestinations.Count == 0, "Completing the second Boss leaves no ordinary destination or shop revisit.");
     }
 
     private static Task EndgameDetection()

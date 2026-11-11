@@ -312,7 +312,8 @@ internal static class JigsawNativeTests
       ("Jigsaw native missing phase rejects incomplete checkpoint", ()=>MissingModeData("Phase")),
       ("Jigsaw native missing checkpoint fields reject partial documents", MissingCheckpointFields),
       ("Jigsaw native console discovery and editable phase reset", ConsoleReset),
-      ("Jigsaw native later acts start a fresh pool before preserved Ancient and Boss", LaterAct) ];
+      ("Jigsaw native later acts start a fresh pool before preserved Ancient and Boss", ()=>LaterAct()),
+      ("Jigsaw native ascension 10 third act pool enforces the dual Boss route", ()=>LaterAct(10)) ];
 
     private static Task IndependentSaveSchemas()
     {
@@ -515,12 +516,12 @@ internal static class JigsawNativeTests
         }
     }
 
-    private static async Task LaterAct()
+    private static async Task LaterAct(int ascension = 0)
     {
         using var atlases=HeadlessTestSetup.LoadAtlases("card_atlas","relic_atlas","ui_atlas","compressed");
         var native=RunState.CreateForTest(players:[MegaCrit.Sts2.Core.Entities.Players.Player.CreateForNewRun(
             ModelDb.Character<MegaCrit.Sts2.Core.Models.Characters.Ironclad>(),MegaCrit.Sts2.Core.Unlocks.UnlockState.all,1)],
-            seed:"JIGSAW_THREE_NATIVE_ACTS");
+            seed:"JIGSAW_THREE_NATIVE_ACTS", ascensionLevel:ascension);
         RunManager.Instance.SetUpTest(native,new NetSingleplayerGameService());
         var io=new MockGodotFileIo("Jigsaw-later-acts-memory-only");
         var manager=new RunSaveManager(74,io,new MigrationManager(io),forceSynchronous:true);
@@ -548,13 +549,25 @@ internal static class JigsawNativeTests
                 priorBoss=await CheckActArt(session,view,priorArt,priorBoss);
                 priorArt=view.FindChildren("*","Control",true,false).OfType<AllMatters.Jigsaw.Presentation.JigsawPaper>().Single().Art;
                 Require(native.CurrentActIndex==act && native.CurrentRoom is MapRoom && map.Phase==JigsawPhase.Editing && map.Steps==0 && map.Placements.Count==0,"Later native EnterAct starts an empty editable puzzle before Ancient rewards.");
-                var expected=JigsawRun.Create(unchecked((int)native.Rng.Seed+act*7919),15-act,players:[1UL]);
+                var expected=JigsawRun.Create(unchecked((int)native.Rng.Seed+act*7919),15-act,doubleBoss:act==2&&ascension>=10,players:[1UL]);
                 Require(map.Budget==15-act && !ReferenceEquals(first,map) && map.Pool.SelectMany(p=>p.Nodes).SequenceEqual(expected.Pool.SelectMany(p=>p.Nodes)),"Later act uses its own deterministic full pool and act budget.");
                 Require(native.Act.Ancient.Id==ancients[act] && native.Act.BossEncounter.Id==bosses[act] && native.Map.StartingMapPoint.PointType==MegaCrit.Sts2.Core.Map.MapPointType.Ancient,"Native generated Ancient and Boss content remain intact.");
                 Require(native.VisitedMapCoords.Count==0 && !session.AncientReady,"Later editing does not award Ancient or enter native map coordinates.");
                 await session.Enter(999);
                 Require(map.Steps==0 && map.PendingEntry==null,"Rejected native destination in editing cannot charge a step.");
                 first=map;
+            }
+            if (ascension >= 10)
+            {
+                var map = session.Map!;
+                Require(map.Pool.SelectMany(piece => piece.Nodes).Count(node => node.Room == JigsawRoom.SecondBoss) == 1,
+                    "Native A10 third-act setup creates exactly one second Boss.");
+                Require(map.ChooseEnd(1, EndChoice.Automatic).Success &&
+                    map.FinishAutomatic(map.AutomaticOperation!, JigsawAutomatic.Solve(map, 0)).Success,
+                    "The native third-act pool accepts its generated dual-Boss layout.");
+                Require(map.CompleteAncient(1).Success && map.Continue(1).Success,
+                    "The generated A10 pool can exercise domain exploration independently of native rewards.");
+                JigsawDomainTests.CheckDualBossRoute(map);
             }
         }
         finally {view?.Free(); JigsawNativeSaveHost.Save=null; RunManager.Instance.CleanUp(false); }
@@ -576,7 +589,8 @@ internal static class JigsawNativeTests
         Require(session.Map.Take(1,bossPiece.Id).Success&&session.Map.Drop(1,new(4,0)).Success,"Place the actual current act's boss piece.");
         view.Refresh();var tree=(Godot.SceneTree)Godot.Engine.GetMainLoop();
         await tree.ToSignal(tree,Godot.SceneTree.SignalName.ProcessFrame);await tree.ToSignal(tree,Godot.SceneTree.SignalName.ProcessFrame);
-        var boss=view.MapControl.GetChildren().OfType<Godot.Node2D>().Single(n=>n.Name.ToString().StartsWith("JigsawBoss"));
+        int bossId = session.Map.Nodes.Single(node => node.Room == JigsawRoom.Boss).Id;
+        var boss=view.MapControl.GetChildren().OfType<Godot.Node2D>().Single(n=>n.Name.ToString()==$"JigsawBoss{bossId}");
         Require(boss.GetChildCount()>0&&!ReferenceEquals(boss,previousBoss),"Each act mounts a fresh Boss visual instead of retaining the previous act's node.");
         if(Environment.GetEnvironmentVariable("ALLMATTERS_UI_CAPTURE") is {} capture)
         {

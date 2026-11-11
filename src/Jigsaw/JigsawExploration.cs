@@ -43,11 +43,13 @@ public sealed partial class JigsawRun
 
     private IReadOnlyCollection<int> DestinationsAfter(IReadOnlySet<int> completedNodes)
     {
+        var secondBoss = Nodes.FirstOrDefault(n => n.Room == JigsawRoom.SecondBoss);
+        var firstBoss = Nodes.FirstOrDefault(n => n.Room == JigsawRoom.Boss);
+        if (secondBoss != null && firstBoss != null && completedNodes.Contains(firstBoss.Id))
+            return completedNodes.Contains(secondBoss.Id) ? [] : [secondBoss.Id];
         var candidates = Edges.SelectMany(e => new[] { (From: e.First, To: e.Second), (From: e.Second, To: e.First) })
             .Where(e => completedNodes.Contains(e.From) && (!visited.Contains(e.To) || ResolvedRoom(e.To) == JigsawRoom.Shop) && e.To != 0)
             .Select(e => e.To).Distinct().ToArray();
-        var secondBoss = Nodes.FirstOrDefault(n => n.Room == JigsawRoom.SecondBoss);
-        var firstBoss = Nodes.FirstOrDefault(n => n.Room == JigsawRoom.Boss);
         if (secondBoss != null && firstBoss != null && !completedNodes.Contains(firstBoss.Id))
             candidates = candidates.Where(id => id != secondBoss.Id).ToArray();
         return candidates;
