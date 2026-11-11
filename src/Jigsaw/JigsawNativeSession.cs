@@ -97,6 +97,7 @@ public sealed class JigsawNativeSession
     private SerializableRun? entryCheckpoint;
     private bool entryFailed;
     private bool entryRecoveryRequested;
+    private bool entryConfirmQueued;
     internal Task? EntryRecoveryTask { get; private set; }
     private readonly HashSet<ulong> entryReadyPlayers = [];
     private long nativeReadyAttempt;
@@ -175,6 +176,8 @@ public sealed class JigsawNativeSession
         if (Map == null || !Map.OriginalPlayers.Contains(player))
             return JigsawResult.Reject(JigsawFailure.UnknownPlayer);
         Map.Disconnect(player);
+        entryReadyPlayers.Remove(player);
+        MaybeConfirmSharedEntry();
         OnAncientCompleted();
         return JigsawResult.Ok;
     }
@@ -737,17 +740,29 @@ public sealed class JigsawNativeSession
 
     internal JigsawResult AcceptEntryReady(ulong player)
     {
-        if (Map?.PendingEntry is not { } pending || entryFailed || !Map.ActivePlayers.Contains(player))
+        if (Map?.PendingEntry == null || entryFailed || !Map.ActivePlayers.Contains(player))
             return JigsawResult.Reject(JigsawFailure.StaleEntry);
         entryReadyPlayers.Add(player);
-        if (JigsawEditorAction.IsHost(LocalPlayerId) && Map.ActivePlayers.All(entryReadyPlayers.Contains))
-            _ = Defer(() =>
-            {
-                if (Map?.PendingEntry?.Id == pending.Id && !entryFailed)
-                    JigsawEditorAction.Submit(this, JigsawEditorOperation.ConfirmEntry);
-                return Task.CompletedTask;
-            });
+        MaybeConfirmSharedEntry();
         return JigsawResult.Ok;
+    }
+
+    private void MaybeConfirmSharedEntry()
+    {
+        if (Map?.PendingEntry is not { } pending || entryFailed || entryConfirmQueued || !JigsawEditorAction.IsHost(LocalPlayerId) ||
+            Map.ActivePlayers.Count == 0 || !Map.ActivePlayers.All(entryReadyPlayers.Contains))
+            return;
+        entryConfirmQueued = true;
+        _ = Defer(() =>
+        {
+            if (Map?.PendingEntry?.Id == pending.Id && !entryFailed)
+            {
+                var submitted = JigsawEditorAction.Submit(this, JigsawEditorOperation.ConfirmEntry);
+                if (!submitted.Success)
+                    entryConfirmQueued = false;
+            }
+            return Task.CompletedTask;
+        });
     }
 
     internal JigsawResult AcceptEntryFailure(ulong player)
@@ -755,6 +770,7 @@ public sealed class JigsawNativeSession
         if (Map?.PendingEntry == null || !Map.ActivePlayers.Contains(player))
             return JigsawResult.Reject(JigsawFailure.StaleEntry);
         entryFailed = true;
+        entryConfirmQueued = false;
         entryReadyPlayers.Clear();
         entryDecision?.TrySetResult(false);
         ShowMap();
@@ -792,7 +808,13 @@ public sealed class JigsawNativeSession
 
     private void TrackEntryRecovery(Func<Task> work)
     {
-        var task = EntryRecoveryTask = Defer(work);
+        Console.Error.WriteLine($"Jigsaw entry reload queued net={LocalPlayerId} current={Current == this}");
+        var task = EntryRecoveryTask = Defer(async () =>
+        {
+            Console.Error.WriteLine($"Jigsaw entry reload executing net={LocalPlayerId}");
+            await work();
+            Console.Error.WriteLine($"Jigsaw entry reload completed net={LocalPlayerId}");
+        });
         _ = ReportEntryRecoveryFailure(task);
     }
 
@@ -853,6 +875,7 @@ public sealed class JigsawNativeSession
         catch (Exception error) { return JigsawResult.Reject(error.Message); }
         var active = Map.ActivePlayers.ToArray();
         long round = EntryRound + 1;
+        Console.Error.WriteLine($"Jigsaw entry recovery accepted net={LocalPlayerId} active={active.Length} round={round}");
         TrackEntryRecovery(() => LoadCheckpoint(checkpoint, restored, active, round));
         return JigsawResult.Ok;
     }
@@ -913,6 +936,7 @@ public sealed class JigsawNativeSession
             return;
         entryDecision = null;
         entryReadyPlayers.Clear();
+        entryConfirmQueued = false;
         nativeReadyAttempt = 0;
         entryRecoveryRequested = false;
         // Also retain a complete point before native AddVisited/exit/sync can fail.
@@ -934,6 +958,8 @@ public sealed class JigsawNativeSession
             if (Current == this && Native.CurrentRoom is { } room && room != previous && room is not MapRoom &&
                 Native.CurrentMapPoint?.coord == projection.Point.coord)
             {
+                if (ready)
+                    return;
                 // RoomEntered is the native readiness seam on each endpoint.
                 if (netService is NetSingleplayerGameService)
                 {
