@@ -97,6 +97,15 @@ internal static class JigsawEditorAction
             }
             return;
         }, GameActionType.NonCombat);
+    // Entry readiness and disconnects must execute inside CombatRoom; NonCombat waits for combat to end.
+    private static readonly RitsuLibManagedNetActionDescriptor<JigsawEditorIntent> entryDescriptor =
+        descriptor with { ActionKey = "jigsaw-entry", ActionType = GameActionType.Any };
+
+    private static bool UsesEntryQueue(JigsawEditorOperation operation) =>
+        operation is JigsawEditorOperation.Disconnect or JigsawEditorOperation.EntryReady or
+            JigsawEditorOperation.EntryFailed or JigsawEditorOperation.ConfirmEntry or
+            JigsawEditorOperation.RetryEntry or JigsawEditorOperation.AbandonEntry or
+            JigsawEditorOperation.RecoverEntry;
 
     internal static bool IsHost(ulong issuer) => RunManager.Instance.NetService switch
     {
@@ -119,7 +128,11 @@ internal static class JigsawEditorAction
         { input.Resets.Remove(sequence); completion.TrySetResult(submitted); }
         return completion.Task;
     }
-    internal static void Initialize() => RitsuLibManagedNetActions.Register(descriptor);
+    internal static void Initialize()
+    {
+        RitsuLibManagedNetActions.Register(descriptor);
+        RitsuLibManagedNetActions.Register(entryDescriptor);
+    }
     internal static void Stop(JigsawRun map)
     {
         if (!inputs.TryGetValue(map, out var input))
@@ -171,7 +184,8 @@ internal static class JigsawEditorAction
         }
         input.Pending = true;
         var message = new JigsawEditorIntent(session.Native.CurrentActIndex, operation, piece, point, nodeId, choice, ++input.Next, map.EditRevision, first, add, completedOwner, layout, automaticFailure, map.CreateSave().NextEntry, session.EntryRound, entryCheckpoint);
-        if (RitsuLibManagedNetActions.Request(RunManager.Instance, descriptor, message))
+        if (RitsuLibManagedNetActions.Request(RunManager.Instance,
+            UsesEntryQueue(operation) ? entryDescriptor : descriptor, message))
             return JigsawResult.Ok;
         input.Pending = false;
         return JigsawResult.Reject("无法向当前原生会话提交拼图操作。");

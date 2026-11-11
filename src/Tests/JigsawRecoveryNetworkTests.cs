@@ -163,7 +163,7 @@ internal static class JigsawRecoveryNetworkTests
         {
             RunManager.Instance.GenerateRooms();
             await RunManager.Instance.GenerateMap();
-            if (phase.StartsWith("deferred", StringComparison.Ordinal) || phase.StartsWith("shop-", StringComparison.Ordinal) || phase.StartsWith("entry-", StringComparison.Ordinal))
+            if (phase is "exploring" or "visited" or "pending" || phase.StartsWith("deferred", StringComparison.Ordinal) || phase.StartsWith("shop-", StringComparison.Ordinal) || phase.StartsWith("entry-", StringComparison.Ordinal))
             {
                 native.ExtraFields.StartedWithNeow = true;
                 native.AppendToMapPointHistory(MegaCrit.Sts2.Core.Map.MapPointType.Ancient, RoomType.Event, null);
@@ -182,7 +182,7 @@ internal static class JigsawRecoveryNetworkTests
                 .First(candidate => candidate.Pool[0].Nodes[0].Room == (shop ? JigsawRoom.Shop : JigsawRoom.Treasure)) : JigsawRun.Create(81, players: players.Select(player => player.NetId));
             if (entryFault || shop)
             {
-                Require(map.Take(1, 0).Success && map.Drop(1, new(3, 0)).Success && map.AddEdge(1, 0, 1).Success, "Failure fixture has a real reachable Treasure.");
+                Require(map.Take(1, 0).Success && map.Drop(1, new(3, 0)).Success && map.AddEdge(1, 0, 1).Success, "Failure fixture has a real reachable destination.");
                 foreach (var player in players) Require(map.ChooseEnd(player.NetId, EndChoice.Manual).Success, "The fault fixture uses genuine manual consensus.");
                 Require(map.Inspect().Success, "The fault fixture passes production validation.");
                 foreach (var player in players) Require(map.CompleteAncient(player.NetId).Success, "Fault fixture owners have completed Ancient.");
@@ -681,7 +681,7 @@ internal static class JigsawRecoveryNetworkTests
                 await Until(() => remaining.All(peer => Signaled(peer, "fault-done")), "all endpoints finish the recovery decision");
                 foreach (string peer in remaining)
                     Require(File.ReadAllText(Path.Combine(directory, peer + ".fault-result")) == File.ReadAllText(Path.Combine(directory, role + ".fault-result")), "All replicas agree after native entry recovery.");
-                var entryDescriptor = (STS2RitsuLib.Networking.ManagedActions.RitsuLibManagedNetActionDescriptor<JigsawEditorIntent>)HarmonyLib.AccessTools.Field(typeof(JigsawEditorAction), "descriptor").GetValue(null)!;
+                var entryDescriptor = (STS2RitsuLib.Networking.ManagedActions.RitsuLibManagedNetActionDescriptor<JigsawEditorIntent>)HarmonyLib.AccessTools.Field(typeof(JigsawEditorAction), "entryDescriptor").GetValue(null)!;
                 foreach (var (operation, sequence) in new[] { (JigsawEditorOperation.EntryReady, 100L), (JigsawEditorOperation.EntryFailed, 101L) })
                     Require(STS2RitsuLib.Networking.ManagedActions.RitsuLibManagedNetActions.Request(RunManager.Instance, entryDescriptor,
                         new JigsawEditorIntent(session.Native.CurrentActIndex, operation, Sequence: sequence, EditRevision: map.EditRevision,
