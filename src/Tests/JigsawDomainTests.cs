@@ -36,6 +36,8 @@ internal static class JigsawDomainTests
         ("Jigsaw generation budgets 15 14 13 apply and bound the Boss route", GenerationBudgets),
         ("Jigsaw generation inspection rejects a Boss beyond the budget", GenerationOverBudget),
         ("Jigsaw generation pool uses all seven shapes twice", GenerationShapes),
+        ("Jigsaw generation positive search extends its accepted witness", GenerationPositiveSearch),
+        ("Jigsaw generation accepts all four Ancient connection directions", GenerationFourDirections),
     ];
     private static void Check(bool value,string text) => NativeEventTests.Check(value,text);
     private static Task AutomaticWitness()
@@ -750,6 +752,16 @@ internal static class JigsawDomainTests
     }
     private static Task GenerationShapes()
     {
+        var cells = new Dictionary<JigsawShape, GridPoint[]>
+        {
+            [JigsawShape.I] = [new(0, 0), new(1, 0), new(2, 0), new(3, 0)],
+            [JigsawShape.O] = [new(0, 0), new(1, 0), new(0, 1), new(1, 1)],
+            [JigsawShape.T] = [new(0, 0), new(1, 0), new(2, 0), new(1, 1)],
+            [JigsawShape.S] = [new(0, 0), new(1, 0), new(1, 1), new(2, 1)],
+            [JigsawShape.Z] = [new(0, 0), new(1, 0), new(1, -1), new(2, -1)],
+            [JigsawShape.J] = [new(0, 0), new(0, 1), new(1, 1), new(2, 1)],
+            [JigsawShape.L] = [new(0, 0), new(1, 0), new(2, 0), new(2, 1)]
+        };
         foreach (bool doubled in new[] { false, true }) foreach (int seed in GenerationSeeds)
         {
             var run = Generate(seed, 15, doubled);
@@ -760,7 +772,68 @@ internal static class JigsawDomainTests
             Check(run.Pool.Select(p => p.Shape).Distinct().Count() == 7 && shapes.Length == 7, $"种子 {seed}：七种俄罗斯方块形状全部出现。");
             Check(run.Pool.All(p => p.Nodes.Count == 4 && p.InternalEdges.Count == (p.Shape == JigsawShape.O ? 4 : 3)), $"种子 {seed}：每块 4 个格子，O 形 4 条内部边，其余 3 条。");
             Check(run.Placements.All(p => run.Pool.Any(v => v.Id == p.PieceId)), $"种子 {seed}：已放置的碎块都来自碎块池。");
+            foreach (var piece in run.Pool)
+            {
+                int spacing = piece.Id == 0 ? doubled ? 4 : 3 : 2;
+                Check(piece.Nodes.All(n => n.Offset.X % spacing == 0 && n.Offset.Y % spacing == 0) &&
+                    piece.Nodes.Select(n => new GridPoint(n.Offset.X / spacing, n.Offset.Y / spacing)).ToHashSet().SetEquals(cells[piece.Shape]),
+                    $"种子 {seed} 双Boss={doubled}：{piece.Shape} 碎块的实际节点占格应符合形状。");
+                foreach (int rotation in Enumerable.Range(0, 4))
+                {
+                    var placed = new JigsawRun(run.Pool, 15);
+                    Ok(placed.Take(1, piece.Id));
+                    for (int turn = 0; turn < rotation; turn++) Ok(placed.Rotate(1));
+                    Ok(placed.Drop(1, new GridPoint(40, 40)));
+                    foreach (var node in piece.Nodes)
+                    {
+                        var rotated = node.Offset;
+                        for (int turn = 0; turn < rotation; turn++) rotated = rotated.Rotate();
+                        Check(placed.Nodes.Single(n => n.Id == node.Id).Center == rotated + new GridPoint(40, 40),
+                            $"种子 {seed} 双Boss={doubled}：{piece.Shape} 旋转 {rotation} 次后保留实际节点几何。");
+                    }
+                    Check(placed.Edges.Count == piece.InternalEdges.Count &&
+                        placed.Edges.All(e => piece.InternalEdges.Any(original => original.Connects(e.First, e.Second))),
+                        $"种子 {seed}：{piece.Shape} 旋转 {rotation} 次后保留内部通路。");
+                }
+            }
         }
+        return Task.CompletedTask;
+    }
+    private static Task GenerationPositiveSearch()
+    {
+        var run = JigsawRun.Create(75, 15);
+        var witness = run.AutomaticWitness!;
+        Ok(run.ChooseEnd(1, EndChoice.Automatic));
+        var candidate = JigsawAutomatic.Solve(run, run.AutomaticOperation!.ExpansionBudget);
+        Check(candidate != null && candidate.Placements.Length > witness.Placements.Length,
+            "种子 75 的正预算搜索应在六块同池见证之外放入碎块。");
+        var witnessShapes = witness.Placements.Select(p => run.Pool.Single(piece => piece.Id == p.PieceId).Shape).ToHashSet();
+        Check(candidate!.Placements.Any(p => !witnessShapes.Contains(run.Pool.Single(piece => piece.Id == p.PieceId).Shape)),
+            "正预算搜索应实际放入见证之外的形状。");
+        Ok(JigsawAutomatic.Validate(run, candidate));
+        Ok(run.FinishAutomatic(run.AutomaticOperation!, candidate));
+        var boss = run.Nodes.Single(n => n.Room == JigsawRoom.Boss).Id;
+        var fromAncient = Distances(run, 0);
+        Check(run.Nodes.All(n => fromAncient.ContainsKey(n.Id)), "正预算搜索的实际布局应从 Ancient 连通每个节点。");
+        Check(fromAncient.TryGetValue(boss, out int shortest) && shortest <= run.Budget,
+            "正预算搜索的实际布局应在步数预算内到达 Boss。");
+        Check(run.Nodes.Where(n => n.Room is not JigsawRoom.Boss).All(n => Distances(run, 0, JigsawRoom.Boss).ContainsKey(n.Id)),
+            "正预算搜索的普通区域不应依赖穿过 Boss 连通。");
+        return Task.CompletedTask;
+    }
+    private static Task GenerationFourDirections()
+    {
+        var run = Fixture(
+            Piece(1, (0, 0, JigsawRoom.Combat)), Piece(2, (0, 0, JigsawRoom.Combat)),
+            Piece(3, (0, 0, JigsawRoom.Combat)), Piece(4, (0, 0, JigsawRoom.Combat)));
+        var positions = new[] { new GridPoint(3, 0), new GridPoint(0, 3), new GridPoint(-3, 0), new GridPoint(0, -3) };
+        for (int i = 0; i < positions.Length; i++)
+        {
+            Ok(run.Take(1, i + 1)); Ok(run.Drop(1, positions[i]));
+            Ok(run.AddEdge(1, 0, (i + 1) * 10 + 1));
+        }
+        Check(run.Edges.Count == 4 && Distances(run, 0).Count == 5,
+            "Ancient 四个方位均能建立外边，且无向图可到达全部四片。");
         return Task.CompletedTask;
     }
 }
