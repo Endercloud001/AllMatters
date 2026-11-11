@@ -33,7 +33,7 @@ internal static class JigsawRecoveryNetworkTests
         (from phase in new[] { "editing", "generating", "ancient", "exploring", "visited", "pending" }
          from roster in new[] { "all", "absent", "late", "leave" }
          select ($"{Prefix} {phase} {roster}", (Func<Task>)(() => Run(phase, roster))))
-        .Concat(new[] { "deferred", "deferred-pending", "entry-retry", "entry-abandon", "entry-after", "entry-disconnect" }
+        .Concat(new[] { "deferred", "deferred-pending", "entry-retry", "entry-abandon", "entry-after", "entry-disconnect", "shop-lag" }
             .Select(phase => ($"{Prefix} {phase} all", (Func<Task>)(() => Run(phase, "all"))))).ToArray();
 
     // These are existing native reward/failure paths, previously opt-in by environment.
@@ -138,9 +138,10 @@ internal static class JigsawRecoveryNetworkTests
                 await MegaCrit.Sts2.Core.Commands.PotionCmd.TryToProcure<MegaCrit.Sts2.Core.Models.Potions.FirePotion>(player);
             }
             bool entryFault = phase.StartsWith("entry-", StringComparison.Ordinal);
-            var map = entryFault ? Enumerable.Range(0, 100).Select(seed => JigsawRun.Create(seed, players: players.Select(player => player.NetId)))
-                .First(candidate => candidate.Pool[0].Nodes[0].Room == JigsawRoom.Treasure) : JigsawRun.Create(81, players: players.Select(player => player.NetId));
-            if (entryFault)
+            bool shop = phase == "shop-lag";
+            var map = entryFault || shop ? Enumerable.Range(0, 100).Select(seed => JigsawRun.Create(seed, players: players.Select(player => player.NetId)))
+                .First(candidate => candidate.Pool[0].Nodes[0].Room == (shop ? JigsawRoom.Shop : JigsawRoom.Treasure)) : JigsawRun.Create(81, players: players.Select(player => player.NetId));
+            if (entryFault || shop)
             {
                 Require(map.Take(1, 0).Success && map.Drop(1, new(3, 0)).Success && map.AddEdge(1, 0, 1).Success, "Failure fixture has a real reachable Treasure.");
                 foreach (var player in players) Require(map.ChooseEnd(player.NetId, EndChoice.Manual).Success, "The fault fixture uses genuine manual consensus.");
@@ -244,7 +245,11 @@ internal static class JigsawRecoveryNetworkTests
             var timer = Stopwatch.StartNew();
             while (!predicate())
             {
-                if (timer.Elapsed.TotalSeconds > 20) throw new TimeoutException($"Recovery {role}: {stage}; evidence={directory}");
+                if (timer.Elapsed.TotalSeconds > 20)
+                {
+                    var executor = RunManager.Instance.ActionExecutor;
+                    throw new TimeoutException($"Recovery {role}: {stage}; paused={executor.IsPaused} running={executor.IsRunning} action={executor.CurrentlyRunningAction} recovery={JigsawNativeSession.Current?.EntryRecoveryTask?.Status} round={JigsawNativeSession.Current?.EntryRound}; evidence={directory}");
+                }
                 net.Update();
                 await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
             }
@@ -275,8 +280,9 @@ internal static class JigsawRecoveryNetworkTests
         JigsawScreen? screen = null;
         bool deferred = phase.StartsWith("deferred", StringComparison.Ordinal);
         bool unfinishedAncient = phase is "editing" or "generating" or "ancient";
-        using var eventScope = deferred || unfinishedAncient ? HeadlessCombatInProgress.EnterEvent() : null;
-        using var atlases = deferred || unfinishedAncient ? HeadlessTestSetup.LoadAtlases("card_atlas", "relic_atlas") : null;
+        bool shopLag = phase == "shop-lag";
+        using var eventScope = deferred || unfinishedAncient || shopLag ? HeadlessCombatInProgress.EnterEvent() : null;
+        using var atlases = deferred || unfinishedAncient || shopLag ? HeadlessTestSetup.LoadAtlases("card_atlas", "relic_atlas", "ui_atlas") : null;
         var rewardHarmony = new HarmonyLib.Harmony("AllMatters.Tests.RecoveryDeferred");
         if (deferred || unfinishedAncient)
             rewardHarmony.Patch(HarmonyLib.AccessTools.Method(typeof(EventSynchronizer), nameof(EventSynchronizer.BeginEvent)),
@@ -396,6 +402,45 @@ internal static class JigsawRecoveryNetworkTests
             await Until(() => remaining.All(peer => Signaled(peer, "restored")), "all production endpoints restore before Host exit");
             foreach (string peer in remaining)
                 Require(JsonNode.DeepEquals(JsonNode.Parse(listener.RestoredMap!), JsonNode.Parse(File.ReadAllText(Path.Combine(directory, peer + ".map.json")))), "All endpoints have the same complete map, RNG, operation input and exploration document after native setup.");
+            if (shopLag)
+            {
+                RunManager.Instance.ActionExecutor.Unpause();
+                Require(listener.Native!.CurrentRoom is MerchantRoom && map.CurrentNode == 1 && map.Steps == 1,
+                    "Every endpoint mounts the same actual native shop before the first purchase.");
+                var inventories = ((MerchantRoom)listener.Native.CurrentRoom).Inventories;
+                var first = listener.Native.Players.Single(player => player.NetId == 1);
+                var delayed = listener.Native.Players.Single(player => player.NetId == 2);
+                int firstGold = first.Gold, firstDeck = first.Deck.Cards.Count;
+                int delayedGold = delayed.Gold, delayedDeck = delayed.Deck.Cards.Count;
+                int firstPrice = inventories.Single(inventory => inventory.Player.NetId == 1).CardEntries.First().Cost;
+                Signal("shop-ready");
+                await Until(() => remaining.All(peer => Signaled(peer, "shop-ready")), "all endpoints observe complete inventories before the first owner buys");
+                if (net.NetId == 1)
+                    Require(await inventories.Single(inventory => inventory.Player.NetId == 1).CardEntries.First().OnTryPurchaseWrapper(inventories.Single(inventory => inventory.Player.NetId == 1)),
+                        "The first owner purchases through the exact native wrapper used by the shop UI.");
+                await Until(() => first.Gold == firstGold - firstPrice && first.Deck.Cards.Count == firstDeck + 1 &&
+                    !inventories.Single(inventory => inventory.Player.NetId == 1).CardEntries.First().IsStocked,
+                    "native reward messages and the production stock update converge on every endpoint");
+                Require(delayed.Gold == delayedGold && delayed.Deck.Cards.Count == delayedDeck && inventories.Single(inventory => inventory.Player.NetId == 2).CardEntries.First().IsStocked,
+                    "The delayed owner keeps their independent untouched inventory and native player state.");
+                Signal("first-purchased");
+                await Until(() => remaining.All(peer => Signaled(peer, "first-purchased")), "all replicas observe the first sale before the delayed owner uses a service");
+                using var selector = MegaCrit.Sts2.Core.Commands.CardSelectCmd.UseSelector(new JigsawNetworkTests.LegalSelector());
+                int removalCost = inventories.Single(inventory => inventory.Player.NetId == 2).CardRemovalEntry.Cost;
+                if (net.NetId == 2)
+                    Require(await inventories.Single(inventory => inventory.Player.NetId == 2).CardRemovalEntry.OnTryPurchaseWrapper(inventories.Single(inventory => inventory.Player.NetId == 2)),
+                        "The delayed owner uses the real native card-removal service.");
+                await Until(() => delayed.Gold == delayedGold - removalCost && delayed.Deck.Cards.Count == delayedDeck - 1 &&
+                    inventories.Single(inventory => inventory.Player.NetId == 2).CardRemovalEntry.Used,
+                    "native card removal and the used service state synchronize on every endpoint");
+                string stock = JsonSerializer.Serialize(map.CreateSave().ShopStates);
+                File.WriteAllText(Path.Combine(directory, role + ".shop-stock"), stock);
+                Signal("shop-purchased");
+                await Until(() => remaining.All(peer => Signaled(peer, "shop-purchased")), "all owners finish the real native transactions before comparing stock");
+                foreach (string peer in remaining)
+                    Require(JsonNode.DeepEquals(JsonNode.Parse(stock), JsonNode.Parse(File.ReadAllText(Path.Combine(directory, peer + ".shop-stock")))),
+                        "Every endpoint saves the same complete stock after one owner buys and another later removes a card.");
+            }
             if (entryFault)
             {
                 RunManager.Instance.ActionExecutor.Unpause();
