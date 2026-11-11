@@ -54,14 +54,7 @@ public sealed class SaveStateRecovery
     /// <summary>Get or create save state recovery for a native run session.</summary>
     /// <param name="clock">Time source used when the instance is created; defaults to <see cref="DateTimeOffset.UtcNow"/>.</param>
     public static SaveStateRecovery? GetOrCreate(RunState native, Func<DateTimeOffset>? clock = null)
-    {
-        if (!Registry.Recoveries.TryGetValue(native, out var recovery))
-        {
-            recovery = new SaveStateRecovery(NativeReader(native), clock);
-            Registry.Recoveries.Add(native, recovery);
-        }
-        return recovery;
-    }
+        => Registry.Recoveries.GetValue(native, state => new SaveStateRecovery(NativeReader(state), clock));
 
     private static CheckpointReader NativeReader(RunState native) => (out JigsawCheckpointData? data) =>
     {

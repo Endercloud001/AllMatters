@@ -29,14 +29,7 @@ public sealed class LobbyRecovery
 
     /// <summary>Get or create lobby recovery for a native run session.</summary>
     public static LobbyRecovery? GetOrCreate(RunState native)
-    {
-        if (!recoveries.TryGetValue(native, out var recovery))
-        {
-            recovery = new LobbyRecovery(native);
-            recoveries.Add(native, recovery);
-        }
-        return recovery;
-    }
+        => recoveries.GetValue(native, state => new LobbyRecovery(state));
 
     private readonly RunState nativeRun;
     private readonly object initLock = new();
@@ -136,13 +129,19 @@ public sealed class LobbyRecovery
     /// <summary>Get current lobby state snapshot with save and exploration state.</summary>
     public LobbyState GetLobbyState()
     {
+        if (!recovered)
+            InitializeFromCheckpoint();
+
         // Build connected IDs in original checkpoint order for deterministic snapshots.
         var orderedConnected = originalPlayers.Where(id => connectedSet.ContainsKey(id)).ToArray();
 
         // Capture save state recovery info if available
+        var map = JigsawNativeSession.TryGet(nativeRun)?.Map;
         SaveStateRecovery.SaveStateSnapshot? saveState = null;
-        if (SaveStateRecovery.GetOrCreate(nativeRun) is { } saveRecovery && saveRecovery.IsInitialized)
+        if (map == null && SaveStateRecovery.GetOrCreate(nativeRun) is { } saveRecovery)
         {
+            if (!saveRecovery.IsInitialized)
+                saveRecovery.InitializeFromCheckpoint();
             saveState = saveRecovery.GetSnapshot();
         }
 
@@ -158,7 +157,13 @@ public sealed class LobbyRecovery
             ConnectedPlayerIds = orderedConnected,
             IsOriginalRosterReady = recovered && originalPlayers.Length > 0 &&
                 orderedConnected.Length == originalPlayers.Length,
-            SaveState = saveState != null ? new SaveStateInfo
+            SaveState = map != null ? new SaveStateInfo
+            {
+                Act = nativeRun.CurrentActIndex,
+                Budget = map.Budget,
+                Steps = map.Steps,
+                Phase = map.Phase.ToString()
+            } : saveState != null ? new SaveStateInfo
             {
                 Act = saveState.Act,
                 Budget = saveState.Budget,

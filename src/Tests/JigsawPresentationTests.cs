@@ -8,6 +8,7 @@ using MegaCrit.Sts2.Core.ControllerInput;
 internal static class JigsawPresentationTests
 {
  public static readonly (string Name, Func<Task> Test)[] Cases = [
+  ..JigsawRecoveryPresentationTests.Cases,
   ("Jigsaw presentation top bar step badge and hover", StepBadge),
   ("Jigsaw presentation exploration visit ring and visible pulse", ExplorationVisuals),
   ("Jigsaw presentation real viewport buttons and Escape", ViewportAndEscape),

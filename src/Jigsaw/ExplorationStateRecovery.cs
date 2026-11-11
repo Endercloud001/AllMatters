@@ -14,20 +14,13 @@ public sealed class ExplorationStateRecovery
 
     /// <summary>Get or create exploration recovery for a native run session.</summary>
     public static ExplorationStateRecovery? GetOrCreate(RunState native)
-    {
-        if (!recoveries.TryGetValue(native, out var recovery))
-        {
-            recovery = new ExplorationStateRecovery(native);
-            recoveries.Add(native, recovery);
-        }
-        return recovery;
-    }
+        => recoveries.GetValue(native, state => new ExplorationStateRecovery(state));
 
     private readonly RunState nativeRun;
     private ExplorationSnapshot? snapshot;
 
     /// <summary>Whether exploration recovery has been initialized from checkpoint.</summary>
-    public bool IsInitialized => snapshot != null;
+    public bool IsInitialized => snapshot != null || JigsawNativeSession.TryGet(nativeRun)?.Map != null;
 
     private ExplorationStateRecovery(RunState native)
     {
@@ -69,34 +62,54 @@ public sealed class ExplorationStateRecovery
     }
 
     /// <summary>Get the current exploration state snapshot.</summary>
-    public ExplorationSnapshot? GetSnapshot() => snapshot;
+    public ExplorationSnapshot? GetSnapshot()
+    {
+        if (JigsawNativeSession.TryGet(nativeRun)?.Map is { } map)
+            return new ExplorationSnapshot
+            {
+                VisitedNodes = [.. map.Visited],
+                CompletedNodes = [.. map.Completed],
+                CurrentNode = map.CurrentNode,
+                Steps = map.Steps,
+                FirstProgress = map.FirstProgress,
+                Phase = map.Phase,
+                Budget = map.Budget
+            };
+
+        // The native deserialization postfix can run before the checkpoint slot is attached.
+        if (snapshot == null)
+            InitializeFromCheckpoint();
+        return snapshot;
+    }
 
     /// <summary>Check if a node has been visited in the recovered state.</summary>
     public bool IsNodeVisited(int nodeId)
     {
-        return snapshot?.VisitedNodes.Contains(nodeId) ?? false;
+        return GetSnapshot()?.VisitedNodes.Contains(nodeId) ?? false;
     }
 
     /// <summary>Check if a node has been completed in the recovered state.</summary>
     public bool IsNodeCompleted(int nodeId)
     {
-        return snapshot?.CompletedNodes.Contains(nodeId) ?? false;
+        return GetSnapshot()?.CompletedNodes.Contains(nodeId) ?? false;
     }
 
     /// <summary>Get remaining steps before hunting phase.</summary>
     public int GetRemainingSteps()
     {
-        if (snapshot == null)
+        var current = GetSnapshot();
+        if (current == null)
             return 0;
-        return Math.Max(0, snapshot.Budget - snapshot.Steps);
+        return Math.Max(0, current.Budget - current.Steps);
     }
 
     /// <summary>Check if exploration is in hunting phase (budget exceeded).</summary>
     public bool IsHunting()
     {
-        if (snapshot == null)
+        var current = GetSnapshot();
+        if (current == null)
             return false;
-        return snapshot.Steps > snapshot.Budget;
+        return current.Steps > current.Budget;
     }
 
     /// <summary>Snapshot of exploration state for recovery.</summary>
