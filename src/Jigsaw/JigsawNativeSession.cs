@@ -732,6 +732,11 @@ public sealed class JigsawNativeSession
     {
         if (!entryFailed || Map?.PendingEntry == null || entryRecoveryRequested)
             return Task.CompletedTask;
+        if (!JigsawEditorAction.IsHost(LocalPlayerId))
+        {
+            screen?.ShowNotice("请等待 Host 决定全队进入恢复。");
+            return Task.CompletedTask;
+        }
         var result = JigsawEditorAction.Submit(this, abandon ? JigsawEditorOperation.AbandonEntry : JigsawEditorOperation.RetryEntry);
         if (!result.Success)
             throw new InvalidOperationException(result.Reason);

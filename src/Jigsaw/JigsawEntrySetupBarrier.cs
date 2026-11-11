@@ -58,7 +58,8 @@ internal static class JigsawEntrySetupBarrier
                     throw new IOException("联机连接已断开，无法完成进入恢复。");
                 RitsuLibSidecarTypedMessageRegistry.SendToHost(service, descriptor, new Message(round, false));
                 await Task.WhenAny(done.Task, Task.Delay(250, timeout.Token));
-                timeout.Token.ThrowIfCancellationRequested();
+                if (!done.Task.IsCompleted)
+                    timeout.Token.ThrowIfCancellationRequested();
             }
             await done.Task;
         }

@@ -60,7 +60,7 @@ internal static class JigsawEditorAction
                     JigsawEditorOperation.EntryReady => message.CompletedOwner == context.Player.NetId ? session.AcceptEntryReady(context.Player.NetId) : JigsawResult.Reject("Only the native room owner can report readiness."),
                     JigsawEditorOperation.EntryFailed => message.CompletedOwner == context.Player.NetId ? session.AcceptEntryFailure(context.Player.NetId) : JigsawResult.Reject("Only the native room owner can report failure."),
                     JigsawEditorOperation.ConfirmEntry => IsHost(context.Player.NetId) ? session.ConfirmSharedEntry() : JigsawResult.Reject("Only Host can confirm entry."),
-                    JigsawEditorOperation.RetryEntry or JigsawEditorOperation.AbandonEntry => session.RequestEntryRecovery(message.Operation == JigsawEditorOperation.AbandonEntry),
+                    JigsawEditorOperation.RetryEntry or JigsawEditorOperation.AbandonEntry => IsHost(context.Player.NetId) ? session.RequestEntryRecovery(message.Operation == JigsawEditorOperation.AbandonEntry) : JigsawResult.Reject("Only Host can choose entry recovery."),
                     JigsawEditorOperation.RecoverEntry => IsHost(context.Player.NetId) && message.EntryCheckpoint != null ? session.AcceptEntryRecovery(message.EntryCheckpoint) : JigsawResult.Reject("Only Host can restore entry."),
                     _ => JigsawResult.Reject("未知拼图操作。")
                 };
