@@ -40,19 +40,21 @@ internal static class JigsawNativeEntryReload
     {
         var manager = RunManager.Instance;
         var service = manager.NetService;
+        var oldInput = manager.InputSynchronizer;
         if (service is not (NetHostGameService or NetClientGameService) || !service.IsConnected)
             throw new InvalidOperationException("多人进入恢复需要仍连接的原生会话。");
 #if !STS2_PUBLIC
         var modded = manager.RunLobby?.Players.ToDictionary(player => player.id, player => player.isModded) ?? [];
 #endif
         service.SetBufferMessages(true);
-        using (var scope = new RetainScope(service))
-        {
-            scope.Enter();
-            manager.CleanUp(false);
-        }
         try
         {
+            using (var scope = new RetainScope(service))
+            {
+                scope.Enter();
+                manager.CleanUp(false);
+            }
+            oldInput.Dispose();
             if (!service.IsConnected)
                 throw new IOException("原生联机连接已断开，无法恢复进入点。");
             var lobby = new LoadRunLobby(service, new Listener(), checkpoint);
@@ -77,9 +79,13 @@ internal static class JigsawNativeEntryReload
         }
         catch
         {
-            manager.CleanUp(false);
-            if (service.IsConnected)
-                service.Disconnect(NetError.Quit, true);
+            try
+            { manager.CleanUp(false); }
+            finally
+            {
+                if (service.IsConnected)
+                    service.Disconnect(NetError.Quit, true);
+            }
             throw;
         }
     }

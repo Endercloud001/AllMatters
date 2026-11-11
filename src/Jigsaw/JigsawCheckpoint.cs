@@ -1,3 +1,4 @@
+using System.IO.Compression;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
@@ -83,10 +84,30 @@ internal static class JigsawSaveSource
     // A retry must keep an independent complete point for another failed load.
     public static SerializableRun Copy(SerializableRun save)
     {
-        return Deserialize(Serialize(save));
+        return FromJson(ToJson(save));
     }
 
     internal static string Serialize(SerializableRun save)
+    {
+        using var output = new MemoryStream();
+        using (var compressed = new GZipStream(output, CompressionLevel.Optimal, leaveOpen: true))
+        {
+            var bytes = System.Text.Encoding.UTF8.GetBytes(ToJson(save));
+            compressed.Write(bytes);
+        }
+        return Convert.ToBase64String(output.ToArray());
+    }
+
+    internal static SerializableRun Deserialize(string payload)
+    {
+        using var input = new MemoryStream(Convert.FromBase64String(payload));
+        using var compressed = new GZipStream(input, CompressionMode.Decompress);
+        using var output = new MemoryStream();
+        compressed.CopyTo(output);
+        return FromJson(System.Text.Encoding.UTF8.GetString(output.ToArray()));
+    }
+
+    private static string ToJson(SerializableRun save)
     {
         var type = JsonSerializationUtility.GetTypeInfo<SerializableRun>();
         var bytes = JsonSerializer.SerializeToUtf8Bytes(save, type);
@@ -94,7 +115,7 @@ internal static class JigsawSaveSource
         return System.Text.Encoding.UTF8.GetString(bytes);
     }
 
-    internal static SerializableRun Deserialize(string json)
+    private static SerializableRun FromJson(string json)
     {
         var type = JsonSerializationUtility.GetTypeInfo<SerializableRun>();
         var copy = JsonSerializer.Deserialize(json, type) ?? throw new InvalidDataException("进入检查点无法复制。");
