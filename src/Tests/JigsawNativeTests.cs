@@ -229,7 +229,9 @@ internal static class JigsawNativeTests
             {
                 bool invalidOwner=false;try {RunManager.CanonicalizeSave(canonical,999);}catch(InvalidOperationException){invalidOwner=true;}
                 Require(invalidOwner,"Native canonicalization rejects callers outside the original save roster.");
-                bool gated=false;try {RunState.FromSerializable(incoming.serializableRun);}catch(InvalidOperationException e) when(e.Message.Contains("已连接且角色名单匹配")){gated=true;}
+                var deferred=RunState.FromSerializable(incoming.serializableRun);
+                Require(JigsawNativeSession.TryGet(deferred)==null,"Lobby deserialization validates the full map without activating a multiplayer session.");
+                bool gated=false;try {JigsawNativeSession.Enable(deferred);}catch(InvalidOperationException e) when(e.Message.Contains("已连接且角色名单匹配")){gated=true;}
                 Require(gated,"Lobby-only validation cannot leak into unsupported multiplayer gameplay activation after success or failure.");
             }
         }
@@ -260,7 +262,7 @@ internal static class JigsawNativeTests
     }
     private enum EntryFailureKind { None, BeforeReady, RestoredBeforeReady, AfterReady, RetryAfterReady, BeforeSave, Abandon, AbandonBeforeSave, AbandonRestored, AbandonWriteFailure, AfterCompletedAbandon }
     public static readonly (string Name, Func<Task> Test)[] Cases =
-    [ ("Jigsaw native stale endpoint queue resynchronizes", StaleEndpointQueue), (JigsawNetworkTests.Name, JigsawNetworkTests.Run), (JigsawActivationTests.Name, JigsawActivationTests.Run), ("Jigsaw native routed editor uses native ordered action", RoutedEditorQueue),
+    [ (JigsawMultiplayerRestoreTests.DeferredName, JigsawMultiplayerRestoreTests.DeferredActivation), (JigsawMultiplayerRestoreTests.SetupName, JigsawMultiplayerRestoreTests.HostSetup), ("Jigsaw native stale endpoint queue resynchronizes", StaleEndpointQueue), (JigsawNetworkTests.Name, JigsawNetworkTests.Run), (JigsawActivationTests.Name, JigsawActivationTests.Run), ("Jigsaw native routed editor uses native ordered action", RoutedEditorQueue),
       ("Jigsaw native lobby recovery rejects unknown and duplicate concurrent joins", LobbyRecoveryDeterminism),
       ("Jigsaw native lobby recovery initializes its roster once under concurrent checkpoint loads", LobbyRecoveryConcurrentInitialize),
       ("Jigsaw native known lobby document rejects lost identity and incomplete data", ()=>MissingModeData("Budget",identityLost:true)),

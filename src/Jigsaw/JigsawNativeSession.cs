@@ -29,6 +29,8 @@ namespace AllMatters.Jigsaw;
 public sealed class JigsawNativeSession
 {
     private static readonly ConditionalWeakTable<RunState, JigsawNativeSession> sessions = new();
+    internal static JigsawNativeSession? TryGet(RunState native) =>
+        sessions.TryGetValue(native, out var session) && !session.closed ? session : null;
     internal static JigsawNativeSession? SaveSession => RunManager.Instance.DebugOnlyGetState() is { } state &&
         sessions.TryGetValue(state, out var session) ? session : null;
     public static JigsawNativeSession? Current
@@ -216,10 +218,12 @@ public sealed class JigsawNativeSession
         var mapData = data.Map.OriginalPlayers == null ? data.Map with { OriginalPlayers = originals } : data.Map;
         if (!originals.ToHashSet().SetEquals(mapData.OriginalPlayers!))
             throw new InvalidDataException("拼图原队员与原生存档角色名单不一致，不能替换角色恢复。");
-        var restoredMap = JigsawRun.Restore(mapData, JigsawLobbyCheckpoint.IsValidating ? null : originals);
+        bool validating = JigsawLobbyCheckpoint.IsValidating || native.Players.Count > 1 &&
+            !ReferenceEquals(RunManager.Instance.DebugOnlyGetState(), native);
+        var restoredMap = JigsawRun.Restore(mapData, validating ? null : ActivePlayers(native));
         // The native lobby validates/rebuilds saves before a live session exists.
         // Validate the document here without activating multiplayer gameplay.
-        if (JigsawLobbyCheckpoint.IsValidating)
+        if (validating)
             return;
         var session = Enable(native);
         session.act = data.Act;
