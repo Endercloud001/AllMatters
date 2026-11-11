@@ -277,7 +277,8 @@ internal static class JigsawRecoveryNetworkTests
                 {
                     await original;
                     await Until(() => Signaled("host", "native-ready") && Signaled("2", "native-ready"), "both remaining endpoints report real native readiness before this endpoint leaves");
-                    net.Disconnect(NetError.Quit, true);
+                    net.Disconnect(NetError.Quit);
+                    await Until(() => Signaled("host", "entry-peer-left"), "the native Host acknowledges this endpoint's graceful departure before its process ends");
                     throw new IOException("Injected disconnection before RoomEntered, after the other two endpoints are ready.");
                 };
         }
@@ -348,7 +349,10 @@ internal static class JigsawRecoveryNetworkTests
             if (phase == "entry-disconnect" && role == "3") return;
             var session = JigsawNativeSession.Current;
             if (phase == "entry-disconnect")
+            {
                 await Until(() => session?.Map?.ActivePlayers.Count == 2, "Host removes the departed original player from the current entry quorum");
+                if (host != null) Signal("entry-peer-left");
+            }
             Require(session?.Map != null && session.Map.ActivePlayers.Order().SequenceEqual(active), "The restored production map uses the actual load-lobby participants.");
             var map = session!.Map!;
             Require(map.OriginalPlayers.Order().SequenceEqual(new ulong[] { 1, 2, 3 }), "Absent original characters remain in the map.");
