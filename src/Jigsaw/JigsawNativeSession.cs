@@ -866,16 +866,33 @@ public sealed class JigsawNativeSession
         { entryFailed = true; ShowMap(); }
     }
 
-    // T05: Shop persistence. Native MerchantRoom rolls a fresh MerchantInventory on
-    // every EnterInternal. The live native inventory objects (entries, sale flag,
-    // IsStocked/Used) are kept per logical node and player and handed back to the
-    // revisited room, so no new RNG roll happens and purchases stay cleared.
+    // Live entries retain native callbacks within a session; a new session
+    // rebuilds the same complete stock from the native save's jigsaw document.
     private readonly Dictionary<(int nodeId, ulong playerId), MerchantInventory> nativeShops = new();
     private int? enteringShopNode;
 
-    internal MerchantInventory? SavedShopFor(Player player) =>
-        enteringShopNode is { } node && nativeShops.TryGetValue((node, player.NetId), out var inventory) &&
-        ReferenceEquals(inventory.Player, player) ? inventory : null;
+    internal MerchantInventory? SavedShopFor(Player player)
+    {
+        if (Map == null || (enteringShopNode ?? Map.PendingEntry?.NodeId ?? Map.CurrentNode) is not { } node)
+            return null;
+        if (nativeShops.TryGetValue((node, player.NetId), out var inventory) && ReferenceEquals(inventory.Player, player))
+            return inventory;
+        if (Map.GetShopInventory(node, player.NetId) is { } stock)
+        {
+            inventory = JigsawNativeShopPersistence.Restore(player, stock);
+            nativeShops[(node, player.NetId)] = inventory;
+            return inventory;
+        }
+        if (Map.Visited.Contains(node) && Map.ResolvedRoom(node) == JigsawRoom.Shop)
+            throw new InvalidDataException("已访问商店的库存缺失，不能重新抽取；请恢复完整备份。");
+        return null;
+    }
+
+    internal void CaptureCurrentShop()
+    {
+        if (Map?.CurrentNode is { } node && Native.CurrentRoom is MerchantRoom)
+            CaptureShopInventory(node);
+    }
 
     /// <summary>Record the mounted MerchantRoom inventories after native entry, then commit.</summary>
     private void CaptureShopInventory(int nodeId)
@@ -888,35 +905,16 @@ public sealed class JigsawNativeSession
         foreach (var inventory in room.Inventories)
         {
             nativeShops[(nodeId, inventory.Player.NetId)] = inventory;
-            Map.RecordShopInventory(nodeId, inventory.Player.NetId, Describe(inventory));
+            Map.RecordShopInventory(nodeId, inventory.Player.NetId, JigsawNativeShopPersistence.Capture(inventory));
         }
         Map.CommitShopTransaction();
-    }
-
-    private static JigsawShopInventory Describe(MerchantInventory inventory)
-    {
-        var cards = inventory.CardEntries.Select((entry, slot) =>
-            new JigsawShopCard(entry.CreationResult?.Card?.Id.ToString() ?? "", slot, false, null, entry.Cost)).ToArray();
-        var relics = inventory.RelicEntries.Select((entry, slot) =>
-            new JigsawShopRelic(entry.Model?.Id.ToString() ?? "", slot, null, entry.Cost)).ToArray();
-        var soldOut = new HashSet<string>();
-        int index = 0;
-        foreach (var entry in inventory.AllEntries)
-        {
-            if (!entry.IsStocked)
-                soldOut.Add($"{entry.GetType().Name}:{index}");
-            index++;
-        }
-        var promotions = inventory.CardEntries.Select((entry, slot) => (entry, slot))
-            .Where(x => x.entry.IsOnSale).ToDictionary(x => $"card:{x.slot}", _ => true);
-        return new JigsawShopInventory(cards, relics, inventory.CardRemovalEntry?.Used == true ? 1 : 0,
-            inventory.CardRemovalEntry?.IsStocked == true, new Dictionary<string, int>(), promotions, soldOut);
     }
 
     public void CompleteCurrentRoom(bool canTravel)
     {
         if (Map?.CurrentNode == null || !JigsawNativeExploration.MarkLocalExit(this, canTravel))
             return;
+        CaptureCurrentShop();
         if (Map.ActivePlayers.Count == 1)
         {
             Map.CompleteRoom(Map.CreateSave().NextEntry);
@@ -1145,6 +1143,7 @@ internal static class JigsawCaptureNativePoint
     {
         if (JigsawNativeSession.SaveSession is not { Map: not null } session)
             return true;
+        session.CaptureCurrentShop();
         JigsawCheckpoint.Capture(session.Native, session.Map);
         if (session.FailedEntryCheckpoint is { } pending)
         { __result = pending; return false; }

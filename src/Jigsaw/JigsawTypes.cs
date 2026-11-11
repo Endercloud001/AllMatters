@@ -74,7 +74,10 @@ public sealed record JigsawShopInventory(
     bool PurgeAvailable,
     Dictionary<string, int> OriginalPrices,
     Dictionary<string, bool> Promotions,
-    HashSet<string> SoldOut);
+    HashSet<string> SoldOut)
+{
+    public JigsawNativeShopStock? NativeStock { get; init; }
+}
 
 public sealed record JigsawShopCard(
     string ModelId,
