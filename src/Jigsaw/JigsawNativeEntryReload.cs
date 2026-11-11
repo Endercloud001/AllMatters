@@ -41,7 +41,9 @@ internal static class JigsawNativeEntryReload
         var manager = RunManager.Instance;
         var service = manager.NetService;
         var oldInput = manager.InputSynchronizer;
-        Console.Error.WriteLine($"Jigsaw entry reload begin net={service.NetId} connected={service.IsConnected}");
+        var oldEvents = manager.EventSynchronizer;
+        var oldOneOff = manager.OneOffSynchronizer;
+        var oldCombatSync = manager.CombatStateSynchronizer;
         if (service is not (NetHostGameService or NetClientGameService) || !service.IsConnected)
             throw new InvalidOperationException("多人进入恢复需要仍连接的原生会话。");
 #if !STS2_PUBLIC
@@ -55,8 +57,10 @@ internal static class JigsawNativeEntryReload
                 scope.Enter();
                 manager.CleanUp(false);
             }
-            Console.Error.WriteLine($"Jigsaw entry reload cleaned net={service.NetId} state={manager.DebugOnlyGetState() != null}");
             oldInput.Dispose();
+            oldEvents.Dispose();
+            oldOneOff.Dispose();
+            oldCombatSync.Dispose();
             if (!service.IsConnected)
                 throw new IOException("原生联机连接已断开，无法恢复进入点。");
             var lobby = new LoadRunLobby(service, new Listener(), checkpoint);
@@ -68,20 +72,16 @@ internal static class JigsawNativeEntryReload
                 lobby.Players.Add(new LoadRunLobbyPlayer { id = player, isModded = modded.GetValueOrDefault(player) });
 #endif
             lobby.CleanUp(false);
-            Console.Error.WriteLine($"Jigsaw entry reload setup net={service.NetId}");
             await manager.SetUpSavedMultiplayer(restored, lobby);
-            Console.Error.WriteLine($"Jigsaw entry reload setup done net={service.NetId}");
             JigsawNativeSession.Current?.SetEntryRound(round);
+            await JigsawEntrySetupBarrier.Wait(service, active, round);
             if (!TestMode.IsOn)
                 await MegaCrit.Sts2.Core.Nodes.NGame.Instance!.LoadRun(restored, null);
             else
             {
                 manager.Launch();
-                Console.Error.WriteLine($"Jigsaw entry reload map net={service.NetId}");
                 await manager.GenerateMap()!;
-                Console.Error.WriteLine($"Jigsaw entry reload room net={service.NetId}");
                 await manager.LoadIntoLatestMapCoord(null);
-                Console.Error.WriteLine($"Jigsaw entry reload room done net={service.NetId}");
             }
         }
         catch
@@ -96,6 +96,7 @@ internal static class JigsawNativeEntryReload
             throw;
         }
     }
+
 }
 
 [HarmonyPatch(typeof(NetHostGameService), nameof(NetHostGameService.Disconnect))]

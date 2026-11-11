@@ -716,7 +716,7 @@ public sealed class JigsawNativeSession
     internal void OnDestinationFinalized(int node)
     {
         OnEdited();
-        _ = Defer(() => Enter(node));
+        TrackEntryRecovery(() => Enter(node));
     }
 
     public Task AbandonEntry()
@@ -808,13 +808,7 @@ public sealed class JigsawNativeSession
 
     private void TrackEntryRecovery(Func<Task> work)
     {
-        Console.Error.WriteLine($"Jigsaw entry reload queued net={LocalPlayerId} current={Current == this}");
-        var task = EntryRecoveryTask = Defer(async () =>
-        {
-            Console.Error.WriteLine($"Jigsaw entry reload executing net={LocalPlayerId}");
-            await work();
-            Console.Error.WriteLine($"Jigsaw entry reload completed net={LocalPlayerId}");
-        });
+        var task = EntryRecoveryTask = Defer(work);
         _ = ReportEntryRecoveryFailure(task);
     }
 
@@ -875,7 +869,6 @@ public sealed class JigsawNativeSession
         catch (Exception error) { return JigsawResult.Reject(error.Message); }
         var active = Map.ActivePlayers.ToArray();
         long round = EntryRound + 1;
-        Console.Error.WriteLine($"Jigsaw entry recovery accepted net={LocalPlayerId} active={active.Length} round={round}");
         TrackEntryRecovery(() => LoadCheckpoint(checkpoint, restored, active, round));
         return JigsawResult.Ok;
     }
@@ -1010,6 +1003,7 @@ public sealed class JigsawNativeSession
                 else if (!entryFailed)
                 {
                     entryFailed = true;
+                    RunManager.Instance.RunLocationTargetedBuffer.OnLocationChanged(Native.RunLocation);
                     JigsawEditorAction.Submit(this, JigsawEditorOperation.EntryFailed, completedOwner: LocalPlayerId);
                     RunManager.Instance.ActionExecutor.Unpause();
                 }
@@ -1086,13 +1080,15 @@ public sealed class JigsawNativeSession
     {
         if (Current == this && Map?.PendingEntry != null)
         {
-            if (netService is not NetSingleplayerGameService && !NativeEntryWasReady && !entryFailed)
-                JigsawEditorAction.Submit(this, JigsawEditorOperation.EntryFailed, completedOwner: LocalPlayerId);
             if (!NativeEntryWasReady)
             {
                 entryFailed = true;
                 if (netService is not NetSingleplayerGameService)
+                {
+                    RunManager.Instance.RunLocationTargetedBuffer.OnLocationChanged(Native.RunLocation);
+                    JigsawEditorAction.Submit(this, JigsawEditorOperation.EntryFailed, completedOwner: LocalPlayerId);
                     RunManager.Instance.ActionExecutor.Unpause();
+                }
             }
             ShowMap();
         }
