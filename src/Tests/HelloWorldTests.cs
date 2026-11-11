@@ -21,7 +21,7 @@ using MegaCrit.Sts2.Core.Unlocks;
 
 internal static class HelloWorldTests
 {
-    public static async Task<int> Run(string[] args)
+    public static async Task<int> Run(string[] args, Action<string>? beforeTest = null)
     {
         TestMode.IsOn = true;
         LocalContext.NetId = 1;
@@ -31,19 +31,21 @@ internal static class HelloWorldTests
         // Install host lifecycle substitutes before framework patches prepare game methods.
         new Harmony("AllMatters.TestHost").PatchAll(typeof(HelloWorldTests).Assembly);
         STS2RitsuLib.RitsuLibFramework.Initialize();
-        ModEntry.Initialize();
         try
         {
-            await ModManager.Initialize(null!, null, null);
-            // Immediately associate the assembly on public-beta where the API exists.
-            // This tells the type serialization system which mod owns these types.
+            // Native test mode skips discovery unless ResetForTests explicitly enables it.
+            ModManager.ResetForTests();
+#if !STS2_PUBLIC
+            ModManager.TestInitializers[ModEntry.ModId] = ModEntry.Initialize;
+#endif
+            await ModManager.Initialize(new HostModFileIo(), new ModSettings { PlayerAgreedToModLoading = true }, null);
 #if !STS2_PUBLIC
             ModManager.AssociateAssemblyWithMod(ModEntry.ModId, typeof(ModEntry).Assembly);
 #endif
             SaveManager.Instance.SettingsSave.Language = "eng";
             LocManager.Initialize();
             foreach (Type type in ReflectionHelper.GetSubtypes<AbstractModel>()
-                .Concat(typeof(ModEntry).Assembly.GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(AbstractModel)))))
+                .Concat(typeof(ModEntry).Assembly.GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(AbstractModel)))).Distinct())
             {
                 ModelDb.Inject(type);
             }
@@ -55,6 +57,7 @@ internal static class HelloWorldTests
             (string Name, Func<Task> Test)[] cases =
             [
                 ("Test host registers mod assembly correctly without association warnings", ModAssociationRegistration),
+                ("Test host watchdog renews each case and reports a stalled case", WatchdogPerCase),
                 ("Upgrade does not add Innate", UpgradeWithoutInnate),
                 ("Ordinary single source keeps original behavior", OrdinarySingle),
                 ("Upgraded single source has its own power and upgrades its card", UpgradedSingle),
@@ -81,6 +84,7 @@ internal static class HelloWorldTests
             Check(selected.Length > 0, "No test matches the supplied filter.");
             foreach (var test in selected)
             {
+                beforeTest?.Invoke(test.Name);
                 await test.Test();
                 Console.WriteLine("PASS: " + test.Name);
             }
@@ -94,15 +98,60 @@ internal static class HelloWorldTests
         }
     }
 
+    // Resource packs are already mounted by TestRunner. Discover only the test assembly,
+    // without reading an installed mods directory or copying any real player saves.
+    private sealed class HostModFileIo : IModManagerFileIo
+    {
+        private readonly string _modsDirectory = Path.Combine(Path.GetDirectoryName(Godot.OS.GetExecutablePath())!, "mods");
+        // Godot loads dynamic assemblies from bytes, so Assembly.Location is empty.
+        private readonly string _assembly = Path.Combine(AppContext.BaseDirectory, "AllMatters.dll");
+        private string Manifest => Path.ChangeExtension(_assembly, ".json");
+        public string[] GetFilesAt(string path) => path == _modsDirectory ? [Manifest] : [];
+        public string[] GetDirectoriesAt(string path) => [];
+        public bool FileExists(string path) => path == _assembly || path == Manifest;
+        public bool DirectoryExists(string path) => path == _modsDirectory;
+        public Stream OpenStream(string path, Godot.FileAccess.ModeFlags mode)
+        {
+            if (path != Manifest || mode != Godot.FileAccess.ModeFlags.Read)
+                throw new InvalidOperationException("The mod host only exposes its in-memory manifest.");
+            return new MemoryStream(System.Text.Encoding.UTF8.GetBytes("""
+                {"id":"AllMatters","name":"AllMatters","version":"0.1.1","has_dll":true,"affects_gameplay":true}
+                """));
+        }
+#if !STS2_PUBLIC
+        public void MakeDirRecursive(string path) => throw new InvalidOperationException("The mod host must not write player saves.");
+        public Godot.Error CopyFile(string sourcePath, string destinationPath) => throw new InvalidOperationException("The mod host must not copy player saves.");
+#endif
+    }
+
     private static Task ModAssociationRegistration()
     {
-        // Regression test for the test host registering mod assembly correctly.
-        // When ModManager.AssociateAssemblyWithMod is not called before ModManager.Initialize,
-        // content types registered via RitsuLib attributes fail with "not associated with any mod" errors.
-        // This test confirms the fix: if the association worked, we can acquire the registered BlueCandle relic.
-        var blueCandle = ModelDb.Relic<AllMatters.Relics.BlueCandle>();
-        Check(blueCandle != null, "BlueCandle relic must be registered without mod association errors.");
+        var mod = ModManager.GetLoadedMods().SingleOrDefault(mod => mod.manifest?.id == ModEntry.ModId);
+        Check(mod != null, "The native ModManager must load AllMatters before model serialization initializes.");
+#if STS2_PUBLIC
+        Check(mod!.assembly == typeof(ModEntry).Assembly, "The loaded mod must own its actual assembly.");
+#else
+        var owner = MegaCrit.Sts2.Core.Modding.AssemblyInfo.ModForType(typeof(AllMatters.Relics.BlueCandle), out bool isBaseGame);
+        Check(owner == mod && !isBaseGame && mod!.assemblies.Contains(typeof(ModEntry).Assembly),
+            "Native multiplayer type ownership must identify BlueCandle as AllMatters content.");
+#endif
         return Task.CompletedTask;
+    }
+
+    private static async Task WatchdogPerCase()
+    {
+        var tree = (Godot.SceneTree)Godot.Engine.GetMainLoop();
+        var expired = new List<string>();
+        // The previous budget has run out just as another case starts.
+        using var watchdog = new HeadlessTestWatchdog(tree, expired.Add, seconds: 0);
+        watchdog.Renew("second case", 60);
+        for (int frame = 0; frame < 2; frame++)
+            await tree.ToSignal(tree, Godot.SceneTree.SignalName.ProcessFrame);
+        Check(expired.Count == 0, "A new case must receive its own budget even after the preceding budget is exhausted.");
+        watchdog.Renew("stalled case", 0);
+        for (int frame = 0; frame < 2; frame++)
+            await tree.ToSignal(tree, Godot.SceneTree.SignalName.ProcessFrame);
+        Check(expired.SequenceEqual(["stalled case"]), "The watchdog must still expire once and identify the stalled case.");
     }
 
     private static Task UpgradeWithoutInnate()
