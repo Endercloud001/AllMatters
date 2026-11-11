@@ -704,6 +704,8 @@ internal static class JigsawRecoveryNetworkTests
                     Input.ParseInputEvent(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true, Position = position, GlobalPosition = position });
                     await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
                     Input.ParseInputEvent(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false, Position = position, GlobalPosition = position });
+                    await Until(() => map.Choices.ContainsKey(net.NetId) || map.Phase != JigsawPhase.Editing,
+                        "the recovered editor's engine click reaches the local owner's consensus vote");
                 }
                 await Until(() => map.Phase == JigsawPhase.Ancient && listener.Native!.CurrentRoom is EventRoom,
                     "recovered editor or generation continues through production consensus into native Ancient");
