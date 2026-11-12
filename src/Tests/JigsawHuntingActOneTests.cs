@@ -36,8 +36,10 @@ internal static class JigsawHuntingActOneTests
       ("JigsawHuntingActOne native Kin orb does not alter a reentrant same giver and power hook", KinReentrant),
       ("JigsawHuntingActOne Phrog nonzero native death preserves five node visibility", () =>
           NativeOpening<PhrogParasite>(JigsawHuntingPhrogNodeTests.NonzeroDeath, maxPlayers: 1)),
+      ("JigsawHuntingActOne Phrog native UI survives backend creature callback warmup and cleanup", PhrogBackendWarmup),
       ("JigsawHuntingActOne old Phrog death cannot change a replacement native room", () =>
           NativeOpening<PhrogParasite>(JigsawHuntingPhrogNodeTests.OldReveal, maxPlayers: 1)),
+      ("JigsawHuntingActOne Phrog geometry retains native canvas after a responsive map", PhrogAfterResponsiveMap),
       ("JigsawHuntingActOne Phrog five native hitboxes intents and health bars fit compact and wide rooms", () =>
           NativeOpening<PhrogParasite>(JigsawHuntingPhrogNodeTests.Geometry)),
       ("JigsawHuntingActOne Phrog node cleanup restores globals before later native UI use", () =>
@@ -198,6 +200,22 @@ internal static class JigsawHuntingActOneTests
                 "Native stacking records one increment of two, never a native one followed by an extra one.");
         }
     }, RoomType.Boss);
+
+    private static async Task PhrogAfterResponsiveMap()
+    {
+        await JigsawPresentationTests.Cases.Single(test =>
+            test.Name == "Jigsaw presentation focus reaches isolated dense nodes and responsive layouts").Test();
+        await NativeOpening<PhrogParasite>(JigsawHuntingPhrogNodeTests.Geometry);
+    }
+
+    private static async Task PhrogBackendWarmup()
+    {
+        // Warm the real backend Add/Remove event path before installing UI
+        // ownership, as happens after the earlier full-suite native battles.
+        for (int iteration = 0; iteration < 100; iteration++) await PhrogWorms();
+        await NativeOpening<PhrogParasite>(JigsawHuntingPhrogNodeTests.NonzeroDeath, maxPlayers: 1);
+        await NativeOpening<PhrogParasite>(JigsawHuntingPhrogNodeTests.Cleanup, maxPlayers: 1);
+    }
 
     private static Task PhrogWorms() => NativeOpening<PhrogParasite>(async phrog =>
     {

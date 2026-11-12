@@ -54,3 +54,5 @@ Fungus 五原资源来自 MT-SUPER-POWER/STS2-Balance-MOD `d9eff9e067b07689e722c
 最终命令 `Test.ps1 -Branch All -Filter JigsawHunting -SkipResourceExport` 使用本轮已重新导出的资源，两版各25项通过：ActOne15（含Phrog5与新增无幕反例）、Combat6、EventCombat4。Build/Host/Metadata均0，无异常或准备失败；beta Engine0；public Engine56，经逐条分组全部为共享beta PCK的同一NHotkeyIcon类不匹配。准确日志在备份目录的`ecology-green-{public,public-beta}.log`及`ecology-green-all.log`。未运行最终整批Check，也不代表匹配public资源、真实设备或多端验收。guard增量另行独立复审后才纳入提交。
 
 guard追加独立Spec/Standards复审均已完成：两名审查者实际读取working相对index的精确两个文件差异、相关源码/原生方法、真实负例及红绿日志，均无可行动发现；未自行运行测试。原先所有会话、人数、追猎根、幕、唯一房间、父事件及遭遇身份条件均保留，仅调整短路顺序。此返修与原24文件切片一并提交，不据此扩张整票完成范围。
+
+Phrog 在集成全量顺序下的事件回调热身与画布隔离返修、真实红绿证据、双轴审查及最终验证状态另见 [Phrog 原生 UI 测试隔离诊断](issue84-phrog-test-isolation.md)。该返修仅修改测试宿主，画布验证范围明确为默认/Auto 的 Expand 模型。

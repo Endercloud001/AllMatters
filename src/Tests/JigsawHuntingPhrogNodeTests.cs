@@ -50,6 +50,8 @@ internal static class JigsawHuntingPhrogNodeTests
         var previousShake = screenField.GetValue(game);
         var previousHotkeys = hotkeyProperty.GetValue(game);
         var previousContainer = containerField.GetValue(run);
+        var callbacksField = AccessTools.Field(typeof(CombatManager), nameof(CombatManager.CreaturesChanged));
+        var callbacksBefore = ((Delegate)callbacksField.GetValue(CombatManager.Instance)!).GetInvocationList();
         var shake = new MegaCrit.Sts2.Core.Nodes.Vfx.Utilities.NScreenShake();
         var hotkeys = new NHotkeyManager();
         var target = new Control();
@@ -74,6 +76,8 @@ internal static class JigsawHuntingPhrogNodeTests
                     ReferenceEquals(hotkeyProperty.GetValue(game), hotkeys) &&
                     ReferenceEquals(containerField.GetValue(run), container),
                     $"Disposing the actual Phrog node host restores all original owner references after failure={fail}.");
+                Check(((Delegate)callbacksField.GetValue(CombatManager.Instance)!).GetInvocationList().SequenceEqual(callbacksBefore),
+                    "Disposal restores every native creature-change callback in its original order.");
                 Check(GodotObject.IsInstanceValid(hotkeys) && GodotObject.IsInstanceValid(shake),
                     "The preceding native UI objects remain alive after node-host disposal.");
                 game.SetScreenShakeTarget(target);
@@ -121,6 +125,7 @@ internal static class JigsawHuntingPhrogNodeTests
 
     private static async Task Exercise(Creature phrog, bool replace, bool geometry = false)
     {
+        using var display = new NativeDisplayScope();
         var native = (RunState)phrog.CombatState!.RunState;
         var combat = (CombatRoom)native.CurrentRoom!;
         using var atlases = HeadlessTestSetup.LoadAtlases("card_atlas", "relic_atlas", "ui_atlas", "compressed");
@@ -221,12 +226,12 @@ internal static class JigsawHuntingPhrogNodeTests
     {
         var tree = (SceneTree)Engine.GetMainLoop();
         var viewport = tree.Root;
-        Vector2I previousSize = viewport.Size, previousScale = viewport.ContentScaleSize;
+        Vector2I previousSize = viewport.Size;
         try
         {
             foreach (var size in new[] { new Vector2I(1280, 720), new Vector2I(1680, 720) })
             {
-                viewport.Size = viewport.ContentScaleSize = size;
+                viewport.Size = size;
                 room.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
                 foreach (var worm in worms)
                 {
@@ -237,13 +242,17 @@ internal static class JigsawHuntingPhrogNodeTests
                 }
                 await FramesUntil(() => worms.All(creature => room.GetCreatureNode(creature)!.IntentContainer.Modulate.A > 0.95f),
                     "actual native intent fade");
-                var bounds = new Rect2(Vector2.Zero, size);
+                var bounds = viewport.GetVisibleRect();
+                var stretch = viewport.GetStretchTransform();
+                var physical = stretch * bounds;
+                Check(physical.Position.IsEqualApprox(Vector2.Zero) && physical.Size.IsEqualApprox(size),
+                    "The native canvas visible bounds map to the entire requested physical window.");
                 var creatures = worms.Select(creature => room.GetCreatureNode(creature)!).ToArray();
                 var hitboxes = creatures.Select(node => node.Hitbox.GetGlobalRect()).ToArray();
                 Console.WriteLine($"PHROG_GEOMETRY players={worms[0].CombatState!.Players.Count} size={size} " +
                     string.Join("; ", creatures.Select(node => $"{node.Entity.SlotName}:hit={node.Hitbox.GetGlobalRect()},hp={node.GetNode<Control>("%HealthBar").GetNode<Control>("%HpBarHitbox").GetGlobalRect()},intent={IntentBounds(node).FirstOrDefault()}")));
                 Check(creatures.All(node => node.IsVisibleInTree() && node.Hitbox.Size.X > 0 && node.Hitbox.Size.Y > 0) &&
-                    hitboxes.All(bounds.Encloses), "All five real native hitboxes are positive and inside the actual viewport.");
+                    hitboxes.All(bounds.Encloses) && hitboxes.All(rect => new Rect2(Vector2.Zero, size).Encloses(stretch * rect)), "All five real native hitboxes are positive and inside the actual viewport.");
                 for (int first = 0; first < hitboxes.Length; first++)
                     for (int second = first + 1; second < hitboxes.Length; second++)
                         Check(!hitboxes[first].Intersects(hitboxes[second]), "Every pair of native worm hitboxes remains separate.");
@@ -258,7 +267,7 @@ internal static class JigsawHuntingPhrogNodeTests
                     "Every real worm intent and health display remains visible inside the viewport.");
             }
         }
-        finally { viewport.Size = previousSize; viewport.ContentScaleSize = previousScale; }
+        finally { viewport.Size = previousSize; }
     }
 
     private static IEnumerable<Rect2> IntentBounds(NCreature creature) => creature.IntentContainer.GetChildren()
@@ -278,6 +287,31 @@ internal static class JigsawHuntingPhrogNodeTests
         }).ToArray()
     });
 
+    private sealed class NativeDisplayScope : IDisposable
+    {
+        private readonly Window window = ((SceneTree)Engine.GetMainLoop()).Root;
+        private readonly Vector2I size;
+        private readonly Vector2I content;
+        private readonly Window.ContentScaleModeEnum mode;
+        private readonly Window.ContentScaleAspectEnum aspect;
+        internal NativeDisplayScope()
+        {
+            size = window.Size; content = window.ContentScaleSize;
+            mode = window.ContentScaleMode; aspect = window.ContentScaleAspect;
+            // Match the game's project settings and 16:9 display configuration:
+            // physical window pixels are distinct from its 1920x1080 UI canvas.
+            window.ContentScaleSize = new Vector2I(1920, 1080);
+            window.ContentScaleMode = Window.ContentScaleModeEnum.CanvasItems;
+            window.ContentScaleAspect = Window.ContentScaleAspectEnum.Expand;
+            window.Size = new Vector2I(1280, 720);
+        }
+        public void Dispose()
+        {
+            window.ContentScaleSize = content; window.ContentScaleMode = mode;
+            window.ContentScaleAspect = aspect; window.Size = size;
+        }
+    }
+
     private sealed class NodeHost : IDisposable
     {
         private readonly Harmony harmony = new("AllMatters.Tests.PhrogNativeNodes");
@@ -290,6 +324,9 @@ internal static class JigsawHuntingPhrogNodeTests
         private readonly NRun run;
         private readonly object? previousShake;
         private readonly object? previousHotkeys;
+        private readonly CombatManager manager = CombatManager.Instance;
+        private readonly CombatState combat;
+        private readonly Action<CombatState> nativeCreaturesChanged;
         internal readonly TaskCompletionSource Release = new(TaskCreationOptions.RunContinuationsAsynchronously);
         internal NCombatRoom Room = null!;
         internal float AnimationLength;
@@ -299,6 +336,10 @@ internal static class JigsawHuntingPhrogNodeTests
         internal NodeHost(Creature phrog)
         {
             this.phrog = phrog;
+            combat = (CombatState)phrog.CombatState!;
+            var callbacks = (Action<CombatState>)AccessTools.Field(typeof(CombatManager), nameof(CombatManager.CreaturesChanged)).GetValue(manager)!;
+            nativeCreaturesChanged = callbacks.GetInvocationList().Cast<Action<CombatState>>().Single(callback =>
+                ReferenceEquals(callback.Target, manager.StateTracker) && callback.Method.Name == "OnCreaturesChanged");
             game = NGame.Instance!;
             run = NRun.Instance!;
             previousContainer = AccessTools.Field(typeof(NRun), "_roomContainer").GetValue(run);
@@ -328,6 +369,10 @@ internal static class JigsawHuntingPhrogNodeTests
                 postfix: new HarmonyMethod(typeof(JigsawHuntingPhrogNodeTests), nameof(DeathAnimation)));
             harmony.Patch(AccessTools.Method(typeof(Cmd), nameof(Cmd.CustomScaledWait)),
                 postfix: new HarmonyMethod(typeof(JigsawHuntingPhrogNodeTests), nameof(ObserveWait)));
+            // Earlier backend calls may inline the native tracker callback into
+            // its event invocation. Scope UI mode at the delegate boundary,
+            // retaining the actual callback and every other listener's order.
+            ReplaceCreaturesChanged(nativeCreaturesChanged, NotifyCreaturesChanged);
         }
 
         internal async Task Mount(CombatRoom combat)
@@ -389,6 +434,7 @@ internal static class JigsawHuntingPhrogNodeTests
                 AccessTools.Field(typeof(NGame), "_screenShake").SetValue(game, previousShake);
                 AccessTools.Property(typeof(NGame), nameof(NGame.HotkeyManager)).SetValue(game, previousHotkeys);
                 AccessTools.Field(typeof(NRun), "_roomContainer").SetValue(run, previousContainer);
+                ReplaceCreaturesChanged(NotifyCreaturesChanged, nativeCreaturesChanged);
                 hotkeys.Free(); shake.Free(); roomContainer.Free();
                 current = null;
                 harmony.UnpatchAll(harmony.Id);
@@ -397,6 +443,27 @@ internal static class JigsawHuntingPhrogNodeTests
 
         internal bool Owns(Creature creature) => creature.CombatState == phrog.CombatState;
         internal bool IsPhrog(NCreature node) => node.Entity == phrog;
+
+        private void NotifyCreaturesChanged(CombatState state)
+        {
+            bool testing = TestMode.IsOn;
+            try
+            {
+                if (ReferenceEquals(state, combat) && ReferenceEquals(NGame.Instance, game) &&
+                    ReferenceEquals(NRun.Instance, run) &&
+                    ReferenceEquals(RunManager.Instance.DebugOnlyGetState(), combat.RunState)) TestMode.IsOn = false;
+                nativeCreaturesChanged(state);
+            }
+            finally { TestMode.IsOn = testing; }
+        }
+
+        private void ReplaceCreaturesChanged(Action<CombatState> before, Action<CombatState> after)
+        {
+            var field = AccessTools.Field(typeof(CombatManager), nameof(CombatManager.CreaturesChanged));
+            var callbacks = ((Action<CombatState>)field.GetValue(manager)!).GetInvocationList()
+                .Cast<Action<CombatState>>().Select(callback => callback == before ? after : callback).ToArray();
+            field.SetValue(manager, callbacks.Aggregate((Action<CombatState>?)null, (all, callback) => all + callback));
+        }
     }
 
     private static bool RoomInstance(ref NCombatRoom? __result)
