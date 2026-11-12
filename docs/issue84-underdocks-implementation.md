@@ -40,8 +40,16 @@
 
 两轴均排除未运行的 Matriarch 草稿，不据此声明 #84 整票完成。final-three-green 双版各3日志是实施方执行证据，审查者只读核对，非独立重跑。
 
+## Matriarch 生命切片（2026-11-13）
+
+在前述三项之外，Matriarch 原生多人生命减半及睡眠保持已执行红绿验证。实际 public 开场失败为 A0、1 人、受罚时预期 111/111，实际 222/222；记录在 `matriarch-red-public-host.log`。生产仅包装 `LagavulinMatriarch.AfterAddedToRoom`，等待原生 Sleep 完成，再对有效受罚的顶层 Underdocks `LagavulinMatriarchBoss` 调用 `CreatureCmd.SetMaxAndCurrentHp`。数值取原生已缩放最大生命的整数二分之一，不执行伤害、不更改 Min/MaxInitialHp 或现有普通/精英作用域。
+
+统一四用例回归使用同一 `Test.ps1 -Branch All -Filter 'Jigsaw hunting Underdocks' -SkipResourceExport` 命令，两个目标各通过 4 项，Build/Host 退出均为 0，EngineErrors、ModMetadataErrors 均为 0，FirstException、Preparation 为空。记录为 `.local/issue84-underdocks/matriarch-four-green-{public,public-beta}.log`，控制台摘要为 `matriarch-four-green-all.log`。新增用例通过真实 Boss 开场覆盖 A0/A7/A8 × 1–4 个角色 × 未受罚/受罚，对照普通原生多人缩放，断言最大/当前生命向下取整减半、Asleep 3、原生 Plating、睡眠状态与招式、无 DamageReceivedEntry。ToughEnemies 原生阈值是 A8，基础生命由 222 变为 233。
+
+此新增切片于2026-11-13完成独立双轴审查。两名只读审查者实际读取 `git diff --cached 936f557 -- src/Jigsaw/JigsawHuntingUnderdocks.cs src/Tests/JigsawHuntingUnderdocksTests.cs docs/issue84-underdocks-implementation.md`、相关源码和双版原生方法，未自行运行测试。Standards为0阻塞/0建议；Spec无当前切片错误或范围扩张，确认原生缩放后再减半、等待Sleep、不触发伤害/苏醒。事件同名/非Jigsaw的实际负例尚缺，左侧随从和整票其余规则仍待；当前源码边界经过检查不能代签这些运行路径。
+
 ## 尚未完成
 
-Matriarch 的原生多人生命减半及睡眠保持测试仍是未编译、未运行的草稿，不属于上述三项验证或提交范围。Matriarch 左侧既有 Lagavulin 随从、Soul Fysh、Waterfall Giant、Seapunk 等剩余规则仍待实现。
+Matriarch 左侧既有 Lagavulin 随从、Soul Fysh、Waterfall Giant、Seapunk 等剩余规则仍待实现。
 
 这些测试使用单人传输服务下的 1–4 个战斗角色；它们不证明四端点联机。public 宿主使用共享 beta PCK，不代表 public 正式资源验收。真实场景输入、目标选择和布局、整场战前/胜利恢复及最终整批 Check 需另行验证。

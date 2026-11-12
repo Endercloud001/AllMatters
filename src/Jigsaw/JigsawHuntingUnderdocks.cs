@@ -5,6 +5,7 @@ using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Acts;
+using MegaCrit.Sts2.Core.Models.Encounters;
 using MegaCrit.Sts2.Core.Models.Monsters;
 using MegaCrit.Sts2.Core.Models.Powers;
 using MegaCrit.Sts2.Core.Rooms;
@@ -61,6 +62,29 @@ internal static class JigsawHuntingUnderdocks
     }
 
     internal static bool ConsumeOpeningSkittish(SkittishPower power) => openingSkittish.Remove(power);
+
+    internal static bool IsHuntedMatriarchBoss(LagavulinMatriarch monster) =>
+        monster.CombatState.RunState is { Act: Underdocks, CurrentRoomCount: 1, CurrentRoom: CombatRoom room } native &&
+        room.ParentEventId == null && room.Encounter is LagavulinMatriarchBoss &&
+        ReferenceEquals(room.CombatState, monster.CombatState) && native.Players.FirstOrDefault() is { } player &&
+        JigsawHuntingNative.RootIsHunted(player);
+}
+
+[HarmonyPatch(typeof(LagavulinMatriarch), nameof(LagavulinMatriarch.AfterAddedToRoom))]
+internal static class JigsawHuntingMatriarchHealth
+{
+    private static void Postfix(LagavulinMatriarch __instance, ref Task __result)
+    {
+        if (JigsawHuntingUnderdocks.IsHuntedMatriarchBoss(__instance))
+            __result = HalveHealth(__result, __instance);
+    }
+
+    private static async Task HalveHealth(Task native, LagavulinMatriarch monster)
+    {
+        await native;
+        if (JigsawHuntingUnderdocks.IsHuntedMatriarchBoss(monster))
+            await CreatureCmd.SetMaxAndCurrentHp(monster.Creature, monster.Creature.MaxHp / 2);
+    }
 }
 
 [HarmonyPatch(typeof(SkulkingColony), nameof(SkulkingColony.AfterAddedToRoom))]

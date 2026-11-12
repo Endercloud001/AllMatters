@@ -21,7 +21,64 @@ internal static class JigsawHuntingUnderdocksTests
     internal static readonly (string Name, Func<Task> Test)[] Cases =
     [ ("Jigsaw hunting Underdocks Gardeners open with fixed nine and preserve slots moves and other Skittish sources", Gardeners),
       ("Jigsaw hunting Underdocks Skulking Colony keeps fixed shell twenty adds plating six and preserves native health and later sources", Colony),
-      ("Jigsaw hunting Underdocks Terror Eel adds weakness after original vulnerable to exactly the native targets", Eel) ];
+      ("Jigsaw hunting Underdocks Terror Eel adds weakness after original vulnerable to exactly the native targets", Eel),
+      ("Jigsaw hunting Underdocks Matriarch halves native scaled maximum and current health without waking", MatriarchHealth) ];
+
+    private static async Task MatriarchHealth()
+    {
+        var ordinary = new Dictionary<(int Players, int Ascension), (int Health, int Plating)>();
+        foreach (int ascension in new[] { 0, 7, 8 })
+        for (int count = 1; count <= 4; count++)
+        foreach (bool hunted in new[] { false, true })
+        {
+            var players = Enumerable.Range(1, count).Select(id =>
+                Player.CreateForNewRun(ModelDb.Character<Ironclad>(), UnlockState.all, (ulong)id)).ToArray();
+            var native = RunState.CreateForTest([players[0]], acts: [ModelDb.Act<Underdocks>()],
+                ascensionLevel: ascension, seed: "HUNTING84_MATRIARCH_HEALTH");
+            var manager = RunManager.Instance;
+            ulong? previousId = LocalContext.NetId;
+            manager.SetUpTest(native, new NetSingleplayerGameService()); LocalContext.NetId = 1;
+            try
+            {
+                var encounter = ModelDb.AllEncounters.Single(model =>
+                    model.AllPossibleMonsters.Any(monster => monster is LagavulinMatriarch)).ToMutable();
+                Check(encounter.RoomType == RoomType.Boss, "Use the actual native Matriarch Boss identity.");
+                var map = Root(hunted, JigsawRoom.Boss);
+                JigsawCheckpoint.Capture(native, map); JigsawNativeSession.Restore(native);
+                native.AppendToMapPointHistory(MapPointType.Boss, RoomType.Boss, encounter.Id);
+                for (int index = 1; index < players.Length; index++) native.AddPlayerDebug(players[index], index);
+                int historyStart = CombatManager.Instance.History.Entries.Count();
+                using (HeadlessCombatInProgress.EnterEvent())
+                    await manager.EnterRoom(new CombatRoom(encounter, native));
+                var room = (CombatRoom)native.CurrentRoom!;
+                var creature = room.CombatState.Enemies.Single(enemy => enemy.Monster is LagavulinMatriarch);
+                var matriarch = (LagavulinMatriarch)creature.Monster!;
+                int nativeBase = ascension < 8 ? 222 : 233;
+                Check(matriarch.MinInitialHp == nativeBase && matriarch.MaxInitialHp == nativeBase,
+                    "The native A0/A7/A8 health threshold remains unchanged before multiplayer creature scaling.");
+                if (!hunted)
+                {
+                    Check(creature.MaxHp == (int)MegaCrit.Sts2.Core.Entities.Creatures.Creature.ScaleHpForMultiplayer(
+                        nativeBase, encounter, count, native.CurrentActIndex),
+                        "The ordinary control uses the original native multiplayer-scaled health once.");
+                    ordinary[(count, ascension)] = (creature.MaxHp, creature.GetPowerAmount<PlatingPower>());
+                }
+                var baseline = ordinary[(count, ascension)];
+                int expected = hunted ? baseline.Health / 2 : baseline.Health;
+                Check(creature.MaxHp == expected && creature.CurrentHp == expected,
+                    $"players={count}, A{ascension}, hunted={hunted}: halve native scaled maximum/current HP with floor, expected={expected}, actual={creature.MaxHp}/{creature.CurrentHp}.");
+                Check(!matriarch.IsAwake && !matriarch.IsShellAwake && matriarch.NextMove.Id == "SLEEP_MOVE" &&
+                    creature.GetPowerAmount<AsleepPower>() == 3 && creature.GetPowerAmount<PlatingPower>() == baseline.Plating,
+                    "Health adjustment causes no wake-up and preserves the native sleeping move, Asleep and normal Plating scaling.");
+                Check(!CombatManager.Instance.History.Entries.Skip(historyStart).OfType<DamageReceivedEntry>().Any(),
+                    "The initial health adjustment never executes a damage command or records a damage event.");
+            }
+            finally
+            {
+                CombatManager.Instance.Reset(true); manager.CleanUp(false); LocalContext.NetId = previousId;
+            }
+        }
+    }
 
     private static async Task Eel()
     {
@@ -234,7 +291,8 @@ internal static class JigsawHuntingUnderdocksTests
             foreach (var edge in map.Edges.Where(edge => edge.Touches(current)))
             {
                 int next = edge.First == current ? edge.Second : edge.First;
-                if (map.Nodes.Single(node => node.Id == next).Room is not (JigsawRoom.Boss or JigsawRoom.SecondBoss) &&
+                if ((map.Nodes.Single(node => node.Id == next).Room == kind ||
+                     map.Nodes.Single(node => node.Id == next).Room is not (JigsawRoom.Boss or JigsawRoom.SecondBoss)) &&
                     previous.TryAdd(next, current)) pending.Enqueue(next);
             }
         int target = map.Nodes.First(node => node.Room == kind && previous.ContainsKey(node.Id)).Id;
