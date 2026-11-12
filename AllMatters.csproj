@@ -22,12 +22,6 @@
     <RitsuLibReferenceTarget Condition="'$(GameBranch)' == 'public-beta'">0.111.0</RitsuLibReferenceTarget>
   </PropertyGroup>
   <Import Project="$(RitsuLibDir)/RitsuLib.References.props" />
-  <PropertyGroup Condition="'$(CombatPerfCapture)' == 'true'">
-    <DefineConstants>$(DefineConstants);ALLMATTERS_PERF_CAPTURE</DefineConstants>
-  </PropertyGroup>
-  <ItemGroup Condition="'$(CombatPerfCapture)' == 'true'">
-    <AssemblyMetadata Include="CombatPerfCaptureOutputDir" Value="$(CombatPerfCaptureOutputDir)" />
-  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Godot.SourceGenerators" Version="4.5.1" PrivateAssets="all" />
     <Compile Include="src/**/*.cs" />
@@ -39,7 +33,6 @@
     <None Include="AllMatters.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <Target Name="CheckGameReferences" BeforeTargets="ResolveReferences">
-    <Error Condition="'$(CombatPerfCapture)' == 'true' and '$(CombatPerfCaptureOutputDir)' == ''" Text="Diagnostic capture requires an explicit project-local CombatPerfCaptureOutputDir." />
     <Error Condition="!Exists('$(GameDataDir)/sts2.dll')" Text="Set GameDataDir or the matching PublicGameDataDir/BetaGameDataDir in Paths.local.props. See docs/development.md." />
   </Target>
 </Project>

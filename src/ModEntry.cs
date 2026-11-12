@@ -13,9 +13,6 @@ public static class ModEntry
 
     public static void Initialize()
     {
-#if ALLMATTERS_PERF_CAPTURE
-        Diagnostics.CombatPerfCapture.Initialize();
-#endif
         Jigsaw.JigsawCheckpoint.Initialize();
         Jigsaw.JigsawEditorAction.Initialize();
         Jigsaw.JigsawNativeShopSync.Initialize();
