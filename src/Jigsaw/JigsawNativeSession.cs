@@ -124,6 +124,7 @@ public sealed class JigsawNativeSession
     private JigsawNativeSession(RunState native) { Native = native; netService = RunManager.Instance.NetService; netService.Disconnected += OnDisconnected; }
     public static JigsawNativeSession Enable(RunState native)
     {
+        JigsawCompatibility.RequireSupportedNewRun(native);
         if (native.Players.Count != 1)
         {
             var net = RunManager.Instance.NetService;
@@ -238,6 +239,7 @@ public sealed class JigsawNativeSession
         }
         if (data.Version is not (1 or 2) || data.Map == null || data.Act != native.CurrentActIndex || data.Version == 2 && data.Map.Hunting == null)
             throw new InvalidDataException("拼图检查点不完整，不能恢复为空地图。");
+        JigsawCompatibility.RequireSupportedCheckpoint(native);
         data.Map = JigsawHuntingMigration.FromLegacy(data.Map);
         var originals = native.Players.Select(p => p.NetId).ToArray();
         var mapData = data.Map.OriginalPlayers == null ? data.Map with { OriginalPlayers = originals } : data.Map;
