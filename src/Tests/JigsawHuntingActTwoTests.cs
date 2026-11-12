@@ -1,6 +1,8 @@
 using AllMatters.Jigsaw;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Combat;
+using MegaCrit.Sts2.Core.Hooks;
+using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Combat.History.Entries;
 using MegaCrit.Sts2.Core.Entities.CardRewardAlternatives;
 using MegaCrit.Sts2.Core.Factories;
@@ -28,12 +30,13 @@ internal static class JigsawHuntingActTwoTests
       ("Jigsaw hunting act two Knowledge attacks match native intents and A8 A9 damage", KnowledgeAttacks),
       ("Jigsaw hunting act two Knowledge first pair uses native player choice without adding display cards", KnowledgeFirstPair),
       ("Jigsaw hunting act two Knowledge second pair follows native cycle and applies Tender to its owner", KnowledgeSecondPair),
-      ("Jigsaw hunting act two Knowledge third pair uses twenty one and finishes the native three curse cycle", KnowledgeThirdPair) ];
+      ("Jigsaw hunting act two Knowledge third pair uses twenty one and finishes the native three curse cycle", KnowledgeThirdPair),
+      ("Jigsaw hunting act two Hive normal opening uses native power commands and preserves unrelated Weak", HiveNormalOpening) ];
 
     private static void Check(bool value, string reason) => NativeEventTests.Check(value, reason);
     private static void Ok(JigsawResult result) => Check(result.Success, result.Reason);
 
-    private static JigsawRun BossRoot(bool hunted, IEnumerable<ulong> players)
+    private static JigsawRun BossRoot(bool hunted, IEnumerable<ulong> players, JigsawRoom targetRoom = JigsawRoom.Boss)
     {
         var map = JigsawRun.Create(75, players: players);
         foreach (ulong player in map.ActivePlayers) Ok(map.ChooseEnd(player, EndChoice.Automatic));
@@ -51,6 +54,13 @@ internal static class JigsawHuntingActTwoTests
                 int next = edge.First == current ? edge.Second : edge.First;
                 if (previous.TryAdd(next, current)) queue.Enqueue(next);
             }
+        if (targetRoom != JigsawRoom.Boss)
+            boss = map.Nodes.Where(node => node.Room == targetRoom).OrderByDescending(node =>
+            {
+                int distance = 0;
+                for (int current = node.Id; current != 0; current = previous[current]) distance++;
+                return distance;
+            }).First().Id;
         var path = new List<int>();
         for (int node = boss; node != 0; node = previous[node]) path.Add(node);
         path.Reverse();
@@ -60,7 +70,7 @@ internal static class JigsawHuntingActTwoTests
             Ok(map.ConfirmEnter(entry.Id));
             if (node != boss) Ok(map.CompleteRoom(entry.Id));
         }
-        Check(map.CurrentRoomHunted == hunted, "Accepted map entry establishes the actual Boss root punishment.");
+        Check(map.CurrentRoomHunted == hunted, "Accepted map entry establishes the actual root punishment.");
         return map;
     }
 
@@ -250,6 +260,33 @@ internal static class JigsawHuntingActTwoTests
             battle.Monster.RollMove(battle.Combat.PlayerCreatures);
             Check(battle.Monster.NextMove.Id == "SLAP_MOVE" && selector.Rounds.Count == 3,
                 "After three curses, the actual native conditional branch returns to Slap without a fourth choice.");
+        }
+    }
+    private static async Task HiveNormalOpening()
+    {
+        foreach (bool hunted in new[] { false, true })
+        {
+            var player = Player.CreateForNewRun<Ironclad>(UnlockState.all, 1);
+            var run = RunState.CreateForTest([player], acts: [ModelDb.Act<Overgrowth>(), ModelDb.Act<Hive>()], seed: "HUNTING_85_HIVE_OPENING");
+            run.CurrentActIndex = 1;
+            using var battle = new HeadlessTestSetup.EncounterCombatScope(run, ModelDb.Encounter<SpinyToadNormal>().ToMutable());
+            run.PushRoom(new CombatRoom(battle.Combat));
+            JigsawCheckpoint.Capture(run, BossRoot(hunted, [player.NetId], JigsawRoom.Combat));
+            JigsawNativeSession.Restore(run);
+            Check(run.CurrentRoom is CombatRoom { ParentEventId: null } && JigsawHuntingNative.RootIsHunted(player) == hunted,
+                "The real native normal encounter consumes a matching accepted normal-room root.");
+            await Hook.BeforeCombatStart(run, battle.Combat);
+            Check(player.Creature.GetPowerAmount<WeakPower>() == (hunted ? 1 : 0) &&
+                player.Creature.GetPowerAmount<FrailPower>() == (hunted ? 1 : 0) &&
+                player.Creature.GetPowerAmount<VulnerablePower>() == (hunted ? 1 : 0),
+                "Hive normal's real initial hook gives exactly one Weak, Frail and Vulnerable per player only on a hunted root.");
+            var received = CombatManager.Instance.History.Entries.OfType<PowerReceivedEntry>()
+                .Where(entry => entry.Power is WeakPower or FrailPower or VulnerablePower).ToArray();
+            Check(received.Length == (hunted ? 3 : 0) && received.All(entry => entry.Amount == 1 && ReferenceEquals(entry.Actor, player.Creature)),
+                "The opening uses actual native power commands and history with its original player target.");
+            await PowerCmd.Apply<WeakPower>(new ThrowingPlayerChoiceContext(), player.Creature, 4, battle.Monster.Creature, null);
+            Check(player.Creature.GetPowerAmount<WeakPower>() == (hunted ? 5 : 4),
+                "A separate later Weak source on the same target retains its requested four stacks.");
         }
     }
     private static async Task KnowledgeAttacks()

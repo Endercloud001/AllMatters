@@ -47,7 +47,7 @@ Tender 图为用户提供的1,529,010字节原件 `tender.png`，按 #63 设计�
 
 ## 仍须完成
 
-- Hive 普通/精英开场规则、事件只普通增强；Crusher/Rocket 固定 Artifact3，保包围/方向及原效果、实际完整场地布局。普通开场仅有未运行测试草稿，尚无行为 red 或生产实现。
+- Hive 顶层普通开场已由下述增量实现；精英开场规则、事件只普通增强、Crusher/Rocket 固定 Artifact3及原包围/方向、实际完整场地布局仍待。
 - 真实1–4玩家逐 owner 选择、原生网络同步与独立完成；不能在 singleplayer 塞入多角色绕过会话边界。
 - 正式 Godot 选择屏的真实打开、选择、关闭/free、任务仅续一次、输入路由及回到战斗焦点；public需匹配其正式资源，beta PCK不能代签。Tender纹理、描述格式化和长文本布局仍待实际验证。
 - 入口前死亡、等待期间死亡/断线/缺席、重复/迟到选择、退出/恢复后的旧任务清理；原生远端 WaitForRemoteChoice 无取消token，Dispose仅注销handler，不能以局部关闭token声称安全。
@@ -55,3 +55,22 @@ Tender 图为用户提供的1,529,010字节原件 `tender.png`，按 #63 设计�
 - 最终双版组合检查、正式运行/人工设备验收及完整 #85 审查。Agent不启动Steam/游戏、不改实际安装或存档。
 
 后续每个独立行为继续先真实 red→最小 green，按主控分配的原生测试窗口串行验证。具体开发工作材料见忽略目录 `first-slice.md`、`curse-continuation-plan.md`、`hive-opening-next-slice.md` 和 `current-review-scope.md`。
+
+## Hive 普通开场增量（2026-11-13）
+
+以部分提交 `4641f0f` 为起点，在原生 `Hook.BeforeCombatStart(IRunState, ICombatState?)` 原 Task 完成后，对受罚 Hive 顶层普通战斗的实际 combat 玩家逐一经原生 PowerCmd 施加 Weak1、Frail1、Vulnerable1。限定当前原生 run、同一当前 CombatState、非事件普通房及权威根房受罚状态；不改变通用会话安全检查，不从面具或剩余步数推断。没有新增一次性标记或保存字段，沿用每场原生开场调用时机。精英、事件及蟹的后续规则未在本增量冒充实现。
+
+双版实际 API 查询：`Hook.BeforeCombatStart` public第220行/beta第311行，均先等待原生 BeforeCombatStart 与 BeforeCombatStartLate；CombatManager 原生首次调用位于public第273行/beta第594行。`SpinyToadNormal` 两版为真实 Hive 普通单怪遭遇，PowerCmd 对玩家的负面能力不走敌方多人缩放路径。
+
+真实 public red：`.local/issue85/hive-opening-red-public-host.log` 中 BuildExit0、HostExit1，合法受罚根绑定成功后，实际 hook 尚未给出三种能力，断言失败。无编译或夹具错误冒充行为 red。最小修复后，`hive-opening-green-all.log` 定向双版各1通过；统一 `tools/Test.ps1 -Branch All -Filter 'Jigsaw hunting act two' -SkipResourceExport` 的 `hive-opening-final-all.log` 退出0，双版各7通过。最终归档 `hive-opening-final-{public,public-beta}.log` 的 ReadTestLog 均 BuildExit0、HostExit0、EngineErrors0、ModMetadataErrors0，FirstException/FirstDiagnostic/PreparationFailure为空。
+
+新用例实际读取三种能力和原生 History（各一次Amount1、目标为玩家），未受罚对照均无附加；之后同目标另一原生命令施加 Weak4，实际总量安全4/受罚5，证明未全局替换其他来源。测试仍是单实际owner，使用真实 native Hook 和命令；未证明1–4正式联机、事件分支、实际界面、整场恢复或手动游戏验收。本增量仅精确暂存生产、测试及本记录供独立双轴审查，尚未提交或运行完整Check。
+
+### Hive 普通开场独立双轴审查
+
+2026-11-13，两名只读审查者分别检查 `git diff --cached 4641f0f -- src/Jigsaw/JigsawHuntingActTwo.cs src/Tests/JigsawHuntingActTwoTests.cs docs/issue85-hunting-implementation.md`，实际读取源码、仓库标准、规格和双版方法体，没有重跑测试。
+
+- Spec：当前顶层普通开场切片无阻塞项；符合 H 表 Weak/Frail/Vulnerable 各1，原Task后追加、当前run及CombatState身份和权威根房判定正确，独立Weak来源保留。1–4玩家、Artifact、完整开场调度及恢复后一次仍待后续验证。
+- Standards：无阻塞项。双版Harmony目标签名与实际调用已核，测试清理覆盖所有await。唯一非阻塞命名建议是将已扩展到普通房的测试helper `BossRoot`/局部`boss` 改为通用目标房名，避免误读；本次不为此改变已绿行为。
+
+本结论不覆盖知识恶魔旧六例的重新审查，也不代表 #85 整票完成。
