@@ -80,7 +80,7 @@ internal static class HelloWorldTests
                 .Concat(EventFeedbackTests.Cases).Concat(AmbrosiaTests.Cases)
                 .Concat(JungleMazeAdventureTests.Cases).Concat(WhisperingHollowTests.Cases).Concat(HolesTests.Cases).Concat(TeaTrialTests.Cases)
                 .Concat(NativeLockedOptionTests.Cases).Concat(NativeVegetationTests.Cases).Concat(JigsawDomainTests.Cases).Concat(JigsawNativeTests.Cases).Concat(JigsawPresentationTests.Cases)
-                .Concat(JigsawHuntingTests.Cases).Concat(JigsawHuntingNativeTests.Cases).Concat(JigsawHuntingTreasureTests.Cases).Concat(JigsawCompatibilityTests.Cases).Concat(JigsawFlightCompatibilityTests.Cases).Concat(JigsawCombatCheckpointTests.Cases).Concat(JigsawHuntingUnderdocksTests.Cases).Concat(JigsawRecoveryNetworkTests.Cases)
+                .Concat(JigsawHuntingTests.Cases).Concat(JigsawHuntingNativeTests.Cases).Concat(JigsawHuntingTreasureTests.Cases).Concat(JigsawCompatibilityTests.Cases).Concat(JigsawFlightCompatibilityTests.Cases).Concat(JigsawCombatCheckpointTests.Cases).Concat(JigsawHuntingUnderdocksTests.Cases).Concat(JigsawHuntingCombatTests.Cases).Concat(JigsawRecoveryNetworkTests.Cases)
                 .Concat(JigsawHuntingActTwoTests.Cases)
                 .Concat(JigsawHuntingActThreeTests.Cases)
                 .Concat(JigsawHuntingBossTests.Cases)
