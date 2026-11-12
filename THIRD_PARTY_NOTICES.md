@@ -144,3 +144,7 @@ Champion Belt icon and outline are resized from the same owned STS1 source entri
 ## Architect Mask (#82)
 
 `src/Resources/AllMatters/images/relics/architect_mask.png` is the unchanged user-provided `architect-mask.png` archived for the confirmed hunting design (#63, comment 6584771226). The project owner authorized its use in this implementation. The same image supplies the inventory, outline and large relic views. This attribution records the supplied artwork's provenance; the code's GPL license does not relicense the artwork.
+
+## Knowledge Demon Tender choice artwork (#85)
+
+`src/Resources/AllMatters/images/card_portraits/tender.png` is the unchanged user-provided `tender.png`, archived in `AllMatters_docs/research/assets/hunting/` for the confirmed hunting design (#63, comment 6584771226). The project owner authorized its use for the Knowledge Demon Tender display card. The 1,529,010-byte original is used without cropping, resizing or other image conversion. This entry records the supplied artwork's provenance and project use; the code's GPL license does not relicense the supplied artwork. Native Calamity artwork and native Tender ability text/effects are loaded from the installed game rather than redistributed here.

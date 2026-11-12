@@ -81,6 +81,7 @@ internal static class HelloWorldTests
                 .Concat(JungleMazeAdventureTests.Cases).Concat(WhisperingHollowTests.Cases).Concat(HolesTests.Cases).Concat(TeaTrialTests.Cases)
                 .Concat(NativeLockedOptionTests.Cases).Concat(NativeVegetationTests.Cases).Concat(JigsawDomainTests.Cases).Concat(JigsawNativeTests.Cases).Concat(JigsawPresentationTests.Cases)
                 .Concat(JigsawHuntingTests.Cases).Concat(JigsawHuntingNativeTests.Cases).Concat(JigsawHuntingTreasureTests.Cases).Concat(JigsawRecoveryNetworkTests.Cases)
+                .Concat(JigsawHuntingActTwoTests.Cases)
                 .Concat(JigsawRecoveryNetworkTests.RewardCases)
                 .Where(test => args.Length == 0 || test.Name.Contains(args[0], StringComparison.OrdinalIgnoreCase)).ToArray();
             Check(selected.Length > 0, "No test matches the supplied filter.");
