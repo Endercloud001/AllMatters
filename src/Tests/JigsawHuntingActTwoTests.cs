@@ -139,7 +139,7 @@ internal static class JigsawHuntingActTwoTests
             Check(battle.Monster.NextMove.Id == "CURSE_OF_KNOWLEDGE_MOVE", "The actual native initial action remains Curse of Knowledge.");
             int originalDeck = player.Deck.Cards.Count;
             var selector = new KnowledgeSecondOption();
-            using (CardSelectCmd.UseSelector(selector)) await battle.Monster.PerformMove();
+            using (HeadlessNativeApi.UseSelector(player.RunState, selector)) await battle.Monster.PerformMove();
             Check(selector.Calls == 1 && selector.Offered.All(card => ReferenceEquals(card.Owner, player) && card is KnowledgeDemon.IChoosable),
                 "The native action asks once for its original owner and both options can execute their native choice effect.");
             Check(hunted
@@ -173,7 +173,7 @@ internal static class JigsawHuntingActTwoTests
             player.Creature.SetCurrentHpInternal(2000);
             int originalDeck = player.Deck.Cards.Count;
             var selector = new KnowledgeSecondOption(firstOnFirst: true);
-            using (CardSelectCmd.UseSelector(selector))
+            using (HeadlessNativeApi.UseSelector(player.RunState, selector))
             {
                 foreach (string move in new[] { "CURSE_OF_KNOWLEDGE_MOVE", "SLAP_MOVE", "KNOWLEDGE_OVERWHELMING_MOVE", "PONDER_MOVE", "CURSE_OF_KNOWLEDGE_MOVE" })
                 {
@@ -230,7 +230,7 @@ internal static class JigsawHuntingActTwoTests
             player.Creature.SetCurrentHpInternal(4000);
             int originalDeck = player.Deck.Cards.Count;
             var selector = new KnowledgeCycleSelector(hunted, selected);
-            using (CardSelectCmd.UseSelector(selector))
+            using (HeadlessNativeApi.UseSelector(player.RunState, selector))
                 for (int round = 0; round < 3; round++)
                 {
                     foreach (string move in new[] { "CURSE_OF_KNOWLEDGE_MOVE", "SLAP_MOVE", "KNOWLEDGE_OVERWHELMING_MOVE", "PONDER_MOVE" })

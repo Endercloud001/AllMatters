@@ -236,7 +236,7 @@ internal static class CursedTomeTests
         var (player, other, combat) = CreateCombat();
         var book = await RelicCmd.Obtain<NilrysCodex>(player);
         var selector = new ChooseGenerated(player);
-        using (CardSelectCmd.UseSelector(selector))
+        using (HeadlessNativeApi.UseSelector(player.RunState, selector))
         {
             await book.BeforeFlushLate(new ThrowingPlayerChoiceContext(), other);
             Check(selector.Calls == 0, "Teammate flush must not offer cards.");

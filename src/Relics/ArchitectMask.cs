@@ -10,7 +10,11 @@ namespace AllMatters.Relics;
 public sealed class ArchitectMask : ModRelicTemplate
 {
     public override RelicRarity Rarity => RelicRarity.Event;
+#if STS2_PUBLIC
     public override bool IsAllowed(IRunState runState) => false;
+#else
+    protected override bool IsAllowedInternal(IRunState runState) => false;
+#endif
     public override bool IsAllowedInShops => false;
     public override RelicAssetProfile AssetProfile => new(
         IconPath: "res://AllMatters/images/relics/architect_mask.png",

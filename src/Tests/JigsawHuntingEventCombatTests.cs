@@ -128,7 +128,7 @@ internal static class JigsawHuntingEventCombatTests
 
     private static async Task SecondBattle(bool victory = false)
     {
-        using var selector = CardSelectCmd.UseSelector(new JigsawHuntingCombatTests.TakeCardReward());
+        using var selector = HeadlessNativeApi.UseSelector(new JigsawHuntingCombatTests.TakeCardReward());
         using var atlases = HeadlessTestSetup.LoadAtlases("card_atlas", "relic_atlas", "ui_atlas", "compressed");
         using var events = HeadlessCombatInProgress.EnterEvent();
         var native = RunState.CreateForTest([Player.CreateForNewRun(ModelDb.Character<Ironclad>(), UnlockState.all, 1)],
@@ -170,7 +170,7 @@ internal static class JigsawHuntingEventCombatTests
             AccessTools.Property(native.Players[0].PlayerCombatState!.GetType(), "TurnNumber")
                 .SetValue(native.Players[0].PlayerCombatState, 1);
             await (Task)AccessTools.Method(typeof(CombatManager), "EndCombatInternal", Type.EmptyTypes).Invoke(CombatManager.Instance, null)!;
-            await manager.ProceedFromTerminalRewardsScreen();
+            await HeadlessNativeApi.Proceed(manager);
             await manager.EventSynchronizer.AwaitPendingOptionTasks();
             Check(native.CurrentRoom is EventRoom && model.CurrentOptions.Count == 2,
                 "Actual native victory and Resume return the same event to intermission.");

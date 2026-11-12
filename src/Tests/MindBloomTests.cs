@@ -200,7 +200,7 @@ internal static class MindBloomTests
                         LocalContext.NetId = player.NetId;
                         int beforeCards = player.Deck.Cards.Count;
                         var selector = new ChooseReward(player == second);
-                        using (CardSelectCmd.UseSelector(selector)) await cards.SelectUnsynchronized();
+                        using (HeadlessNativeApi.UseSelector(player.RunState, selector)) await cards.SelectUnsynchronized();
                         Check(player.Deck.Cards.Count == beforeCards + (player == second ? 0 : 1), "Native card reward must support both choosing and skipping.");
                         LocalContext.NetId = localId;
                     }

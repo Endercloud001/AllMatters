@@ -78,7 +78,7 @@ internal static class NativeSelectionTests
             var e = await NativeEventTests.Begin<WhisperingHollow>(p);
             int cost = e.DynamicVars.HpLoss.IntValue, hp = p.Creature.CurrentHp;
             var selected = p.Deck.Cards.Take(cost / 9).ToArray();
-            using (CardSelectCmd.UseSelector(new NativeEventTests.Select(selected))) await e.CurrentOptions[1].Chosen();
+            using (HeadlessNativeApi.UseSelector(p.RunState, new NativeEventTests.Select(selected))) await e.CurrentOptions[1].Chosen();
             NativeEventTests.Check(cost is 9 or 18 && p.Creature.CurrentHp == hp - cost && selected.All(c => !p.Deck.Cards.Contains(c)) && e.IsFinished,
                 "Displayed9/18 cost must accompany exactly one/two selected transformations.");
             NativeEventTests.Check(e.DynamicVars.Gold.IntValue is >= 16 and <= 34, "Gold option must show16–34.");
@@ -95,7 +95,7 @@ internal static class NativeSelectionTests
             if (!e.CurrentOptions[1].TextKey.EndsWith(".AM_UPGRADE_1")) continue;
             NativeEventTests.Check(e.CurrentOptions[2].TextKey.EndsWith(".AM_UPGRADE_2"), "A single branch roll must replace both options.");
             var selected = p.Deck.Cards.Take(2).ToArray();
-            using (CardSelectCmd.UseSelector(new NativeEventTests.Select(selected))) await e.CurrentOptions[2].Chosen();
+            using (HeadlessNativeApi.UseSelector(p.RunState, new NativeEventTests.Select(selected))) await e.CurrentOptions[2].Chosen();
             NativeEventTests.Check(e.IsFinished && p.Gold == 0 && selected.All(c => c.IsUpgraded && p.Deck.Cards.Contains(c)), "Upgrade the selected two, then pay250.");
             var shortage = NativeEventTests.Player("ZEN" + i); shortage.Gold = 250;
             foreach (var c in shortage.Deck.Cards) { c.UpgradeInternal(); c.FinalizeUpgradeInternal(); }
@@ -168,7 +168,7 @@ internal static class NativeSelectionTests
         var p = NativeEventTests.Player(); p.Creature.SetMaxHpInternal(83); p.Creature.SetCurrentHpInternal(30);
         var e = await NativeEventTests.Begin<LostWisp>(p);
         var target = p.Deck.Cards[0];
-        using (CardSelectCmd.UseSelector(new NativeEventTests.Select(target))) await e.CurrentOptions.Single(o => o.TextKey.EndsWith(".AM_BURN")).Chosen();
+        using (HeadlessNativeApi.UseSelector(p.RunState, new NativeEventTests.Select(target))) await e.CurrentOptions.Single(o => o.TextKey.EndsWith(".AM_BURN")).Chosen();
         NativeEventTests.Check(e.IsFinished && p.Creature.CurrentHp == 22 && !p.Deck.Cards.Contains(target), "Native10 percent rounds83 to8 loss and removes selected card.");
         foreach (var card in p.Deck.Cards.ToArray()) p.Deck.RemoveInternal(card);
         e = await NativeEventTests.Begin<LostWisp>(p);

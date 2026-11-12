@@ -79,7 +79,7 @@ internal static class TrashHeapColorlessTests
             var (p,combat)=NativeEventTests.Combat();var card=combat.CreateCard<AllMatters.Cards.ForeignInfluence>(p);
             if(upgraded) CardCmd.Upgrade(card);
             var selector=new Choose(upgraded);
-            using(CardSelectCmd.UseSelector(selector)) await card.OnPlayWrapper(new ThrowingPlayerChoiceContext(),null,true,default,skipCardPileVisuals:true);
+            using(HeadlessNativeApi.UseSelector(p.RunState, selector)) await card.OnPlayWrapper(new ThrowingPlayerChoiceContext(),null,true,default,skipCardPileVisuals:true);
             var chosen=p.PlayerCombatState!.Hand.Cards.Single();
             NativeEventTests.Check(selector.Calls==1 && chosen.EnergyCost.GetAmountToSpend()==0 && chosen.IsUpgraded==upgraded,"One native discovery creates the chosen card free this turn.");
         }

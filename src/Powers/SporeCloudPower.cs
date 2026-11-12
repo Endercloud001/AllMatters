@@ -3,6 +3,7 @@ using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Entities.Powers;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Models.Powers;
+using MegaCrit.Sts2.Core.Models;
 using STS2RitsuLib.Interop.AutoRegistration;
 using STS2RitsuLib.Scaffolding.Content;
 
@@ -22,6 +23,9 @@ public sealed class SporeCloudPower : ModPowerTemplate
     public override bool ShouldStopCombatFromEnding() => true;
 
     public override async Task AfterDeath(PlayerChoiceContext choiceContext, Creature target,
+#if !STS2_PUBLIC
+        CardModel? source,
+#endif
         bool wasRemovalPrevented, float deathAnimLength)
     {
         if (target != Owner || wasRemovalPrevented)

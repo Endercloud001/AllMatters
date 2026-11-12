@@ -862,7 +862,7 @@ internal static class JigsawNativeTests
                 "POMANDER"
 #endif
             );
-            using(MegaCrit.Sts2.Core.Commands.CardSelectCmd.UseSelector(new NativeEventTests.Select(native.Players[0].Deck.Cards.First()))) await option.Chosen();
+            using(global::HeadlessNativeApi.UseSelector(new NativeEventTests.Select(native.Players[0].Deck.Cards.First()))) await option.Chosen();
             JigsawAncientRewardBoundaryHost.BeforeDone = null;
             Require(ancient.IsFinished && session.AncientReady && map.Phase==JigsawPhase.Exploring,"Real native option completion directly begins exploration without a Continue click.");
             if(laggedAncient)
@@ -890,7 +890,7 @@ internal static class JigsawNativeTests
                 Require(recovered.Map!.Placements.SequenceEqual(map.Placements) && !recovered.AncientReady,
                     "Native reload preserves the accepted map and reopens the unfinished Ancient choice.");
                 var restoredAncient = RunManager.Instance.EventSynchronizer.GetLocalEvent();
-                using (MegaCrit.Sts2.Core.Commands.CardSelectCmd.UseSelector(new NativeEventTests.Select(rollback.Players[0].Deck.Cards.First())))
+                using (global::HeadlessNativeApi.UseSelector(new NativeEventTests.Select(rollback.Players[0].Deck.Cards.First())))
                     await restoredAncient.CurrentOptions.Single(o => o.Relic?.Id.Entry == choice).Chosen();
                 var actualPlayer = System.Text.Json.JsonSerializer.Serialize(rollback.Players[0].ToSerializable());
                 var expected = JsonNode.Parse(completeReward)!.AsObject(); var actual = JsonNode.Parse(actualPlayer)!.AsObject();
@@ -1094,7 +1094,7 @@ internal static class JigsawNativeTests
                 var skip=new MegaCrit.Sts2.Core.GameActions.PickRelicAction(restored.Players[0],null);
                 skip.OnEnqueued(_=>{},1);
                 await skip.Execute();
-                await RunManager.Instance.ProceedFromTerminalRewardsScreen();
+                await HeadlessNativeApi.Proceed(RunManager.Instance);
                 mapScreen.Open();
                 Require(resumedMap.CurrentNode==null && resumedMap.Completed.Contains(1) && resumedMap.Steps==1,"Native skip/proceed/map completion marks the first room complete without another step.");
                 await resumed.WaitForSave();

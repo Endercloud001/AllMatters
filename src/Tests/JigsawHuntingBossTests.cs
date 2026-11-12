@@ -22,7 +22,17 @@ internal static class JigsawHuntingBossTests
     [ ("Jigsaw hunting Boss Aeonglass initializes independent twelve card counters without Artifact", AeonglassOpening),
       ("Jigsaw hunting Boss Aeonglass mixed owner twelfth plays generate five ordered statuses and reset displays", AeonglassPlays),
       ("Jigsaw hunting Boss Test Subject first real revival replaces only its phase two grants", TestSubjectFirstRevival),
-      ("Jigsaw hunting Boss Test Subject native second revival and nine complete player turns", TestSubjectTurns) ];
+      ("Jigsaw hunting Boss Test Subject native second revival and nine complete player turns", TestSubjectTurns),
+      ("Jigsaw hunting Boss Test Subject native startup after a completed prior room teardown", TestSubjectAfterPriorRoom) ];
+
+    private static async Task TestSubjectAfterPriorRoom()
+    {
+        // Keep the actual room-loaded -> teardown path in the same process:
+        // public retains the cancelled token after the previous combat resets.
+        await JigsawHuntingNativeTests.Cases.Single(test => test.Name ==
+            "Jigsaw hunting native zero selection saves and enters first Boss punished").Test();
+        await TestSubjectTurns();
+    }
 
     private static Creature? heldSubject;
     private static TaskCompletionSource? revivalReached;
@@ -42,6 +52,10 @@ internal static class JigsawHuntingBossTests
     }
 
     private static bool SkipCombatFtue(ref bool __result) { __result = true; return false; }
+#if STS2_PUBLIC
+    private static Task? nativeStartup;
+    private static void CaptureNativeStartup(Task __result) => nativeStartup = __result;
+#endif
 
     private static async Task Until(Func<bool> ready, string reason)
     {
@@ -57,6 +71,10 @@ internal static class JigsawHuntingBossTests
             prefix: new HarmonyLib.HarmonyMethod(typeof(JigsawHuntingBossTests), nameof(SkipCombatFtue)));
         patch.Patch(HarmonyLib.AccessTools.Method(typeof(CreatureCmd), nameof(CreatureCmd.SetMaxHp)),
             prefix: new HarmonyLib.HarmonyMethod(typeof(JigsawHuntingBossTests), nameof(HoldSecondRevival)));
+#if STS2_PUBLIC
+        patch.Patch(HarmonyLib.AccessTools.Method(typeof(CombatManager), nameof(CombatManager.StartCombatInternal)),
+            postfix: new HarmonyLib.HarmonyMethod(typeof(JigsawHuntingBossTests), nameof(CaptureNativeStartup)));
+#endif
         try
         {
           for (int count = 1; count <= 4; count++)
@@ -85,10 +103,14 @@ internal static class JigsawHuntingBossTests
             try
             {
 #if STS2_PUBLIC
-            start = manager.StartCombatInternal();
+            nativeStartup = null;
+            // The real room-loaded entry creates the current combat's token;
+            // direct startup would reuse a prior combat's cancelled token.
+            manager.AfterCombatRoomLoaded();
+            start = nativeStartup ?? throw new InvalidOperationException("Native combat startup task was not captured.");
 #else
-            var turnState = HarmonyLib.AccessTools.Field(typeof(CombatManager), "_turnState").GetValue(manager);
-            start = (Task)HarmonyLib.AccessTools.Method(typeof(CombatManager), "StartCombatInternal").Invoke(manager, [turnState])!;
+            manager.AfterCombatRoomLoaded();
+            start = (Task)HarmonyLib.AccessTools.Field(typeof(CombatManager), "_turnLoopTask").GetValue(manager)!;
 #endif
             await Until(() => readyRound == battle.Combat.RoundNumber && players.All(player => PileType.Hand.GetPile(player).Cards.Count == 5), "The one real native coordinator completes its first five-card player setup.");
             for (int phase = 1; phase <= 2; phase++)

@@ -437,7 +437,10 @@ internal static class JigsawHuntingTreasureTests
 #if STS2_PUBLIC
             collection.Initialize(session.Native);
 #endif
-            Task began = collection.RelicPickingBegan(), finished = collection.RelicPickingFinished();
+            Task finished = collection.RelicPickingFinished();
+#if STS2_PUBLIC
+            Task began = collection.RelicPickingBegan();
+#endif
 #if STS2_PUBLIC
             // The bundled host has beta room art. Exercise public's real collection
             // contract, without calling its incompatible whole-room chest skin code.
@@ -448,7 +451,11 @@ internal static class JigsawHuntingTreasureTests
             Task open = (Task)AccessTools.Method(typeof(NTreasureRoom), "OpenChest").Invoke(root, null)!;
 #endif
             if (open.IsFaulted) await open;
-            Check(!began.IsCompleted && !finished.IsCompleted && !open.IsCompleted,
+            Check(
+#if STS2_PUBLIC
+                !began.IsCompleted &&
+#endif
+                !finished.IsCompleted && !open.IsCompleted,
                 "The actual native open starts with unfinished empty collection notifications.");
             var tree = (SceneTree)Engine.GetMainLoop();
             await tree.ToSignal(tree.CreateTimer(0.15), SceneTreeTimer.SignalName.Timeout);
@@ -457,7 +464,11 @@ internal static class JigsawHuntingTreasureTests
             Check(!JigsawNativeExploration.NativeFlowFinished(session, 1), "The actual pending OpenChest task prevents an early local completion during the real Tween.");
 #endif
             await open.WaitAsync(TimeSpan.FromSeconds(10));
-            Check(began.IsCompletedSuccessfully && finished.IsCompletedSuccessfully
+            Check(
+#if STS2_PUBLIC
+                began.IsCompletedSuccessfully &&
+#endif
+                finished.IsCompletedSuccessfully
 #if !STS2_PUBLIC
                 && root.ProceedButton.IsEnabled
 #endif

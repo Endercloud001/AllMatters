@@ -31,19 +31,29 @@ internal static class JigsawHuntingPurchase
 {
     private static IEnumerable<MethodBase> TargetMethods()
     {
+#if STS2_PUBLIC
         yield return AccessTools.Method(typeof(MerchantEntry), nameof(MerchantEntry.OnTryPurchaseWrapper));
         yield return AccessTools.Method(typeof(MerchantCardRemovalEntry), nameof(MerchantCardRemovalEntry.OnTryPurchaseWrapper), [typeof(MerchantInventory), typeof(bool), typeof(bool)]);
+#else
+        yield return AccessTools.Method(typeof(MerchantEntry), nameof(MerchantEntry.OnTryPurchaseUnsynchronized));
+        yield return AccessTools.Method(typeof(MerchantSynchronizer), nameof(MerchantSynchronizer.PurchaseLocalEntry));
+#endif
     }
-    private static bool Prefix(MerchantEntry __instance, ref Task<bool> __result)
+    private static bool Prefix(object __instance, object[] __args, ref Task<bool> __result)
     {
-        if (!JigsawHuntingServices.ShopBlocked(JigsawHuntingServices.MerchantOwner(__instance)))
+        var entry = __instance as MerchantEntry ?? (MerchantEntry)__args[0];
+        if (!JigsawHuntingServices.ShopBlocked(JigsawHuntingServices.MerchantOwner(entry)))
             return true;
         __result = Task.FromResult(false);
         return false;
     }
 }
 
+#if STS2_PUBLIC
 [HarmonyPatch(typeof(OneOffSynchronizer), "DoMerchantCardRemoval")]
+#else
+[HarmonyPatch(typeof(MerchantCardRemovalEntry), nameof(MerchantCardRemovalEntry.DoCardRemoval))]
+#endif
 internal static class JigsawHuntingRemovalReceiver
 {
     private static bool Prefix(Player player, ref Task<bool> __result)
@@ -55,6 +65,7 @@ internal static class JigsawHuntingRemovalReceiver
     }
 }
 
+#if STS2_PUBLIC
 [HarmonyPatch(typeof(OneOffSynchronizer), nameof(OneOffSynchronizer.DoLocalMerchantCardRemoval))]
 internal static class JigsawHuntingRemovalSender
 {
@@ -67,6 +78,7 @@ internal static class JigsawHuntingRemovalSender
         return false;
     }
 }
+#endif
 
 [HarmonyPatch]
 internal static class JigsawHuntingShopAppearance

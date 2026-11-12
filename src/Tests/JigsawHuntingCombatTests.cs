@@ -44,7 +44,7 @@ internal static class JigsawHuntingCombatTests
 
     private static async Task ForestEntry(bool restoreBattle = false, bool victory = false)
     {
-        using var selector = CardSelectCmd.UseSelector(new TakeCardReward());
+        using var selector = HeadlessNativeApi.UseSelector(new TakeCardReward());
         using var atlases = HeadlessTestSetup.LoadAtlases("card_atlas", "relic_atlas", "ui_atlas", "compressed");
         using var eventScope = HeadlessCombatInProgress.EnterEvent();
         var native = RunState.CreateForTest(

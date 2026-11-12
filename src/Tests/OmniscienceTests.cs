@@ -46,7 +46,7 @@ internal static class OmniscienceTests
                 var selector=new Choose(source,new[]{selected,a,b}.OfType<CardModel>().ToArray());
                 int enemyHp=target.CurrentHp+second.CurrentHp;
                 int energy=p.PlayerCombatState!.Energy,hp=p.Creature.CurrentHp;
-                using(CardSelectCmd.UseSelector(selector)) await CardCmd.AutoPlay(ctx,source,null,skipCardPileVisuals:true);
+                using(HeadlessNativeApi.UseSelector(p.RunState, selector)) await CardCmd.AutoPlay(ctx,source,null,skipCardPileVisuals:true);
                 NativeEventTests.Check(p.PlayerCombatState.Energy==energy,"No extra energy is spent on automatic repeats: "+scenario);
                 NativeEventTests.Check(p.PlayerCombatState.ExhaustPile.Cards.Contains(source) && (scenario=="power" ? selected.Pile==null : p.PlayerCombatState.ExhaustPile.Cards.Contains(selected)),"Source and selected card end in Exhaust: "+scenario);
                 int damage=enemyHp-target.CurrentHp-second.CurrentHp;

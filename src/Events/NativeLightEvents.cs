@@ -59,7 +59,13 @@ internal static class NativeLightOptions
             case SpiralingWhirlpool:
                 options.Add(NativeEventActions.Option(model, "SPIRALING_WHIRLPOOL.pages.INITIAL.options.AM_REACH", async () =>
                 {
-                    await RelicCmd.Obtain(RelicFactory.PullNextRelicFromFront(model.Owner!).ToMutable(), model.Owner!);
+                    await RelicCmd.Obtain(RelicFactory.
+#if STS2_PUBLIC
+                        PullNextRelicFromFront(model.Owner!)
+#else
+                        PullNextRelicForRewardFromFront(model.Owner!)
+#endif
+                        .ToMutable(), model.Owner!);
                     await CardPileCmd.AddCurseToDeck<Writhe>(model.Owner!);
                     NativeEventActions.Finish(model, "SPIRALING_WHIRLPOOL.pages.AM_REACH.description");
                 }, HoverTipFactory.FromCardWithCardHoverTips<Writhe>().ToArray()));

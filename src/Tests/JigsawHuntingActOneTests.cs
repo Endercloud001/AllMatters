@@ -10,7 +10,9 @@ using MegaCrit.Sts2.Core.Models.Acts;
 using MegaCrit.Sts2.Core.Models.Characters;
 using MegaCrit.Sts2.Core.Models.Monsters;
 using MegaCrit.Sts2.Core.Models.Powers;
+#if STS2_PUBLIC
 using MegaCrit.Sts2.Core.Models.Singleton;
+#endif
 using MegaCrit.Sts2.Core.Multiplayer;
 using MegaCrit.Sts2.Core.Map;
 using MegaCrit.Sts2.Core.Rooms;

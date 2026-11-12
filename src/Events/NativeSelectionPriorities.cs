@@ -20,7 +20,13 @@ internal static class NativeLightPriority
     private static bool Prefix(DoorsOfLightAndDark __instance, ref Task __result)
     {
         var cards = __instance.Owner!.Deck.Cards.Where(c => c.IsUpgradable).ToList().StableShuffle(__instance.Rng)
-            .OrderBy(c => c.Rarity == CardRarity.Basic ? 1 : 0).Take(__instance.DynamicVars.Cards.IntValue);
+            .OrderBy(c => c.Rarity == CardRarity.Basic ? 1 : 0).Take(
+#if STS2_PUBLIC
+                __instance.DynamicVars.Cards.IntValue
+#else
+                2 // The two-card Mod option remains, although native Light now selects one.
+#endif
+                );
         foreach (var card in cards)
             CardCmd.Upgrade(card);
         NativeEventActions.Finish(__instance, "DOORS_OF_LIGHT_AND_DARK.pages.LIGHT.description");

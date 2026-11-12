@@ -18,8 +18,10 @@ internal static class JigsawMerchantExitTests
 {
     internal const string Name = "Jigsaw second act merchant native exit permits actual map input";
     private static NMapScreen? mapScreen;
+    private static bool merchantFtueShown;
     private static bool MapInstance(ref NMapScreen __result) { __result = mapScreen!; return false; }
-    private static bool SeenMerchant(ref bool __result) { __result = false; return false; }
+    private static bool SeenMerchant(ref bool __result) { __result = merchantFtueShown; return false; }
+    private static bool SkipVanillaMapVisuals() => false;
     internal static async Task Run() { await Run(false); await Run(true); }
     private static async Task Run(bool topBar)
     {
@@ -36,8 +38,15 @@ internal static class JigsawMerchantExitTests
         JigsawNativeSaveHost.Save = _ => Task.CompletedTask;
         var harmony = new Harmony("AllMatters.Tests.MerchantExit");
         JigsawScreen? view = null; JigsawNativeMapUiHost? nativeUi = null;
-        using var merchantView = new NMerchantRoom();
+        using var merchantView = new
+#if STS2_PUBLIC
+            NMerchantRoom()
+#else
+            NStandardMerchantRoom()
+#endif
+        ;
         mapScreen = new NMapScreen();
+        AccessTools.Field(typeof(NMapScreen), "_runState").SetValue(mapScreen, native);
         try
         {
             native.CurrentActIndex = 1;
@@ -54,25 +63,46 @@ internal static class JigsawMerchantExitTests
             Require(native.CurrentRoom is MerchantRoom, "Enter a real merchant room.");
             player.Gold = 20000;
             var merchantRoom = (MerchantRoom)native.CurrentRoom!;
-            var inventory = merchantRoom.Inventories.Single();
+            var inventory = merchantRoom.Inventories().Single();
             int deck = player.Deck.Cards.Count;
-            Require(await inventory.CardEntries.First().OnTryPurchaseWrapper(inventory) && player.Deck.Cards.Count == deck + 1, "Perform a real native purchase before leaving.");
+            Require(await inventory.CardEntries.First().PurchaseUnsynchronized(inventory) && player.Deck.Cards.Count == deck + 1, "Perform a real native purchase before leaving.");
             nativeUi = new();
             view = await nativeUi.Open(session);
             view.Hide();
-            // Only global scene lookup and account FTUE persistence are supplied by the host;
-            // the real merchant callback, map interception and engine input remain production.
+            // Supply global scene lookup, account FTUE state and vanilla map visuals only;
+            // native travel hooks, Proceed, map interception and mod input remain real.
             harmony.Patch(AccessTools.PropertyGetter(typeof(NMapScreen), nameof(NMapScreen.Instance)), prefix: new HarmonyMethod(typeof(JigsawMerchantExitTests), nameof(MapInstance)));
             harmony.Patch(AccessTools.Method(typeof(NMerchantRoom), "MerchantFtueCheck"), prefix: new HarmonyMethod(typeof(JigsawMerchantExitTests), nameof(SeenMerchant)));
+            harmony.Patch(AccessTools.Method(typeof(NMapScreen), "RefreshAllPointVisuals"), prefix: new HarmonyMethod(typeof(JigsawMerchantExitTests), nameof(SkipVanillaMapVisuals)));
             AccessTools.Property(typeof(NMapScreen), nameof(NMapScreen.IsTravelEnabled)).SetValue(mapScreen, true);
-            if (topBar) mapScreen.Open(true); else AccessTools.Method(typeof(NMerchantRoom), "HideScreen").Invoke(merchantView, [null]);
+#if !STS2_PUBLIC
+            if (!topBar)
+            {
+                merchantFtueShown = true;
+                AccessTools.Method(typeof(NMerchantRoom), "OnProceedButtonReleased").Invoke(merchantView, [null]);
+                Require(!JigsawNativeExploration.MarkLocalExit(session, true),
+                    "Showing merchant FTUE must not authorize native merchant completion.");
+                mapScreen.Open(true);
+                Require(view.Visible && view.CanReturnToRoom && map.CurrentNode == 1 && map.RoomCompletedPlayers.Count == 0,
+                    "After the first native Proceed shows FTUE, opening the map remains a preview of the unfinished shop.");
+                mapScreen.Open(true);
+            }
+#endif
+            merchantFtueShown = false;
+            if (topBar) mapScreen.Open(true); else AccessTools.Method(typeof(NMerchantRoom),
+#if STS2_PUBLIC
+                "HideScreen"
+#else
+                "OnProceedButtonReleased"
+#endif
+                ).Invoke(merchantView, [null]);
             if (topBar)
             {
                 Require(view.Visible && view.CanReturnToRoom && map.CurrentNode == 1 && map.RoomCompletedPlayers.Count == 0, "Opening the merchant map does not leave or complete the shop.");
                 mapScreen.Open(true);
                 Require(!view.Visible && ReferenceEquals(native.CurrentRoom, merchantRoom), "The top-bar map closes back to the still-open merchant room.");
                 int cardsBefore = player.Deck.Cards.Count;
-                Require(await inventory.CardEntries.ElementAt(1).OnTryPurchaseWrapper(inventory) && player.Deck.Cards.Count == cardsBefore + 1, "Returning from a map preview permits another real purchase.");
+                Require(await inventory.CardEntries.ElementAt(1).PurchaseUnsynchronized(inventory) && player.Deck.Cards.Count == cardsBefore + 1, "Returning from a map preview permits another real purchase.");
                 mapScreen.Open(true);
             }
             else Require(view.Visible && !view.CanReturnToRoom && map.CurrentNode == null, "The native proceed callback completes the local merchant.");

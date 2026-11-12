@@ -97,7 +97,7 @@ internal static class LibraryTests
                 return cards[3];
             });
             var options = model.CurrentOptions.ToArray();
-            using (CardSelectCmd.UseSelector(selector)) await options[0].Chosen();
+            using (HeadlessNativeApi.UseSelector(player.RunState, selector)) await options[0].Chosen();
             foreach (var option in options) await option.Chosen();
             Check(player.Deck.Cards.Count == before + 1 && ReferenceEquals(player.Deck.Cards.Last(), selector.Selected) && model.IsFinished,
                 "Add exactly the selected instance once, with stale choices ignored.");
@@ -116,7 +116,7 @@ internal static class LibraryTests
         player.Deck.AddInternal(twin);
         var model = await Begin(player);
         var clean = model.CurrentOptions.Single(option => option.TextKey.EndsWith(".CLEAN"));
-        using (CardSelectCmd.UseSelector(new Choose(cards =>
+        using (HeadlessNativeApi.UseSelector(player.RunState, new Choose(cards =>
         {
             Check(cards.Length == 2 && cards.Contains(target) && cards.Contains(twin), "Only legal attack instances should be offered.");
             return target;
@@ -133,7 +133,7 @@ internal static class LibraryTests
         var bottle = player.Relics.Single(relic => relic.Id.Entry == "ALL_MATTERS_BOTTLED_FLAME");
         await RelicCmd.Remove(bottle);
         Check(!target.Keywords.Contains(CardKeyword.Innate) && target.IsRemovable, "Losing the bottle removes only its grant and protection.");
-        using (CardSelectCmd.UseSelector(new Choose(_ => target))) await RelicCmd.Obtain<BottledFlame>(player);
+        using (HeadlessNativeApi.UseSelector(player.RunState, new Choose(_ => target))) await RelicCmd.Obtain<BottledFlame>(player);
         target.AddKeyword(CardKeyword.Innate);
         await RelicCmd.Remove(player.Relics.OfType<BottledFlame>().Single());
         Check(target.Keywords.Contains(CardKeyword.Innate), "A later independent local Innate grant survives losing the bottle in the same session.");
@@ -163,7 +163,7 @@ internal static class LibraryTests
                     Check(options.All(card => LibraryPoolPreparation.Allowed.Contains(card.Id)), "Do not relax eligibility to fill the grid.");
                     return options[0];
                 });
-                using (CardSelectCmd.UseSelector(selector)) await read.Chosen();
+                using (HeadlessNativeApi.UseSelector(player.RunState, selector)) await read.Chosen();
                 Check(player.Deck.Cards.Count == before + (count == 0 ? 0 : 1), "Select one card, or do nothing when locked.");
                 if (count == 1) Check(player.Deck.Cards.Last().Id == cards[0].Id, "The sole candidate must be added without requiring a grid.");
             }
@@ -196,7 +196,7 @@ internal static class LibraryTests
                 else first = cards.Select(card => card.Id).ToArray();
                 return cards[4];
             });
-            using (CardSelectCmd.UseSelector(selector)) await model.CurrentOptions[0].Chosen();
+            using (HeadlessNativeApi.UseSelector(player.RunState, selector)) await model.CurrentOptions[0].Chosen();
             string text = model.Description!.GetFormattedText();
             if (restore) Check(text == story, "Reloading the same choice must repeat the book story.");
             else story = text;
@@ -217,7 +217,7 @@ internal static class LibraryTests
             var twin = run.CreateCard(canonical, player);
             player.Deck.AddInternal(twin);
             player.Deck.AddInternal(target);
-            using (CardSelectCmd.UseSelector(new Choose(_ => target)))
+            using (HeadlessNativeApi.UseSelector(player.RunState, new Choose(_ => target)))
                 await RelicCmd.Obtain(independentInnate ? ModelDb.Relic<BottledTornado>().ToMutable() : ModelDb.Relic<BottledFlame>().ToMutable(), player);
             CardCmd.Upgrade(target);
             // Move a different same-name card; a saved deck index would now be wrong.
@@ -245,7 +245,7 @@ internal static class LibraryTests
         var run = RunState.CreateForTest([player], acts: [], seed: "BOTTLE_COMBAT");
         var target = player.Deck.Cards.First(card => card.Type == CardType.Attack);
         using (HeadlessCombatInProgress.EnterEvent())
-        using (CardSelectCmd.UseSelector(new Choose(_ => target))) await RelicCmd.Obtain<BottledFlame>(player);
+        using (HeadlessNativeApi.UseSelector(player.RunState, new Choose(_ => target))) await RelicCmd.Obtain<BottledFlame>(player);
         foreach (bool transform in new[] { false, true, false })
         {
             var combat = new CombatState(runState: run);
@@ -302,7 +302,7 @@ internal static class LibraryTests
             var reference = new Rng(model.Rng.ToSerializable());
 #endif
             int expected = available[reference.NextInt(available.Length)];
-            using (CardSelectCmd.UseSelector(new Choose(cards =>
+            using (HeadlessNativeApi.UseSelector(player.RunState, new Choose(cards =>
             {
                 Check(cards.Length == 1 && ReferenceEquals(cards[0], targets[expected]), "Each bottle must offer only its eligible card type.");
                 return cards[0];

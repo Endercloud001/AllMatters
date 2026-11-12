@@ -89,13 +89,23 @@ internal static class JigsawFlightCompatibilityTests
         try
         {
             foreach (bool enabled in new[] { false, true })
-            foreach (var mode in new[] { GameMode.Standard, GameMode.Custom, GameMode.Daily })
+            foreach (var (mode, custom) in new[] { (GameMode.Standard, false),
+#if STS2_PUBLIC
+                (GameMode.Custom, true),
+#else
+                (GameMode.Standard, true),
+#endif
+                (GameMode.Daily, false) })
             {
                 JigsawPreferences.Enabled = enabled;
                 var flight = ModelDb.Modifier<Flight>().ToMutable();
                 var player = Player.CreateForNewRun(ModelDb.Character<Ironclad>(), UnlockState.all, 1);
                 var native = RunState.CreateForTest([player], acts: [ModelDb.Act<Overgrowth>()],
-                    modifiers: [flight], gameMode: mode, seed: "FLIGHT_COMPATIBILITY_88");
+                    modifiers: [flight], gameMode: mode,
+#if !STS2_PUBLIC
+                    isCustomGame: custom,
+#endif
+                    seed: "FLIGHT_COMPATIBILITY_88");
                 try
                 {
                     bool rejected = false;
@@ -106,7 +116,7 @@ internal static class JigsawFlightCompatibilityTests
                     }
                     catch (InvalidOperationException error) when (error.Message.Contains("Flight", StringComparison.Ordinal))
                     { rejected = true; }
-                    NativeEventTests.Check(rejected == (enabled && mode == GameMode.Standard),
+                    NativeEventTests.Check(rejected == (enabled && mode == GameMode.Standard && !custom),
                         "Only an actual attempt to activate jigsaw with Flight is rejected; ordinary Custom/Daily setup stays available.");
                     NativeEventTests.Check(JigsawNativeSession.TryGet(native) == null && native.Modifiers.Count == 1 &&
                         ReferenceEquals(native.Modifiers[0], flight) && flight.ShouldAllowFreeTravel(),

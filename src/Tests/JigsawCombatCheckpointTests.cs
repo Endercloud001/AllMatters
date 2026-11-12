@@ -45,7 +45,7 @@ internal static class JigsawCombatCheckpointTests
 
     private static async Task BeforeBattle(bool victory)
     {
-        using var selector = CardSelectCmd.UseSelector(new TakeCardReward());
+        using var selector = HeadlessNativeApi.UseSelector(new TakeCardReward());
         using var atlases = HeadlessTestSetup.LoadAtlases("card_atlas", "relic_atlas", "ui_atlas", "compressed");
         using var eventScope = HeadlessCombatInProgress.EnterEvent();
         var native = RunState.CreateForTest(
@@ -194,7 +194,7 @@ internal static class JigsawCombatCheckpointTests
 
     private static async Task EmbeddedBefore(bool colosseum, bool victory, bool replaceDuringLoad = false, bool malformedRng = false)
     {
-        using var selector = CardSelectCmd.UseSelector(new TakeCardReward());
+        using var selector = HeadlessNativeApi.UseSelector(new TakeCardReward());
         using var atlases = HeadlessTestSetup.LoadAtlases("card_atlas", "relic_atlas", "ui_atlas", "compressed");
         using var events = HeadlessCombatInProgress.EnterEvent();
         var native = RunState.CreateForTest([Player.CreateForNewRun(ModelDb.Character<Ironclad>(), UnlockState.all, 1)],
@@ -242,7 +242,7 @@ internal static class JigsawCombatCheckpointTests
                     .SetValue(native.Players[0].PlayerCombatState, 1);
                 await (Task)AccessTools.Method(typeof(CombatManager), "EndCombatInternal", Type.EmptyTypes)
                     .Invoke(CombatManager.Instance, null)!;
-                await manager.ProceedFromTerminalRewardsScreen();
+                await HeadlessNativeApi.Proceed(manager);
                 await manager.EventSynchronizer.AwaitPendingOptionTasks();
                 Check(native.CurrentRoom is EventRoom && model.CurrentOptions.Count == 2,
                     "Actual native victory and Resume return the same parent to intermission.");

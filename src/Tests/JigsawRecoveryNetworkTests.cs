@@ -438,8 +438,14 @@ internal static class JigsawRecoveryNetworkTests
         }
         if (shopFault)
         {
-            canceledRemovalCompletion = new(TaskCreationOptions.RunContinuationsAsynchronously);
-            rewardHarmony.Patch(HarmonyLib.AccessTools.Method(typeof(JigsawNativeShopRemovalReceived), "Track"),
+            canceledRemovalCompletion = null;
+            rewardHarmony.Patch(HarmonyLib.AccessTools.Method(typeof(
+#if STS2_PUBLIC
+                JigsawNativeShopRemovalReceived
+#else
+                JigsawNativeShopPurchaseReceived
+#endif
+            ), "Track"),
                 postfix: new HarmonyLib.HarmonyMethod(typeof(JigsawRecoveryNetworkTests), nameof(ObserveCanceledRemoval)));
         }
         if (deferred || unfinishedAncient)
@@ -526,7 +532,7 @@ internal static class JigsawRecoveryNetworkTests
                     "A returning original owner enters native Ancient before exploration can continue.");
                 Require(map.AvailableDestinations.Count == 0, "Outstanding native rewards block exploration.");
                 RunManager.Instance.ActionExecutor.Unpause();
-                using var selector = MegaCrit.Sts2.Core.Commands.CardSelectCmd.UseSelector(new JigsawNetworkTests.LegalSelector());
+                using var selector = global::HeadlessNativeApi.UseSelector(new JigsawNetworkTests.LegalSelector());
                 Signal("debt-ready");
                 await Until(() => new[] { "host", "2", "3" }.All(peer => Signaled(peer, "debt-ready")), "all replicas enter deferred Ancient");
                 if (net.NetId == 3)
@@ -650,7 +656,7 @@ internal static class JigsawRecoveryNetworkTests
                     if (slowLocalReward && net.NetId == 2)
                     {
                         await Until(() => slowRewardStarted, "the local real reward selection pauses after applying gold");
-                        var proceeding = RunManager.Instance.ProceedFromTerminalRewardsScreen();
+                        var proceeding = HeadlessNativeApi.Proceed(RunManager.Instance);
                         for (int frame = 0; frame < 30; frame++) { net.Update(); await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame); }
                         Require(!proceeding.IsCompleted && !synchronizer.IsRewardsSetCompleted(localRewards) && !map.RoomCompletedPlayers.Contains(2UL),
                             "Proceed waits for an already-started local reward instead of skipping it or completing the room.");
@@ -658,7 +664,7 @@ internal static class JigsawRecoveryNetworkTests
                         await selection;
                         await proceeding;
                     }
-                    else { await selection; await RunManager.Instance.ProceedFromTerminalRewardsScreen(); }
+                    else { await selection; await HeadlessNativeApi.Proceed(RunManager.Instance); }
                     Signal("all-rewards-proceeded");
                     await Until(() => remaining.All(peer => Signaled(peer, "all-rewards-proceeded")), "all owners claim every reward and proceed through native messages");
                     if (phase == "combat-lag" && net.NetId != 2)
@@ -672,7 +678,7 @@ internal static class JigsawRecoveryNetworkTests
                 {
                 if (net.NetId == 1)
                 {
-                    await RunManager.Instance.ProceedFromTerminalRewardsScreen();
+                    await HeadlessNativeApi.Proceed(RunManager.Instance);
                     Signal("host-rewards-proceeded");
                 }
                 await Until(() => Signaled("host", "host-rewards-proceeded"), "Host proceeds before the other players choose rewards");
@@ -681,7 +687,7 @@ internal static class JigsawRecoveryNetworkTests
                 Signal("other-rewards-preserved");
                 await Until(() => remaining.All(peer => Signaled(peer, "other-rewards-preserved")), "all endpoints preserve the other owners' rewards before they proceed");
                 // Native terminal Proceed leaves unclaimed rewards until BeforeLeavingRoom.
-                if (net.NetId != 1) await RunManager.Instance.ProceedFromTerminalRewardsScreen();
+                if (net.NetId != 1) await HeadlessNativeApi.Proceed(RunManager.Instance);
                 }
                 await Until(() => map.RoomCompletedPlayers.Count == active.Length,
                     "native combat rewards proceed records every owner's completion on every endpoint");
@@ -730,7 +736,7 @@ internal static class JigsawRecoveryNetworkTests
                 Require(checkpoint.Players.All(owner => JsonNode.DeepEquals(InventoryDocument(owner),
                     InventoryDocument(listener.Native.Players.Single(player => player.NetId == owner.NetId).ToSerializable()))),
                     "Reload restores the actual saved pre-reward inventory without retaining or duplicating post-checkpoint reward selections.");
-                await RunManager.Instance.ProceedFromTerminalRewardsScreen();
+                await HeadlessNativeApi.Proceed(RunManager.Instance);
                 await Until(() => map.RoomCompletedPlayers.Count == active.Length, "all reloaded owners finish native terminal rewards");
                 session.ShowMap();
                 await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
@@ -751,7 +757,7 @@ internal static class JigsawRecoveryNetworkTests
                 RunManager.Instance.ActionExecutor.Unpause();
                 Require(listener.Native!.CurrentRoom is MerchantRoom && map.CurrentNode == 1 && map.Steps == 1,
                     "Every endpoint mounts the same actual native shop before the first purchase.");
-                var inventories = ((MerchantRoom)listener.Native.CurrentRoom).Inventories;
+                var inventories = ((MerchantRoom)listener.Native.CurrentRoom).Inventories();
                 var first = listener.Native.Players.Single(player => player.NetId == 1);
                 var delayed = listener.Native.Players.Single(player => player.NetId == 2);
                 async Task SetSteps(int value)
@@ -783,19 +789,27 @@ internal static class JigsawRecoveryNetworkTests
                 {
                     var ownerInventory = inventories.Single(inventory => inventory.Player.NetId == 2);
                     var purchased = ownerInventory.CardEntries.First();
+                    string originalModelId = purchased.CreationResult!.Card.Id.ToString();
                     int price = purchased.Cost;
                     if (net.NetId == 2)
                     {
                         JigsawNativeShopSync.RequestOverride = _ => false;
-                        try { await purchased.OnTryPurchaseWrapper(ownerInventory); }
+                        try { await purchased.PurchaseLocal(ownerInventory); }
                         catch (InvalidOperationException) { }
                         Require(delayed.Gold == delayedGold - price && delayed.Deck.Cards.Count == delayedDeck + 1 && !purchased.IsStocked,
                             "The native purchase completes even when its custom stock request fails.");
                     }
                     await Until(() => delayed.Gold == delayedGold - price && delayed.Deck.Cards.Count == delayedDeck + 1,
                         "native gold and card messages reach every endpoint before stock is retried");
+#if STS2_PUBLIC
                     Require(net.NetId == 2 || purchased.IsStocked,
                         "The Host and other client still have stale stock after the failed request.");
+#else
+                    Require(!purchased.IsStocked,
+                        "The synchronized native purchase sells the card on every endpoint before the custom stock retry.");
+                    Require(net.NetId == 2 || map.GetShopInventory(map.CurrentNode!.Value, 2)!.Cards.First().ModelId == originalModelId,
+                        "Remote persisted shop stock still retains the original card until its ordered stock update.");
+#endif
                     bool blocked = false;
                     try { _ = RunManager.Instance.ToSave(null); }
                     catch (InvalidOperationException error) when (error.Message.Contains("shop purchase", StringComparison.Ordinal)) { blocked = true; }
@@ -810,15 +824,16 @@ internal static class JigsawRecoveryNetworkTests
                     }
                     await Until(() =>
                     {
-                        if (((MerchantRoom)listener.Native.CurrentRoom!).Inventories.Single(inventory => inventory.Player.NetId == 2).CardEntries.First().IsStocked)
+                        if (((MerchantRoom)listener.Native.CurrentRoom!).Inventories().Single(inventory => inventory.Player.NetId == 2).CardEntries.First().IsStocked)
                             return false;
                         try { _ = RunManager.Instance.ToSave(null); return true; }
                         catch (InvalidOperationException error) when (error.Message.Contains("shop purchase", StringComparison.Ordinal)) { return false; }
                     }, "the same full stock update settles after the owner retries");
                     Signal("shop-save-settled");
                     await Until(() => remaining.All(peer => Signaled(peer, "shop-save-settled")), "all endpoints save only the complete purchase");
+                    canceledRemovalCompletion = new(TaskCreationOptions.RunContinuationsAsynchronously);
                     var selectorState = new CancelRemovalSelector();
-                    using var cancelSelector = CardSelectCmd.UseSelector(selectorState);
+                    using var cancelSelector = HeadlessNativeApi.UseSelector(selectorState);
                     var cancelOwner = listener.Native.Players.Single(player => player.NetId == 2);
                     int cancelGold = cancelOwner.Gold, cancelDeck = cancelOwner.Deck.Cards.Count;
                     Signal("shop-cancel-ready");
@@ -827,8 +842,8 @@ internal static class JigsawRecoveryNetworkTests
                     Task<bool>? canceledPurchase = null;
                     if (net.NetId == 2)
                     {
-                        var removalInventory = ((MerchantRoom)listener.Native.CurrentRoom!).Inventories.Single(inventory => inventory.Player.NetId == 2);
-                        canceledPurchase = removalInventory.CardRemovalEntry.OnTryPurchaseWrapper(removalInventory);
+                        var removalInventory = ((MerchantRoom)listener.Native.CurrentRoom!).Inventories().Single(inventory => inventory.Player.NetId == 2);
+                        canceledPurchase = removalInventory.CardRemovalEntry.PurchaseLocal(removalInventory);
                     }
                     await Until(() => selectorState.Started,
                         "this endpoint enters its real native card-removal selection");
@@ -868,8 +883,8 @@ internal static class JigsawRecoveryNetworkTests
                     Task<bool>? completedPurchase = null;
                     if (net.NetId == 2)
                     {
-                        var removalInventory = ((MerchantRoom)listener.Native.CurrentRoom!).Inventories.Single(inventory => inventory.Player.NetId == 2);
-                        completedPurchase = removalInventory.CardRemovalEntry.OnTryPurchaseWrapper(removalInventory);
+                        var removalInventory = ((MerchantRoom)listener.Native.CurrentRoom!).Inventories().Single(inventory => inventory.Player.NetId == 2);
+                        completedPurchase = removalInventory.CardRemovalEntry.PurchaseLocal(removalInventory);
                     }
                     await Until(() => delayedSelectorState.Started,
                         "all native removal tasks reach their card selection");
@@ -880,7 +895,7 @@ internal static class JigsawRecoveryNetworkTests
                     }
                     if (net.NetId != 2)
                     {
-                        await Until(() => ((MerchantRoom)listener.Native.CurrentRoom!).Inventories.Single(inventory => inventory.Player.NetId == 2).CardRemovalEntry.Used,
+                        await Until(() => ((MerchantRoom)listener.Native.CurrentRoom!).Inventories().Single(inventory => inventory.Player.NetId == 2).CardRemovalEntry.Used,
                             "the complete stock update arrives while native removal is still pending");
                         Require(!canceledRemovalCompletion!.Task.IsCompleted,
                             "The remote native removal task is still pending after stock settles.");
@@ -913,7 +928,7 @@ internal static class JigsawRecoveryNetworkTests
                 else
                 {
                 if (net.NetId == 1)
-                    Require(await inventories.Single(inventory => inventory.Player.NetId == 1).CardEntries.First().OnTryPurchaseWrapper(inventories.Single(inventory => inventory.Player.NetId == 1)),
+                    Require(await inventories.Single(inventory => inventory.Player.NetId == 1).CardEntries.First().PurchaseLocal(inventories.Single(inventory => inventory.Player.NetId == 1)),
                         "The first owner purchases through the exact native wrapper used by the shop UI.");
                 await Until(() => first.Gold == firstGold - firstPrice && first.Deck.Cards.Count == firstDeck + 1 &&
                     !inventories.Single(inventory => inventory.Player.NetId == 1).CardEntries.First().IsStocked,
@@ -922,10 +937,10 @@ internal static class JigsawRecoveryNetworkTests
                     "The delayed owner keeps their independent untouched inventory and native player state.");
                 Signal("first-purchased");
                 await Until(() => remaining.All(peer => Signaled(peer, "first-purchased")), "all replicas observe the first sale before the delayed owner uses a service");
-                using var selector = MegaCrit.Sts2.Core.Commands.CardSelectCmd.UseSelector(new JigsawNetworkTests.LegalSelector());
+                using var selector = global::HeadlessNativeApi.UseSelector(new JigsawNetworkTests.LegalSelector());
                 int removalCost = inventories.Single(inventory => inventory.Player.NetId == 2).CardRemovalEntry.Cost;
                 if (net.NetId == 2)
-                    Require(await inventories.Single(inventory => inventory.Player.NetId == 2).CardRemovalEntry.OnTryPurchaseWrapper(inventories.Single(inventory => inventory.Player.NetId == 2)),
+                    Require(await inventories.Single(inventory => inventory.Player.NetId == 2).CardRemovalEntry.PurchaseLocal(inventories.Single(inventory => inventory.Player.NetId == 2)),
                         "The delayed owner uses the real native card-removal service.");
                 await Until(() => delayed.Gold == delayedGold - removalCost && delayed.Deck.Cards.Count == delayedDeck - 1 &&
                     inventories.Single(inventory => inventory.Player.NetId == 2).CardRemovalEntry.Used,
@@ -980,18 +995,18 @@ internal static class JigsawRecoveryNetworkTests
                     return map.Steps == 2 && map.CurrentNode == 1 && map.PendingEntry == null;
                 }, "the Host admits a new common shop entry once all owners leave");
                 var revisited = (MerchantRoom)listener.Native.CurrentRoom!;
-                Require(!revisited.Inventories.Single(inventory => inventory.Player.NetId == 1).CardEntries.First().IsStocked &&
-                    revisited.Inventories.Single(inventory => inventory.Player.NetId == 2).CardRemovalEntry.Used && map.FirstProgress == 1 &&
+                Require(!revisited.Inventories().Single(inventory => inventory.Player.NetId == 1).CardEntries.First().IsStocked &&
+                    revisited.Inventories().Single(inventory => inventory.Player.NetId == 2).CardRemovalEntry.Used && map.FirstProgress == 1 &&
                     listener.Native.Players.All(player => HeadlessTestSetup.RngPosition(player.PlayerRng.Shops) == shopRandom[player.NetId]),
                     "A genuine second native entry retains sold and used slots without rerolling inventories or increasing first progress.");
                 if (hunting)
                 {
                     await Until(() => listener.Native.Players.All(player => player.Relics.OfType<AllMatters.Relics.ArchitectMask>().Count() == 1), "the original absent role also keeps its one mask");
                     Require(map.HuntingActive && map.CurrentRoomHunted && map.RemainingSteps == 0, "All owners' actual merchant departure activates hunting before reentry.");
-                    var ownerInventory = revisited.Inventories.Single(inventory => inventory.Player.NetId == net.NetId);
+                    var ownerInventory = revisited.Inventories().Single(inventory => inventory.Player.NetId == net.NetId);
                     string restrictedStock = JsonSerializer.Serialize(JigsawNativeShopPersistence.Capture(ownerInventory));
-                    Require(!await ownerInventory.CardEntries.First(entry => entry.IsStocked).OnTryPurchaseWrapper(ownerInventory, true), "A free purchase is blocked on the real owner endpoint after reentry.");
-                    Require(!await RunManager.Instance.OneOffSynchronizer.DoLocalMerchantCardRemoval(0), "The native direct sender refuses hunted removal.");
+                    Require(!await ownerInventory.CardEntries.First(entry => entry.IsStocked).PurchaseUnsynchronized(ownerInventory, true), "A free purchase is blocked on the real owner endpoint after reentry.");
+                    Require(!await HeadlessNativeApi.LocalRemoval(ownerInventory), "The native direct sender refuses hunted removal.");
                     Require(JsonSerializer.Serialize(JigsawNativeShopPersistence.Capture(ownerInventory)) == restrictedStock, "Blocked native actions leave stock and Used unchanged.");
                     Signal("hunting-blocked");
                     await Until(() => remaining.All(peer => Signaled(peer, "hunting-blocked")), "both actual endpoints reject purchases before the next control value");
@@ -1071,7 +1086,7 @@ internal static class JigsawRecoveryNetworkTests
                     "recovered editor or generation continues through production consensus into native Ancient");
                 Signal("ancient-ready");
                 await Until(() => remaining.All(peer => Signaled(peer, "ancient-ready")), "all native Ancient endpoints are ready for their individual options");
-                using var selector = MegaCrit.Sts2.Core.Commands.CardSelectCmd.UseSelector(new JigsawNetworkTests.LegalSelector());
+                using var selector = global::HeadlessNativeApi.UseSelector(new JigsawNetworkTests.LegalSelector());
 #if STS2_PUBLIC
                 const string reward = "PRECISE_SCISSORS";
 #else

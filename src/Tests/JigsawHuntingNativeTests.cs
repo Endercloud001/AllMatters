@@ -132,7 +132,7 @@ internal static class JigsawHuntingNativeTests
             var hotkeys = new NHotkeyManager();
             AccessTools.Property(typeof(MegaCrit.Sts2.Core.Nodes.NGame), "HotkeyManager").SetValue(MegaCrit.Sts2.Core.Nodes.NGame.Instance, hotkeys);
             await HeadlessUiHost.Mount(hotkeys);
-            var root = ResourceLoader.Load<PackedScene>("res://scenes/rooms/merchant_room.tscn").Instantiate<NMerchantRoom>();
+            var root = ResourceLoader.Load<PackedScene>("res://scenes/rooms/standard_merchant_room.tscn").Instantiate<Control>();
             var shopUi = root.GetNode<NMerchantInventory>("%Inventory");
             shopUi.GetParent().RemoveChild(shopUi); root.Free();
 #if STS2_PUBLIC
@@ -147,10 +147,13 @@ internal static class JigsawHuntingNativeTests
             try
             {
                 await HeadlessUiHost.Mount(shopUi);
-                var realInventory = ((MerchantRoom)session.Native.CurrentRoom!).Inventories[0];
+                var realInventory = ((MerchantRoom)session.Native.CurrentRoom!).Inventories()[0];
                 string realStock = JsonSerializer.Serialize(JigsawNativeShopPersistence.Capture(realInventory));
                 shopUi.Initialize(realInventory, MerchantRoom.Dialogue);
-                var slots = shopUi.FindChildren("*", "", true, false).OfType<NMerchantSlot>().ToArray();
+                // The shared beta inventory also contains inactive Blitz placeholders.
+                // Check every real populated good, including the removal service.
+                var slots = shopUi.FindChildren("*", "", true, false).OfType<NMerchantSlot>()
+                    .Where(slot => slot.Entry != null).ToArray();
                 Require(slots.Length > 3 && slots.Where(slot => slot is not NMerchantCardRemoval).All(slot => !slot.Visible), "The actual native merchant scene hides all goods.");
                 var removal = slots.OfType<NMerchantCardRemoval>().Single();
                 Require(removal.Visible && removal.FocusMode == Control.FocusModeEnum.None && !removal.GetNode<Control>("Cost").Visible && !realInventory.CardRemovalEntry.Used, "The real removal scene uses its disabled Used appearance without changing Used.");
@@ -177,22 +180,22 @@ internal static class JigsawHuntingNativeTests
                 consoleField.SetValue(null, previousConsole); console.Free();
 #endif
             }
-            var inventory = ((MerchantRoom)session.Native.CurrentRoom!).Inventories[0];
+            var inventory = ((MerchantRoom)session.Native.CurrentRoom!).Inventories()[0];
             int gold = player.Gold, cards = player.Deck.Cards.Count;
-            foreach (var entry in inventory.CardEntries) { AccessTools.Field(typeof(MegaCrit.Sts2.Core.Entities.Merchant.MerchantEntry), "_cost").SetValue(entry, 0); Require(!await entry.OnTryPurchaseWrapper(inventory), "A free card is still forbidden."); }
-            foreach (var entry in inventory.RelicEntries) Require(!await entry.OnTryPurchaseWrapper(inventory), "Relics cannot be purchased.");
-            foreach (var entry in inventory.PotionEntries) Require(!await entry.OnTryPurchaseWrapper(inventory), "Potions cannot be purchased.");
-            Require(!await inventory.CardRemovalEntry!.OnTryPurchaseWrapper(inventory, true, true), "Free removal is forbidden before its selection flow.");
-            Require(!await RunManager.Instance.OneOffSynchronizer.DoLocalMerchantCardRemoval(0), "The direct removal sender is forbidden.");
+            foreach (var entry in inventory.CardEntries) { AccessTools.Field(typeof(MegaCrit.Sts2.Core.Entities.Merchant.MerchantEntry), "_cost").SetValue(entry, 0); Require(!await entry.PurchaseUnsynchronized(inventory), "A free card is still forbidden."); }
+            foreach (var entry in inventory.RelicEntries) Require(!await entry.PurchaseUnsynchronized(inventory), "Relics cannot be purchased.");
+            foreach (var entry in inventory.PotionEntries) Require(!await entry.PurchaseUnsynchronized(inventory), "Potions cannot be purchased.");
+            Require(!await inventory.CardRemovalEntry!.PurchaseUnsynchronized(inventory, true, true), "Free removal is forbidden before its selection flow.");
+            Require(!await HeadlessNativeApi.LocalRemoval(inventory), "The direct removal sender is forbidden.");
             Require(player.Gold == gold && player.Deck.Cards.Count == cards && !inventory.CardRemovalEntry.Used, "Rejected actions preserve gold, deck and Used.");
             // Price changes above are test inputs; the blocked purchases themselves retain stock.
             Require(inventory.CardEntries.All(e => e.IsStocked) && inventory.RelicEntries.All(e => e.IsStocked) && inventory.PotionEntries.All(e => e.IsStocked), "The real stock stays present behind the restricted presentation.");
         });
         await WithRoom(JigsawRoom.Shop, false, async session =>
         {
-            var inventory = ((MerchantRoom)session.Native.CurrentRoom!).Inventories[0];
+            var inventory = ((MerchantRoom)session.Native.CurrentRoom!).Inventories()[0];
             session.Native.Players[0].Gold = 20000;
-            Require(await inventory.CardEntries.First().OnTryPurchaseWrapper(inventory), "The exhausted safe root retains normal shop services.");
+            Require(await inventory.CardEntries.First().PurchaseUnsynchronized(inventory), "The exhausted safe root retains normal shop services.");
         });
     }
 
@@ -239,7 +242,7 @@ internal static class JigsawHuntingNativeTests
             extras.Patch(AccessTools.Method(typeof(RewardsCmd), nameof(RewardsCmd.OfferCustom)), prefix: new HarmonyMethod(typeof(JigsawHuntingNativeTests), nameof(ObserveRestRewards)));
             try
             {
-            using var cardSelector = CardSelectCmd.UseSelector(new TakeRestReward());
+            using var cardSelector = HeadlessNativeApi.UseSelector(player.RunState, new TakeRestReward());
             await RelicCmd.Obtain<MegaCrit.Sts2.Core.Models.Relics.RegalPillow>(player);
             await RelicCmd.Obtain<MegaCrit.Sts2.Core.Models.Relics.DreamCatcher>(player);
             sawRestReward = false;

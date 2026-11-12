@@ -911,7 +911,7 @@ public partial class JigsawScreen : Control
             if (!roomVisuals.TryGetValue(n.Id, out var icon))
             {
                 icon = new JigsawRoomPulse { Name = $"Room{n.Id}" };
-                icon.AddChild(new Sprite2D { Name = "Visited", Texture = JigsawNativeArt.Load("atlases/compressed.sprites/map/map_circle_4.tres"), ShowBehindParent = true, Modulate = Colors.Black });
+                icon.AddChild(new Sprite2D { Name = "Visited", Texture = JigsawNativeArt.MapDecoration("map_circle_4"), ShowBehindParent = true, Modulate = Colors.Black });
                 roomVisuals[n.Id] = icon;
                 target.AddChild(icon);
             }

@@ -58,6 +58,7 @@ internal static class HelloWorldTests
             [
                 ("Test host registers mod assembly correctly without association warnings", ModAssociationRegistration),
                 ("Test host watchdog renews each case and reports a stalled case", WatchdogPerCase),
+                (HeadlessNativeApiTests.Name, HeadlessNativeApiTests.Run),
                 ("Upgrade does not add Innate", UpgradeWithoutInnate),
                 ("Ordinary single source keeps original behavior", OrdinarySingle),
                 ("Upgraded single source has its own power and upgrades its card", UpgradedSingle),

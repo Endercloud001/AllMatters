@@ -99,10 +99,10 @@ internal static class NativeVegetationTests
         await RelicCmd.Obtain<RegalPillow>(player);
         var model = await Begin<DenseVegetation>(player);
         var keys = model.CurrentOptions.Select(o => o.TextKey).ToArray();
-        using (CardSelectCmd.UseSelector(new SelectCards(cancel: true))) await Action(model, "SMITH").Chosen();
+        using (HeadlessNativeApi.UseSelector(player.RunState, new SelectCards(cancel: true))) await Action(model, "SMITH").Chosen();
         Check(model.CurrentOptions.Select(o => o.TextKey).SequenceEqual(keys) && player.Deck.Cards.All(c => !c.IsUpgraded), "Cancel preserves offers without performing an action.");
         var card = player.Deck.Cards.First();
-        using (CardSelectCmd.UseSelector(new Select(card))) await Action(model, "SMITH").Chosen();
+        using (HeadlessNativeApi.UseSelector(player.RunState, new Select(card))) await Action(model, "SMITH").Chosen();
         Check(card.IsUpgraded && player.Deck.Cards.Except([card]).All(c => !c.IsUpgraded), "Upgrade exactly the selected permanent card.");
         Check(player.Creature.CurrentHp == 10 && model.CurrentOptions.Single().TextKey.EndsWith(".FIGHT"), "Smith does not trigger healing and completes before combat.");
         foreach (var c in player.Deck.Cards.Where(c => c.IsUpgradable)) { c.UpgradeInternal(); c.FinalizeUpgradeInternal(); }
@@ -115,7 +115,7 @@ internal static class NativeVegetationTests
         await RelicCmd.Obtain<MeatCleaver>(player);
         var model = await Begin<DenseVegetation>(player);
         var cards = player.Deck.Cards.Take(2).ToArray();
-        using (CardSelectCmd.UseSelector(new Select(cards))) await Action(model, "COOK").Chosen();
+        using (HeadlessNativeApi.UseSelector(player.RunState, new Select(cards))) await Action(model, "COOK").Chosen();
 #if STS2_PUBLIC
         const int expectedMaxHp = 89;
 #else
@@ -197,7 +197,7 @@ internal static class NativeVegetationTests
         try
         {
             var card = player.Deck.Cards.First();
-            using (CardSelectCmd.UseSelector(new Select(card))) await Action(model, "SMITH").Chosen();
+            using (HeadlessNativeApi.UseSelector(player.RunState, new Select(card))) await Action(model, "SMITH").Chosen();
             Check(card.IsUpgraded && HeadlessBanditRoomEntrance.Rooms.Count == 0, "Action completes before combat entrance.");
             var fight = model.CurrentOptions.Single();
             await fight.Chosen(); await fight.Chosen();
@@ -240,7 +240,7 @@ internal static class NativeVegetationTests
         await WithPlayer(async player =>
         {
             var card = player.Deck.Cards.First();
-            using (CardSelectCmd.UseSelector(new Select(card))) await RelicCmd.Obtain<PaelsGrowth>(player);
+            using (HeadlessNativeApi.UseSelector(player.RunState, new Select(card))) await RelicCmd.Obtain<PaelsGrowth>(player);
             int count = player.Deck.Cards.Count;
             var model = await Begin<DenseVegetation>(player);
             await Action(model, "CLONE").Chosen();
@@ -259,7 +259,7 @@ internal static class NativeVegetationTests
         var other = player.RunState.Players.Single(p => p != player);
         int otherHp = other.Creature.CurrentHp, otherGold = other.Gold;
         var selected = player.Deck.Cards.First(c => c.IsUpgradable);
-        using (CardSelectCmd.UseSelector(new Select(selected))) await Action(model, "SMITH").Chosen();
+        using (HeadlessNativeApi.UseSelector(player.RunState, new Select(selected))) await Action(model, "SMITH").Chosen();
         Check(selected.IsUpgraded && other.Deck.Cards.All(c => !c.IsUpgraded)
             && other.Creature.CurrentHp == otherHp && other.Gold == otherGold, "Only the choosing owner's deck changes.");
     }, multiplayer: true);
@@ -294,7 +294,7 @@ internal static class NativeVegetationTests
         try
         {
             int action = a.CurrentOptions.ToList().FindIndex(o => o.TextKey.EndsWith("_" + actionId));
-            using (CardSelectCmd.UseSelector(new SelectCards()))
+            using (HeadlessNativeApi.UseSelector(player.RunState, new SelectCards()))
             {
                 sync.ChooseLocalOption(action);
                 Check(a.CurrentOptions.Count == expectedActions + 1 && service.LastVote.HasValue, "Local vote alone does not execute the shared action.");

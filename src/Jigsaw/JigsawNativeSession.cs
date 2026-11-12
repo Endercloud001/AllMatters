@@ -1321,7 +1321,7 @@ public sealed class JigsawNativeSession
             Map?.RollbackShopTransaction();
             return;
         }
-        foreach (var inventory in room.Inventories)
+        foreach (var inventory in JigsawNativeShopPersistence.Inventories(room))
         {
             nativeShops[(nodeId, inventory.Player.NetId)] = inventory;
             Map.RecordShopInventory(nodeId, inventory.Player.NetId, JigsawNativeShopPersistence.Capture(inventory));
@@ -1399,12 +1399,21 @@ public sealed class JigsawNativeSession
     };
 }
 
+#if STS2_PUBLIC
 [HarmonyPatch(typeof(MegaCrit.Sts2.Core.Nodes.Rooms.NMerchantRoom), "HideScreen")]
+#else
+[HarmonyPatch(typeof(RunManager), nameof(RunManager.Proceed))]
+#endif
 internal static class JigsawMerchantExitSignal
 {
     private static void Prefix()
     {
-        if (JigsawNativeSession.Current is { } session)
+        if (JigsawNativeSession.Current is { } session
+#if !STS2_PUBLIC
+            && session.Native.CurrentRoom is MerchantRoom
+            && ReferenceEquals(RunManager.Instance.DebugOnlyGetState(), session.Native)
+#endif
+            )
             JigsawNativeExploration.MerchantExited(session);
     }
 }
@@ -1460,7 +1469,11 @@ internal static class JigsawEnableNewRun
 {
     private static void Postfix(RunState state, DateTimeOffset? dailyTime)
     {
-        if (JigsawPreferences.Enabled && dailyTime == null && state.GameMode == GameMode.Standard)
+        if (JigsawPreferences.Enabled && dailyTime == null && state.GameMode == GameMode.Standard
+#if !STS2_PUBLIC
+            && !state.IsCustomGame
+#endif
+            )
             JigsawNativeSession.Enable(state);
     }
 }
@@ -1509,7 +1522,13 @@ internal static class JigsawOpenFormalMap
     }
 }
 
-[HarmonyPatch(typeof(RunManager), nameof(RunManager.ProceedFromTerminalRewardsScreen))]
+[HarmonyPatch(typeof(RunManager),
+#if STS2_PUBLIC
+    nameof(RunManager.ProceedFromTerminalRewardsScreen)
+#else
+    nameof(RunManager.ProceedFromTerminalRewardsScreenAsync)
+#endif
+)]
 internal static class JigsawTerminalRoomCompletion
 {
     private static void Postfix(ref Task __result)
@@ -1551,7 +1570,11 @@ internal static class JigsawFirstBossReturnsToMap
             return true;
         if (!map.Nodes.Any(n => n.Room == JigsawRoom.SecondBoss))
             return true;
+#if STS2_PUBLIC
         TaskHelper.RunSafely(RunManager.Instance.ProceedFromTerminalRewardsScreen());
+#else
+        TaskHelper.RunSafely(RunManager.Instance.ProceedFromTerminalRewardsScreenAsync());
+#endif
         return false;
     }
 }

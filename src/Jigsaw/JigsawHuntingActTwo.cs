@@ -97,8 +97,12 @@ internal static class JigsawHuntingInsatiableLiquify
             if (index + 1 >= code.Count)
                 continue;
             var next = code[index + 1];
+#if STS2_PUBLIC
             bool amount = instruction.opcode == OpCodes.Ldc_I4_4 && next.opcode == OpCodes.Newobj &&
                 next.operand is ConstructorInfo { DeclaringType: { } type } && type == typeof(decimal);
+#else
+            bool amount = instruction.Calls(AccessTools.PropertyGetter(typeof(TheInsatiable), "SandpitAmount"));
+#endif
             bool pileSplit = instruction.opcode == OpCodes.Ldc_I4_3 && (next.opcode == OpCodes.Blt || next.opcode == OpCodes.Blt_S);
             bool cardTotal = instruction.opcode == OpCodes.Ldc_I4_6 && (next.opcode == OpCodes.Blt || next.opcode == OpCodes.Blt_S);
             if (!amount && !pileSplit && !cardTotal)

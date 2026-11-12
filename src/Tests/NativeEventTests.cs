@@ -1,4 +1,4 @@
-﻿using MegaCrit.Sts2.Core.Commands;
+using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Characters;
@@ -136,7 +136,7 @@ internal static class NativeEventTests
         var e = await Begin<HungryForMushrooms>(p);
         Check(e.CurrentOptions[1].Description.GetFormattedText().Contains("choose", StringComparison.OrdinalIgnoreCase)
             && !e.CurrentOptions[1].Description.GetFormattedText().Contains("random", StringComparison.OrdinalIgnoreCase), "Event describes chosen upgrades rather than random upgrades.");
-        using (CardSelectCmd.UseSelector(new Select(selected))) await e.CurrentOptions[1].Chosen();
+        using (HeadlessNativeApi.UseSelector(p.RunState, new Select(selected))) await e.CurrentOptions[1].Chosen();
         Check(p.Relics.OfType<FragrantMushroom>().Count() == 1, "Event obtains the native relic that owns the pickup effect.");
         Check(p.Creature.CurrentHp == hp - 15, "Fragrant mushroom pays 15 HP.");
         Check(selected.All(c => c.IsUpgraded) && p.Deck.Cards.Except(selected).All(c => !c.IsUpgraded), "Upgrade only the two chosen cards.");

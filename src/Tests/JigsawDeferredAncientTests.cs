@@ -80,7 +80,7 @@ internal static class JigsawDeferredAncientTests
             var selected = ancient.CurrentOptions.Select((option, index) => (option, index))
                 .FirstOrDefault(value => value.option.Relic?.Id.Entry == "GOLDEN_PEARL");
             int index = selected.option == null ? 0 : selected.index;
-            using (MegaCrit.Sts2.Core.Commands.CardSelectCmd.UseSelector(new NativeEventTests.Select(native.Players[0].Deck.Cards.First())))
+            using (global::HeadlessNativeApi.UseSelector(native, new NativeEventTests.Select(native.Players[0].Deck.Cards.First())))
             {
                 RunManager.Instance.EventSynchronizer.ChooseLocalOption(index);
                 await RunManager.Instance.EventSynchronizer.AwaitPendingOptionTasks();

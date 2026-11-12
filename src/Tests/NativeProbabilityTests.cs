@@ -101,7 +101,7 @@ internal static class NativeProbabilityTests
             }
             else
             {
-                using (CardSelectCmd.UseSelector(new NativeEventTests.Select(selected))) await option.Chosen();
+                using (HeadlessNativeApi.UseSelector(p.RunState, new NativeEventTests.Select(selected))) await option.Chosen();
                 NativeEventTests.Check(selected.All(c => c.Enchantment is Sown) && !p.Potions.Any() && e.IsFinished, "Enchant the two selected cards after one payment.");
             }
             NativeEventTests.Check(CanRemove(p), "All completion paths restore inventory.");
@@ -138,7 +138,7 @@ internal static class NativeProbabilityTests
         var option = e.CurrentOptions[0];
         var attack = p.Deck.Cards.First(c => c.Type == CardType.Attack);
         NativeEventTests.Check(e.CurrentOptions[2].IsLocked, "Power option must stay locked without legal power cards.");
-        using (CardSelectCmd.UseSelector(new NativeEventTests.Select(attack))) await option.Chosen();
+        using (HeadlessNativeApi.UseSelector(p.RunState, new NativeEventTests.Select(attack))) await option.Chosen();
         NativeEventTests.Check(e.IsFinished && attack.Enchantment != null && option.Description.GetFormattedText().Contains(attack.Enchantment.Title.GetFormattedText()), "Displayed enchantment must be applied to chosen attack.");
         var actualTip = option.HoverTips.OfType<MegaCrit.Sts2.Core.HoverTips.HoverTip>().First();
         var expectedTip = attack.Enchantment!.HoverTips.OfType<MegaCrit.Sts2.Core.HoverTips.HoverTip>().First();
@@ -158,7 +158,7 @@ internal static class NativeProbabilityTests
         try
         {
             int count = p.Deck.Cards.Count;
-            using (CardSelectCmd.UseSelector(new ChooseReward())) await e.CurrentOptions[0].Chosen();
+            using (HeadlessNativeApi.UseSelector(p.RunState, new ChooseReward())) await e.CurrentOptions[0].Chosen();
             NativeEventTests.Check(e.IsFinished && p.Deck.Cards.Count == count + 1 && p.Deck.Cards.Last().IsUpgraded && p.Potions.Count() == 1,
                 "Pay one bound potion and obtain one of the upgraded cards, then finish.");
         }

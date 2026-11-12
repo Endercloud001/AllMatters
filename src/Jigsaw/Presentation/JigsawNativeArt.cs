@@ -31,6 +31,13 @@ internal sealed class JigsawNativeArt(ActModel? act)
          _ => "map_unknown"
      }) + ".tres");
     internal static Texture2D Load(string path) => ResourceLoader.Load<Texture2D>("res://images/" + path);
+    internal static Texture2D MapDecoration(string name) => Load(
+#if STS2_PUBLIC
+        "atlases/compressed.sprites/map/"
+#else
+        "atlases/compressed_atlas.sprites/"
+#endif
+        + name + ".tres");
     internal static StyleBoxTexture Panel(string path, int margin = 16) => new()
     {
         Texture = Load(path),
@@ -48,7 +55,7 @@ internal sealed class JigsawNativeArt(ActModel? act)
         var delta = end - start;
         if (delta.Length() < 1)
             return;
-        var texture = Load("atlases/compressed.sprites/map/map_dot.tres");
+        var texture = MapDecoration("map_dot");
         int count = Math.Max(2, (int)Math.Ceiling(delta.Length() / (cell * .26f)));
         var size = new Vector2(cell * .14f, cell * .25f);
         for (int i = 1; i < count; i++)

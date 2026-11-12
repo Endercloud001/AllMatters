@@ -32,7 +32,11 @@ public sealed class TightGripPower : ModPowerTemplate
         return Task.CompletedTask;
     }
 
-    public override Task AfterDeath(PlayerChoiceContext choiceContext, Creature creature, bool wasRemovalPrevented, float deathAnimLength)
+    public override Task AfterDeath(PlayerChoiceContext choiceContext, Creature creature,
+#if !STS2_PUBLIC
+        CardModel? source,
+#endif
+        bool wasRemovalPrevented, float deathAnimLength)
     {
         if (creature == Owner)
             WeightedCardPresentation.RefreshViews();

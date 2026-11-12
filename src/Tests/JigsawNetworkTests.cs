@@ -1,4 +1,4 @@
-﻿using MegaCrit.Sts2.Core.CardSelection;
+using MegaCrit.Sts2.Core.CardSelection;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.CardRewardAlternatives;
 using MegaCrit.Sts2.Core.Models.Events;
@@ -80,10 +80,14 @@ internal static class JigsawNetworkTests
             var output = process.StandardOutput.ReadToEndAsync();
             var errors = process.StandardError.ReadToEndAsync();
             try { await process.WaitForExitAsync().WaitAsync(TimeSpan.FromSeconds(50)); }
-            finally { if (!process.HasExited) process.Kill(true); }
-            File.WriteAllText(Path.Combine(logs, "host.log"), await output);
-            File.WriteAllText(Path.Combine(logs, "host.err"), await errors);
-            Console.WriteLine($"ENET isolated native host/client evidence: {logs}; host exit={process.ExitCode}");
+            finally
+            {
+                if (!process.HasExited) process.Kill(true);
+                await process.WaitForExitAsync();
+                File.WriteAllText(Path.Combine(logs, "host.log"), await output);
+                File.WriteAllText(Path.Combine(logs, "host.err"), await errors);
+                Console.WriteLine($"ENET isolated native host/client evidence: {logs}; host exit={process.ExitCode}");
+            }
             if (process.ExitCode != 0) throw new Exception("Native ENet host failed: " + logs);
             return;
         }
@@ -96,7 +100,7 @@ internal static class JigsawNetworkTests
         harmony.Patch(HarmonyLib.AccessTools.Method(typeof(SaveManager),nameof(SaveManager.SaveRun)),
             prefix:new HarmonyLib.HarmonyMethod(typeof(JigsawNetworkTests),nameof(SaveThroughIsolatedManager)));
         harmony.Patch(HarmonyLib.AccessTools.Method(typeof(EventSynchronizer),nameof(EventSynchronizer.BeginEvent)),prefix:new HarmonyLib.HarmonyMethod(typeof(JigsawNetworkTests),nameof(ForceReward)));
-        using var selector=CardSelectCmd.UseSelector(new LegalSelector());
+        using var selector=HeadlessNativeApi.UseSelector(new LegalSelector());
         executed.Clear();
         harmony.Patch(HarmonyLib.AccessTools.Method(typeof(JigsawRun), nameof(JigsawRun.Take)), prefix:new HarmonyLib.HarmonyMethod(typeof(JigsawNetworkTests),nameof(ObserveTake)));
         var tree=(SceneTree)Engine.GetMainLoop();
@@ -159,15 +163,29 @@ internal static class JigsawNetworkTests
             // Same native lobby entry as character selection; the listener substitutes NGame's scene host.
             JigsawPreferences.Enabled=host!=null;
             var listener=new JigsawActivationTests.NewRunListener{ShouldSave=true};
-            var lobby=new MegaCrit.Sts2.Core.Multiplayer.Game.Lobby.StartRunLobby(GameMode.Standard,net,listener,3);
+            var lobby=new MegaCrit.Sts2.Core.Multiplayer.Game.Lobby.StartRunLobby(GameMode.Standard,
+#if !STS2_PUBLIC
+                false,
+#endif
+                net,listener,3);
             listener.Lobby=lobby;
-            if(host!=null)lobby.AddLocalHostPlayer(UnlockState.all,0);
+            if(host!=null)lobby.AddLocalHostPlayer(UnlockState.all,0
+#if !STS2_PUBLIC
+                ,0
+#endif
+            );
             File.WriteAllText(Path.Combine(directory,role+".constructed"),"ready");
             await Until(()=>new[]{"host","2","3"}.All(r=>File.Exists(Path.Combine(directory,r+".constructed"))),"all lobby handlers installed");
             if(host==null)
             {
                 net.RegisterMessageHandler<MegaCrit.Sts2.Core.Multiplayer.Messages.Lobby.ClientLobbyJoinResponseMessage>((message,_)=>lobby.InitializeFromMessage(message));
-                net.SendMessage(new MegaCrit.Sts2.Core.Multiplayer.Messages.Lobby.ClientLobbyJoinRequestMessage{unlockState=UnlockState.all.ToSerializable(),maxAscensionUnlocked=0});
+                net.SendMessage(new MegaCrit.Sts2.Core.Multiplayer.Messages.Lobby.ClientLobbyJoinRequestMessage{unlockState=UnlockState.all.ToSerializable(),
+#if STS2_PUBLIC
+                    maxAscensionUnlocked=0
+#else
+                    maxStandardAscension=0,maxBlitzAscension=0
+#endif
+                });
             }
             await Until(()=>lobby.Players.Count==3,"native lobby roster");
             File.WriteAllText(Path.Combine(directory,role+".lobby"),"ready");

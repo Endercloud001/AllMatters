@@ -38,7 +38,12 @@ internal static class JigsawActivationTests
             RunManager.Instance.SetUpNewMultiplayer(Native,Lobby,shouldSave:ShouldSave);
         }
         public void PlayerConnected(StartPlayer player){}
+#if STS2_PUBLIC
         public void PlayerChanged(StartPlayer player,bool isRandomCharacterResolution){}
+#else
+        public void PlayerChanged(StartPlayer player){}
+        public void GameModeChanged(){}
+#endif
         public void RemotePlayerDisconnected(StartPlayer player){}
         public void AscensionChanged(){}
         public void SeedChanged(){}
@@ -135,14 +140,28 @@ internal static class JigsawActivationTests
             bool enabled=Environment.GetEnvironmentVariable("JIGSAW_HOST_DISABLED")!="True";
             JigsawPreferences.Enabled=host!=null?enabled:!enabled;
             var listener=new NewRunListener();
-            var lobby=new StartRunLobby(GameMode.Standard,net,listener,3);listener.Lobby=lobby;
-            if(host!=null)lobby.AddLocalHostPlayer(UnlockState.all,0);
+            var lobby=new StartRunLobby(GameMode.Standard,
+#if !STS2_PUBLIC
+                false,
+#endif
+                net,listener,3);listener.Lobby=lobby;
+            if(host!=null)lobby.AddLocalHostPlayer(UnlockState.all,0
+#if !STS2_PUBLIC
+                ,0
+#endif
+            );
             File.WriteAllText(Path.Combine(directory,role+".constructed"),"ready");
             await Until(()=>new[]{"host","2","3"}.All(r=>File.Exists(Path.Combine(directory,r+".constructed"))),"all lobby handlers installed");
             if(host==null)
             {
                 net.RegisterMessageHandler<MegaCrit.Sts2.Core.Multiplayer.Messages.Lobby.ClientLobbyJoinResponseMessage>((message,_)=>lobby.InitializeFromMessage(message));
-                net.SendMessage(new MegaCrit.Sts2.Core.Multiplayer.Messages.Lobby.ClientLobbyJoinRequestMessage{unlockState=UnlockState.all.ToSerializable(),maxAscensionUnlocked=0});
+                net.SendMessage(new MegaCrit.Sts2.Core.Multiplayer.Messages.Lobby.ClientLobbyJoinRequestMessage{unlockState=UnlockState.all.ToSerializable(),
+#if STS2_PUBLIC
+                    maxAscensionUnlocked=0
+#else
+                    maxStandardAscension=0,maxBlitzAscension=0
+#endif
+                });
             }
             await Until(()=>lobby.Players.Count==3,"native lobby roster");
             File.WriteAllText(Path.Combine(directory,role+".lobby"),"ready");

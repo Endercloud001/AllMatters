@@ -39,7 +39,11 @@ internal static class NlothRewardOwner
     private static void Prefix(Player player) => NlothsGift.Track(player);
 }
 
-[HarmonyPatch(typeof(CardRarityOdds), nameof(CardRarityOdds.RollWithoutChangingFutureOdds), typeof(CardRarityOddsType), typeof(float))]
+[HarmonyPatch(typeof(CardRarityOdds), nameof(CardRarityOdds.RollWithoutChangingFutureOdds), typeof(CardRarityOddsType), typeof(float)
+#if !STS2_PUBLIC
+    , typeof(MegaCrit.Sts2.Core.Random.Rng)
+#endif
+)]
 internal static class NlothRareOdds
 {
     private static void Prefix(CardRarityOdds __instance, CardRarityOddsType type, ref float offset)
