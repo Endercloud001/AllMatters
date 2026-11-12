@@ -262,7 +262,7 @@ internal static class JigsawNativeTests
     }
     private enum EntryFailureKind { None, BeforeReady, RestoredBeforeReady, AfterReady, RetryAfterReady, BeforeSave, Abandon, AbandonBeforeSave, AbandonRestored, AbandonWriteFailure, AfterCompletedAbandon }
     public static readonly (string Name, Func<Task> Test)[] Cases =
-    [ ..JigsawEntryTransitionTests.Cases, (JigsawMerchantExitTests.Name, JigsawMerchantExitTests.Run), (JigsawSingleplayerTransitionTests.Name, JigsawSingleplayerTransitionTests.Run), ..JigsawNativeProgressTests.Cases, (JigsawDeferredAncientTests.Name, JigsawDeferredAncientTests.Run), (JigsawNativeShopPersistenceTests.AdapterName, JigsawNativeShopPersistenceTests.Reconstruct), (JigsawNativeShopPersistenceTests.Name, JigsawNativeShopPersistenceTests.Revisit), (JigsawNativeShopPersistenceTests.FaultName, JigsawNativeShopPersistenceTests.Faults), (JigsawNativeShopPersistenceTests.SyncFailureName, JigsawNativeShopPersistenceTests.SyncFailure), (JigsawMultiplayerRestoreTests.DeferredName, JigsawMultiplayerRestoreTests.DeferredActivation), (JigsawMultiplayerRestoreTests.SetupName, JigsawMultiplayerRestoreTests.HostSetup), ("Jigsaw native stale endpoint queue resynchronizes", StaleEndpointQueue), (JigsawNetworkTests.Name, JigsawNetworkTests.Run), (JigsawActivationTests.Name, JigsawActivationTests.Run), ("Jigsaw native routed editor uses native ordered action", RoutedEditorQueue),
+    [ ("Jigsaw save payload preserves native state and unknown extensions across old and direct UTF-8 compression", SavePayload), ..JigsawEntryTransitionTests.Cases, (JigsawMerchantExitTests.Name, JigsawMerchantExitTests.Run), (JigsawSingleplayerTransitionTests.Name, JigsawSingleplayerTransitionTests.Run), ..JigsawNativeProgressTests.Cases, (JigsawDeferredAncientTests.Name, JigsawDeferredAncientTests.Run), (JigsawNativeShopPersistenceTests.AdapterName, JigsawNativeShopPersistenceTests.Reconstruct), (JigsawNativeShopPersistenceTests.Name, JigsawNativeShopPersistenceTests.Revisit), (JigsawNativeShopPersistenceTests.FaultName, JigsawNativeShopPersistenceTests.Faults), (JigsawNativeShopPersistenceTests.SyncFailureName, JigsawNativeShopPersistenceTests.SyncFailure), (JigsawMultiplayerRestoreTests.DeferredName, JigsawMultiplayerRestoreTests.DeferredActivation), (JigsawMultiplayerRestoreTests.SetupName, JigsawMultiplayerRestoreTests.HostSetup), ("Jigsaw native stale endpoint queue resynchronizes", StaleEndpointQueue), (JigsawNetworkTests.Name, JigsawNetworkTests.Run), (JigsawActivationTests.Name, JigsawActivationTests.Run), ("Jigsaw native routed editor uses native ordered action", RoutedEditorQueue),
       ("Jigsaw native lobby recovery rejects unknown and duplicate concurrent joins", LobbyRecoveryDeterminism),
       ("Jigsaw native lobby recovery initializes its roster once under concurrent checkpoint loads", LobbyRecoveryConcurrentInitialize),
       ("Jigsaw native known lobby document rejects lost identity and incomplete data", ()=>MissingModeData("Budget",identityLost:true)),
@@ -1380,6 +1380,85 @@ internal static class JigsawNativeTests
                 "The backup must restore its original pool, not the current primary or a new pool.");
         }
         finally { RunManager.Instance.CleanUp(false); }
+    }
+
+    private static int payloadStringConversions;
+    private static void CountPayloadStringConversion() => payloadStringConversions++;
+
+    private static string LegacySavePayload(MegaCrit.Sts2.Core.Saves.SerializableRun save)
+    {
+        var toJson = AccessTools.Method(typeof(JigsawSaveSource), "ToJson");
+        var bytes = System.Text.Encoding.UTF8.GetBytes((string)toJson.Invoke(null, [save])!);
+        using var output = new MemoryStream();
+        using (var gzip = new System.IO.Compression.GZipStream(output, System.IO.Compression.CompressionLevel.Optimal, leaveOpen: true))
+            gzip.Write(bytes);
+        return Convert.ToBase64String(output.ToArray());
+    }
+
+    private static async Task SavePayload()
+    {
+        var native = RunState.CreateForTest(
+            players: [MegaCrit.Sts2.Core.Entities.Players.Player.CreateForNewRun(ModelDb.Character<MegaCrit.Sts2.Core.Models.Characters.Ironclad>(), MegaCrit.Sts2.Core.Unlocks.UnlockState.all, 1)],
+            acts: [ModelDb.Act<Overgrowth>()], seed: "SAVE_PAYLOAD_UTF8");
+        RunManager.Instance.SetUpTest(native, new NetSingleplayerGameService());
+        var harmony = new Harmony("AllMatters.Tests.SavePayloadUtf8");
+        try
+        {
+            RunManager.Instance.GenerateRooms();
+            await RunManager.Instance.GenerateMap();
+            native.Players[0].Gold = 123;
+            native.AppendToMapPointHistory(MegaCrit.Sts2.Core.Map.MapPointType.Shop, RoomType.Shop, null);
+            native.AppendToMapPointHistory(MegaCrit.Sts2.Core.Map.MapPointType.Shop, RoomType.Shop, null);
+            JigsawCheckpoint.Capture(native, JigsawRun.Create(76));
+            JigsawCheckpoint.Slot.TryGet(native, out var checkpoint);
+            checkpoint.RevisitedHistoryIndices = new() { [0] = [1] };
+            var source = RunManager.Instance.ToSave(null);
+            source.Modifiers.Add(ModelDb.Modifier<AllMattersJigsawMode>().ToMutable().ToSerializable());
+            var toJson = AccessTools.Method(typeof(JigsawSaveSource), "ToJson");
+            var full = JsonNode.Parse((string)toJson.Invoke(null, [source])!)!.AsObject();
+            full["_ritsulib"]!["run_saved_data"]!["OtherMod"] = new JsonObject
+            {
+                ["opaque"] = new JsonObject { ["version"] = 9, ["data"] = new JsonObject { ["unicode"] = "完整扩展 Ω", ["items"] = new JsonArray(3, 8) } }
+            };
+            var registry = typeof(STS2RitsuLib.RunData.RunSavedDataStore).Assembly.GetType("STS2RitsuLib.RunData.RunSavedDataRegistry", true)!;
+            registry.GetMethod("AttachDocumentFromJson")!.Invoke(null, [source, full.ToJsonString()]);
+            // Native deserialization materializes defaults such as saved-map CanModify.
+            string expected = (string)toJson.Invoke(null, [JigsawSaveSource.Copy(source)])!;
+            string legacy = LegacySavePayload(source);
+            harmony.Patch(toJson, prefix: new HarmonyMethod(typeof(JigsawNativeTests), nameof(CountPayloadStringConversion)));
+            payloadStringConversions = 0;
+            string current = JigsawSaveSource.Serialize(source);
+            Require(payloadStringConversions == 0, "Save compression consumes UTF-8 bytes without an intermediate complete JSON string.");
+            harmony.UnpatchAll(harmony.Id);
+            foreach (string payload in new[] { legacy, current })
+            {
+                var decoded = JigsawSaveSource.Deserialize(payload);
+                Require(JsonNode.DeepEquals(JsonNode.Parse(expected), JsonNode.Parse((string)toJson.Invoke(null, [decoded])!)),
+                    "Old and current compressed saves retain the complete native state, map, revisit data and unknown extension.");
+                for (int retry = 0; retry < 2; retry++)
+                {
+                    var restored = RunState.FromSerializable(JigsawSaveSource.Copy(decoded));
+                    Require(restored.Players[0].Gold == 123 &&
+                        HeadlessTestSetup.RngPosition(restored.Rng.Niche) == HeadlessTestSetup.RngPosition(native.Rng.Niche) &&
+                        System.Text.Json.JsonSerializer.Serialize(restored.Players[0].ToSerializable()) == System.Text.Json.JsonSerializer.Serialize(native.Players[0].ToSerializable()) &&
+                        JigsawCheckpoint.Slot.TryGet(restored, out var point) &&
+                        System.Text.Json.JsonSerializer.Serialize(point.Map) == System.Text.Json.JsonSerializer.Serialize(checkpoint.Map) &&
+                        point.RevisitedHistoryIndices![0].SetEquals([1]),
+                        "Each real restoration reproduces the protected player inventory, RNG, complete map and revisit indices.");
+                    restored.Players[0].Gold = 999;
+                    restored.Rng.Niche.NextInt(100);
+                    JigsawCheckpoint.Slot.TryGet(restored, out var mutable);
+                    mutable.RevisitedHistoryIndices![0].Clear();
+                    Require(JsonNode.DeepEquals(JsonNode.Parse(expected), JsonNode.Parse((string)toJson.Invoke(null, [decoded])!)),
+                        "Two failed-load style restore/mutate cycles cannot contaminate the input checkpoint.");
+                }
+            }
+            bool rejected = false;
+            try { JigsawSaveSource.Deserialize(Convert.ToBase64String(new byte[] { 1, 2, 3, 4 })); }
+            catch (InvalidDataException) { rejected = true; }
+            Require(rejected, "Malformed compressed payloads remain rejected.");
+        }
+        finally { harmony.UnpatchAll(harmony.Id); RunManager.Instance.CleanUp(false); }
     }
 
     private static void Require(bool condition, string message)

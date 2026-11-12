@@ -124,7 +124,7 @@ internal static class JigsawSaveSource
         using var output = new MemoryStream();
         using (var compressed = new GZipStream(output, CompressionLevel.Optimal, leaveOpen: true))
         {
-            var bytes = System.Text.Encoding.UTF8.GetBytes(ToJson(save));
+            var bytes = ToUtf8Json(save);
             compressed.Write(bytes);
         }
         return Convert.ToBase64String(output.ToArray());
@@ -139,12 +139,14 @@ internal static class JigsawSaveSource
         return FromJson(System.Text.Encoding.UTF8.GetString(output.ToArray()));
     }
 
-    private static string ToJson(SerializableRun save)
+    private static string ToJson(SerializableRun save) =>
+        System.Text.Encoding.UTF8.GetString(ToUtf8Json(save));
+
+    private static byte[] ToUtf8Json(SerializableRun save)
     {
         var type = JsonSerializationUtility.GetTypeInfo<SerializableRun>();
         var bytes = JsonSerializer.SerializeToUtf8Bytes(save, type);
-        bytes = (byte[])inject.Invoke(null, [bytes, save])!;
-        return System.Text.Encoding.UTF8.GetString(bytes);
+        return (byte[])inject.Invoke(null, [bytes, save])!;
     }
 
     private static SerializableRun FromJson(string json)
