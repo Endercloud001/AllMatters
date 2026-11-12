@@ -9,6 +9,7 @@ using MegaCrit.Sts2.Core.Events;
 using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Events;
+using MegaCrit.Sts2.Core.Models.Encounters;
 using MegaCrit.Sts2.Core.Runs;
 
 namespace AllMatters.Events;
@@ -74,6 +75,15 @@ internal static class NativeDenseVegetation
             visit = new Visit { Actions = GenerateActions(model), Trudge = __result.Single(o => o.TextKey.EndsWith(".TRUDGE_ON")) };
             Visits.Add(model, visit);
         }
+        // Native reward loading reconstructs the parent after clearing the
+        // active rollback descriptor. The accepted child remains in history.
+        if (model.Owner!.RunState.CurrentMapPointHistoryEntry?.Rooms.Any(room =>
+                room.ModelId == ModelDb.Encounter<DenseVegetationEventEncounter>().Id) == true)
+        {
+            visit.Completed = true;
+            __result = [new EventOption(model, () => Task.CompletedTask, "DENSE_VEGETATION.pages.REST.options.FIGHT")];
+            return;
+        }
         __result = Options(model, visit);
     }
 
@@ -123,6 +133,17 @@ internal static class NativeDenseVegetation
         }, visit.Trudge.Title, visit.Trudge.Description, visit.Trudge.TextKey, visit.Trudge.HoverTips)
             .ThatDoesDamage(model.DynamicVars.HpLoss.BaseValue));
         return options;
+    }
+
+    // A restored child battle follows an already completed rest action. Keep
+    // the captured initial-page callbacks inert rather than replaying an action.
+    internal static void RestoreCombatPhase(DenseVegetation model)
+    {
+        if (!Visits.TryGetValue(model, out var visit))
+            throw new InvalidOperationException("DenseVegetation combat restore requires its native event initialization.");
+        visit.Completed = true;
+        NativeEventActions.State(model, "DENSE_VEGETATION.pages.AM_REST.description",
+            [new EventOption(model, () => Task.CompletedTask, "DENSE_VEGETATION.pages.REST.options.FIGHT")]);
     }
 }
 
