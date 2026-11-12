@@ -29,7 +29,7 @@
 |---|---|---|---|---|
 |#82|46a2d5b605fe53fd8314bc837234b47bc691ff36|Check All 退出0：beta418/public421、双版Build；最终beta显示专项1；集成后追猎双版各14及双版Build退出0|[双轴审查及返修闭环](issue82-review.md)，两轴通过|真实游戏/正式public资源/设备/完整终局等见票内记录|
 |#83|90c7970c16ea160e85d0257c53d7cdaf76233c0e|Check2退出0：beta431/public433、双版Build；集成后宝箱双版各11及双版Build退出0|[双轴审查与补证闭环](issue83-review.md)，两轴通过|public正式整房/真实机器设备/未知直接支付边界等见实现记录|
-|#84|共享检查点d8fb141已集成（merge31bb112）；暗港部分936f557经551d85a已集成；密林主树24文件部分切片暂存审查中|共享点双版各8、关联Vegetation各13、真实三人在局延迟owner+全新三端加载各1通过，Build/Host/错误统计0；[共享点记录](issue84-combat-checkpoint-seam.md)。暗港Gardener/Colony/Eel双版各3通过，[暗港记录](issue84-underdocks-implementation.md)。密林逐敌、Phrog和Vantom见下述增量|共享切片、追加网络及暗港部分分别通过独立Standards/Spec；密林部分审查中，整票待审|暗港剩余规则、其他事件完整恢复、正式全布局与实际输入尚未交付；named Marker存在不代签完整布局|
+|#84|共享d8fb141、暗港936f557及Matriarch281110c、密林2594715均已集成，当前merge2840635|共享点双版各8、Vegetation各13、真实三人在局延迟owner+全新三端加载各1；暗港最新各4，密林接最新基线组合各25。见[共享点](issue84-combat-checkpoint-seam.md)、[暗港](issue84-underdocks-implementation.md)、[密林](issue84-overgrowth-implementation.md)|共享/网络/暗港/Matriarch/密林及追加guard均独立两轴无阻塞；Phrog宿主P2已返修复审闭环，整票待审|暗港剩余规则、其他事件完整恢复、正式全布局与实际输入尚未交付；public56条已知共享资源诊断，不能代签正式资源|
 |#85|4641f0f经463f692、Hive普通开场847cc845经bcd4060已集成（部分）|Ponder/Liquify/Knowledge攻击及三轮真实诅咒选择六例，加Hive普通开场三项1/真实History/其他Weak来源，共双版各7通过，Build/Host/错误统计0；[实施记录](issue85-hunting-implementation.md)|原六例与普通开场分别独立Spec/Standards无阻塞项，beta Description目标补证已复核|精英/事件开场/蟹、1–4owner选择/实际G/生命周期/布局/恢复未交付|
 |#86|a5ba509经54ebd7e、Flail增量c8b5fdd经d2e7379已集成（部分）|MechaKnight开场固定Artifact5/精确来源重入、首招Flame及原生循环，SoulNexus初始Territorial1，以及Flail原生攻击后全部玩家Tangled1；最新统一双版各5通过，Build/Host/错误统计0，详见[实施记录](issue86-hunting-implementation.md)|四case与Flail增量分别独立Spec/Standards无阻塞项；Flail总伤害进一步细化逐玩家History为非阻塞建议|Mystic仅红测试草稿；完整荣耀普通/精英、布局/恢复未交付|
 |#87|4a0c58b经90fe154已集成（部分）|Aeonglass初值与第12次五状态、TestSubject真实两复生/第二次完成后9回合及3/6/9限制，双版各4通过；1–4角色输入，非真实四端；集成后专项尚待运行|当前切片两轴无硬发现；测试异步清理建议已修、静态复审及双版各4运行通过|特定Wither升级链、实验体MultiClaw数值/增长、Queen、旧异步隔离、布局及整场恢复未交付|
@@ -42,6 +42,8 @@
 2026-11-13 后续集成：Flail `c8b5fdd`经`d2e7379`、暗港`936f557`经`551d85a`已正常合入，原有Compatibility/Flight/Checkpoint/Recovery/ActTwo/Three/Boss注册均保留；源文件除注册合并外无额外语义差异。上段“暗港尚未提交”和“Vantom尚未运行”为当时状态：Vantom现已双版各3通过，真实受罚独立Boss以`[Inklet,Vantom,Inklet]`开场，未受罚/非Jigsaw/其他Boss对照不追加；原生Slippery人数缩放保留。随后Phrog双版各4回归通过，public资源诊断边界不变。密林24文件已精确暂存进入独立双轴审查；Hive普通开场、Matriarch、Mystic及Queen按窗口继续，未运行草稿不计通过。集成后组合复验尚待执行。
 
 2026-11-13 审查返修：密林Spec未发现当前切片实现错误；Standards发现Phrog宿主清理遗留已释放全局对象的P2。经真实beta反例、精确原NGame/NRun引用恢复修复后，Phrog双版各5通过并完成独立返修复审；beta Engine0，public56条均已知NHotkeyIcon共享资源诊断。同进程正常/断言异常退出、未挂载scope换全局实例及后续原生UI消费者已验证，不能扩写为任意场景切换。密林仍待安全消费最新集成并提交。Matriarch生命切片已真实红绿及双版各4通过，正在双轴审查，左随从尚未实现。Hive普通开场847cc845已合入bcd4060，源码与来源一致；精英开场/Mystic/Queen均仅测试草稿，未运行。
+
+2026-11-13 密林整合完成：完整备份旧index/工作文件后，旧基90c7970正常merge最新集成54a6cc0，再以3way仅应用已审24文件；原七共享文件与Flight检查取新基，Hello保留全部注册。组合测试发现Vantom guard过早读取非Jigsaw无幕run.Act的真实失败，调序先检查有效会话，新增原生生成负例；独立两轴追加复审通过。最终双25通过，Build/Host/Metadata0、无异常/准备失败，betaEngine0/public56全部同NHotkeyIcon。2594715经2840635已合入，两树干净；备份与stash aee7502保留。Infested原生Single图标与当前说明不显示数量，旧“显示4应5”待办缺乏事实依据，已撤回假设，不新增tooltip；实际五虫生成已证。最终整票组合Check及同提交包尚待运行。
 
 以下为早期预检来源索引（当时尚待 #82；当前以表格和接续增量为准）：本机 `.local/research/issue83-implementation-approach.md`（宝箱原生开箱、任务及空 Tween）及 `implementation-82-88-assets.md`（已核实的用户素材与 Balance 固定版本资源路线）。另派只读调查核实宝箱异步任务/完整保存点及 #84 的完整战斗表；这些记录描述预检阶段，不撤销上文已经集成的 #82/#83 和共享检查点。
 

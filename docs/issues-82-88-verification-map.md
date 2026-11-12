@@ -8,6 +8,8 @@
 
 #84 暗港 Gardener/SkulkingColony/TerrorEel 双版各3和独立双轴审查通过，来源`936f557`经`551d85a`合入。密林24文件部分切片已暂存进入双轴审查，Vantom双版各3及随后Phrog回归各4通过；Phrog 真节点/非零原生死亡动画与1/4角色、两尺寸几何专项已证，public有40条已知共享beta PCK的NHotkeyIcon诊断。实际指针/焦点、Infested显示5、完整文本布局仍待，不能将这些局部结果当作完整G验收。
 
+本轮最新更新至`2840635`：Matriarch生命切片`281110c`经`54a6cc0`合入，暗港最新双版各4；密林`2594715`正常消费新基后合入`2840635`，独立双轴与两次返修复审闭环，最终组合双版各25通过。首次组合发现无Jigsaw/无幕run.Act越界，已真实红绿并补原生生成反例；Phrog清理后双5，betaEngine0/public56全部同NHotkeyIcon。旧“Infested显示5”待办已撤回：原生Single能力图标和说明无数量显示，不能以Amount4推断可见缺陷；真实spawn5已证。当前整票仍partial，完整范围/证据以[实施索引](issues-82-88-implementation.md)和各票实现记录为准。
+
 - 集成分支已含审查通过的 #82/#83、#88 兼容切片 `080104f` 和 #84 共享完整点 `d8fb141`（merge `31bb112`）。#84–#87 逐敌工作树尚未提交或合入；独立审查状态逐项列明，局部通过不能当作最终包事实。
 - #84：主工作树的真菌、Byrdonis、Effigy、完整战前/胜利点、Colosseum第二场、Kin、BeastCry、五虫、DenseVegetation治疗后开战恢复、真实场景named Marker均已有局部双版通过。Kin真实同move重入、Byrdonis其他Regen来源反例已修到精确来源。Named Marker存在仍不证明整房hitbox、意图、血条、焦点或非零死亡动画。公共恢复正在提取无新怪物依赖的独立审查测试。
 - #84 共享完整点：独立干净切片双版各8、关联Vegetation各13、真实三人在局延迟owner与全新三端加载各1通过，Build/Host及错误统计0；旧异步加载污染、胜利重复休整、缺失RNG默认接受均经实际red→green及独立复审。已集成，范围及证据见 [共享点记录](issue84-combat-checkpoint-seam.md)。旧主树未自动等价为已消费此修复。
