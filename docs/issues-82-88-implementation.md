@@ -45,6 +45,8 @@
 
 2026-11-13 密林整合完成：完整备份旧index/工作文件后，旧基90c7970正常merge最新集成54a6cc0，再以3way仅应用已审24文件；原七共享文件与Flight检查取新基，Hello保留全部注册。组合测试发现Vantom guard过早读取非Jigsaw无幕run.Act的真实失败，调序先检查有效会话，新增原生生成负例；独立两轴追加复审通过。最终双25通过，Build/Host/Metadata0、无异常/准备失败，betaEngine0/public56全部同NHotkeyIcon。2594715经2840635已合入，两树干净；备份与stash aee7502保留。Infested原生Single图标与当前说明不显示数量，旧“显示4应5”待办缺乏事实依据，已撤回假设，不新增tooltip；实际五虫生成已证。最终整票组合Check及同提交包尚待运行。
 
+2026-11-13 整批检查回归：7d5070a已同步草稿PR104，但advisory推送钩子Check All两版均在旧Ember用例失败，Hive开场guard也过早读取非Jigsaw无幕run.Act。资源/脚本/空白/双版Build通过不代签测试。新增真实无幕Hook负例先同异常red，最小前置有效会话判断后ActTwo双版各8、Ember各1通过，独立两轴均0发现；完整Check仍待重跑。原失败、修复红绿日志完整归档于集成树`.local/integration-slices/hive-guard-regression-20261113/`，不能以旧专项通过覆盖这次全量失败。
+
 以下为早期预检来源索引（当时尚待 #82；当前以表格和接续增量为准）：本机 `.local/research/issue83-implementation-approach.md`（宝箱原生开箱、任务及空 Tween）及 `implementation-82-88-assets.md`（已核实的用户素材与 Balance 固定版本资源路线）。另派只读调查核实宝箱异步任务/完整保存点及 #84 的完整战斗表；这些记录描述预检阶段，不撤销上文已经集成的 #82/#83 和共享检查点。
 
 只读预检补充：`issue83-checkpoint-seam.md` 记录空箱异步任务、半份任务保存及全员完成待投票的恢复风险；`issue84-implementation-approach.md` 逐行映射密林/暗港表，`issue84-event-checkpoint-seam.md` 细化 Colosseum 第二场等事件战前点；`issue85-implementation-approach.md` 映射巢穴表、知识恶魔原生选择及固定层人数反例。均在本机 `.local/research/`，仅为可实施输入，尚未运行对应功能验证。

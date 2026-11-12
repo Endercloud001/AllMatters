@@ -74,3 +74,15 @@ Tender 图为用户提供的1,529,010字节原件 `tender.png`，按 #63 设计�
 - Standards：无阻塞项。双版Harmony目标签名与实际调用已核，测试清理覆盖所有await。唯一非阻塞命名建议是将已扩展到普通房的测试helper `BossRoot`/局部`boss` 改为通用目标房名，避免误读；本次不为此改变已绿行为。
 
 本结论不覆盖知识恶魔旧六例的重新审查，也不代表 #85 整票完成。
+
+### 集成后非 Jigsaw 开场回归修复（2026-11-13）
+
+集成 `7d5070a` 的完整 Check 在 public/beta 均实际失败：既有 `NativeCounterTests.Ember` 的原生 `Hook.BeforeCombatStart` 使用无幕列表的普通测试 run，新增全局开场 postfix 在确认 Jigsaw 会话之前读取 `RunState.Act`，触发 `ArgumentOutOfRangeException`。这是本次增强引入的作用域检查顺序错误，不能归咎为既有 Ember 夹具或以放宽会话检查修复。原始双版日志及完整 Check 控制台先归档至 `.local/integration-slices/hive-guard-regression-20261113/original-{fullcheck-public,fullcheck-public-beta,hook-console}.log`。
+
+新增真实负例 `Jigsaw hunting act two native opening leaves a non Jigsaw run with no acts untouched`：创建 `RunState.CreateForTest(..., acts: [])`，确认无 Jigsaw session，调用原生开场 hook 并断言未附加三项能力。该负例先在未修生产上重现相同异常，`no-acts-red-public.log` 为 BuildExit0/HostExit1，非编译错误。
+
+最小修复只重排同一 guard：先确认原生 RunState、owner 及 `RootIsHunted`（内含对应 run 的 session 查询），再读取 Act 和房间；当前 run、同一 CombatState、顶层普通房及事件排除条件均保留。未更改其他无直接失败证据的 guard，也未新增保存字段、标记或 gate。
+
+修复后 `tools/Test.ps1 -Branch All -Filter 'Jigsaw hunting act two' -SkipResourceExport` 双版各8通过，既有 `Native counters ember tea grants Strength and Dexterity for five event combats` 双版各1通过。归档同目录 `act-two-green-{public,public-beta}.log` 与 `ember-green-{public,public-beta}.log`，ReadTestLog 均 BuildExit0、HostExit0、EngineErrors0、ModMetadataErrors0，三项异常/诊断/准备字段为空。完整 Check 尚待主控重跑，本轮专项通过不能把原失败完整检查改写为通过。
+
+独立Standards与Spec分别实际读取本次三文件暂存差异、相关会话/原生/测试源码及归档红绿日志，均0发现、无阻塞项。确认没有更改Ember夹具、扩大作用域或新增状态；新增负例直接调用真实Hook。两审查者只读，未重跑测试，整票partial和完整Check重跑责任不变。

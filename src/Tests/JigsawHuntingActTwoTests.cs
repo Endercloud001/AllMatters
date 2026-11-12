@@ -31,7 +31,8 @@ internal static class JigsawHuntingActTwoTests
       ("Jigsaw hunting act two Knowledge first pair uses native player choice without adding display cards", KnowledgeFirstPair),
       ("Jigsaw hunting act two Knowledge second pair follows native cycle and applies Tender to its owner", KnowledgeSecondPair),
       ("Jigsaw hunting act two Knowledge third pair uses twenty one and finishes the native three curse cycle", KnowledgeThirdPair),
-      ("Jigsaw hunting act two Hive normal opening uses native power commands and preserves unrelated Weak", HiveNormalOpening) ];
+      ("Jigsaw hunting act two Hive normal opening uses native power commands and preserves unrelated Weak", HiveNormalOpening),
+      ("Jigsaw hunting act two native opening leaves a non Jigsaw run with no acts untouched", NonJigsawOpening) ];
 
     private static void Check(bool value, string reason) => NativeEventTests.Check(value, reason);
     private static void Ok(JigsawResult result) => Check(result.Success, result.Reason);
@@ -262,6 +263,18 @@ internal static class JigsawHuntingActTwoTests
                 "After three curses, the actual native conditional branch returns to Slap without a fourth choice.");
         }
     }
+    private static async Task NonJigsawOpening()
+    {
+        var player = Player.CreateForNewRun<Ironclad>(UnlockState.all, 1);
+        var run = RunState.CreateForTest([player], acts: [], seed: "HUNTING_85_NO_ACTS");
+        var combat = HeadlessTestSetup.Combat(run);
+        Check(JigsawNativeSession.TryGet(run) == null, "The native no-acts run has no Jigsaw session.");
+        await Hook.BeforeCombatStart(run, combat);
+        Check(player.Creature.GetPowerAmount<WeakPower>() == 0 && player.Creature.GetPowerAmount<FrailPower>() == 0 &&
+            player.Creature.GetPowerAmount<VulnerablePower>() == 0,
+            "The actual native opening completes without inspecting a missing act or adding Hive debuffs outside Jigsaw.");
+    }
+
     private static async Task HiveNormalOpening()
     {
         foreach (bool hunted in new[] { false, true })

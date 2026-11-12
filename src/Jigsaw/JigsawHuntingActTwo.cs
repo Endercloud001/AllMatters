@@ -26,11 +26,12 @@ internal static class JigsawHuntingHiveNormalOpening
     private static async Task ApplyOpening(Task original, IRunState runState, ICombatState? combatState)
     {
         await original;
-        if (runState is not RunState { Act: Hive, CurrentRoomCount: 1, CurrentRoom: CombatRoom room } native ||
+        if (runState is not RunState native || native.Players.FirstOrDefault() is not { } owner ||
+            !JigsawHuntingNative.RootIsHunted(owner) ||
+            native is not { Act: Hive, CurrentRoomCount: 1, CurrentRoom: CombatRoom room } ||
             room.ParentEventId != null || room.RoomType != RoomType.Monster ||
             !ReferenceEquals(room.CombatState, combatState) ||
-            !ReferenceEquals(RunManager.Instance.DebugOnlyGetState(), native) ||
-            native.Players.FirstOrDefault() is not { } owner || !JigsawHuntingNative.RootIsHunted(owner))
+            !ReferenceEquals(RunManager.Instance.DebugOnlyGetState(), native))
             return;
         foreach (var player in combatState!.Players)
         {
