@@ -1,4 +1,6 @@
 {
+  "ALL_MATTERS_POWER_SPORE_CLOUD_POWER.title": "Spore Cloud",
+  "ALL_MATTERS_POWER_SPORE_CLOUD_POWER.description": "On death, apply {Amount} [gold]Vulnerable[/gold] to all living players.",
   "ALL_MATTERS_POWER_MUTAGENIC_DECAY_POWER.title": "Mutagenic Decay",
   "ALL_MATTERS_POWER_MUTAGENIC_DECAY_POWER.description": "At the end of your turn, count down. After {Amount} more turns, lose [blue]3[/blue] [gold]Strength[/gold].",
   "ALL_MATTERS_POWER_MUTAGENIC_DECAY_POWER.smartDescription": "At the end of your turn, count down. After {Amount} more turns, lose [blue]3[/blue] [gold]Strength[/gold].",

@@ -1,4 +1,7 @@
 {
+  "ALL_MATTERS_MONSTER_FUNGUS_BEAST.name": "Fungus Beast",
+  "ALL_MATTERS_MONSTER_FUNGUS_BEAST.moves.BITE.title": "Bite",
+  "ALL_MATTERS_MONSTER_FUNGUS_BEAST.moves.GROW.title": "Grow",
   "ALL_MATTERS_MONSTER_BEAR.name": "Bear",
   "ALL_MATTERS_MONSTER_BEAR.moves.BEAR_HUG.title": "Bear Hug",
   "ALL_MATTERS_MONSTER_BEAR.moves.MAUL.title": "Maul",
