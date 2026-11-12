@@ -41,6 +41,6 @@ Flight 保存/大厅切片也已实施并双版各 3 项通过（兼容过滤词
 
 全量 `Check.ps1 -Branch All` 已退出 0：beta 434 项、public 436 项通过，两版 Build/Host 均退出 0，资源、脚本及两版开发构建均通过。记录为 `.local/issue88/check-final.log` 与 `.local/tests/{public-beta,public}-last.log`。没有准备失败或 ModMetadataErrors。全量日志并非零诊断：ReadTestLog 计 beta 24/public 30，包括故障注入/损坏内存存档恢复、宿主场景脚本缺失与退出资源泄漏；public 另有旧 session 替换测试的两条原生 action queue 报错。相应测试仍通过，但这些记录不能当作正式游戏端零错误证据。定向兼容测试的 EngineErrors 0 与上述全量统计分别保留。
 
-#84–#87 完整交付后，还需 #88 的 V14/S6/H13/U8 全部证据归属、组合回归、同一最终提交的双版包及准确许可声明。本切片尚未提交或合入集成分支。
+#84–#87 完整交付后，还需 #88 的 V14/S6/H13/U8 全部证据归属、组合回归、同一最终提交的双版包及准确许可声明。本切片已提交为 `080104f29997eddc5df85ca7b3869cc15d560dfc`，并快进合入集成分支；上述全量检查在该切片提交前执行，提交钩子完成后代码保持相同。
 
 测试目标为 public v0.107.1 与 public-beta v0.111.0 的真实 DLL；public 宿主共用 beta PCK，不证明匹配 public 正式资源或真实游戏运行。未启动游戏/Steam、安装产物或改真实存档。保留用户已确认的 #93/#94 人工结果，实体设备及剩余分版实机责任在最终交付中逐项列明。

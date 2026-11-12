@@ -4,8 +4,9 @@
 
 ## 后续实施增量（均未作为整票交付）
 
-- 集成分支仍只含已审查 #82/#83。#84–#88 下述工作树尚未提交或合入；独立审查状态逐项列明，局部通过不能当作最终包事实。
+- 集成分支已含审查通过的 #82/#83、#88 兼容切片 `080104f` 和 #84 共享完整点 `d8fb141`（merge `31bb112`）。#84–#87 逐敌工作树尚未提交或合入；独立审查状态逐项列明，局部通过不能当作最终包事实。
 - #84：主工作树的真菌、Byrdonis、Effigy、完整战前/胜利点、Colosseum第二场、Kin、BeastCry、五虫、DenseVegetation治疗后开战恢复、真实场景named Marker均已有局部双版通过。Kin真实同move重入、Byrdonis其他Regen来源反例已修到精确来源。Named Marker存在仍不证明整房hitbox、意图、血条、焦点或非零死亡动画。公共恢复正在提取无新怪物依赖的独立审查测试。
+- #84 共享完整点：独立干净切片双版各8、关联Vegetation各13、真实三人在局延迟owner与全新三端加载各1通过，Build/Host及错误统计0；旧异步加载污染、胜利重复休整、缺失RNG默认接受均经实际red→green及独立复审。已集成，范围及证据见 [共享点记录](issue84-combat-checkpoint-seam.md)。旧主树未自动等价为已消费此修复。
 - #84 暗港分工作树：Gardener双版各1例通过（内部1–4人数×安全/受罚），四原槽/首招/单次History9与同目标其他Skittish来源保原生缩放均通过；日志 `.claude/worktrees/issue84-underdocks/.local/issue84-underdocks/gardener-green-{public-beta,public}.log`。其余暗港规则待实现。
 - #85：Ponder/Liquify/Knowledge A8/A9攻击双版各3例通过；Liquify真实沙坑5、原目标两牌堆各4、StatusIntent8，攻击意图与DamageCmd一致。日志 `issue85-hunting/.local/issue85/knowledge-attacks-green-{public-beta,public}.log`；普通/精英开场、蟹、逐玩家选择屏及全恢复仍待交。
 - #86：Mecha开场及真实异步重入双版各2例通过；已移除AsyncLocal，缩放例外限确切mutable Artifact的一次调用，同目标其他来源正常缩放。日志 `issue86-hunting/.local/issue86/mecha-reentrant-green2-all.log`；整票其余规则仍未交。
