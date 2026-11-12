@@ -29,18 +29,13 @@ public sealed class LobbyRecovery
 
     /// <summary>Get or create lobby recovery for a native run session.</summary>
     public static LobbyRecovery? GetOrCreate(RunState native)
-    {
-        if (!recoveries.TryGetValue(native, out var recovery))
-        {
-            recovery = new LobbyRecovery(native);
-            recoveries.Add(native, recovery);
-        }
-        return recovery;
-    }
+        => recoveries.GetValue(native, state => new LobbyRecovery(state));
 
     private readonly RunState nativeRun;
-    // Ordered list from checkpoint; never mutated after InitializeFromCheckpoint returns true.
-    private readonly List<ulong> originalPlayers = [];
+    private readonly object initLock = new();
+    // Ordered roster from checkpoint. Replaced once, under initLock, before `recovered` is published;
+    // readers only see it after observing `recovered == true`.
+    private ulong[] originalPlayers = [];
     // Concurrent-safe connected set.
     private readonly ConcurrentDictionary<ulong, bool> connectedSet = new();
     private volatile bool recovered;
@@ -53,27 +48,29 @@ public sealed class LobbyRecovery
         nativeRun = native;
     }
 
-    /// <summary>Initialize lobby recovery from checkpoint save.</summary>
-    /// <returns>True if recovery initialization succeeded.</returns>
+    /// <summary>Initialize lobby recovery from checkpoint save. Safe to call concurrently; only the first call loads.</summary>
+    /// <returns>True if this call performed the initialization.</returns>
     public bool InitializeFromCheckpoint()
     {
-        if (recovered)
-            return false;
-
-        // Extract jigsaw checkpoint containing original player list
-        if (JigsawCheckpoint.Slot.TryGet(nativeRun, out var checkpointData) &&
-            checkpointData?.Map is { } mapSave && mapSave.OriginalPlayers is { } originalPlayerList)
+        lock (initLock)
         {
-            // Store original players from checkpoint in checkpoint order.
-            originalPlayers.Clear();
-            originalPlayers.AddRange(originalPlayerList);
-            Console.WriteLine($"[LobbyRecovery] Loaded checkpoint with {originalPlayers.Count} original players (Act {checkpointData.Act})");
-            recovered = true;
-            return true;
-        }
+            if (recovered)
+                return false;
 
-        Console.WriteLine("[LobbyRecovery] Checkpoint found but no original player list");
-        return false;
+            // Extract jigsaw checkpoint containing original player list
+            if (JigsawCheckpoint.Slot.TryGet(nativeRun, out var checkpointData) &&
+                checkpointData?.Map is { } mapSave && mapSave.OriginalPlayers is { } originalPlayerList)
+            {
+                // Store original players from checkpoint in checkpoint order.
+                originalPlayers = [.. originalPlayerList];
+                Console.WriteLine($"[LobbyRecovery] Loaded checkpoint with {originalPlayers.Length} original players (Act {checkpointData.Act})");
+                recovered = true;
+                return true;
+            }
+
+            Console.WriteLine("[LobbyRecovery] Checkpoint found but no original player list");
+            return false;
+        }
     }
 
     /// <summary>
@@ -125,20 +122,26 @@ public sealed class LobbyRecovery
         if (!recovered)
             return false;
 
-        return originalPlayers.Count > 0 &&
+        return originalPlayers.Length > 0 &&
             originalPlayers.All(id => connectedSet.ContainsKey(id));
     }
 
     /// <summary>Get current lobby state snapshot with save and exploration state.</summary>
     public LobbyState GetLobbyState()
     {
+        if (!recovered)
+            InitializeFromCheckpoint();
+
         // Build connected IDs in original checkpoint order for deterministic snapshots.
         var orderedConnected = originalPlayers.Where(id => connectedSet.ContainsKey(id)).ToArray();
 
         // Capture save state recovery info if available
+        var map = JigsawNativeSession.TryGet(nativeRun)?.Map;
         SaveStateRecovery.SaveStateSnapshot? saveState = null;
-        if (SaveStateRecovery.GetOrCreate(nativeRun) is { } saveRecovery && saveRecovery.IsInitialized)
+        if (map == null && SaveStateRecovery.GetOrCreate(nativeRun) is { } saveRecovery)
         {
+            if (!saveRecovery.IsInitialized)
+                saveRecovery.InitializeFromCheckpoint();
             saveState = saveRecovery.GetSnapshot();
         }
 
@@ -148,13 +151,19 @@ public sealed class LobbyRecovery
 
         return new LobbyState
         {
-            OriginalPlayerCount = originalPlayers.Count,
+            OriginalPlayerCount = originalPlayers.Length,
             ConnectedPlayerCount = orderedConnected.Length,
             IsRecovered = recovered,
             ConnectedPlayerIds = orderedConnected,
-            IsOriginalRosterReady = recovered && originalPlayers.Count > 0 &&
-                orderedConnected.Length == originalPlayers.Count,
-            SaveState = saveState != null ? new SaveStateInfo
+            IsOriginalRosterReady = recovered && originalPlayers.Length > 0 &&
+                orderedConnected.Length == originalPlayers.Length,
+            SaveState = map != null ? new SaveStateInfo
+            {
+                Act = nativeRun.CurrentActIndex,
+                Budget = map.Budget,
+                Steps = map.Steps,
+                Phase = map.Phase.ToString()
+            } : saveState != null ? new SaveStateInfo
             {
                 Act = saveState.Act,
                 Budget = saveState.Budget,

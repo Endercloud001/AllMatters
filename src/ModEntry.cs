@@ -15,6 +15,7 @@ public static class ModEntry
     {
         Jigsaw.JigsawCheckpoint.Initialize();
         Jigsaw.JigsawEditorAction.Initialize();
+        Jigsaw.JigsawNativeShopSync.Initialize();
         Jigsaw.JigsawPreferences.Register();
         Jigsaw.Presentation.JigsawTutorialProfile.Register();
         Encounters.PersonalCombatRewards.Initialize();

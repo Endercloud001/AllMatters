@@ -69,8 +69,10 @@ exit $LASTEXITCODE
 foreach ($scenario in @('compile-failure', 'host-failure', 'fresh', 'reuse', 'missing-pack')) {
     New-Fixture "test-$scenario"
     Copy-Item -LiteralPath (Join-Path $repoDir 'tools/Test.ps1') -Destination (Join-Path $fixture 'tools/Test.ps1')
-    if (Test-Path (Join-Path $repoDir 'tools/ReadTestLog.ps1')) {
-        Copy-Item -LiteralPath (Join-Path $repoDir 'tools/ReadTestLog.ps1') -Destination (Join-Path $fixture 'tools/ReadTestLog.ps1')
+    foreach ($script in @('ReadTestLog.ps1', 'Check.ps1')) {
+        if (Test-Path (Join-Path $repoDir "tools/$script")) {
+            Copy-Item -LiteralPath (Join-Path $repoDir "tools/$script") -Destination (Join-Path $fixture "tools/$script")
+        }
     }
     Write-FixtureFile 'failure.txt' $scenario
     if ($scenario -eq 'reuse') { Write-FixtureFile 'dist/AllMatters.pck' 'existing fixture pack' }
@@ -151,6 +153,28 @@ Host exit: 0
 '@
 $summary = & (Join-Path $repoDir 'tools/ReadTestLog.ps1') -Path $testLog
 Assert ($summary.Passed -eq 31 -and $summary.HostExit -eq 0) 'Completed host run must retain its pass count and exit code.'
+Assert ($LASTEXITCODE -eq 0) 'A completed run with at most one unassociated-mod hint exits clean.'
+
+Write-FixtureFile 'host.log' @'
+Testing public-beta : 0.111.0 [isolated/sts2.dll]
+Test build exit: 0
+Host exit: 0
+'@
+$summary = & (Join-Path $repoDir 'tools/ReadTestLog.ps1') -Path $testLog
+Assert ($null -eq $summary.Passed) 'A run with no pass line has an empty pass count.'
+Assert ($LASTEXITCODE -ne 0) 'An empty pass count fails the smoke gate.'
+
+Write-FixtureFile 'host.log' @'
+Testing public-beta : 0.111.0 [isolated/sts2.dll]
+Test build exit: 0
+[ERROR] Attempting to register type A, but it is not associated with any mod!
+[ERROR] Attempting to register type B, but it is not associated with any mod!
+Passed 31 tests against 0.1.0.0.
+Host exit: 0
+'@
+$summary = & (Join-Path $repoDir 'tools/ReadTestLog.ps1') -Path $testLog
+Assert ($summary.Passed -eq 31 -and $summary.ModMetadataErrors -eq 2) 'More than one unassociated-mod hint is counted.'
+Assert ($LASTEXITCODE -ne 0) 'More than one unassociated-mod hint fails the smoke gate.'
 "PASS: Test log summary keeps preparation, behavior, diagnostics and version separate"
 
 foreach ($scenario in @('fresh', 'reuse', 'missing-pack')) {
@@ -180,6 +204,51 @@ exit $LASTEXITCODE
     $package = Join-Path $fixture 'dist/public-beta/AllMatters'
     Assert ((Test-Path (Join-Path $package 'AllMatters.pck')) -eq ($scenario -ne 'missing-pack')) 'Build must package only a successful or explicitly reused export.'
     "PASS: Build $scenario"
+}
+
+New-Fixture 'check-placeholder'
+Copy-Item -LiteralPath (Join-Path $repoDir 'tools/Check.ps1') -Destination (Join-Path $fixture 'tools/Check.ps1')
+New-Item -ItemType Directory -Path (Join-Path $fixture 'src/Features') -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $fixture 'src/Tests') -Force | Out-Null
+Write-FixtureFile 'src/Features/Real.cs' 'namespace X; public class Real { }'
+Write-FixtureFile 'src/Tests/TestPlaceholder.cs' '// Placeholder is allowed inside the test project'
+Write-FixtureFile 'tools/Test.ps1' 'param($Branch, [switch]$SkipResourceExport)'
+Write-FixtureFile 'tools/Build.ps1' 'param($Branch, [switch]$SkipResourceExport)'
+Write-FixtureFile 'run.ps1' @'
+function global:git { $global:LASTEXITCODE = 0 }
+& (Join-Path $PSScriptRoot 'tools/Check.ps1')
+exit $LASTEXITCODE
+'@
+Run-Fixture
+Assert ($code -eq 0) "Production sources without placeholder markers must pass the placeholder check; see $fixture/output.log"
+Assert ((Get-Content (Join-Path $fixture 'output.log') -Raw) -match 'Placeholder scan\s+PASS') 'A clean tree reports the placeholder scan as PASS.'
+"PASS: Check placeholder clean"
+
+foreach ($case in @(@('Placeholder', 'src/Features/Stub.cs'), @('In a real implementation', 'src/Features/Stub.cs'), @('TODO: Implement', 'src/Features/Stub.cs'), @('Placeholder', 'src/TestsFoo/Stub.cs'))) {
+    $marker, $stubPath = $case
+    New-Fixture "check-placeholder-$($marker.Substring(0, 4))-$(Split-Path (Split-Path $stubPath) -Leaf)"
+    Copy-Item -LiteralPath (Join-Path $repoDir 'tools/Check.ps1') -Destination (Join-Path $fixture 'tools/Check.ps1')
+    New-Item -ItemType Directory -Path (Join-Path $fixture (Split-Path $stubPath)) -Force | Out-Null
+    Write-FixtureFile $stubPath "// $marker"
+    Write-FixtureFile 'tools/Test.ps1' 'param($Branch, [switch]$SkipResourceExport)'
+    Write-FixtureFile 'tools/Build.ps1' 'param($Branch, [switch]$SkipResourceExport)'
+    Write-FixtureFile 'run.ps1' @'
+function global:git { $global:LASTEXITCODE = 0 }
+& (Join-Path $PSScriptRoot 'tools/Check.ps1')
+exit $LASTEXITCODE
+'@
+    Run-Fixture
+    Assert ($code -ne 0) "A production source $stubPath containing '$marker' must fail the placeholder check; see $fixture/output.log"
+    Assert ((Get-Content (Join-Path $fixture 'output.log') -Raw) -match 'Placeholder scan\s+FAIL') "The placeholder scan reports FAIL for '$marker'."
+    "PASS: Check placeholder rejects '$marker' in $stubPath"
+}
+$requiresRoot = if ($env:ALLMATTERS_REQUIRES_ROOT) { $env:ALLMATTERS_REQUIRES_ROOT } else { Join-Path $repoDir 'tools' }
+foreach ($name in @('Test.ps1', 'Check.ps1')) {
+    $ast = [Management.Automation.Language.Parser]::ParseFile((Join-Path $requiresRoot $name), [ref]$null, [ref]$null)
+    # Verifies the #Requires declaration only, not the 5.1 runtime refusal.
+    $required = $ast.ScriptRequirements.RequiredPSVersion
+    Assert ($null -ne $required -and $required.Major -ge 7) "$name must declare #Requires -Version 7 so Windows PowerShell 5.1 refuses to run it."
+    "PASS: $name requires PowerShell 7"
 }
 "Workflow tests passed. Logs: $fixtureRoot"
 exit 0

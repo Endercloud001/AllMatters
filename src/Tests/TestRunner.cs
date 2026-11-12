@@ -6,11 +6,11 @@ public partial class TestRunner : Node
 {
     public override async void _Ready()
     {
-        GetTree().CreateTimer(60).Timeout += () =>
+        using var watchdog = new HeadlessTestWatchdog(GetTree(), stage =>
         {
-            Console.Error.WriteLine("FAIL: Test run timed out.");
+            Console.Error.WriteLine($"FAIL: Test run timed out during {stage}.");
             GetTree().Quit(1);
-        };
+        });
         try
         {
             string directory = Assembly.GetExecutingAssembly().GetCustomAttributes<AssemblyMetadataAttribute>()
@@ -59,7 +59,9 @@ public partial class TestRunner : Node
                 throw new Exception("Cannot load the installed beta Spine extension for resource tests.");
             if (!ProjectSettings.LoadResourcePack(Path.GetFullPath(modPack), replaceFiles: false))
                 throw new Exception("Build the AllMatters resource pack before running event tests.");
-            int result = await HelloWorldTests.Run(OS.GetCmdlineUserArgs());
+            int result = await HelloWorldTests.Run(OS.GetCmdlineUserArgs(), name =>
+                // Activation starts two sequential isolated hosts, each bounded to 50 seconds.
+                watchdog.Renew(name, name == JigsawActivationTests.Name ? 120 : 60));
             GetTree().Quit(result);
         }
         catch (Exception exception)
@@ -68,4 +70,27 @@ public partial class TestRunner : Node
             GetTree().Quit(1);
         }
     }
+}
+
+internal sealed class HeadlessTestWatchdog : IDisposable
+{
+    private readonly SceneTreeTimer _timer;
+    private readonly Action<string> _onTimeout;
+    private string _stage = "host initialization";
+
+    internal HeadlessTestWatchdog(SceneTree tree, Action<string> onTimeout, double seconds = 60)
+    {
+        _onTimeout = onTimeout;
+        _timer = tree.CreateTimer(seconds);
+        _timer.Timeout += Timeout;
+    }
+
+    internal void Renew(string stage, double seconds)
+    {
+        _stage = stage;
+        _timer.TimeLeft = seconds;
+    }
+
+    private void Timeout() => _onTimeout(_stage);
+    public void Dispose() => _timer.Timeout -= Timeout;
 }

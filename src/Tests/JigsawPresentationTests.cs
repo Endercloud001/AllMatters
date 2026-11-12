@@ -8,6 +8,8 @@ using MegaCrit.Sts2.Core.ControllerInput;
 internal static class JigsawPresentationTests
 {
  public static readonly (string Name, Func<Task> Test)[] Cases = [
+  ..JigsawRecoveryPresentationTests.Cases,
+  ..JigsawFeedbackPresentationTests.Cases,
   ("Jigsaw presentation top bar step badge and hover", StepBadge),
   ("Jigsaw presentation exploration visit ring and visible pulse", ExplorationVisuals),
   ("Jigsaw presentation real viewport buttons and Escape", ViewportAndEscape),
@@ -423,10 +425,10 @@ internal static class JigsawPresentationTests
   tree.Root.CallDeferred(Node.MethodName.AddChild,view);await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
   try {
    view.SwitchZone(-1);
-   Require(view.DialogText.Contains("审视")&&view.DialogText.Contains("自动")&&view.DialogText.Contains("禁编辑")&&view.DialogText.Contains("全员同选"),"Direct entry to ending actions explains both choices before activation.");
+   Require(view.DialogText == "令先古之民决定将重新安排地图整体布局，请谨慎选择。", "Direct entry to ending actions shows the requested automatic layout warning.");
    view.SetMap(JigsawRun.Create(75));
    view.DecisionControl.GetChildren().OfType<Button>().First().EmitSignal(Control.SignalName.MouseEntered);
-   Require(view.DialogText.Contains("审视")&&view.DialogText.Contains("自动"),"Mouse approach also explains both ending choices.");
+   Require(view.DialogText == "令先古之民决定将重新安排地图整体布局，请谨慎选择。", "Mouse approach shows the requested automatic layout warning.");
   } finally {view.Free();}
  }
  private static Task DeferredTeaching()
@@ -436,10 +438,10 @@ internal static class JigsawPresentationTests
    var button=view.DecisionControl.GetChildren().OfType<Button>().First();
    view.ShowResult(JigsawResult.Reject(JigsawFailure.BossUnreachable));
    button.EmitSignal(Control.SignalName.MouseEntered);
-   Require(!view.DialogText.Contains("手动审视会"),"Error keeps priority over teaching.");
+   Require(!view.DialogText.Contains("令先古之民决定将"),"Error keeps priority over teaching.");
    view.AdvanceTime(5);
    button.EmitSignal(Control.SignalName.MouseEntered);
-   Require(view.DialogText.Contains("手动审视会")&&view.DialogText.Contains("全员同选"),"Unseen teaching must still appear after the error expires.");
+   Require(view.DialogText == "令先古之民决定将重新安排地图整体布局，请谨慎选择。", "Unseen teaching must still appear after the error expires.");
   } finally {view.Free();}
   return Task.CompletedTask;
  }

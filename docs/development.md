@@ -18,8 +18,8 @@
 
 ```powershell
 Copy-Item Paths.example.props Paths.local.props
-./tools/Build.ps1 -Branch public-beta
-./tools/Build.ps1 -Branch public -GameDataDir 'D:/STS2-public/data_sts2_windows_x86_64'
+pwsh -NoProfile -File ./tools/Build.ps1 -Branch public-beta
+pwsh -NoProfile -File ./tools/Build.ps1 -Branch public -GameDataDir 'D:/STS2-public/data_sts2_windows_x86_64'
 ```
 
 Paths.local.props 不提交 Git；PublicGameDataDir 与 BetaGameDataDir 分别指向两套 DLL。本工作区前者指向从 GitHub 核对后下载的 0.107.1 实际 DLL，后者指向本机 Steam beta 安装；复制示例 props 会覆盖这些本地设置，请按实际路径填写。也可直接运行 `dotnet build -p:GameBranch=public-beta`。引用游戏程序集时 Private=false，避免把游戏 DLL 打包进 Mod。
@@ -37,12 +37,14 @@ Paths.local.props 不提交 Git；PublicGameDataDir 与 BetaGameDataDir 分别�
 测试时在 Paths.local.props 中配置 `GodotPath`（mono 可执行文件）及 `TestDotNetRoot`（例如 `.local/tools/dotnet9`），保留现有两分支游戏路径。工具路径可以相对仓库根目录填写；显式命令参数优先于配置。`global.json` 只控制构建 SDK，Godot 的运行时由 TestDotNetRoot 选择。
 
 ```powershell
-./tools/PrepareTestRuntime.ps1  # 一次性：用本机已安装的 .NET 9 创建运行目录，不下载运行时
-./tools/Test.ps1               # 默认 public-beta，无需重复填写路径
-./tools/Test.ps1 -Branch All   # 顺序运行 public-beta 与 public
-./tools/Test.ps1 -Filter 'highlights only'
-./tools/Test.ps1 -Filter 'Trash heap' -SkipResourceExport # 仅 C# 改动，显式复用上次资源包
+pwsh -NoProfile -File ./tools/PrepareTestRuntime.ps1  # 一次性：用本机已安装的 .NET 9 创建运行目录，不下载运行时
+pwsh -NoProfile -File ./tools/Test.ps1               # 默认 public-beta，无需重复填写路径
+pwsh -NoProfile -File ./tools/Test.ps1 -Branch All   # 顺序运行 public-beta 与 public
+pwsh -NoProfile -File ./tools/Test.ps1 -Filter 'highlights only'
+pwsh -NoProfile -File ./tools/Test.ps1 -Filter 'Trash heap' -SkipResourceExport # 仅 C# 改动，显式复用上次资源包
 ```
+
+`Test.ps1` 与 `Check.ps1` 要求 PowerShell 7，版本不足时脚本宿主拒绝执行。5.1 会把 Godot 写到 stderr 的行当作终止错误，从而把提示误判为失败。
 
 测试脚本恢复调用前的 DOTNET_ROOT，不修改系统配置；两个分支不能并行使用同一测试输出目录。CLI 仍可传 `-GodotPath`、`-DotNetRoot` 临时覆盖配置。
 
@@ -76,30 +78,30 @@ rtk git branch -d <feature-branch>  # 如有特性分支
 每个批次开始前，运行一次测试宿主健康检查以确保 TDD 信号完整：
 
 ```powershell
-./tools/Test.ps1 -Branch All
-./tools/ReadTestLog.ps1 -Path .local/tests/public-beta-last.log
-./tools/ReadTestLog.ps1 -Path .local/tests/public-last.log
+pwsh -NoProfile -File ./tools/Test.ps1 -Branch All
+pwsh -NoProfile -File ./tools/ReadTestLog.ps1 -Path .local/tests/public-beta-last.log
+pwsh -NoProfile -File ./tools/ReadTestLog.ps1 -Path .local/tests/public-last.log
 ```
 
-宿主就绪的标志：
-- 两份日志中「完整通过数」（Complete Passes）都**非零**
-- 无 `not associated with any mod` 错误或该错误计数为单个预期的提示（在 `ReadTestLog.ps1` 的诊断行单独统计，非零退出码）
+`ReadTestLog.ps1` 本身就是冒烟门：日志的通过数为空，或「未关联 mod」提示（`ModMetadataErrors`）超过 1 条时，它以退出码 1 结束；通过数非空且提示不超过 1 条时以退出码 0 结束。两条命令都以退出码 0 结束，批次才能开工。
 
-宿主 red（退出码非零或通过数为空）时：
+宿主 red（`ReadTestLog.ps1` 退出码非零）时：
 1. 立即修复宿主问题，不开始批次实施工单
 2. 将宿主修复记录为独立工单，在批次工单中标记为 blocked by
-3. 复验修复后的两目标输出，确认两份日志通过数均非零
+3. 复验修复后的两目标输出，两条 `ReadTestLog.ps1` 命令均以退出码 0 结束
 
 ## 自动检查与 PR 范围
 
 ```powershell
-./tools/Check.ps1                  # 语法、空白、两分支完整行为检查及开发包
-./tools/Tests/Workflow.Tests.ps1   # 独立运行脚本流程测试，不需要游戏依赖
-./tools/InstallHooks.ps1           # 为当前仓库安装提示型 pre-push 自动入口
-./tools/ReviewScope.ps1            # 相对 origin/main 的提交、变更统计与未提交文件
-./tools/ReviewScope.ps1 -ReviewedFrom '<已审查起点>'
-./tools/GitRemote.ps1 -Operation fetch
+pwsh -NoProfile -File ./tools/Check.ps1                  # 语法、空白、占位代码、两分支完整行为检查及开发包
+pwsh -NoProfile -File ./tools/Tests/Workflow.Tests.ps1   # 独立运行脚本流程测试，不需要游戏依赖
+pwsh -NoProfile -File ./tools/InstallHooks.ps1           # 为当前仓库安装提示型 pre-push 自动入口
+pwsh -NoProfile -File ./tools/ReviewScope.ps1            # 相对 origin/main 的提交、变更统计与未提交文件
+pwsh -NoProfile -File ./tools/ReviewScope.ps1 -ReviewedFrom '<已审查起点>'
+pwsh -NoProfile -File ./tools/GitRemote.ps1 -Operation fetch
 ```
+
+`Check.ps1` 的 Placeholder scan 检索 `src/**/*.cs`（排除 `src/Tests/`），命中 `Placeholder`、`In a real implementation` 或 `TODO: Implement` 即判该步失败。
 
 `Check.ps1` 分步骤汇总 PASS/FAIL/SKIP，任一步失败或跳过均返回非零，详细日志在 `.local/checks/last-run.log`。空白问题不阻止其他独立检查，单目标测试失败也继续另一目标及开发包构建；新资源导出失败则明确跳过依赖它的测试和打包，避免使用旧包。脚本流程测试使用隔离临时目录和命令替身验证执行顺序、资源复用与失败传播，不启动游戏。pre-push 自动调用同一命令，将输出留在 `.local/checks/hook-console.log`，失败会警示但仍允许推送。它不是强制合并条件，也不启动正式游戏或安装产物。安装器遇到已有 hook 或 hooksPath 时保留它们并停止，避免覆盖安全措施。其他 clone 需要自行运行安装器；没有依赖的公共 CI runner 不代跑本机测试。
 
@@ -147,6 +149,8 @@ CLI 遇到连接问题时按 [GitHub 操作约定](agents/issue-tracker.md) 处�
 2. **子代理 brief 写明起点**：修复 feature/集成分支上的 bug 时，brief 中写「worktree 必须从 `integration/batch-N` 切出」，并在 `start_session` 传 `source_branch`。
 3. **热点文件串行化**：多张票都要改 `src/Jigsaw/JigsawNativeSession.cs` 等集成热点时，先排定合并顺序；后合并者在前者合入后 merge 新基线，再开始改该文件。
 4. **集成分支由主会话独占**：子代理只在自己的分支提交；合入 `integration/batch-N` 由主会话逐个执行，每次合入后构建并跑测试。
+5. **派发前确认起点包含最新基线**：基线修复（编译参数、宿主初始化等）合入集成分支后，先用 `git merge-base --is-ancestor <基线修复 SHA> <起点>` 确认子代理的起点包含该提交，再派发；brief 中写明起点 SHA。
+6. **brief 以完成条件收尾**：每份实施 brief 的最后一条固定写明完成条件：子代理的最后一条消息报告其最终提交 SHA、变更文件清单、运行的测试命令，以及实际通过数与失败数。
 
 ### worktree 清理
 
@@ -267,7 +271,7 @@ Agent 完成适当的自动化测试和两目标构建后，向用户提供 `dis
 
 日志目录读取 `Paths.local.props` 的 `GameLogDir`，未填写时使用 `%APPDATA%/SlayTheSpire2/logs`；可用 `-LogDir` 临时覆盖，`-ModId` 指定其他模组。脚本只读，按文件修改时间选择最新 `.log`，输出来源和原始行号；无匹配不代表加载失败。需要排查更早的启动过程时，直接读取输出中的来源文件。分享日志前检查其中的本机路径和个人信息。
 
-`Test.ps1` 将本次每个目标的编译与宿主原始输出留在 `.local/tests/<目标>-last.log`，再次运行该目标会覆盖，需留证时复制到本票目录。使用 `./tools/ReadTestLog.ps1 -Path .local/tests/public-beta-last.log` 获取版本、编译/宿主退出码、完整通过数、首个异常位置及诊断数量；未执行的宿主结果为空，编译或资源准备失败不算行为 red。缺少 Mod 关联的既有提示单独计数，其余引擎错误仍报告；摘要不替代原始日志，也不改变测试退出状态。进一步读取具体位置使用 `ReadTextSlice.ps1 -Path <日志> -StartLine <行号> -Count 12`，长行可用 `-Pattern` 定位，不重复打印整份日志。
+`Test.ps1` 将本次每个目标的编译与宿主原始输出留在 `.local/tests/<目标>-last.log`，再次运行该目标会覆盖，需留证时复制到本票目录。使用 `./tools/ReadTestLog.ps1 -Path .local/tests/public-beta-last.log` 获取版本、编译/宿主退出码、完整通过数、首个异常位置及诊断数量；未执行的宿主结果为空，编译或资源准备失败不算行为 red。缺少 Mod 关联的既有提示单独计数，其余引擎错误仍报告。摘要以退出码表达冒烟结论：通过数为空或未关联 mod 提示超过 1 条时退出码为 1，否则为 0，见[开工前冒烟检查](#开工前冒烟检查)。摘要不替代原始日志。进一步读取具体位置使用 `ReadTextSlice.ps1 -Path <日志> -StartLine <行号> -Count 12`，长行可用 `-Pattern` 定位，不重复打印整份日志。
 
 脚本读取 props 中的字面值，不展开 MSBuild 表达式；工具路径可相对仓库根目录填写，游戏程序集目录建议使用绝对路径。配置仅保存在本机忽略文件。
 

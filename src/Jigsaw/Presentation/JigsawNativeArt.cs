@@ -10,7 +10,15 @@ internal sealed class JigsawNativeArt(ActModel? act)
     private readonly Texture2D paperTop = act?.MapTopBg ?? Load("packed/map/map_bgs/overgrowth/map_top_overgrowth.png");
     private readonly Texture2D paperMiddle = act?.MapMidBg ?? Load("packed/map/map_bgs/overgrowth/map_middle_overgrowth.png");
     private readonly Texture2D paperBottom = act?.MapBotBg ?? Load("packed/map/map_bgs/overgrowth/map_bottom_overgrowth.png");
-    internal Texture2D Icon(JigsawRoom room) => room == JigsawRoom.Ancient && act != null ? act.Ancient.MapIcon : Load(room == JigsawRoom.Ancient
+    internal Texture2D Icon(JigsawRoom room, JigsawRoom? resolved = null) => room == JigsawRoom.Unknown && resolved is JigsawRoom.Combat or JigsawRoom.Elite or JigsawRoom.Shop or JigsawRoom.Treasure
+     ? Load("atlases/ui_atlas.sprites/map/icons/map_unknown_" + (resolved switch
+     {
+         JigsawRoom.Combat => "monster",
+         JigsawRoom.Elite => "elite",
+         JigsawRoom.Shop => "shop",
+         _ => "chest"
+     }) + ".tres")
+     : room == JigsawRoom.Ancient && act != null ? act.Ancient.MapIcon : Load(room == JigsawRoom.Ancient
      ? "atlases/ui_atlas.sprites/map/ancients/ancient_node_neow.tres"
      : "atlases/ui_atlas.sprites/map/icons/" + (room switch
      {

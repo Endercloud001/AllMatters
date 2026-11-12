@@ -1,7 +1,9 @@
+using System.IO.Compression;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json.Nodes;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Runs;
@@ -16,6 +18,7 @@ public sealed class JigsawCheckpointData
     [JsonRequired] public int Version { get; set; }
     [JsonRequired] public int Act { get; set; }
     [JsonRequired] public JigsawSave? Map { get; set; }
+    public Dictionary<int, HashSet<int>>? RevisitedHistoryIndices { get; set; }
 }
 
 /// <summary>Run data lives inside the native save, never in a second run file.</summary>
@@ -26,7 +29,14 @@ public static class JigsawCheckpoint
     public static void Initialize() { _ = Slot; _ = JigsawNewRunMode.Slot; }
 
     public static void Capture(RunState native, JigsawRun map) =>
-        Slot.Set(native, new() { Version = 1, Act = native.CurrentActIndex, Map = map.CreateSave() });
+        Slot.Set(native, new()
+        {
+            Version = 1,
+            Act = native.CurrentActIndex,
+            Map = map.CreateSave(),
+            RevisitedHistoryIndices = Slot.TryGet(native, out var previous) && previous.RevisitedHistoryIndices is { } indices
+                ? indices.ToDictionary(pair => pair.Key, pair => new HashSet<int>(pair.Value)) : null
+        });
 }
 
 // RitsuLib 0.6.7 otherwise reopens the primary path after native recovery. Bind the
@@ -42,6 +52,37 @@ internal static class JigsawSaveSource
     private static readonly MethodInfo inject = attach.DeclaringType!.GetMethod("InjectIntoUtf8Json")!;
     private static readonly MethodInfo build = attach.DeclaringType!.GetMethod("BuildDocumentFromRun")!;
     private static readonly MethodInfo attachDocument = attach.DeclaringType!.GetMethod("AttachDocument")!;
+
+    private static readonly MethodInfo tryGetDocument = typeof(RunSavedDataStore).Assembly
+        .GetType("STS2RitsuLib.RunData.RunSavedDataRuntime", true)!.GetMethod("TryGetDocument")!;
+    private static readonly MethodInfo documentEntries = typeof(RunSavedDataStore).Assembly
+        .GetType("STS2RitsuLib.RunData.RunSavedDataDocument", true)!.GetMethod("Entries")!;
+
+    internal static bool TryReadRevisitedHistoryIndices(SerializableRun save, out Dictionary<int, HashSet<int>>? indices)
+    {
+        indices = null;
+        Attach(save);
+        object?[] arguments = [save, null];
+        if (!(bool)tryGetDocument.Invoke(null, arguments)!)
+            return false;
+        var entries = (IEnumerable<(string ModId, string Key, JsonObject Entry)>)documentEntries.Invoke(arguments[1], null)!;
+        foreach (var (modId, key, entry) in entries)
+        {
+            // The old JSON property lookup was ordinal; TryGetRaw is case-insensitive.
+            if (!string.Equals(modId, ModEntry.ModId, StringComparison.Ordinal) || !string.Equals(key, "jigsaw", StringComparison.Ordinal))
+                continue;
+            if (entry["data"] is not JsonObject checkpoint)
+                throw new InvalidDataException("拼图检查点缺少原生扩展数据。");
+            if (checkpoint[nameof(JigsawCheckpointData.RevisitedHistoryIndices)] is { } value)
+            {
+                try
+                { indices = value.Deserialize<Dictionary<int, HashSet<int>>>(); }
+                catch (JsonException error) { throw new InvalidDataException("拼图重访历史不可读。", error); }
+            }
+            return true;
+        }
+        return false;
+    }
 
     public static void Observe(string content, ReadSaveResult<SerializableRun> result)
     {
@@ -75,10 +116,42 @@ internal static class JigsawSaveSource
     // A retry must keep an independent complete point for another failed load.
     public static SerializableRun Copy(SerializableRun save)
     {
+        return FromJson(ToJson(save));
+    }
+
+    internal static string Serialize(SerializableRun save)
+    {
+        using var output = new MemoryStream();
+        using (var compressed = new GZipStream(output, CompressionLevel.Optimal, leaveOpen: true))
+        {
+            var bytes = ToUtf8Json(save);
+            compressed.Write(bytes);
+        }
+        return Convert.ToBase64String(output.ToArray());
+    }
+
+    internal static SerializableRun Deserialize(string payload)
+    {
+        using var input = new MemoryStream(Convert.FromBase64String(payload));
+        using var compressed = new GZipStream(input, CompressionMode.Decompress);
+        using var output = new MemoryStream();
+        compressed.CopyTo(output);
+        return FromJson(System.Text.Encoding.UTF8.GetString(output.ToArray()));
+    }
+
+    private static string ToJson(SerializableRun save) =>
+        System.Text.Encoding.UTF8.GetString(ToUtf8Json(save));
+
+    private static byte[] ToUtf8Json(SerializableRun save)
+    {
         var type = JsonSerializationUtility.GetTypeInfo<SerializableRun>();
         var bytes = JsonSerializer.SerializeToUtf8Bytes(save, type);
-        bytes = (byte[])inject.Invoke(null, [bytes, save])!;
-        string json = System.Text.Encoding.UTF8.GetString(bytes);
+        return (byte[])inject.Invoke(null, [bytes, save])!;
+    }
+
+    private static SerializableRun FromJson(string json)
+    {
+        var type = JsonSerializationUtility.GetTypeInfo<SerializableRun>();
         var copy = JsonSerializer.Deserialize(json, type) ?? throw new InvalidDataException("进入检查点无法复制。");
         var identity = ModelDb.Modifier<AllMattersJigsawMode>();
         if (!copy.Modifiers.Any(m => m.Id == identity.Id))

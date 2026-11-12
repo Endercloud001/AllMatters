@@ -1,4 +1,4 @@
-﻿using AllMatters.Jigsaw;
+using AllMatters.Jigsaw;
 using MegaCrit.Sts2.Core.Multiplayer;
 using MegaCrit.Sts2.Core.Runs;
 using MegaCrit.Sts2.Core.Saves.Managers;
@@ -134,6 +134,36 @@ internal static class JigsawNativeTests
         }
     }
 
+    private static async Task LobbyRecoveryConcurrentInitialize()
+    {
+        var participants = Enumerable.Range(1, 3).Select(id => MegaCrit.Sts2.Core.Entities.Players.Player.CreateForNewRun(
+            ModelDb.Character<MegaCrit.Sts2.Core.Models.Characters.Ironclad>(),
+            MegaCrit.Sts2.Core.Unlocks.UnlockState.all, (ulong)id)).ToArray();
+        var native = RunState.CreateForTest(participants, acts: [ModelDb.Act<Overgrowth>()], seed: "LOBBY_RECOVERY_CONCURRENT_INIT");
+        RunManager.Instance.SetUpTest(native, new NetSingleplayerGameService());
+        try
+        {
+            JigsawCheckpoint.Capture(native, JigsawRun.Create(92, players: [1UL, 2UL, 3UL]));
+            var recovery = LobbyRecovery.GetOrCreate(native)!;
+            using var start = new ManualResetEventSlim(false);
+            var inits = Enumerable.Range(0, 16).Select(_ => Task.Run(() =>
+            {
+                start.Wait();
+                return recovery.InitializeFromCheckpoint();
+            })).ToArray();
+            start.Set();
+            var results = await Task.WhenAll(inits);
+
+            Require(results.Count(ok => ok) == 1, "Concurrent checkpoint loads initialize the lobby roster exactly once.");
+            var state = recovery.GetLobbyState();
+            Require(state.OriginalPlayerCount == 3, "Concurrent checkpoint loads do not duplicate or drop roster entries.");
+        }
+        finally
+        {
+            RunManager.Instance.CleanUp(false);
+        }
+    }
+
     private static async Task CanonicalLobby(bool twoPlayers=false,bool invalidRoster=false)
     {
         var participants=Enumerable.Range(1,twoPlayers?2:1).Select(id=>MegaCrit.Sts2.Core.Entities.Players.Player.CreateForNewRun(ModelDb.Character<MegaCrit.Sts2.Core.Models.Characters.Ironclad>(),MegaCrit.Sts2.Core.Unlocks.UnlockState.all,(ulong)id)).ToArray();
@@ -199,7 +229,9 @@ internal static class JigsawNativeTests
             {
                 bool invalidOwner=false;try {RunManager.CanonicalizeSave(canonical,999);}catch(InvalidOperationException){invalidOwner=true;}
                 Require(invalidOwner,"Native canonicalization rejects callers outside the original save roster.");
-                bool gated=false;try {RunState.FromSerializable(incoming.serializableRun);}catch(InvalidOperationException e) when(e.Message.Contains("已连接且角色名单匹配")){gated=true;}
+                var deferred=RunState.FromSerializable(incoming.serializableRun);
+                Require(JigsawNativeSession.TryGet(deferred)==null,"Lobby deserialization validates the full map without activating a multiplayer session.");
+                bool gated=false;try {JigsawNativeSession.Enable(deferred);}catch(InvalidOperationException e) when(e.Message.Contains("已连接且角色名单匹配")){gated=true;}
                 Require(gated,"Lobby-only validation cannot leak into unsupported multiplayer gameplay activation after success or failure.");
             }
         }
@@ -230,8 +262,9 @@ internal static class JigsawNativeTests
     }
     private enum EntryFailureKind { None, BeforeReady, RestoredBeforeReady, AfterReady, RetryAfterReady, BeforeSave, Abandon, AbandonBeforeSave, AbandonRestored, AbandonWriteFailure, AfterCompletedAbandon }
     public static readonly (string Name, Func<Task> Test)[] Cases =
-    [ ("Jigsaw native stale endpoint queue resynchronizes", StaleEndpointQueue), (JigsawNetworkTests.Name, JigsawNetworkTests.Run), (JigsawActivationTests.Name, JigsawActivationTests.Run), ("Jigsaw native routed editor uses native ordered action", RoutedEditorQueue),
+    [ ("Jigsaw save payload preserves native state and unknown extensions across old and direct UTF-8 compression", SavePayload), ..JigsawEntryTransitionTests.Cases, (JigsawMerchantExitTests.Name, JigsawMerchantExitTests.Run), (JigsawSingleplayerTransitionTests.Name, JigsawSingleplayerTransitionTests.Run), ..JigsawNativeProgressTests.Cases, (JigsawDeferredAncientTests.Name, JigsawDeferredAncientTests.Run), (JigsawNativeShopPersistenceTests.AdapterName, JigsawNativeShopPersistenceTests.Reconstruct), (JigsawNativeShopPersistenceTests.Name, JigsawNativeShopPersistenceTests.Revisit), (JigsawNativeShopPersistenceTests.FaultName, JigsawNativeShopPersistenceTests.Faults), (JigsawNativeShopPersistenceTests.SyncFailureName, JigsawNativeShopPersistenceTests.SyncFailure), (JigsawMultiplayerRestoreTests.DeferredName, JigsawMultiplayerRestoreTests.DeferredActivation), (JigsawMultiplayerRestoreTests.SetupName, JigsawMultiplayerRestoreTests.HostSetup), ("Jigsaw native stale endpoint queue resynchronizes", StaleEndpointQueue), (JigsawNetworkTests.Name, JigsawNetworkTests.Run), (JigsawActivationTests.Name, JigsawActivationTests.Run), ("Jigsaw native routed editor uses native ordered action", RoutedEditorQueue),
       ("Jigsaw native lobby recovery rejects unknown and duplicate concurrent joins", LobbyRecoveryDeterminism),
+      ("Jigsaw native lobby recovery initializes its roster once under concurrent checkpoint loads", LobbyRecoveryConcurrentInitialize),
       ("Jigsaw native known lobby document rejects lost identity and incomplete data", ()=>MissingModeData("Budget",identityLost:true)),
       ("Jigsaw native lobby canonicalization and response preserve checkpoint", ()=>CanonicalLobby()),
       ("Jigsaw native lobby rejects a substituted saved player", ()=>CanonicalLobby(true,true)),
@@ -279,7 +312,8 @@ internal static class JigsawNativeTests
       ("Jigsaw native missing phase rejects incomplete checkpoint", ()=>MissingModeData("Phase")),
       ("Jigsaw native missing checkpoint fields reject partial documents", MissingCheckpointFields),
       ("Jigsaw native console discovery and editable phase reset", ConsoleReset),
-      ("Jigsaw native later acts start a fresh pool before preserved Ancient and Boss", LaterAct) ];
+      ("Jigsaw native later acts start a fresh pool before preserved Ancient and Boss", ()=>LaterAct()),
+      ("Jigsaw native ascension 10 third act pool enforces the dual Boss route", ()=>LaterAct(10)) ];
 
     private static Task IndependentSaveSchemas()
     {
@@ -482,12 +516,12 @@ internal static class JigsawNativeTests
         }
     }
 
-    private static async Task LaterAct()
+    private static async Task LaterAct(int ascension = 0)
     {
         using var atlases=HeadlessTestSetup.LoadAtlases("card_atlas","relic_atlas","ui_atlas","compressed");
         var native=RunState.CreateForTest(players:[MegaCrit.Sts2.Core.Entities.Players.Player.CreateForNewRun(
             ModelDb.Character<MegaCrit.Sts2.Core.Models.Characters.Ironclad>(),MegaCrit.Sts2.Core.Unlocks.UnlockState.all,1)],
-            seed:"JIGSAW_THREE_NATIVE_ACTS");
+            seed:"JIGSAW_THREE_NATIVE_ACTS", ascensionLevel:ascension);
         RunManager.Instance.SetUpTest(native,new NetSingleplayerGameService());
         var io=new MockGodotFileIo("Jigsaw-later-acts-memory-only");
         var manager=new RunSaveManager(74,io,new MigrationManager(io),forceSynchronous:true);
@@ -515,13 +549,25 @@ internal static class JigsawNativeTests
                 priorBoss=await CheckActArt(session,view,priorArt,priorBoss);
                 priorArt=view.FindChildren("*","Control",true,false).OfType<AllMatters.Jigsaw.Presentation.JigsawPaper>().Single().Art;
                 Require(native.CurrentActIndex==act && native.CurrentRoom is MapRoom && map.Phase==JigsawPhase.Editing && map.Steps==0 && map.Placements.Count==0,"Later native EnterAct starts an empty editable puzzle before Ancient rewards.");
-                var expected=JigsawRun.Create(unchecked((int)native.Rng.Seed+act*7919),15-act,players:[1UL]);
+                var expected=JigsawRun.Create(unchecked((int)native.Rng.Seed+act*7919),15-act,doubleBoss:act==2&&ascension>=10,players:[1UL]);
                 Require(map.Budget==15-act && !ReferenceEquals(first,map) && map.Pool.SelectMany(p=>p.Nodes).SequenceEqual(expected.Pool.SelectMany(p=>p.Nodes)),"Later act uses its own deterministic full pool and act budget.");
                 Require(native.Act.Ancient.Id==ancients[act] && native.Act.BossEncounter.Id==bosses[act] && native.Map.StartingMapPoint.PointType==MegaCrit.Sts2.Core.Map.MapPointType.Ancient,"Native generated Ancient and Boss content remain intact.");
                 Require(native.VisitedMapCoords.Count==0 && !session.AncientReady,"Later editing does not award Ancient or enter native map coordinates.");
                 await session.Enter(999);
                 Require(map.Steps==0 && map.PendingEntry==null,"Rejected native destination in editing cannot charge a step.");
                 first=map;
+            }
+            if (ascension >= 10)
+            {
+                var map = session.Map!;
+                Require(map.Pool.SelectMany(piece => piece.Nodes).Count(node => node.Room == JigsawRoom.SecondBoss) == 1,
+                    "Native A10 third-act setup creates exactly one second Boss.");
+                Require(map.ChooseEnd(1, EndChoice.Automatic).Success &&
+                    map.FinishAutomatic(map.AutomaticOperation!, JigsawAutomatic.Solve(map, 0)).Success,
+                    "The native third-act pool accepts its generated dual-Boss layout.");
+                Require(map.CompleteAncient(1).Success && map.Continue(1).Success,
+                    "The generated A10 pool can exercise domain exploration independently of native rewards.");
+                JigsawDomainTests.CheckDualBossRoute(map);
             }
         }
         finally {view?.Free(); JigsawNativeSaveHost.Save=null; RunManager.Instance.CleanUp(false); }
@@ -543,7 +589,8 @@ internal static class JigsawNativeTests
         Require(session.Map.Take(1,bossPiece.Id).Success&&session.Map.Drop(1,new(4,0)).Success,"Place the actual current act's boss piece.");
         view.Refresh();var tree=(Godot.SceneTree)Godot.Engine.GetMainLoop();
         await tree.ToSignal(tree,Godot.SceneTree.SignalName.ProcessFrame);await tree.ToSignal(tree,Godot.SceneTree.SignalName.ProcessFrame);
-        var boss=view.MapControl.GetChildren().OfType<Godot.Node2D>().Single(n=>n.Name.ToString().StartsWith("JigsawBoss"));
+        int bossId = session.Map.Nodes.Single(node => node.Room == JigsawRoom.Boss).Id;
+        var boss=view.MapControl.GetChildren().OfType<Godot.Node2D>().Single(n=>n.Name.ToString()==$"JigsawBoss{bossId}");
         Require(boss.GetChildCount()>0&&!ReferenceEquals(boss,previousBoss),"Each act mounts a fresh Boss visual instead of retaining the previous act's node.");
         if(Environment.GetEnvironmentVariable("ALLMATTERS_UI_CAPTURE") is {} capture)
         {
@@ -1038,6 +1085,9 @@ internal static class JigsawNativeTests
                 int rewardGold=await treasure.DoNormalRewards();
                 await treasure.DoExtraRewardsIfNeeded();
                 Require(restored.Players[0].Gold==gold+rewardGold,"Real native chest reward commands apply the rolled gold exactly once.");
+                JigsawNativeExploration.TerminalRewardsFinished(resumed);
+                Require(!JigsawNativeExploration.NativeFlowFinished(resumed, ulong.MaxValue),
+                    "A local terminal reward callback cannot complete an unrelated player.");
                 // Deliver the actual accepted native skip action. The headless host
                 // omits the UI/action-loop pump, so execute this queued action directly.
                 var skip=new MegaCrit.Sts2.Core.GameActions.PickRelicAction(restored.Players[0],null);
@@ -1298,16 +1348,30 @@ internal static class JigsawNativeTests
             string path = RunSaveManager.GetRunSavePath(74, "current_run.save");
             native.Players[0].Gold = 111;
             var first = JigsawRun.Create(74);
+            native.AppendToMapPointHistory(MegaCrit.Sts2.Core.Map.MapPointType.Shop, RoomType.Shop, null);
+            native.AppendToMapPointHistory(MegaCrit.Sts2.Core.Map.MapPointType.Shop, RoomType.Shop, null);
             JigsawCheckpoint.Capture(native, first);
+            JigsawCheckpoint.Slot.TryGet(native, out var firstPoint);
+            firstPoint.RevisitedHistoryIndices = new() { [0] = [1] };
             await manager.SaveRun(RunManager.Instance.ToSave(null), false);
             native.Players[0].Gold = 222;
+            native.AppendToMapPointHistory(MegaCrit.Sts2.Core.Map.MapPointType.Shop, RoomType.Shop, null);
             JigsawCheckpoint.Capture(native, JigsawRun.Create(75));
+            JigsawCheckpoint.Slot.TryGet(native, out var secondPoint);
+            secondPoint.RevisitedHistoryIndices = new() { [0] = [2] };
             await manager.SaveRun(RunManager.Instance.ToSave(null), false);
-            io.DeleteFile(path);
+            var corrupt = JsonNode.Parse(io.ReadFile(path))!.AsObject();
+            corrupt["schema_version"] = new JsonObject { ["invalid"] = true };
+            io.SetFileContent(path, corrupt.ToJsonString());
             var loaded = manager.LoadRunSave();
             Require(loaded.Success && loaded.SaveData != null, "Native backup must load.");
             var restored = RunState.FromSerializable(loaded.SaveData!);
             Require(restored.Players[0].Gold == 111, "Native selected the backup player.");
+            Require(loaded.SaveData!.MapPointHistory[0].Count == 2 && restored.MapPointHistory[0].Count == 2 &&
+                restored.TotalFloor == 1 && ScoreUtility.GetScoreForFloor(loaded.SaveData.MapPointHistory) == 10 &&
+                ScoreUtility.GetScoreForFloor(restored.MapPointHistory) == 10 &&
+                JigsawCheckpoint.Slot.TryGet(restored, out var restoredPoint) && restoredPoint.RevisitedHistoryIndices![0].SetEquals([1]),
+                "Corrupt-primary recovery binds the backup's two-entry native history and its own revisit index, not the newer primary's third entry or index.");
             Require(JigsawCheckpoint.Slot.TryGet(restored, out var saved) && saved.Map != null,
                 "The actual backup's jigsaw payload must survive native loading.");
             Require(saved.Map!.Pool.SequenceEqual(first.CreateSave().Pool,
@@ -1316,6 +1380,85 @@ internal static class JigsawNativeTests
                 "The backup must restore its original pool, not the current primary or a new pool.");
         }
         finally { RunManager.Instance.CleanUp(false); }
+    }
+
+    private static int payloadStringConversions;
+    private static void CountPayloadStringConversion() => payloadStringConversions++;
+
+    private static string LegacySavePayload(MegaCrit.Sts2.Core.Saves.SerializableRun save)
+    {
+        var toJson = AccessTools.Method(typeof(JigsawSaveSource), "ToJson");
+        var bytes = System.Text.Encoding.UTF8.GetBytes((string)toJson.Invoke(null, [save])!);
+        using var output = new MemoryStream();
+        using (var gzip = new System.IO.Compression.GZipStream(output, System.IO.Compression.CompressionLevel.Optimal, leaveOpen: true))
+            gzip.Write(bytes);
+        return Convert.ToBase64String(output.ToArray());
+    }
+
+    private static async Task SavePayload()
+    {
+        var native = RunState.CreateForTest(
+            players: [MegaCrit.Sts2.Core.Entities.Players.Player.CreateForNewRun(ModelDb.Character<MegaCrit.Sts2.Core.Models.Characters.Ironclad>(), MegaCrit.Sts2.Core.Unlocks.UnlockState.all, 1)],
+            acts: [ModelDb.Act<Overgrowth>()], seed: "SAVE_PAYLOAD_UTF8");
+        RunManager.Instance.SetUpTest(native, new NetSingleplayerGameService());
+        var harmony = new Harmony("AllMatters.Tests.SavePayloadUtf8");
+        try
+        {
+            RunManager.Instance.GenerateRooms();
+            await RunManager.Instance.GenerateMap();
+            native.Players[0].Gold = 123;
+            native.AppendToMapPointHistory(MegaCrit.Sts2.Core.Map.MapPointType.Shop, RoomType.Shop, null);
+            native.AppendToMapPointHistory(MegaCrit.Sts2.Core.Map.MapPointType.Shop, RoomType.Shop, null);
+            JigsawCheckpoint.Capture(native, JigsawRun.Create(76));
+            JigsawCheckpoint.Slot.TryGet(native, out var checkpoint);
+            checkpoint.RevisitedHistoryIndices = new() { [0] = [1] };
+            var source = RunManager.Instance.ToSave(null);
+            source.Modifiers.Add(ModelDb.Modifier<AllMattersJigsawMode>().ToMutable().ToSerializable());
+            var toJson = AccessTools.Method(typeof(JigsawSaveSource), "ToJson");
+            var full = JsonNode.Parse((string)toJson.Invoke(null, [source])!)!.AsObject();
+            full["_ritsulib"]!["run_saved_data"]!["OtherMod"] = new JsonObject
+            {
+                ["opaque"] = new JsonObject { ["version"] = 9, ["data"] = new JsonObject { ["unicode"] = "完整扩展 Ω", ["items"] = new JsonArray(3, 8) } }
+            };
+            var registry = typeof(STS2RitsuLib.RunData.RunSavedDataStore).Assembly.GetType("STS2RitsuLib.RunData.RunSavedDataRegistry", true)!;
+            registry.GetMethod("AttachDocumentFromJson")!.Invoke(null, [source, full.ToJsonString()]);
+            // Native deserialization materializes defaults such as saved-map CanModify.
+            string expected = (string)toJson.Invoke(null, [JigsawSaveSource.Copy(source)])!;
+            string legacy = LegacySavePayload(source);
+            harmony.Patch(toJson, prefix: new HarmonyMethod(typeof(JigsawNativeTests), nameof(CountPayloadStringConversion)));
+            payloadStringConversions = 0;
+            string current = JigsawSaveSource.Serialize(source);
+            Require(payloadStringConversions == 0, "Save compression consumes UTF-8 bytes without an intermediate complete JSON string.");
+            harmony.UnpatchAll(harmony.Id);
+            foreach (string payload in new[] { legacy, current })
+            {
+                var decoded = JigsawSaveSource.Deserialize(payload);
+                Require(JsonNode.DeepEquals(JsonNode.Parse(expected), JsonNode.Parse((string)toJson.Invoke(null, [decoded])!)),
+                    "Old and current compressed saves retain the complete native state, map, revisit data and unknown extension.");
+                for (int retry = 0; retry < 2; retry++)
+                {
+                    var restored = RunState.FromSerializable(JigsawSaveSource.Copy(decoded));
+                    Require(restored.Players[0].Gold == 123 &&
+                        HeadlessTestSetup.RngPosition(restored.Rng.Niche) == HeadlessTestSetup.RngPosition(native.Rng.Niche) &&
+                        System.Text.Json.JsonSerializer.Serialize(restored.Players[0].ToSerializable()) == System.Text.Json.JsonSerializer.Serialize(native.Players[0].ToSerializable()) &&
+                        JigsawCheckpoint.Slot.TryGet(restored, out var point) &&
+                        System.Text.Json.JsonSerializer.Serialize(point.Map) == System.Text.Json.JsonSerializer.Serialize(checkpoint.Map) &&
+                        point.RevisitedHistoryIndices![0].SetEquals([1]),
+                        "Each real restoration reproduces the protected player inventory, RNG, complete map and revisit indices.");
+                    restored.Players[0].Gold = 999;
+                    restored.Rng.Niche.NextInt(100);
+                    JigsawCheckpoint.Slot.TryGet(restored, out var mutable);
+                    mutable.RevisitedHistoryIndices![0].Clear();
+                    Require(JsonNode.DeepEquals(JsonNode.Parse(expected), JsonNode.Parse((string)toJson.Invoke(null, [decoded])!)),
+                        "Two failed-load style restore/mutate cycles cannot contaminate the input checkpoint.");
+                }
+            }
+            bool rejected = false;
+            try { JigsawSaveSource.Deserialize(Convert.ToBase64String(new byte[] { 1, 2, 3, 4 })); }
+            catch (InvalidDataException) { rejected = true; }
+            Require(rejected, "Malformed compressed payloads remain rejected.");
+        }
+        finally { harmony.UnpatchAll(harmony.Id); RunManager.Instance.CleanUp(false); }
     }
 
     private static void Require(bool condition, string message)
@@ -1337,6 +1480,7 @@ internal static class JigsawDelayedIoHost
 [HarmonyPatch(typeof(TreasureRoom), nameof(TreasureRoom.EnterInternal))]
 internal static class JigsawEntryFailureHost
 {
+    internal static Func<Task, Task>? Wrap;
     internal static Action? Loading;
     internal static bool Early;
     internal static bool Fail;
@@ -1344,6 +1488,7 @@ internal static class JigsawEntryFailureHost
     internal static string[]? Relics;
     private static void Postfix(ref Task __result)
     {
+        if (Wrap != null) __result = Wrap(__result);
         Loading?.Invoke();
         if (Late) { Late = false; __result = InstallLateFailure(__result); return; }
         if (!Fail) return;
@@ -1362,7 +1507,7 @@ internal static class JigsawEntryFailureHost
     }
     internal static void Reset()
     {
-        Early = Fail = Late = false; Relics = null; Loading = null;
+        Early = Fail = Late = false; Relics = null; Loading = null; Wrap = null;
         RunManager.Instance.RoomEntered -= ThrowAfterReady;
     }
     private static async Task FailAfterContents(Task original)
@@ -1370,6 +1515,15 @@ internal static class JigsawEntryFailureHost
         await original;
         Relics = RunManager.Instance.TreasureRoomRelicSynchronizer.CurrentRelics!.Select(r => r.Id.Entry).ToArray();
         throw new IOException("Injected real treasure load failure before RoomEntered");
+    }
+}
+
+[HarmonyPatch(typeof(CombatRoom), nameof(CombatRoom.EnterInternal))]
+internal static class JigsawCombatEntryFailureHost
+{
+    private static void Postfix(ref Task __result)
+    {
+        if (JigsawEntryFailureHost.Wrap is { } wrap) __result = wrap(__result);
     }
 }
 

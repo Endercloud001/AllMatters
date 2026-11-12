@@ -60,7 +60,7 @@ public static class ExplorationRecoveryTests
     public static void CreateSnapshotFromSave()
     {
         // Arrange
-        var run = ReadyMinimalLayout(seed: 12345, budget: 15, players: [1UL, 2UL]);
+        var run = ReadyMinimalLayout(seed: 12345, budget: 15, doubleBoss: false, players: [1UL, 2UL]);
 
         // Simulate exploration progress
         var attempt = run.BeginEnter(1);
@@ -90,7 +90,7 @@ public static class ExplorationRecoveryTests
     public static void RestorePreservesVisited()
     {
         // Arrange
-        var run = ReadyMinimalLayout(seed: 54321, budget: 15, players: [3UL]);
+        var run = ReadyMinimalLayout(seed: 54321, budget: 15, doubleBoss: false, players: [3UL]);
 
         // Visit and complete multiple rooms
         var nodeIds = new List<int>();
@@ -121,7 +121,7 @@ public static class ExplorationRecoveryTests
     public static void HandlePlayerReconnection()
     {
         // Arrange
-        var run = ReadyMinimalLayout(seed: 99999, budget: 15, players: [10UL, 20UL]);
+        var run = ReadyMinimalLayout(seed: 99999, budget: 15, doubleBoss: false, players: [10UL, 20UL]);
 
         // Progress in exploration
         var attempt = run.BeginEnter(1);
@@ -153,7 +153,7 @@ public static class ExplorationRecoveryTests
     public static void StepTrackingPersists()
     {
         // Arrange
-        var run = ReadyMinimalLayout(seed: 11111, budget: 10);
+        var run = ReadyMinimalLayout(seed: 11111, budget: 10, doubleBoss: false);
 
         // Make several room entries to increment steps
         for (int i = 0; i < 5; i++)
@@ -184,7 +184,7 @@ public static class ExplorationRecoveryTests
     public static void DetectHuntingPhase()
     {
         // Arrange: Create a save with steps exceeding budget
-        var run = ReadyMinimalLayout(seed: 22222, budget: 5);
+        var run = ReadyMinimalLayout(seed: 22222, budget: 5, doubleBoss: false);
 
         // Progress through multiple rooms to exceed budget
         for (int i = 0; i < 7; i++)
@@ -215,7 +215,7 @@ public static class ExplorationRecoveryTests
     public static void MultiPlayerStateIndependent()
     {
         // Arrange: Two-player exploration where they follow different paths
-        var run = ReadyMinimalLayout(seed: 33333, budget: 15, players: [100UL, 200UL]);
+        var run = ReadyMinimalLayout(seed: 33333, budget: 15, doubleBoss: false, players: [100UL, 200UL]);
 
         // Both enter first room and complete it (visited set will be updated)
         var firstDest = run.AvailableDestinations.First();
@@ -234,8 +234,60 @@ public static class ExplorationRecoveryTests
         Assert.Equal(save.Completed.Length, restored.Completed.Count());
     }
 
+    /// <summary>
+    /// Issue #92: hunting state survives a real save and restore. Steps are pushed past
+    /// the budget through the public entry API only — a shop is the one room that stays
+    /// available after it has been visited, so revisiting it needs no private state.
+    /// The map's visit record is one shared set on the run, not a copy per player — the
+    /// issue text's "per-player visit record" does not exist in the production code.
+    /// </summary>
+    [Fact(DisplayName = "Issue 92 hunting state survives save and restore")]
+    public static void HuntingStateSurvivesRestore()
+    {
+        // The automatic path gives a full 14-piece layout, so it contains shops;
+        // ReadyMinimalLayout places only piece 0 and may have none.
+        // Seed and budget follow JigsawDomainTests.AutomaticTransaction; the solver needs a full-budget layout.
+        var run = JigsawRun.Create(75, budget: 15);
+        Place(run, 1UL, 0, 3, 0);
+        Ok(run.AddEdge(1UL, 0, 1));
+        Ok(run.ChooseEnd(1UL, EndChoice.Automatic));
+        var candidate = JigsawAutomatic.Solve(run, 0);
+        Assert.NotNull(candidate);
+        Ok(run.FinishAutomatic(run.AutomaticOperation!, candidate));
+        Ok(run.CompleteAncient(1UL));
+        Ok(run.Continue(1UL));
+
+        var shop = run.Nodes.First(node => node.Room == JigsawRoom.Shop).Id;
+        // Walk the reachable map through the public entry API, preferring the shop so
+        // steps keep climbing after every other room has been visited.
+        for (int guard = 0; guard < 128 && run.Steps <= run.Budget; guard++)
+        {
+            int destination = run.AvailableDestinations.Contains(shop)
+                ? shop
+                : run.AvailableDestinations.First();
+            var attempt = run.BeginEnter(destination);
+            Assert.NotNull(attempt);
+            Assert.True(run.ConfirmEnter(attempt.Id).Success);
+            Assert.True(run.CompleteRoom(attempt.Id).Success);
+        }
+
+        Assert.True(run.Steps > run.Budget, "The public shop revisit path never reached the hunting phase.");
+        Assert.Equal(0, run.RemainingSteps);
+
+        var save = run.CreateSave();
+        var restored = JigsawRun.Restore(save);
+
+        Assert.True(restored.Steps > restored.Budget, "Hunting (Steps > Budget) must survive CreateSave + Restore.");
+        Assert.Equal(0, restored.RemainingSteps);
+        Assert.Equal(run.Visited.OrderBy(id => id), restored.Visited.OrderBy(id => id));
+
+        var snapshot = CreateExplorationSnapshotFromSave(save);
+        Assert.True(snapshot.Steps > snapshot.Budget, "The recovery snapshot must report the hunting phase.");
+        Assert.Equal(0, Math.Max(0, snapshot.Budget - snapshot.Steps));
+    }
+
     // Helper: Create exploration snapshot from JigsawSave (mimics ExplorationStateRecovery logic)
-    private static ExplorationStateRecovery.ExplorationSnapshot CreateExplorationSnapshotFromSave(JigsawSave save)
+    internal static ExplorationStateRecovery.ExplorationSnapshot CreateExplorationSnapshotFromSave(JigsawSave save)
     {
         return new ExplorationStateRecovery.ExplorationSnapshot
         {

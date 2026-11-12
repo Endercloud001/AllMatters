@@ -5,474 +5,237 @@ using AllMatters.Jigsaw;
 
 namespace AllMatters.Tests;
 
-/// <summary>Tests for save state recovery in multiplayer disconnection scenarios.</summary>
+/// <summary>
+/// Save state recovery over a generated, validated jigsaw checkpoint.
+/// Multiplayer is simulated inside one process, not over a real network.
+/// The native card/relic/potion inventory lives on the native Player and is checked in the
+/// batch 3 in-game acceptance; these tests cover the lists the checkpoint and its callers can express.
+/// </summary>
 public static class SaveStateRecoveryTests
 {
-    /// <summary>
-    /// Creates a minimal JigsawRun ready for exploration (Ancient phase completed).
-    /// </summary>
-    private static JigsawRun ReadyMinimalLayout(int seed = 74, int budget = 15, bool doubleBoss = false, IEnumerable<ulong>? players = null)
+    private static void Check(bool value, string text) => Assert.True(value, text);
+
+    private static void Check(JigsawResult result, string text) => Assert.True(result.Success, text + " " + result.Reason);
+
+    /// <summary>A real generated run, solved and restored, so the save passes JigsawSaveValidation.</summary>
+    private static JigsawSave GeneratedSave(int seed, params ulong[] players)
     {
-        var run = JigsawRun.Create(seed, budget, doubleBoss, players);
-        var playerList = players?.ToList() ?? [1UL];
-        var firstPlayer = playerList[0];
-
-        Place(run, firstPlayer, 0, 3, 0);
-        Ok(run.AddEdge(firstPlayer, 0, 1));
-
-        // All players must vote to authorize inspection
-        foreach (var player in playerList)
-        {
-            Ok(run.ChooseEnd(player, EndChoice.Manual));
-        }
-
-        Ok(run.Inspect());
-
-        // Complete Ancient phase for all players
-        foreach (var player in playerList)
-        {
-            Ok(run.CompleteAncient(player));
-        }
-
-        // Continue for all players
-        foreach (var player in playerList)
-        {
-            Ok(run.Continue(player));
-        }
-
-        return run;
+        var run = JigsawRun.Create(seed, players: players);
+        foreach (var player in players)
+            Check(run.ChooseEnd(player, EndChoice.Automatic), "Automatic layout must be authorized.");
+        var solved = JigsawAutomatic.Solve(run, 0);
+        Check(solved != null, "Zero expansions must yield a layout.");
+        Check(run.FinishAutomatic(run.AutomaticOperation!, solved), "The solved layout must commit.");
+        foreach (var player in players)
+            Check(run.CompleteAncient(player), "Ancient phase must complete for every player.");
+        foreach (var player in players)
+            Check(run.Continue(player), "Every player must continue into exploration.");
+        return JigsawRun.Restore(run.CreateSave()).CreateSave();
     }
 
-    private static void Ok(JigsawResult result)
+    private static SaveStateRecovery Recover(JigsawCheckpointData? data, Func<DateTimeOffset>? clock = null) =>
+        SaveStateRecovery.CreateForTest((out JigsawCheckpointData? read) => { read = data; return data != null; }, clock);
+
+    private static SaveStateRecovery Initialized(int seed, ulong[] players, Func<DateTimeOffset>? clock = null)
     {
-        if (!result.Success)
-            throw new InvalidOperationException($"Setup failed: {result.Reason}");
+        var recovery = Recover(new JigsawCheckpointData { Version = 1, Act = 1, Map = GeneratedSave(seed, players) }, clock);
+        Check(recovery.InitializeFromCheckpoint(), "A generated checkpoint must initialize recovery.");
+        return recovery;
     }
 
-    private static void Place(JigsawRun run, ulong player, int piece, int x, int y)
-    {
-        Ok(run.Take(player, piece));
-        Ok(run.Drop(player, new(x, y)));
-    }
-
-    [Fact(DisplayName = "Save state recovery initializes from checkpoint")]
+    [Fact(DisplayName = "Save state recovery initializes from a generated checkpoint")]
     public static void InitializeFromCheckpoint()
     {
-        // Arrange
-        var run = ReadyMinimalLayout(seed: 12345, budget: 15, players: [1UL, 2UL]);
+        ulong[] players = [1UL, 2UL];
+        var save = GeneratedSave(12345, players);
+        var recovery = Recover(new JigsawCheckpointData { Version = 1, Act = 2, Map = save });
 
-        // Progress through exploration
-        var attempt = run.BeginEnter(1);
-        Assert.NotNull(attempt);
-        run.ConfirmEnter(attempt.Id);
-        run.CompleteRoom(attempt.Id);
+        var result = recovery.TryInitialize();
 
-        var save = run.CreateSave();
-
-        // Act - Create mock recovery state
-        var snapshot = CreateSaveStateSnapshot(save, checkpointData: new { Act = 1 });
-
-        // Assert
-        Assert.NotNull(snapshot);
-        Assert.Equal(1, snapshot.Act);
-        Assert.Equal(save.Budget, snapshot.Budget);
-        Assert.Equal(save.Steps, snapshot.Steps);
-        Assert.Equal(save.Phase, snapshot.Phase);
-        Assert.Equal(save.Players.Length, snapshot.OriginalPlayers.Length);
+        Check(result.Success && recovery.IsInitialized, "Initialization must succeed.");
+        var snapshot = recovery.GetSnapshot()!;
+        Check(snapshot.Act == 2 && snapshot.Budget == save.Budget && snapshot.Steps == save.Steps && snapshot.Phase == save.Phase,
+            "The snapshot must copy the checkpoint act and the map progress.");
+        Check(snapshot.OriginalPlayers.SequenceEqual(players), "The snapshot must keep the original roster.");
+        Check(recovery.GetConnectedPlayerCount() == 2, "Both checkpoint players start connected.");
+        Check(!recovery.InitializeFromCheckpoint(), "A second initialization must not replace the snapshot.");
     }
 
-    [Fact(DisplayName = "Player connection tracking updates state")]
+    [Fact(DisplayName = "Save state recovery tracks connections and rejects an unknown player")]
     public static void PlayerConnectionTracking()
     {
-        // Arrange
-        var run = ReadyMinimalLayout(seed: 99999, budget: 15, players: [10UL, 20UL]);
+        var recovery = Initialized(99999, [10UL, 20UL]);
+        recovery.OnPlayerDisconnected(20UL);
 
-        var attempt = run.BeginEnter(1);
-        Assert.NotNull(attempt);
-        run.ConfirmEnter(attempt.Id);
-        run.CompleteRoom(attempt.Id);
+        Check(recovery.GetPlayerState(10UL) is { IsConnected: true }, "The untouched player stays connected.");
+        Check(recovery.GetPlayerState(20UL) is { IsConnected: false }, "The departed player is tracked as disconnected.");
+        Check(recovery.GetConnectedPlayerCount() == 1, "Only the connected player counts.");
 
-        var save = run.CreateSave();
-
-        // Act - Simulate player states
-        var playerStates = new Dictionary<ulong, bool>
-        {
-            [10UL] = true,  // Connected
-            [20UL] = false  // Disconnected
-        };
-
-        // Assert
-        Assert.True(playerStates[10UL]);
-        Assert.False(playerStates[20UL]);
+        recovery.OnPlayerConnected(99UL);
+        Check(recovery.GetPlayerState(99UL) == null, "A player outside the original roster is rejected.");
     }
 
-    [Fact(DisplayName = "Player reconnection within timeout window succeeds")]
+    [Fact(DisplayName = "Save state recovery reconnects inside the timeout window (in-process simulation, not a real network)")]
     public static void ReconnectionWithinTimeout()
     {
-        // Arrange
-        var run = ReadyMinimalLayout(seed: 88888, budget: 15, players: [5UL, 6UL]);
+        var now = DateTimeOffset.Parse("2026-01-01T00:00:00Z");
+        var recovery = Initialized(88888, [5UL, 6UL], () => now);
+        recovery.OnPlayerDisconnected(6UL);
+        now = now.AddSeconds(29);
+        recovery.OnPlayerConnected(6UL);
 
-        // Progress in exploration
-        var attempt = run.BeginEnter(1);
-        Assert.NotNull(attempt);
-        run.ConfirmEnter(attempt.Id);
-        run.CompleteRoom(attempt.Id);
-
-        // Player 6 disconnects
-        run.Disconnect(6UL);
-        Assert.DoesNotContain(6UL, run.ActivePlayers);
-
-        var save = run.CreateSave();
-
-        // Act - Restore and reconnect player 6
-        var restored = JigsawRun.Restore(save, [5UL]);
-        var reconnectResult = restored.Reconnect(6UL);
-
-        // Assert
-        Assert.True(reconnectResult.Success);
-        Assert.Contains(6UL, restored.ActivePlayers);
-        Assert.Equal(save.Steps, restored.Steps);
+        Check(recovery.GetPlayerState(6UL) is { IsConnected: true }, "Reconnecting inside the window restores the connection.");
+        Check(recovery.IsPlayerRecoverable(6UL), "The reconnected player is recoverable.");
+        Check(recovery.GetRecoverablePlayers().Order().SequenceEqual(new ulong[] { 5, 6 }), "Both players are recoverable again.");
     }
 
-    [Fact(DisplayName = "Player timeout detection after disconnection")]
+    [Fact(DisplayName = "Save state recovery detects a timeout by advancing the injected clock (in-process simulation, not a real network)")]
     public static void TimeoutDetection()
     {
-        // Arrange
-        var run = ReadyMinimalLayout(seed: 77777, budget: 15, players: [7UL, 8UL]);
+        var now = DateTimeOffset.Parse("2026-01-01T00:00:00Z");
+        var recovery = Initialized(77777, [7UL, 8UL], () => now);
+        recovery.OnPlayerDisconnected(8UL);
 
-        // Player 8 disconnects
-        run.Disconnect(8UL);
+        now = now.AddMilliseconds(SaveStateRecovery.PlayerTimeoutMs);
+        Check(recovery.IsPlayerRecoverable(8UL), "Exactly at the window boundary the player is still recoverable.");
 
-        var save = run.CreateSave();
-
-        // Act - Check player states
-        var connectedPlayers = save.Players.Where(p => run.ActivePlayers.Contains(p)).ToArray();
-        var disconnectedPlayers = (save.OriginalPlayers ?? []).Where(p => !run.ActivePlayers.Contains(p)).ToArray();
-
-        // Assert
-        Assert.Single(connectedPlayers);
-        Assert.Equal(7UL, connectedPlayers[0]);
-        Assert.Single(disconnectedPlayers);
-        Assert.Equal(8UL, disconnectedPlayers[0]);
+        now = now.AddMilliseconds(1);
+        var query = recovery.QueryPlayerState(8UL);
+        Check(!query.Success && query.Failure == RecoveryFailure.TimedOut, "Past the window the query reports a timeout, not a missing player.");
+        Check(!recovery.IsPlayerRecoverable(8UL), "A timed out player is not recoverable.");
+        Check(recovery.GetRecoverablePlayers().Single() == 7UL, "Only the player who never left remains.");
     }
 
-    [Fact(DisplayName = "State conflict resolution prefers server state")]
+    [Fact(DisplayName = "Save state recovery resolves a conflict in favor of the server state (in-process simulation, not a real network)")]
     public static void StateConflictResolution()
     {
-        // Arrange
-        var run = ReadyMinimalLayout(seed: 66666, budget: 15, players: [9UL]);
+        var recovery = Initialized(66666, [9UL]);
+        Check(recovery.UpdatePlayerState(9UL, gold: 90, health: 75), "The local state must be recorded.");
+        recovery.OnPlayerDisconnected(9UL);
 
-        var attempt = run.BeginEnter(1);
-        Assert.NotNull(attempt);
-        run.ConfirmEnter(attempt.Id);
-        run.CompleteRoom(attempt.Id);
+        var server = new SaveStateRecovery.PlayerStateSnapshot
+        {
+            PlayerId = 9UL,
+            IsConnected = true,
+            Gold = 100,
+            Health = 80,
+            RelicIds = ["ANCHOR"],
+            CardIds = ["STRIKE"],
+        };
+        Check(recovery.ResolveStateConflict(9UL, server), "The conflict must resolve.");
 
-        var save = run.CreateSave();
-
-        // Act - Simulate state conflict where server state takes precedence
-        var serverState = new { Gold = 100, Health = 80 };
-        var localState = new { Gold = 90, Health = 75 };
-
-        // In a real scenario, server state would override local state
-        var resolvedState = serverState; // Server wins
-
-        // Assert
-        Assert.Equal(100, resolvedState.Gold);
-        Assert.Equal(80, resolvedState.Health);
+        var state = recovery.GetPlayerState(9UL)!;
+        Check(state.Gold == 100 && state.Health == 80, "Server gold and health replace the local values.");
+        Check(state.RelicIds!.SequenceEqual(new[] { "ANCHOR" }) && state.CardIds!.SequenceEqual(new[] { "STRIKE" }),
+            "Server inventory lists replace the local ones.");
+        Check(!state.IsConnected, "Resolving the conflict must not pretend the player reconnected.");
+        Check(!recovery.ResolveStateConflict(99UL, server), "A player outside the roster cannot be written by conflict resolution.");
     }
 
-    [Fact(DisplayName = "Multiple player reconnection preserves exploration state")]
+    [Fact(DisplayName = "Save state recovery reconnects several players (in-process simulation, not a real network)")]
     public static void MultiplePlayerReconnection()
     {
-        // Arrange
-        var run = ReadyMinimalLayout(seed: 55555, budget: 15, players: [11UL, 12UL, 13UL]);
+        var now = DateTimeOffset.Parse("2026-01-01T00:00:00Z");
+        var recovery = Initialized(55555, [11UL, 12UL, 13UL], () => now);
+        recovery.OnPlayerDisconnected(12UL);
+        recovery.OnPlayerDisconnected(13UL);
+        now = now.AddSeconds(10);
+        recovery.OnPlayerConnected(12UL);
+        recovery.OnPlayerConnected(13UL);
 
-        // All players progress
-        var attempt = run.BeginEnter(1);
-        Assert.NotNull(attempt);
-        run.ConfirmEnter(attempt.Id);
-        run.CompleteRoom(attempt.Id);
-
-        // Two players disconnect
-        run.Disconnect(12UL);
-        run.Disconnect(13UL);
-
-        var save = run.CreateSave();
-
-        // Act - Restore with only player 11, then reconnect others
-        var restored = JigsawRun.Restore(save, [11UL]);
-        Assert.Single(restored.ActivePlayers);
-
-        var reconnect12 = restored.Reconnect(12UL);
-        var reconnect13 = restored.Reconnect(13UL);
-
-        // Assert
-        Assert.True(reconnect12.Success);
-        Assert.True(reconnect13.Success);
-        Assert.Equal(3, restored.ActivePlayers.Count());
-        Assert.Equal(save.Steps, restored.Steps);
-        Assert.Equal(save.Visited.Length, restored.Visited.Count());
+        Check(recovery.GetConnectedPlayerCount() == 3, "All three players are connected again.");
+        var snapshot = recovery.GetSnapshot()!;
+        Check(snapshot.Steps == 0 && snapshot.Phase == JigsawPhase.Exploring, "The generated checkpoint's exploration progress is unchanged.");
     }
 
-    [Fact(DisplayName = "Network partition recovery with concurrent reconnections")]
-    public static void NetworkPartitionRecovery()
+    [Fact(DisplayName = "Save state recovery fails on a missing checkpoint without an empty snapshot")]
+    public static void MissingCheckpoint()
     {
-        // Arrange
-        var run = ReadyMinimalLayout(seed: 44444, budget: 15, players: [14UL, 15UL]);
+        var recovery = SaveStateRecovery.CreateForTest((out JigsawCheckpointData? read) => { read = null; return false; });
 
-        var attempt = run.BeginEnter(1);
-        Assert.NotNull(attempt);
-        run.ConfirmEnter(attempt.Id);
-        run.CompleteRoom(attempt.Id);
+        var result = recovery.TryInitialize();
 
-        // Both players disconnect (network partition)
-        run.Disconnect(14UL);
-        run.Disconnect(15UL);
-
-        var save = run.CreateSave();
-
-        // Act - Both try to reconnect simultaneously
-        var restored = JigsawRun.Restore(save, []);
-        Assert.Empty(restored.ActivePlayers);
-
-        var reconnect14 = restored.Reconnect(14UL);
-        var reconnect15 = restored.Reconnect(15UL);
-
-        // Assert
-        Assert.True(reconnect14.Success);
-        Assert.True(reconnect15.Success);
-        Assert.Equal(2, restored.ActivePlayers.Count());
+        Check(!result.Success && result.Failure == RecoveryFailure.MissingCheckpoint, "A missing checkpoint fails initialization.");
+        Check(!recovery.IsInitialized && recovery.GetSnapshot() == null, "No snapshot is stored.");
+        var query = recovery.QuerySnapshot();
+        Check(!query.Success && query.Failure == RecoveryFailure.MissingCheckpoint, "Querying reports the failure instead of an empty snapshot.");
+        var recipients = recovery.GetRewardRecipients();
+        Check(!recipients.Success, "Reward recipients cannot be decided without a checkpoint.");
     }
 
-    [Fact(DisplayName = "Unknown player reconnection is rejected")]
-    public static void UnknownPlayerRejection()
+    [Fact(DisplayName = "Save state recovery fails on a checkpoint with no map")]
+    public static void MissingMap()
     {
-        // Arrange
-        var run = ReadyMinimalLayout(seed: 33333, budget: 15, players: [16UL]);
+        var recovery = Recover(new JigsawCheckpointData { Version = 1, Act = 1, Map = null });
 
-        var save = run.CreateSave();
-        var restored = JigsawRun.Restore(save, [16UL]);
+        var result = recovery.TryInitialize();
 
-        // Act - Try to reconnect unknown player
-        var unknownReconnect = restored.Reconnect(99UL);
-
-        // Assert
-        Assert.False(unknownReconnect.Success);
-        Assert.Contains("UnknownPlayer", unknownReconnect.Reason);
+        Check(!result.Success && result.Failure == RecoveryFailure.MissingMap, "A checkpoint without a map fails initialization.");
+        Check(!recovery.IsInitialized, "The failure leaves recovery uninitialized.");
     }
 
-    [Fact(DisplayName = "Player inventory state persists across disconnection")]
-    public static void InventoryStatePersistence()
+    [Fact(DisplayName = "Save state recovery rejects a corrupt map and keeps no state")]
+    public static void CorruptMap()
     {
-        // Arrange
-        var run = ReadyMinimalLayout(seed: 22222, budget: 15, players: [17UL]);
+        var save = GeneratedSave(45678, 40UL, 41UL);
+        var corrupt = save with { Pool = save.Pool[..13] };
+        var recovery = Recover(new JigsawCheckpointData { Version = 1, Act = 1, Map = corrupt });
 
-        var attempt = run.BeginEnter(1);
-        Assert.NotNull(attempt);
-        run.ConfirmEnter(attempt.Id);
-        run.CompleteRoom(attempt.Id);
+        var result = recovery.TryInitialize();
 
-        var save = run.CreateSave();
-
-        // Act - Simulate inventory state
-        var inventoryState = new
-        {
-            CardsCount = 10,
-            RelicsCount = 2,
-            Gold = 150,
-            Health = 70,
-            MaxHealth = 80
-        };
-
-        // Assert - State structure is preserved
-        Assert.Equal(10, inventoryState.CardsCount);
-        Assert.Equal(2, inventoryState.RelicsCount);
-        Assert.Equal(150, inventoryState.Gold);
-        Assert.Equal(70, inventoryState.Health);
+        Check(!result.Success && result.Failure == RecoveryFailure.CorruptMap, "A map that fails validation is rejected.");
+        Check(!recovery.IsInitialized && recovery.GetSnapshot() == null, "Nothing is written as recovered state.");
+        Check(!recovery.UpdatePlayerState(40UL, gold: 10), "Player state cannot be written against a rejected checkpoint.");
     }
 
-    [Fact(DisplayName = "Hunting phase state preserved during recovery")]
-    public static void HuntingPhaseRecovery()
+    [Fact(DisplayName = "Save state recovery keeps known fields and marks the missing ones unknown")]
+    public static void PartialPlayerState()
     {
-        // Arrange
-        var run = ReadyMinimalLayout(seed: 11111, budget: 5);
+        var recovery = Initialized(23456, [20UL, 21UL]);
 
-        // Exceed budget to enter hunting phase
-        for (int i = 0; i < 7; i++)
-        {
-            var dest = run.AvailableDestinations.FirstOrDefault();
-            if (dest == 0) break;
+        Check(recovery.UpdatePlayerState(20UL, gold: 150), "A partial update must be accepted.");
 
-            var attempt = run.BeginEnter(dest);
-            if (attempt != null)
-            {
-                run.ConfirmEnter(attempt.Id);
-                run.CompleteRoom(attempt.Id);
-            }
-        }
-
-        var save = run.CreateSave();
-
-        // Act - Restore and check hunting state
-        var restored = JigsawRun.Restore(save);
-        bool isHunting = restored.Steps > restored.Budget;
-
-        // Assert
-        Assert.True(isHunting);
-        Assert.True(restored.Steps > save.Budget);
+        var state = recovery.GetPlayerState(20UL)!;
+        Check(state.Gold == 150, "The provided gold is restored.");
+        Check(state.Health == null && state.MaxHealth == null, "Fields never provided stay unknown instead of zero.");
+        Check(state.UnknownFields.Contains(nameof(state.Health)) && state.UnknownFields.Contains(nameof(state.MaxHealth)),
+            "The missing fields are reported as unknown.");
+        Check(recovery.GetPlayerState(21UL)!.Gold == null, "The other player's state is untouched.");
     }
 
-    [Fact(DisplayName = "Absent player isolation: disconnected player doesn't block recovery")]
-    public static void AbsentPlayerIsolation()
+    [Fact(DisplayName = "Save state recovery gives a reward only to connected recoverable players (in-process simulation, not a real network)")]
+    public static void RewardRecipients()
     {
-        // Arrange
-        var run = ReadyMinimalLayout(seed: 23456, budget: 15, players: [20UL, 21UL, 22UL]);
+        var now = DateTimeOffset.Parse("2026-01-01T00:00:00Z");
+        var recovery = Initialized(34567, [30UL, 31UL, 32UL], () => now);
+        recovery.OnPlayerDisconnected(32UL);
+        now = now.AddSeconds(31);
 
-        var attempt = run.BeginEnter(1);
-        Assert.NotNull(attempt);
-        run.ConfirmEnter(attempt.Id);
-        run.CompleteRoom(attempt.Id);
+        var recipients = recovery.GetRewardRecipients();
 
-        // Player 21 and 22 disconnect (absent)
-        run.Disconnect(21UL);
-        run.Disconnect(22UL);
-
-        var save = run.CreateSave();
-
-        // Act - Restore with only player 20; recovery should not require absent players
-        var restored = JigsawRun.Restore(save, [20UL]);
-
-        // Assert: Exploration state intact, absent players can rejoin later
-        Assert.Single(restored.ActivePlayers);
-        Assert.Equal(save.Steps, restored.Steps);
-
-        // Verify absent players can reconnect
-        Assert.True(restored.Reconnect(21UL).Success);
-        Assert.True(restored.Reconnect(22UL).Success);
-        Assert.Equal(3, restored.ActivePlayers.Count());
+        Check(recipients.Success, "Recipients can be decided once recovery is initialized.");
+        Check(recipients.Value!.SequenceEqual(new ulong[] { 30, 31 }),
+            "Only the two connected, recoverable players receive the reward; the absent one does not.");
     }
 
-    [Fact(DisplayName = "30s timeout window: player remains recoverable within window")]
-    public static void TimeoutWindowValidation()
+    [Fact(DisplayName = "Save state recovery stores relic and card lists and flags an incomplete inventory")]
+    public static void InventoryLists()
     {
-        // Arrange: Create a run with multiple players
-        var run = ReadyMinimalLayout(seed: 34567, budget: 15, players: [30UL, 31UL]);
+        var recovery = Initialized(22222, [17UL]);
+        var before = recovery.GetPlayerState(17UL)!;
+        Check(before.RelicIds == null && before.CardIds == null && !before.InventoryComplete,
+            "Right after loading, no inventory list exists, so the inventory is not claimed complete.");
 
-        // Simulate a player disconnect after some progress
-        var attempt = run.BeginEnter(1);
-        Assert.NotNull(attempt);
-        run.ConfirmEnter(attempt.Id);
-        run.CompleteRoom(attempt.Id);
+        Check(recovery.UpdatePlayerState(17UL, relicsCount: 2, cardsCount: 2,
+            relicIds: ["BURNING_BLOOD", "ANCHOR"], cardIds: ["STRIKE", "DEFEND"]), "The lists must be stored.");
+        var complete = recovery.GetPlayerState(17UL)!;
+        Check(complete.RelicIds!.SequenceEqual(new[] { "BURNING_BLOOD", "ANCHOR" }), "Relic ids are kept, not just counted.");
+        Check(complete.CardIds!.SequenceEqual(new[] { "STRIKE", "DEFEND" }), "Card ids are kept, not just counted.");
+        Check(complete.InventoryComplete, "Lists that agree with their counts are complete.");
 
-        // Player 31 disconnects
-        run.Disconnect(31UL);
-        var save = run.CreateSave();
-
-        // Act - Restore with only player 30, then verify player 31 can reconnect
-        var restored = JigsawRun.Restore(save, [30UL]);
-
-        // Assert: Player 31 should be recoverable within the timeout window
-        var reconnectResult = restored.Reconnect(31UL);
-        Assert.True(reconnectResult.Success, "Player should reconnect within timeout window");
-        Assert.Contains(31UL, restored.ActivePlayers);
-    }
-
-    [Fact(DisplayName = "Corrupted checkpoint fallback: graceful degradation on missing fields")]
-    public static void CorruptedCheckpointFallback()
-    {
-        // Arrange: Create a save and verify recovery handles it even if fields are null
-        var run = ReadyMinimalLayout(seed: 45678, budget: 15, players: [40UL, 41UL]);
-
-        var attempt = run.BeginEnter(1);
-        Assert.NotNull(attempt);
-        run.ConfirmEnter(attempt.Id);
-        run.CompleteRoom(attempt.Id);
-
-        var save = run.CreateSave();
-
-        // Act: Restore and verify it completes normally (checkpoint data is properly handled)
-        var restored = JigsawRun.Restore(save, [40UL, 41UL]);
-
-        // Assert: Recovery should complete successfully despite potential data gaps
-        Assert.Equal(2, restored.ActivePlayers.Count());
-        Assert.Equal(save.Steps, restored.Steps);
-        Assert.Equal(save.Budget, restored.Budget);
-    }
-
-    [Fact(DisplayName = "Inventory isolation: player states remain independent")]
-    public static void InventoryStateIsolation()
-    {
-        // Arrange: Create a multi-player run
-        var run = ReadyMinimalLayout(seed: 56789, budget: 15, players: [50UL, 51UL]);
-
-        var attempt = run.BeginEnter(1);
-        Assert.NotNull(attempt);
-        run.ConfirmEnter(attempt.Id);
-        run.CompleteRoom(attempt.Id);
-
-        var save = run.CreateSave();
-        var restored = JigsawRun.Restore(save, [50UL, 51UL]);
-
-        // Act: Verify both players can be tracked independently through save/restore
-        var stepsRestored = restored.Steps;
-        var budgetRestored = restored.Budget;
-
-        // Player states should be isolated (each has their own resources)
-        var activePlayers = restored.ActivePlayers.Count();
-
-        // Assert: All players tracked and steps preserved
-        Assert.Equal(2, activePlayers);
-        Assert.Equal(save.Steps, stepsRestored);
-        Assert.Equal(save.Budget, budgetRestored);
-    }
-
-    [Fact(DisplayName = "Multiple player partial reconnection: some players reconnect, others stay disconnected")]
-    public static void MultiplePlayerPartialReconnection()
-    {
-        // Arrange: Three-player run where players disconnect and reconnect in stages
-        var run = ReadyMinimalLayout(seed: 67890, budget: 15, players: [60UL, 61UL, 62UL]);
-
-        // Progress through exploration
-        var attempt = run.BeginEnter(1);
-        Assert.NotNull(attempt);
-        run.ConfirmEnter(attempt.Id);
-        run.CompleteRoom(attempt.Id);
-
-        // All three players disconnect
-        run.Disconnect(60UL);
-        run.Disconnect(61UL);
-        run.Disconnect(62UL);
-
-        var save = run.CreateSave();
-
-        // Act - Restore with only player 60
-        var restored = JigsawRun.Restore(save, [60UL]);
-        Assert.Single(restored.ActivePlayers);
-
-        // Partial reconnection: only player 61 reconnects
-        var reconnect61 = restored.Reconnect(61UL);
-
-        // Assert: Partial reconnection succeeds, exploration state preserved
-        Assert.True(reconnect61.Success);
-        Assert.Equal(2, restored.ActivePlayers.Count());
-        Assert.Equal(save.Steps, restored.Steps);
-
-        // Player 62 can still reconnect later
-        var reconnect62 = restored.Reconnect(62UL);
-        Assert.True(reconnect62.Success);
-        Assert.Equal(3, restored.ActivePlayers.Count());
-    }
-
-    // Helper: Create save state snapshot from JigsawSave
-    private static SaveStateRecovery.SaveStateSnapshot CreateSaveStateSnapshot(JigsawSave save, dynamic checkpointData)
-    {
-        return new SaveStateRecovery.SaveStateSnapshot
-        {
-            Act = checkpointData.Act,
-            Budget = save.Budget,
-            Steps = save.Steps,
-            Phase = save.Phase,
-            OriginalPlayers = save.OriginalPlayers ?? save.Players
-        };
+        Check(recovery.UpdatePlayerState(17UL, cardsCount: 5), "A later count update must be accepted.");
+        var mismatch = recovery.GetPlayerState(17UL)!;
+        Check(mismatch.CardIds!.Count == 2 && mismatch.CardsCount == 5 && !mismatch.InventoryComplete,
+            "A list shorter than its count is kept but flagged incomplete.");
     }
 }

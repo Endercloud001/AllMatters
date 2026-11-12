@@ -35,14 +35,14 @@ internal static class JigsawNetworkTests
 #else
     private const string Reward="POMANDER";
 #endif
-    private static void ForceReward(ref Action<EventModel>? debugOnStart)
+    internal static void ForceReward(ref Action<EventModel>? debugOnStart)
     {
         var original=debugOnStart;
         debugOnStart=e=>{original?.Invoke(e);if(e is AncientEventModel ancient)ancient.DebugOption=Reward;};
     }
     private static readonly TaskCompletionSource<IEnumerable<CardModel>> pendingSelection = new();
     private static CardModel[] pendingCards = [];
-    private sealed class LegalSelector : ICardSelector
+    internal sealed class LegalSelector : ICardSelector
     {
         public Task<IEnumerable<CardModel>> GetSelectedCards(IEnumerable<CardModel> options,int minSelect,int maxSelect) {
             var cards=options.Take(minSelect).ToArray();
@@ -477,6 +477,32 @@ internal static class JigsawNetworkTests
             if(!session.AncientReady)throw new Exception("Every connected player must finish their own Ancient reward before shared continuation.");
             await session.Continue();
             await Until(()=>session.Map.Phase==JigsawPhase.Exploring,"all-player continuation consensus enters exploration");
+            if (!absentAncient)
+            {
+                HeadlessUiHost.EnsureInputActions();
+                using var nativeUi = new JigsawNativeMapUiHost();
+                var mapScreen = await nativeUi.Open(session);
+                ulong[] expectedVoters = remainingRoles.Select(peer => peer == "host" ? 1UL : ulong.Parse(peer)).Order().ToArray();
+                if (!mapScreen.IsProcessingInput() || !session.Map.ActivePlayers.Order().SequenceEqual(expectedVoters) ||
+                    session.Map.OriginalPlayers.Count != 3 || native.Players.Count != 3)
+                    throw new Exception("A native lobby enables each remaining map voter while preserving its original three-player roster.");
+                int target = session.Map.AvailableDestinations.First();
+                if (role == "2")
+                {
+                    var position = mapScreen.MapControl.GlobalPosition + mapScreen.GridToCanvas(session.Map.Nodes.Single(node => node.Id == target).Center);
+                    Input.ParseInputEvent(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true, Position = position, GlobalPosition = position });
+                    await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
+                    Input.ParseInputEvent(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false, Position = position, GlobalPosition = position });
+                }
+                await Until(() => session.Map.DestinationVotes.ContainsKey(2), "a fresh Client casts its first exploration ballot through production ShowMap");
+                if (session.Map.DestinationVotes.Count != 1 || session.Map.PendingEntry != null || session.Map.Steps != 0 ||
+                    mapScreen.MapControl.GetParent().FindChild("DestinationVoters" + target, true, false) is not HBoxContainer row || row.GetChildCount() != 1)
+                    throw new Exception("The fresh Client vote shows one portrait on every peer and never substitutes a Host ballot.");
+                File.WriteAllText(Path.Combine(directory, role + ".fresh-map-vote"), "visible");
+                await Until(() => remainingRoles.All(peer => File.Exists(Path.Combine(directory, peer + ".fresh-map-vote"))), "every fresh native endpoint observes the Client's first portrait");
+                if (Environment.GetEnvironmentVariable("JIGSAW_ENTRY_TRANSITION") is { } transitionMode)
+                    await JigsawEntryTransitionNetworkProbe.Run(session, mapScreen, role, directory, target, Until, transitionMode);
+            }
             File.WriteAllText(Path.Combine(directory,role+".ready-to-stop"),"ready");
             if(host!=null)
             {

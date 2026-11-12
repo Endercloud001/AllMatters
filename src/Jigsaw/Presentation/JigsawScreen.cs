@@ -21,9 +21,14 @@ public partial class JigsawScreen : Control
     internal Func<GridPoint, JigsawResult>? DropRequested { get; set; }
     internal Func<int?, JigsawResult>? EndpointRequested { get; set; }
     internal Func<EndChoice, JigsawResult>? ChoiceRequested { get; set; }
+    internal Func<int, JigsawResult>? VoteRequested { get; set; }
+    internal Func<bool>? CanVoteRequested { get; set; }
     private Func<ulong, Texture2D?>? avatar;
     private Func<ulong, Color>? playerColor;
     private readonly HBoxContainer manualVoters = new(), autoVoters = new();
+    private readonly HBoxContainer continueVoters = new() { Name = "ContinueVoters" };
+    private readonly Dictionary<int, HBoxContainer> destinationVoters = [];
+    private JigsawMultiplayerHud? multiplayerHud;
     private int helpIndex;
     private readonly Theme adaptiveTheme = new();
     private JigsawNativeArt art = null!;
@@ -116,6 +121,16 @@ public partial class JigsawScreen : Control
         return view;
     }
     private static string L(string text) => TranslationServer.Translate(text);
+    public override void _Ready()
+    {
+        if (MegaCrit.Sts2.Core.Nodes.NRun.Instance?.GlobalUi.MultiplayerPlayerContainer is { } hud)
+            BindMultiplayerHud(hud);
+    }
+    internal void BindMultiplayerHud(CanvasItem hud)
+    {
+        multiplayerHud?.Dispose();
+        multiplayerHud = new JigsawMultiplayerHud(this, hud, () => map.Phase is JigsawPhase.Editing or JigsawPhase.Inspecting or JigsawPhase.Generating or JigsawPhase.Ancient);
+    }
     private Button MakeButton(string text, Action pressed)
     {
         var b = new Button { Text = L(text), AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new(0, 42), SizeFlagsHorizontal = SizeFlags.ExpandFill };
@@ -249,6 +264,10 @@ public partial class JigsawScreen : Control
         decisions.AddChild(manual);
         decisions.AddChild(autoVoters);
         decisions.AddChild(automatic);
+        resume.AddChild(continueVoters);
+        continueVoters.MouseFilter = MouseFilterEnum.Ignore;
+        continueVoters.Resized += PositionContinueVoters;
+        resume.Resized += PositionContinueVoters;
         decisions.AddChild(resume);
         abandon.Text = L("放弃进入");
         abandon.Pressed += () => { if (abandonRequested != null) RunAsync(abandonRequested()); };
@@ -310,6 +329,8 @@ public partial class JigsawScreen : Control
     public void ClearRecent() { recent = ""; secondError = ""; errorRemaining = 0; }
     public void Refresh()
     {
+        multiplayerHud?.Update();
+        UpdateDestinationVoters();
         foreach (var id in bossVisuals.Keys.Where(id => !map.Nodes.Any(n => n.Id == id)).ToArray())
         { bossVisuals[id].QueueFree(); bossVisuals.Remove(id); }
         poolFrame.Visible = pool.Visible = map.Phase is JigsawPhase.Editing or JigsawPhase.Inspecting or JigsawPhase.Generating;
@@ -354,6 +375,7 @@ public partial class JigsawScreen : Control
         automatic.Text = L("令先古之民决定");
         UpdateVoters(manualVoters, EndChoice.Manual);
         UpdateVoters(autoVoters, EndChoice.Automatic);
+        UpdateVoters(continueVoters, map.Phase == JigsawPhase.Ancient ? map.ContinuedPlayers : []);
         resume.Visible = map.Phase == JigsawPhase.Ancient || map.PendingEntry != null;
         resume.Disabled = Reading;
         resume.Text = L(map.PendingEntry != null ? "重试进入" : "继续前行");
@@ -369,13 +391,37 @@ public partial class JigsawScreen : Control
         RestoreFocus();
     }
     private TextureRect Portrait(ulong id) => new() { Texture = avatar?.Invoke(id), CustomMinimumSize = new(32, 32), Size = new(32, 32), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, MouseFilter = MouseFilterEnum.Ignore };
+    private void PositionContinueVoters() => continueVoters.Position = new(
+        (resume.Size.X - continueVoters.Size.X) / 2, -continueVoters.Size.Y - 4 * Math.Max(.75f, Size.Y / 1080f));
+    private void UpdateDestinationVoters()
+    {
+        foreach (var row in destinationVoters.Values)
+        { overlay.RemoveChild(row); row.QueueFree(); }
+        destinationVoters.Clear();
+        if (map.Phase != JigsawPhase.Exploring)
+            return;
+        foreach (var ballots in map.DestinationVotes.GroupBy(ballot => ballot.Value))
+        {
+            var row = new HBoxContainer { Name = "DestinationVoters" + ballots.Key, MouseFilter = MouseFilterEnum.Ignore };
+            foreach (var ballot in ballots.OrderBy(ballot => ballot.Key))
+            {
+                var portrait = Portrait(ballot.Key);
+                portrait.Name = "Voter" + ballot.Key;
+                row.AddChild(portrait);
+            }
+            destinationVoters.Add(ballots.Key, row);
+            overlay.AddChild(row);
+        }
+    }
     private void UpdateVoters(HBoxContainer row, EndChoice choice)
+        => UpdateVoters(row, map.Choices.Where(x => x.Value == choice).Select(x => x.Key));
+    private void UpdateVoters(HBoxContainer row, IEnumerable<ulong> players)
     {
         foreach (var child in row.GetChildren())
         { row.RemoveChild(child); child.QueueFree(); }
-        foreach (var voter in map.Choices.Where(x => x.Value == choice))
-            row.AddChild(Portrait(voter.Key));
-        row.Visible = map.Choices.Any(x => x.Value == choice);
+        foreach (var voter in players)
+            row.AddChild(Portrait(voter));
+        row.Visible = row.GetChildCount() > 0;
     }
     private string CurrentInstruction()
     {
@@ -456,7 +502,7 @@ public partial class JigsawScreen : Control
     private void ExplainEnding()
     {
         if (map.Phase == JigsawPhase.Editing && !Reading)
-            Tip("end", "手动审视会检查你的拼图；自动决定将重新安排布局。两种结束按钮须全员同选，选择后本人禁编辑；激活同一按钮撤票，另一按钮改选。");
+            Tip("end", "令先古之民决定将重新安排地图整体布局，请谨慎选择。");
     }
     private void ReturnHeld() { if (!Reading && map.Holdings.TryGetValue(player, out var h)) Apply(ReturnRequested?.Invoke(h.PieceId) ?? map.ReturnToPool(player, h.PieceId)); }
     private void Choose(EndChoice choice)
@@ -572,7 +618,8 @@ public partial class JigsawScreen : Control
         poolFrame.CustomMinimumSize = new(poolWidth, 0);
         foreach (var card in poolButtons)
             card.CustomMinimumSize = new(0, Math.Max(105, 126 * scale));
-        decisions.CustomMinimumSize = new(buttonWidth * 2 + 12 * scale, 0);
+        bool continueOnly = map.Phase == JigsawPhase.Ancient && map.PendingEntry == null;
+        decisions.CustomMinimumSize = new(continueOnly ? buttonWidth : buttonWidth * 2 + 12 * scale, 0);
         decisions.AddThemeConstantOverride("separation", (int)(12 * scale));
         foreach (var button in new[] { manual, automatic, resume, abandon })
         {
@@ -580,6 +627,7 @@ public partial class JigsawScreen : Control
             button.SizeFlagsVertical = SizeFlags.ShrinkCenter;
             button.CustomMinimumSize = new(buttonWidth, 88 * scale);
         }
+        PositionContinueVoters();
         bottom.CustomMinimumSize = new(0, Size.Y <= 800 ? 112 : 140 * scale);
         bottom.SizeFlagsVertical = SizeFlags.ShrinkEnd;
         dialog.CustomMinimumSize = Vector2.Zero;
@@ -649,10 +697,19 @@ public partial class JigsawScreen : Control
     {
         if (Reading)
             return;
-        if (CanReturnToRoom)
+        if (CanReturnToRoom && !(map.Phase == JigsawPhase.Exploring && (CanVoteRequested?.Invoke() ?? map.RoomCompletedPlayers.Contains(player))))
             return;
         if (map.Phase == JigsawPhase.Exploring)
-        { if (id != null && !secondary) RunAsync(enter(id.Value)); return; }
+        {
+            if (id != null && !secondary)
+            {
+                if (VoteRequested != null)
+                    Apply(VoteRequested(id.Value));
+                else
+                    RunAsync(enter(id.Value));
+            }
+            return;
+        }
         if (secondary)
         {
             if (map.Holdings.ContainsKey(player))
@@ -782,6 +839,11 @@ public partial class JigsawScreen : Control
     }
     internal void DrawMarkers(CanvasItem target)
     {
+        foreach (var (node, row) in destinationVoters)
+        {
+            var at = GridToCanvas(map.Nodes.Single(candidate => candidate.Id == node).Center);
+            row.Position = at + new Vector2(-row.Size.X / 2, Cell * .65f);
+        }
         foreach (var n in map.Nodes)
         {
             float size = Cell * (n.Radius * 2 + 1);
@@ -824,7 +886,7 @@ public partial class JigsawScreen : Control
     {
         float size = Cell * (n.Radius * 2 + 1);
         var rect = new Rect2(at - new Vector2(size, size) / 2, new(size, size));
-        bool available = map.AvailableDestinations.Contains(n.Id);
+        bool available = (map.CurrentNode != null && map.RoomCompletedPlayers.Contains(player) ? map.VotingDestinations : map.AvailableDestinations).Contains(n.Id);
         float pulse = available ? 1 + .12f * (float)Math.Sin(Time.GetTicksMsec() / 260d) : 1;
         rect = new Rect2(rect.GetCenter() - rect.Size * pulse / 2, rect.Size * pulse);
 
@@ -848,7 +910,7 @@ public partial class JigsawScreen : Control
                 target.AddChild(icon);
             }
             icon.Show();
-            icon.Texture = art.Icon(n.Room);
+            icon.Texture = art.Icon(n.Room, map.Visited.Contains(n.Id) ? map.ResolvedRoom(n.Id) : null);
             icon.Position = at;
             icon.BaseScale = size / Math.Max(icon.Texture.GetWidth(), icon.Texture.GetHeight());
             icon.Available = available;
