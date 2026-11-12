@@ -117,7 +117,7 @@ internal static class JigsawRecoveryNetworkTests
          select ($"{Prefix} {phase} {roster}", (Func<Task>)(() => Run(phase, roster))))
         .Concat(new[] { "shop-hunting", "shop-hunting-completed" }.Select(phase => ($"{Prefix} {phase} absent", (Func<Task>)(() => Run(phase, "absent")))))
         .Concat(new[] { "treasure-hunting" }.Select(phase => ($"{Prefix} {phase} absent", (Func<Task>)(() => Run(phase, "absent")))))
-        .Concat(new[] { "deferred", "deferred-pending", "entry-retry", "entry-abandon", "entry-after", "entry-disconnect", "shop-lag", "shop-fault", "combat-exit", "combat-lag", "combat-local-lag", "combat-reload" }
+        .Concat(new[] { "deferred", "deferred-pending", "entry-retry", "entry-abandon", "entry-after", "entry-disconnect", "shop-lag", "shop-fault", "combat-exit", "combat-lag", "combat-local-lag", "combat-reload", "event-combat-lag" }
             .Select(phase => ($"{Prefix} {phase} all", (Func<Task>)(() => Run(phase, "all"))))).ToArray();
 
     // These are existing native reward/failure paths, previously opt-in by environment.
@@ -203,8 +203,14 @@ internal static class JigsawRecoveryNetworkTests
 
     private static async Task<SerializableRun> Fixture(RunSaveManager saves, string phase)
     {
+        // Native lobby packets encode run count in a bounded integer. Use a
+        // normal representable value so full player comparisons across all
+        // endpoints do not compare the test-only UnlockState.all sentinel.
+        var unlocks = phase == "event-combat-lag" ? new UnlockState(
+            MegaCrit.Sts2.Core.Timeline.EpochModel.AllEpochIds,
+            ModelDb.AllEncounters.Select(encounter => encounter.Id), 100) : UnlockState.all;
         var players = Enumerable.Range(1, 3).Select(id => Player.CreateForNewRun(
-            ModelDb.Character<Ironclad>(), UnlockState.all, (ulong)id)).ToArray();
+            ModelDb.Character<Ironclad>(), unlocks, (ulong)id)).ToArray();
         var native = RunState.CreateForTest(players: players, acts: phase == "shop-lag" ? new ActModel[] { ModelDb.Act<Overgrowth>(), ModelDb.Act<Hive>() } : [ModelDb.Act<Overgrowth>()], seed: "RECOVERY_81");
         RunManager.Instance.SetUpTest(native, new NetSingleplayerGameService());
         try
@@ -317,11 +323,12 @@ internal static class JigsawRecoveryNetworkTests
             foreach (string errorLog in Directory.EnumerateFiles(evidence, "*.err"))
                 Require(!File.ReadLines(errorLog).Any(line => line.StartsWith("ERROR:", StringComparison.Ordinal) || line.StartsWith("FATAL:", StringComparison.Ordinal) || line.StartsWith("[ERROR]", StringComparison.Ordinal) || line.StartsWith("[FATAL]", StringComparison.Ordinal)),
                     "Native recovery endpoint reported an engine error; inspect " + errorLog);
-            if (phase == "combat-reload")
+            if (phase is "combat-reload" or "event-combat-lag")
             {
                 string resumed = Path.Combine(evidence, "reloaded");
                 Directory.CreateDirectory(resumed);
                 File.Copy(Path.Combine(evidence, "combat-checkpoint.json"), Path.Combine(resumed, "combat-checkpoint.json"));
+                if (phase == "event-combat-lag") File.Copy(Path.Combine(evidence, "event-opening.json"), Path.Combine(resumed, "event-opening.json"));
                 using var reloaded = Launch("host", resumed, name);
                 try { await reloaded.WaitForExitAsync().WaitAsync(TimeSpan.FromSeconds(50)); }
                 finally { if (!reloaded.HasExited) reloaded.Kill(true); }
@@ -339,7 +346,7 @@ internal static class JigsawRecoveryNetworkTests
         var originalSize = tree.Root.Size;
         tree.Root.Size = new(1280, 720);
         string directory = Environment.GetEnvironmentVariable("JIGSAW_RECOVERY_DIR")!;
-        bool combatReloaded = phase == "combat-reload" && File.Exists(Path.Combine(directory, "combat-checkpoint.json"));
+        bool combatReloaded = phase is "combat-reload" or "event-combat-lag" && File.Exists(Path.Combine(directory, "combat-checkpoint.json"));
         var previousRewardsSelector = RewardsSet.testSelector;
         if (combatReloaded) RewardsSet.testSelector = LeaveReloadedRewardsUnclaimed;
         var children = new List<Process>();
@@ -398,8 +405,9 @@ internal static class JigsawRecoveryNetworkTests
         bool hunting = phase is "shop-hunting" or "shop-hunting-completed";
         bool treasure = phase.StartsWith("treasure-", StringComparison.Ordinal);
         bool shopLag = phase is "shop-lag" or "shop-hunting" or "shop-hunting-completed", shopFault = phase == "shop-fault";
-        using var eventScope = deferred || unfinishedAncient || shopLag || shopFault || treasure ? HeadlessCombatInProgress.EnterEvent() : null;
+        using var eventScope = deferred || unfinishedAncient || shopLag || shopFault || treasure || phase == "event-combat-lag" ? HeadlessCombatInProgress.EnterEvent() : null;
         using var atlases = HeadlessTestSetup.LoadAtlases("card_atlas", "relic_atlas", "ui_atlas");
+        using var eventAtlas = phase == "event-combat-lag" ? HeadlessTestSetup.LoadAtlases("compressed") : null;
         var rewardHarmony = new HarmonyLib.Harmony("AllMatters.Tests.RecoveryDeferred");
         if (phase.StartsWith("combat-", StringComparison.Ordinal))
         {
@@ -559,6 +567,9 @@ internal static class JigsawRecoveryNetworkTests
             await Until(() => remaining.All(peer => Signaled(peer, "restored")), "all production endpoints restore before Host exit");
             foreach (string peer in remaining)
                 Require(JsonNode.DeepEquals(JsonNode.Parse(listener.RestoredMap!), JsonNode.Parse(File.ReadAllText(Path.Combine(directory, peer + ".map.json")))), "All endpoints have the same complete map, RNG, operation input and exploration document after native setup.");
+            if (phase == "event-combat-lag")
+                await JigsawCombatCheckpointTests.NetworkOwners(listener.Native!, saves, combatReloaded, directory, role,
+                    Until, Signal, Signaled);
             if (treasure)
             {
                 var native = listener.Native!;
@@ -711,7 +722,7 @@ internal static class JigsawRecoveryNetworkTests
                     "Native entry preserves the completed battle history and earned inventory without delayed writes to the next room.");
                 }
             }
-            if (combatReloaded)
+            if (combatReloaded && phase == "combat-reload")
             {
                 Require(map.Steps == 1 && map.CurrentNode != null && listener.Native!.CurrentRoom is CombatRoom { IsPreFinished: true },
                     $"The original load lobby restores the completed real combat without entering or charging another room. current={map.CurrentNode} room={listener.Native!.CurrentRoom?.GetType().Name} finished={listener.Native.CurrentRoom?.IsPreFinished}");
