@@ -80,3 +80,20 @@ internal static class JigsawHuntingSoulNexusOpening
         await PowerCmd.Apply<TerritorialPower>(new ThrowingPlayerChoiceContext(), monster.Creature, 1, monster.Creature, null);
     }
 }
+
+[HarmonyPatch(typeof(FlailKnight), nameof(FlailKnight.FlailMove))]
+internal static class JigsawHuntingFlailTangled
+{
+    private static void Postfix(FlailKnight __instance, ref Task __result)
+    {
+        if (JigsawHuntingActThree.IsHuntedElite(__instance))
+            __result = AddTangled(__result, __instance);
+    }
+
+    private static async Task AddTangled(Task original, FlailKnight monster)
+    {
+        await original;
+        foreach (var player in monster.CombatState.Players)
+            await PowerCmd.Apply<TangledPower>(new ThrowingPlayerChoiceContext(), player.Creature, 1, monster.Creature, null);
+    }
+}
