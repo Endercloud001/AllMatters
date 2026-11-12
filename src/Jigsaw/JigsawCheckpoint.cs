@@ -31,7 +31,7 @@ public static class JigsawCheckpoint
     public static void Capture(RunState native, JigsawRun map) =>
         Slot.Set(native, new()
         {
-            Version = 1,
+            Version = 2,
             Act = native.CurrentActIndex,
             Map = map.CreateSave(),
             RevisitedHistoryIndices = Slot.TryGet(native, out var previous) && previous.RevisitedHistoryIndices is { } indices

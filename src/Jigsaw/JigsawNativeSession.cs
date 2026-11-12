@@ -113,6 +113,8 @@ public sealed class JigsawNativeSession
     public SerializableRun? BeforeAncient { get; private set; }
     internal JigsawDeferredAncient? DeferredAncient { get; private set; }
     public bool AncientReady => Map is { } map && ActivePlayerIds.All(map.CreateSave().AncientCompleted.Contains);
+    internal bool CanSetRemainingSteps => Map is { Phase: JigsawPhase.Exploring, PendingEntry: null, HasDeferredAncient: false } &&
+        Native.CurrentRoomCount == 1 && Native.CurrentRoom is not CombatRoom && !paused;
     public bool CanResetLayout => Map?.Phase == JigsawPhase.Editing && Native.CurrentRoom is MapRoom &&
         !paused && (TestMode.IsOn || screen is { Visible: true } && screen.IsProcessingInput());
 
@@ -204,6 +206,7 @@ public sealed class JigsawNativeSession
             int seed = unchecked((int)Native.Rng.Seed);
             Map = JigsawRun.Create(unchecked(seed + act * 7919), 15 - Math.Min(2, act),
                 act == 2 && Native.AscensionLevel >= 10, ActivePlayerIds, Native.Players.Select(p => p.NetId));
+            await JigsawHuntingNative.SynchronizeMasks(this);
         }
         SyncActivePlayers();
         if (Native.CurrentRoom is not MapRoom)
@@ -230,8 +233,9 @@ public sealed class JigsawNativeSession
                 throw new InvalidDataException("拼图模式的地图数据缺失或不可读，不能按普通跑局恢复。");
             return;
         }
-        if (data.Version != 1 || data.Map == null || data.Act != native.CurrentActIndex)
+        if (data.Version is not (1 or 2) || data.Map == null || data.Act != native.CurrentActIndex || data.Version == 2 && data.Map.Hunting == null)
             throw new InvalidDataException("拼图检查点不完整，不能恢复为空地图。");
+        data.Map = JigsawHuntingMigration.FromLegacy(data.Map);
         var originals = native.Players.Select(p => p.NetId).ToArray();
         var mapData = data.Map.OriginalPlayers == null ? data.Map with { OriginalPlayers = originals } : data.Map;
         if (!originals.ToHashSet().SetEquals(mapData.OriginalPlayers!))
@@ -1060,7 +1064,9 @@ public sealed class JigsawNativeSession
         entryConfirmQueued = false;
         nativeReadyAttempt = 0;
         entryRecoveryRequested = false;
-        // Also retain a complete point before native AddVisited/exit/sync can fail.
+        await JigsawHuntingNative.SynchronizeMasks(this);
+        // Pending hunting and its masks belong to the same recoverable entry point.
+        // Retain it before native AddVisited/exit/sync can fail.
         entryCheckpoint ??= JigsawSaveSource.Copy(RunManager.Instance.ToSave(null));
         var destination = Map.Nodes.Single(n => n.Id == node);
         var projection = JigsawEntryProjection.Append(Native.Map,
@@ -1275,12 +1281,23 @@ public sealed class JigsawNativeSession
         CaptureCurrentShop();
         if (Map.ActivePlayers.Count == 1)
         {
-            Map.CompleteRoom(Map.CreateSave().NextEntry);
-            OnEdited();
+            TaskHelper.RunSafely(CompleteSingleRoom());
         }
         else
             JigsawEditorAction.Submit(this, JigsawEditorOperation.CompleteRoom, completedOwner: LocalPlayerId);
     }
+
+    private async Task CompleteSingleRoom()
+    {
+        if (Map?.CurrentNode == null)
+            return;
+        bool hunting = Map.HuntingActive;
+        Map.CompleteRoom(Map.CreateSave().NextEntry);
+        await JigsawHuntingNative.CompleteRoom(this, hunting);
+        OnEdited();
+    }
+
+    internal void ShowHuntingReleased() => screen?.ShowNotice(new MegaCrit.Sts2.Core.Localization.LocString("static_hover_tips", "AM_JIGSAW_HUNTING_RELEASED").GetFormattedText());
 
     internal void BeginDeferredAncient(SerializableRun point)
     {

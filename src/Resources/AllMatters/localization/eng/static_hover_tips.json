@@ -1,4 +1,7 @@
 {
   "AM_JIGSAW_STEPS.title": "Remaining steps",
-  "AM_JIGSAW_STEPS.description": "{Remaining}/{Budget}"
+  "AM_JIGSAW_STEPS.description": "You can travel {Remaining} more steps.",
+  "AM_JIGSAW_LAST_STEP": "Your last step. Make for the Boss.",
+  "AM_JIGSAW_EXHAUSTED": "The Architect fixes his gaze upon you... and brings punishment.",
+  "AM_JIGSAW_HUNTING_RELEASED": "You feel the weight lifting from you..."
 }

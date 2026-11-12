@@ -430,7 +430,13 @@ public partial class JigsawScreen : Control
         if (map.Phase == JigsawPhase.Ancient)
             return L("你的愿望实现了...");
         if (map.Phase == JigsawPhase.Exploring)
-            return L(map.RemainingSteps == 1 ? "最后一步，请尽快前往Boss处。" : $"还可前行{map.RemainingSteps}步。");
+        {
+            if (map.HuntingActive || map.BossReachedOnTime || map.IsEndgame)
+                return "";
+            var text = new MegaCrit.Sts2.Core.Localization.LocString("static_hover_tips", JigsawStepCounter.DescriptionKey(map));
+            text.Add("Remaining", map.RemainingSteps);
+            return text.GetFormattedText();
+        }
         return L(map.Holdings.ContainsKey(player) ? "放置碎块，旋转，返回取消，或归还碎块。" : "从左侧拿取碎块，或选择两端连线／拆线。");
     }
     public void AdvanceDialog()
@@ -577,7 +583,7 @@ public partial class JigsawScreen : Control
             return;
         AdvanceTime(delta);
         explorationNotice.Visible = map.Phase == JigsawPhase.Exploring;
-        explorationNotice.Text = errorRemaining > 0 ? dialog.Text : "";
+        explorationNotice.Text = errorRemaining > 0 ? dialog.Text : CurrentInstruction();
         hints.Visible = false;
         mouseHints.Visible = false;
         foreach (var (icon, action) in inputIcons)

@@ -102,6 +102,7 @@ internal static class JigsawRecoveryNetworkTests
         (from phase in new[] { "editing", "generating", "ancient", "exploring", "visited", "pending" }
          from roster in new[] { "all", "absent", "late", "leave" }
          select ($"{Prefix} {phase} {roster}", (Func<Task>)(() => Run(phase, roster))))
+        .Concat(new[] { "shop-hunting", "shop-hunting-completed" }.Select(phase => ($"{Prefix} {phase} absent", (Func<Task>)(() => Run(phase, "absent")))))
         .Concat(new[] { "deferred", "deferred-pending", "entry-retry", "entry-abandon", "entry-after", "entry-disconnect", "shop-lag", "shop-fault", "combat-exit", "combat-lag", "combat-local-lag", "combat-reload" }
             .Select(phase => ($"{Prefix} {phase} all", (Func<Task>)(() => Run(phase, "all"))))).ToArray();
 
@@ -222,6 +223,7 @@ internal static class JigsawRecoveryNetworkTests
                 Require(map.Inspect().Success, "The fault fixture passes production validation.");
                 foreach (var player in players) Require(map.CompleteAncient(player.NetId).Success, "Fault fixture owners have completed Ancient.");
                 foreach (var player in players) Require(map.Continue(player.NetId).Success, "Fault fixture owners continue exploration.");
+                if (phase is "shop-hunting" or "shop-hunting-completed") Require(map.SetRemainingSteps(1).Success, "Prepare the true last safe shop entry.");
                 Require(map.BeginEnter(1) != null, "The checkpoint keeps its already chosen Treasure destination.");
             }
             else if (phase == "editing")
@@ -377,7 +379,8 @@ internal static class JigsawRecoveryNetworkTests
         JigsawNativeMapUiHost? merchantUi = null;
         bool deferred = phase.StartsWith("deferred", StringComparison.Ordinal);
         bool unfinishedAncient = phase is "editing" or "generating" or "ancient";
-        bool shopLag = phase == "shop-lag", shopFault = phase == "shop-fault";
+        bool hunting = phase is "shop-hunting" or "shop-hunting-completed";
+        bool shopLag = phase is "shop-lag" or "shop-hunting" or "shop-hunting-completed", shopFault = phase == "shop-fault";
         using var eventScope = deferred || unfinishedAncient || shopLag || shopFault ? HeadlessCombatInProgress.EnterEvent() : null;
         using var atlases = HeadlessTestSetup.LoadAtlases("card_atlas", "relic_atlas", "ui_atlas");
         var rewardHarmony = new HarmonyLib.Harmony("AllMatters.Tests.RecoveryDeferred");
@@ -399,6 +402,7 @@ internal static class JigsawRecoveryNetworkTests
                     postfix: new HarmonyLib.HarmonyMethod(typeof(JigsawRecoveryNetworkTests), nameof(DelayCombatReward)));
             }
         }
+        if (hunting) rewardHarmony.Patch(HarmonyLib.AccessTools.Method(typeof(SaveManager), nameof(SaveManager.SaveProgressFile)), prefix: new HarmonyLib.HarmonyMethod(typeof(JigsawRecoveryNetworkTests), nameof(SkipProfilePersistence)));
         if (shopFault)
         {
             canceledRemovalCompletion = new(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -663,6 +667,26 @@ internal static class JigsawRecoveryNetworkTests
                 var inventories = ((MerchantRoom)listener.Native.CurrentRoom).Inventories;
                 var first = listener.Native.Players.Single(player => player.NetId == 1);
                 var delayed = listener.Native.Players.Single(player => player.NetId == 2);
+                async Task SetSteps(int value)
+                {
+                    Task? completion = null;
+                    if (host != null)
+                    {
+                        var response = new JigsawStepsCommand().Process(first, [value.ToString()]);
+                        Require(response.success && response.task != null, "Host submits a native queued step command."); completion = response.task;
+                    }
+                    else Require(!new JigsawStepsCommand().Process(delayed, [value.ToString()]).success, "A Client command rejects locally without changing the shared balance.");
+                    await Until(() => map.RemainingSteps == value && (completion == null || completion.IsCompleted), "all real endpoints apply the Host balance once");
+                    if (completion != null) await completion;
+                    Signal("steps-" + value);
+                    await Until(() => remaining.All(peer => Signaled(peer, "steps-" + value)), "all endpoints observe the authoritative balance before the next command");
+                }
+                if (hunting)
+                {
+                    Require(map.RemainingSteps == 0 && !map.HuntingActive && !map.CurrentRoomHunted, "The final shop step is safe on every endpoint.");
+                    await SetSteps(40); await SetSteps(1); await SetSteps(0); if (phase == "shop-hunting-completed") await SetSteps(40);
+                    Require(!map.HuntingActive && listener.Native.Players.All(player => !player.Relics.OfType<AllMatters.Relics.ArchitectMask>().Any()), "Setting zero inside the safe shop neither grants masks nor invents completion.");
+                }
                 int firstGold = first.Gold, firstDeck = first.Deck.Cards.Count;
                 int delayedGold = delayed.Gold, delayedDeck = delayed.Deck.Cards.Count;
                 int firstPrice = inventories.Single(inventory => inventory.Player.NetId == 1).CardEntries.First().Cost;
@@ -840,6 +864,15 @@ internal static class JigsawRecoveryNetworkTests
                     "Opening the merchant map previews it without completing any player's room.");
                 Signal("merchant-map-ready");
                 await Until(() => remaining.All(peer => Signaled(peer, "merchant-map-ready")), "all players open the actual merchant map");
+                if (phase == "shop-hunting-completed")
+                {
+                    JigsawNativeExploration.MerchantExited(session);
+                    session.CompleteCurrentRoom(true);
+                    await Until(() => map.ActivePlayers.All(map.RoomCompletedPlayers.Contains), "all actual merchant owners exit while no destination ballot has been cast");
+                    Require(!map.HuntingActive && map.DestinationVotes.Count == 0, "A positive control balance keeps the completed root safe while destination consensus is incomplete.");
+                    await SetSteps(0);
+                    Require(!map.HuntingActive, "Setting zero after all room completions does not issue masks outside the destination boundary.");
+                }
                 if (net.NetId != 1)
                     await Until(() => Signaled("host", "merchant-first-checked"), "the Host chooses first without completing another owner");
                 var merchantTarget = screen.MapControl.GlobalPosition + screen.GridToCanvas(map.Nodes.Single(node => node.Id == 1).Center);
@@ -847,8 +880,9 @@ internal static class JigsawRecoveryNetworkTests
                 if (net.NetId == 1)
                 {
                     await Until(() => map.RoomCompletedPlayers.Contains(1UL), "the first actual click completes only its owner");
-                    Require(map.RoomCompletedPlayers.SequenceEqual(new ulong[] { 1 }) && map.Steps == 1 && map.PendingEntry == null,
+                    Require((phase == "shop-hunting-completed" ? map.ActivePlayers.All(map.RoomCompletedPlayers.Contains) : map.RoomCompletedPlayers.SequenceEqual(new ulong[] { 1 })) && map.Steps == 1 && map.PendingEntry == null,
                         "The first merchant vote cannot complete or move the other players.");
+                    if (hunting) Require(!map.HuntingActive && listener.Native.Players.All(player => !player.Relics.OfType<AllMatters.Relics.ArchitectMask>().Any()), "One owner's actual departure does not punish the lagging owner or issue any mask.");
                     Signal("merchant-first-checked");
                 }
                 merchantUi.ReleaseSceneOwnership();
@@ -863,6 +897,23 @@ internal static class JigsawRecoveryNetworkTests
                     revisited.Inventories.Single(inventory => inventory.Player.NetId == 2).CardRemovalEntry.Used && map.FirstProgress == 1 &&
                     listener.Native.Players.All(player => HeadlessTestSetup.RngPosition(player.PlayerRng.Shops) == shopRandom[player.NetId]),
                     "A genuine second native entry retains sold and used slots without rerolling inventories or increasing first progress.");
+                if (hunting)
+                {
+                    await Until(() => listener.Native.Players.All(player => player.Relics.OfType<AllMatters.Relics.ArchitectMask>().Count() == 1), "the original absent role also keeps its one mask");
+                    Require(map.HuntingActive && map.CurrentRoomHunted && map.RemainingSteps == 0, "All owners' actual merchant departure activates hunting before reentry.");
+                    var ownerInventory = revisited.Inventories.Single(inventory => inventory.Player.NetId == net.NetId);
+                    string restrictedStock = JsonSerializer.Serialize(JigsawNativeShopPersistence.Capture(ownerInventory));
+                    Require(!await ownerInventory.CardEntries.First(entry => entry.IsStocked).OnTryPurchaseWrapper(ownerInventory, true), "A free purchase is blocked on the real owner endpoint after reentry.");
+                    Require(!await RunManager.Instance.OneOffSynchronizer.DoLocalMerchantCardRemoval(0), "The native direct sender refuses hunted removal.");
+                    Require(JsonSerializer.Serialize(JigsawNativeShopPersistence.Capture(ownerInventory)) == restrictedStock, "Blocked native actions leave stock and Used unchanged.");
+                    Signal("hunting-blocked");
+                    await Until(() => remaining.All(peer => Signaled(peer, "hunting-blocked")), "both actual endpoints reject purchases before the next control value");
+                    await SetSteps(99);
+                    Require(map.HuntingActive && listener.Native.Players.All(player => player.Relics.OfType<AllMatters.Relics.ArchitectMask>().Count() == 1), "Increasing the authoritative balance preserves existing hunting and unique masks.");
+                    var savedHunting = JigsawCheckpoint.Slot.TryGet(listener.Native, out var huntingCheckpoint) ? huntingCheckpoint.Map?.Hunting : null;
+                    _ = RunManager.Instance.ToSave(null);
+                    Require(savedHunting is { Active: true, RootHunted: true }, "A normal native complete point includes the active punished-root facts.");
+                }
                 Signal("shop-revisited");
                 await Until(() => remaining.All(peer => Signaled(peer, "shop-revisited")), "all endpoints confirm the second shop entry before the Host ends");
                 }

@@ -7,6 +7,9 @@ internal static class JigsawSaveValidation
         void Require(bool condition, string reason)
         { if (!condition) throw new ArgumentException(reason, nameof(save)); }
         Require(Enum.IsDefined(save.Phase), "Unknown phase.");
+        Require(save.Hunting is { RemainingSteps: >= 0 }, "Missing or invalid hunting state.");
+        Require(save.Hunting!.RootHunted == false || save.CurrentNode != null, "Punished root requires a current room.");
+        Require(!save.Hunting.BossOnTime || save.Hunting.BossChecked, "Invalid on-time Boss result.");
         Require(save.DestinationRandomState != 0, "Invalid destination random state.");
         if (save.AutomaticOperation != null || save.Phase == JigsawPhase.Generating)
             Require(save.GenerationRandomState != 0 && save.AutomaticOperation is { Algorithm: JigsawAutomatic.Algorithm, ExpansionBudget: >= 0, RandomState: > 0 } operation && operation.CandidateOrder.Order().SequenceEqual(save.Pool.Select(p => p.Id).Order()), "Unsupported or incomplete authorized generation input.");

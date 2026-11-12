@@ -59,6 +59,8 @@ public sealed partial class JigsawRun
         if (Phase != JigsawPhase.Exploring || HasDeferredAncient || CurrentNode == null || !players.Contains(player))
             return JigsawResult.Reject(JigsawFailure.StaleCompletion);
         roomCompleted.Add(player);
+        if (players.All(roomCompleted.Contains))
+            ActivateHuntingAfterCompletion();
         return JigsawResult.Ok;
     }
 
@@ -212,7 +214,8 @@ internal static class JigsawNativeExploration
         {
             CombatRoom combat => combat.IsPreFinished,
             EventRoom => RunManager.Instance.EventSynchronizer.GetEventForPlayer(nativePlayer)?.IsFinished == true,
-            RestSiteRoom => RunManager.Instance.RestSiteSynchronizer.GetChosenOptionIndex(player) != null,
+            RestSiteRoom => RunManager.Instance.RestSiteSynchronizer.GetChosenOptionIndex(player) != null ||
+                JigsawHuntingServices.RestBlocked(nativePlayer) && !JigsawHuntingServices.RestChoicesRemain(nativePlayer),
             TreasureRoom => (!requireLocalSignals || State(session).TreasureOpen == Entry(session)) &&
                 (RunManager.Instance.TreasureRoomRelicSynchronizer.CurrentRelics?.Count is not > 0 ||
                  RunManager.Instance.TreasureRoomRelicSynchronizer.GetPlayerVote(nativePlayer)?.voteReceived == true),

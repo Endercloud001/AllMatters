@@ -63,6 +63,7 @@ public sealed record JigsawSave(
     public ulong DestinationRandomState { get; init; } = 1;
     public Dictionary<int, JigsawRoom>? ResolvedRooms { get; init; }
     public Dictionary<string, object>? ShopStates { get; init; }
+    public JigsawHuntingState? Hunting { get; init; }
 }
 public sealed record JigsawAutomaticOperation(string Algorithm, int ExpansionBudget, int[] CandidateOrder, ulong RandomState);
 

@@ -139,3 +139,8 @@ Champion Belt icon/outline and the Tight Grip icon are cropped and fitted to 128
 The restored purple fist icon is the original STS2 Grasp artwork, obtained from `loonai321/STS2-CombineBossln-mod` revision `cdd726c48a1b61e6102be1dea622abbae90ccb6c`, `CombineBosslnmod/images/grasp_power.png`. This is game artwork owned by Mega Crit/original artists, not original artwork of that mod and not relicensed under this repository's code license. The Weighted scene reconstructs the legacy overlay layout/tint visible in that repository's `scenes/cards/overlays/afflictions/weighted.tscn`, using the installed game's retained `shaders/afflictions/devoured.gdshader` without redistributing the shader or upstream C# code. No upstream code license is asserted. The prior STS1 choker placeholder is replaced.
 
 Champion Belt icon and outline are resized from the same owned STS1 source entries credited above, sharing an alpha bounding box and scale to restore normal relic display size.
+
+
+## Architect Mask (#82)
+
+`src/Resources/AllMatters/images/relics/architect_mask.png` is the unchanged user-provided `architect-mask.png` archived for the confirmed hunting design (#63, comment 6584771226). The project owner authorized its use in this implementation. The same image supplies the inventory, outline and large relic views. This attribution records the supplied artwork's provenance; the code's GPL license does not relicense the artwork.

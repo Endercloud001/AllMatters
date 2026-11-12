@@ -38,5 +38,7 @@
   "ALL_MATTERS_PRESERVED_INSECT.shrinkDescription": "这个生物的攻击伤害在[blue]99[/blue]回合内减少[blue]30%[/blue]。",
   "ALL_MATTERS_CHAMPION_BELT.title": "冠军腰带",
   "ALL_MATTERS_CHAMPION_BELT.description": "每当你给予[gold]易伤[/gold]时，同时给予1层[gold]虚弱[/gold]。",
-  "ALL_MATTERS_CHAMPION_BELT.flavor": "胜者的腰带。"
+  "ALL_MATTERS_CHAMPION_BELT.flavor": "胜者的腰带。",
+  "ALL_MATTERS_ARCHITECT_MASK.title": "建筑师面具",
+  "ALL_MATTERS_ARCHITECT_MASK.description": "建筑师的目光锁定了你。\n你打开的宝箱房必定是空的。\n你进入休息处只能选择休息或愈合。\n商人将不再为你提供服务。\n你进入的战斗将变得更加艰难。"
 }
