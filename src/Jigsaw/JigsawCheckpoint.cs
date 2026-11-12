@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json.Nodes;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Runs;
@@ -51,6 +52,37 @@ internal static class JigsawSaveSource
     private static readonly MethodInfo inject = attach.DeclaringType!.GetMethod("InjectIntoUtf8Json")!;
     private static readonly MethodInfo build = attach.DeclaringType!.GetMethod("BuildDocumentFromRun")!;
     private static readonly MethodInfo attachDocument = attach.DeclaringType!.GetMethod("AttachDocument")!;
+
+    private static readonly MethodInfo tryGetDocument = typeof(RunSavedDataStore).Assembly
+        .GetType("STS2RitsuLib.RunData.RunSavedDataRuntime", true)!.GetMethod("TryGetDocument")!;
+    private static readonly MethodInfo documentEntries = typeof(RunSavedDataStore).Assembly
+        .GetType("STS2RitsuLib.RunData.RunSavedDataDocument", true)!.GetMethod("Entries")!;
+
+    internal static bool TryReadRevisitedHistoryIndices(SerializableRun save, out Dictionary<int, HashSet<int>>? indices)
+    {
+        indices = null;
+        Attach(save);
+        object?[] arguments = [save, null];
+        if (!(bool)tryGetDocument.Invoke(null, arguments)!)
+            return false;
+        var entries = (IEnumerable<(string ModId, string Key, JsonObject Entry)>)documentEntries.Invoke(arguments[1], null)!;
+        foreach (var (modId, key, entry) in entries)
+        {
+            // The old JSON property lookup was ordinal; TryGetRaw is case-insensitive.
+            if (!string.Equals(modId, ModEntry.ModId, StringComparison.Ordinal) || !string.Equals(key, "jigsaw", StringComparison.Ordinal))
+                continue;
+            if (entry["data"] is not JsonObject checkpoint)
+                throw new InvalidDataException("拼图检查点缺少原生扩展数据。");
+            if (checkpoint[nameof(JigsawCheckpointData.RevisitedHistoryIndices)] is { } value)
+            {
+                try
+                { indices = value.Deserialize<Dictionary<int, HashSet<int>>>(); }
+                catch (JsonException error) { throw new InvalidDataException("拼图重访历史不可读。", error); }
+            }
+            return true;
+        }
+        return false;
+    }
 
     public static void Observe(string content, ReadSaveResult<SerializableRun> result)
     {

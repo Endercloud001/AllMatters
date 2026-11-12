@@ -1348,16 +1348,30 @@ internal static class JigsawNativeTests
             string path = RunSaveManager.GetRunSavePath(74, "current_run.save");
             native.Players[0].Gold = 111;
             var first = JigsawRun.Create(74);
+            native.AppendToMapPointHistory(MegaCrit.Sts2.Core.Map.MapPointType.Shop, RoomType.Shop, null);
+            native.AppendToMapPointHistory(MegaCrit.Sts2.Core.Map.MapPointType.Shop, RoomType.Shop, null);
             JigsawCheckpoint.Capture(native, first);
+            JigsawCheckpoint.Slot.TryGet(native, out var firstPoint);
+            firstPoint.RevisitedHistoryIndices = new() { [0] = [1] };
             await manager.SaveRun(RunManager.Instance.ToSave(null), false);
             native.Players[0].Gold = 222;
+            native.AppendToMapPointHistory(MegaCrit.Sts2.Core.Map.MapPointType.Shop, RoomType.Shop, null);
             JigsawCheckpoint.Capture(native, JigsawRun.Create(75));
+            JigsawCheckpoint.Slot.TryGet(native, out var secondPoint);
+            secondPoint.RevisitedHistoryIndices = new() { [0] = [2] };
             await manager.SaveRun(RunManager.Instance.ToSave(null), false);
-            io.DeleteFile(path);
+            var corrupt = JsonNode.Parse(io.ReadFile(path))!.AsObject();
+            corrupt["schema_version"] = new JsonObject { ["invalid"] = true };
+            io.SetFileContent(path, corrupt.ToJsonString());
             var loaded = manager.LoadRunSave();
             Require(loaded.Success && loaded.SaveData != null, "Native backup must load.");
             var restored = RunState.FromSerializable(loaded.SaveData!);
             Require(restored.Players[0].Gold == 111, "Native selected the backup player.");
+            Require(loaded.SaveData!.MapPointHistory[0].Count == 2 && restored.MapPointHistory[0].Count == 2 &&
+                restored.TotalFloor == 1 && ScoreUtility.GetScoreForFloor(loaded.SaveData.MapPointHistory) == 10 &&
+                ScoreUtility.GetScoreForFloor(restored.MapPointHistory) == 10 &&
+                JigsawCheckpoint.Slot.TryGet(restored, out var restoredPoint) && restoredPoint.RevisitedHistoryIndices![0].SetEquals([1]),
+                "Corrupt-primary recovery binds the backup's two-entry native history and its own revisit index, not the newer primary's third entry or index.");
             Require(JigsawCheckpoint.Slot.TryGet(restored, out var saved) && saved.Map != null,
                 "The actual backup's jigsaw payload must survive native loading.");
             Require(saved.Map!.Pool.SequenceEqual(first.CreateSave().Pool,

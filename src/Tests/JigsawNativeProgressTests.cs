@@ -1,3 +1,10 @@
+using AllMatters;
+using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using HarmonyLib;
+using MegaCrit.Sts2.Core.Saves;
+using STS2RitsuLib.RunData;
 using AllMatters.Jigsaw;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Players;
@@ -22,7 +29,9 @@ internal static class JigsawNativeProgressTests
         ("Jigsaw native progress shop revisits preserve history without advancing native consumers", ShopProgress),
         ("Jigsaw native progress Lantern Key retains native unknown and next event hooks", LanternContext),
         ("Jigsaw native progress rejects corrupt history indices and leaves ordinary runs unchanged", IsolationAndCorruption),
-        ("Jigsaw native progress failed revisit preserves its complete before-entry point", FailedRevisit)
+        ("Jigsaw native progress failed revisit preserves its complete before-entry point", FailedRevisit),
+        ("Jigsaw native progress binds independent saved indices without exporting unrelated extensions", SavedIndices),
+        ("Jigsaw native progress preserves serialized extension spelling and malformed index rejection", SavedIndexValidation)
     ];
 
     private static JigsawRun Ready(JigsawRoom firstRoom)
@@ -225,6 +234,113 @@ internal static class JigsawNativeProgressTests
                 try { RunState.FromSerializable(save); }
                 catch (InvalidDataException) { rejected = true; }
                 Check(rejected, "Actual native deserialization rejects invalid act or entry indices without discarding history or rerolling.");
+            }
+            return Task.CompletedTask;
+        }
+        finally { RunManager.Instance.CleanUp(false); }
+    }
+
+    private static int payloadExports;
+    private static void CountPayloadExport() => payloadExports++;
+
+    private static readonly MethodInfo buildPayload = typeof(RunSavedDataStore).Assembly
+        .GetType("STS2RitsuLib.RunData.RunSavedDataRegistry", true)!.GetMethod("BuildPayloadFromSerializable")!;
+    private static readonly MethodInfo attachJson = buildPayload.DeclaringType!.GetMethod("AttachDocumentFromJson")!;
+
+    private static JsonObject SavedJson(SerializableRun save) =>
+        JsonNode.Parse((string)buildPayload.Invoke(null, [save])!)!.AsObject();
+
+    private static void AttachJson(SerializableRun save, JsonObject document) =>
+        attachJson.Invoke(null, [save, document.ToJsonString()]);
+
+    private static async Task SavedIndices()
+    {
+        var native = Native();
+        RunManager.Instance.SetUpTest(native, new NetSingleplayerGameService());
+        var harmony = new Harmony("AllMatters.Tests.SavedRevisitIndices");
+        try
+        {
+            RunManager.Instance.GenerateRooms();
+            await RunManager.Instance.GenerateMap();
+            native.AppendToMapPointHistory(MegaCrit.Sts2.Core.Map.MapPointType.Shop, RoomType.Shop, null);
+            native.AppendToMapPointHistory(MegaCrit.Sts2.Core.Map.MapPointType.Shop, RoomType.Shop, null);
+            JigsawCheckpoint.Capture(native, Ready(JigsawRoom.Shop));
+            JigsawCheckpoint.Slot.TryGet(native, out var checkpoint);
+            checkpoint.RevisitedHistoryIndices = new() { [0] = [1] };
+            var first = RunManager.Instance.ToSave(null);
+            var firstDocument = SavedJson(first);
+            firstDocument["_ritsulib"]!["run_saved_data"]!["UnrelatedMod"] = new JsonObject
+            {
+                ["opaque"] = new JsonObject { ["data"] = new string('x', 32768), ["version"] = 7 }
+            };
+            AttachJson(first, firstDocument);
+            string preserved = (string)buildPayload.Invoke(null, [first])!;
+            checkpoint.RevisitedHistoryIndices = [];
+            var second = RunManager.Instance.ToSave(null);
+            Check(ScoreUtility.GetScoreForFloor(second.MapPointHistory) == 20,
+                "The second actual native save has no revisit offset after the live state changes.");
+            harmony.Patch(buildPayload, prefix: new HarmonyMethod(typeof(JigsawNativeProgressTests), nameof(CountPayloadExport)));
+            payloadExports = 0;
+            JigsawNativeProgress.Bind(first);
+            Check(ScoreUtility.GetScoreForFloor(first.MapPointHistory) == 10,
+                "Binding the earlier save consumes its own indices, not the current live checkpoint.");
+            Check(payloadExports == 0, "Binding one saved revisit dictionary must not export the complete extension payload.");
+            harmony.UnpatchAll(harmony.Id);
+            var restored = RunState.FromSerializable(JigsawSaveSource.Copy(first));
+            JigsawCheckpoint.Slot.TryGet(restored, out var restoredCheckpoint);
+            restoredCheckpoint.RevisitedHistoryIndices![0].Clear();
+            JigsawNativeProgress.Bind(first);
+            Check(ScoreUtility.GetScoreForFloor(first.MapPointHistory) == 10 &&
+                (string)buildPayload.Invoke(null, [first])! == preserved,
+                "Restoring and mutating a separate point leaves the source indices and unknown extension unchanged.");
+        }
+        finally { harmony.UnpatchAll(harmony.Id); RunManager.Instance.CleanUp(false); }
+    }
+
+    private static Task SavedIndexValidation()
+    {
+        var native = Native();
+        RunManager.Instance.SetUpTest(native, new NetSingleplayerGameService());
+        try
+        {
+            native.AppendToMapPointHistory(MegaCrit.Sts2.Core.Map.MapPointType.Shop, RoomType.Shop, null);
+            native.AppendToMapPointHistory(MegaCrit.Sts2.Core.Map.MapPointType.Shop, RoomType.Shop, null);
+            JigsawCheckpoint.Capture(native, Ready(JigsawRoom.Shop));
+            JigsawCheckpoint.Slot.TryGet(native, out var checkpoint);
+            checkpoint.RevisitedHistoryIndices = new() { [0] = [1] };
+            var canonical = SavedJson(RunManager.Instance.ToSave(null));
+            foreach (string change in new[] { "missing", "null", "wrong-mod-case", "wrong-slot-case", "wrong-field-case", "bad-data", "no-data", "bad-indices", "null-set", "bad-act", "bad-index" })
+            {
+                var save = RunManager.Instance.ToSave(null);
+                var document = canonical.DeepClone().AsObject();
+                var mods = document["_ritsulib"]!["run_saved_data"]!.AsObject();
+                var mod = mods[ModEntry.ModId]!.AsObject();
+                var entry = mod["jigsaw"]!.AsObject();
+                var data = entry["data"]!.AsObject();
+                const string field = nameof(JigsawCheckpointData.RevisitedHistoryIndices);
+                switch (change)
+                {
+                    case "missing": data.Remove(field); break;
+                    case "null": data[field] = null; break;
+                    case "wrong-mod-case": data[field] = new JsonObject(); mods.Remove(ModEntry.ModId); mods["allmatters"] = mod; break;
+                    case "wrong-slot-case": data[field] = new JsonObject(); mod.Remove("jigsaw"); mod["JIGSAW"] = entry; break;
+                    case "wrong-field-case": data.Remove(field); data["revisitedHistoryIndices"] = new JsonObject { ["0"] = new JsonArray(1) }; break;
+                    case "bad-data": entry["data"] = 12; break;
+                    case "no-data": entry.Remove("data"); break;
+                    case "bad-indices": data[field] = "unreadable"; break;
+                    case "null-set": data[field] = new JsonObject { ["0"] = null }; break;
+                    case "bad-act": data[field] = new JsonObject { ["3"] = new JsonArray(1) }; break;
+                    case "bad-index": data[field] = new JsonObject { ["0"] = new JsonArray(5) }; break;
+                }
+                AttachJson(save, document);
+                bool rejected = false;
+                try { JigsawNativeProgress.Bind(save); }
+                catch (InvalidDataException) { rejected = true; }
+                bool invalid = change is "bad-data" or "no-data" or "bad-indices" or "null-set" or "bad-act" or "bad-index";
+                Check(rejected == invalid, $"The existing serialized rejection boundary is preserved for {change}.");
+                if (!invalid)
+                    Check(ScoreUtility.GetScoreForFloor(save.MapPointHistory) == (change is "wrong-mod-case" or "wrong-slot-case" ? 10 : 20),
+                        $"Ordinal extension lookup and optional-field defaults remain unchanged for {change}.");
             }
             return Task.CompletedTask;
         }

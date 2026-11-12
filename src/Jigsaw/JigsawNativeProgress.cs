@@ -1,13 +1,11 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text.Json;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Rooms;
 using MegaCrit.Sts2.Core.Runs;
 using MegaCrit.Sts2.Core.Runs.History;
 using MegaCrit.Sts2.Core.Saves;
 using MegaCrit.Sts2.Core.Saves.Managers;
-using STS2RitsuLib.RunData;
 
 namespace AllMatters.Jigsaw;
 
@@ -17,9 +15,6 @@ internal static class JigsawNativeProgress
 {
     private sealed record HistoryProgress(Dictionary<int, HashSet<int>> Indices);
     private static readonly ConditionalWeakTable<object, HistoryProgress> histories = new();
-    private static readonly MethodInfo payload = typeof(RunSavedDataStore).Assembly
-        .GetType("STS2RitsuLib.RunData.RunSavedDataRegistry", true)!.GetMethod("BuildPayloadFromSerializable")!;
-
     internal static void Bind(RunState native, IReadOnlyList<IReadOnlyList<MapPointHistoryEntry>> history)
     {
         if (JigsawCheckpoint.Slot.TryGet(native, out var checkpoint))
@@ -28,24 +23,8 @@ internal static class JigsawNativeProgress
 
     internal static void Bind(SerializableRun save)
     {
-        JigsawSaveSource.Attach(save);
-        if (payload.Invoke(null, [save]) is not string json)
-            return;
-        using var document = JsonDocument.Parse(json);
-        if (!document.RootElement.TryGetProperty("_ritsulib", out var root) ||
-            !root.TryGetProperty("run_saved_data", out var data) || !data.TryGetProperty(ModEntry.ModId, out var mod) ||
-            !mod.TryGetProperty("jigsaw", out var entry))
-            return;
-        if (!entry.TryGetProperty("data", out var checkpoint) || checkpoint.ValueKind != JsonValueKind.Object)
-            throw new InvalidDataException("拼图检查点缺少原生扩展数据。");
-        Dictionary<int, HashSet<int>>? indices = null;
-        if (checkpoint.TryGetProperty(nameof(JigsawCheckpointData.RevisitedHistoryIndices), out var value) && value.ValueKind != JsonValueKind.Null)
-        {
-            try
-            { indices = value.Deserialize<Dictionary<int, HashSet<int>>>(); }
-            catch (JsonException error) { throw new InvalidDataException("拼图重访历史不可读。", error); }
-        }
-        Bind(save.MapPointHistory, indices);
+        if (JigsawSaveSource.TryReadRevisitedHistoryIndices(save, out var indices))
+            Bind(save.MapPointHistory, indices);
     }
 
     private static void Bind(IReadOnlyList<IReadOnlyList<MapPointHistoryEntry>> history, Dictionary<int, HashSet<int>>? indices)
