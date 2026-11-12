@@ -54,6 +54,7 @@ public sealed class JigsawNativeSession
     {
         if (closed)
             return;
+        JigsawNativeExploration.StopNewTreasureTasks(this);
         closed = true;
         netService.Disconnected -= OnDisconnected;
         closedCancellation.Cancel();
@@ -96,6 +97,8 @@ public sealed class JigsawNativeSession
     private bool blockingHotkeys;
     private bool paused;
     private SerializableRun? entryCheckpoint;
+    private SerializableRun? treasureCheckpoint;
+    private long treasureCheckpointEntry;
     private bool entryFailed;
     private bool entryRecoveryRequested;
     private bool entryConfirmQueued;
@@ -849,6 +852,7 @@ public sealed class JigsawNativeSession
         if (!Map.ConfirmEnter(pending.Id).Success)
             return JigsawResult.Reject(JigsawFailure.StaleEntry);
         Map.RecordResolvedRoom(pending.NodeId, ActualRoom(Native.CurrentRoom, declared));
+        RetainTreasureCheckpoint();
         entryCheckpoint = null;
         entryFailed = false;
         entryDecision?.TrySetResult(true);
@@ -1125,6 +1129,7 @@ public sealed class JigsawNativeSession
                 throw new InvalidOperationException("队友进入失败；本次未计步。");
             if (shop)
                 CaptureShopInventory(node);
+            RetainTreasureCheckpoint();
             entryCheckpoint = null;
             JigsawCheckpoint.Capture(Native, Map);
         }
@@ -1169,6 +1174,39 @@ public sealed class JigsawNativeSession
         if (Map?.PendingEntry != null && Native.CurrentRoomCount == 0)
             entryCheckpoint = JigsawSaveSource.Copy(checkpoint);
     }
+
+    private void RetainTreasureCheckpoint()
+    {
+        if (Map is { CurrentRoomHunted: true } map && Native.CurrentRoom is TreasureRoom && entryCheckpoint != null)
+        {
+            treasureCheckpoint = JigsawSaveSource.Copy(entryCheckpoint);
+            treasureCheckpointEntry = map.CreateSave().NextEntry;
+        }
+    }
+
+    internal SerializableRun? UnfinishedTreasureCheckpoint =>
+        Map is { CurrentNode: not null } map && Native.CurrentRoom is TreasureRoom &&
+        map.CreateSave().NextEntry == treasureCheckpointEntry && !CompletedTreasureRoot ? treasureCheckpoint : null;
+
+    private bool CompletedTreasureRoot => treasureCheckpoint != null && Map is { CurrentNode: not null, CurrentRoomHunted: true } map && Native.CurrentRoom is TreasureRoom &&
+        map.ActivePlayers.All(map.RoomCompletedPlayers.Contains) && JigsawNativeExploration.TreasureTasksFinished(this);
+
+    internal void CaptureCompletedTreasure(SerializableRun checkpoint)
+    {
+        if (!CompletedTreasureRoot || Map == null)
+            return;
+        var completed = JigsawRun.Restore(Map.CreateSave());
+        if (!completed.CompleteRoom(completed.CreateSave().NextEntry).Success)
+            return;
+        if (!JigsawCheckpoint.Slot.TryGet(Native, out var live) || live == null)
+            return;
+        try
+        {
+            JigsawCheckpoint.Capture(Native, completed);
+            JigsawSaveSource.CaptureDocument(checkpoint, Native);
+        }
+        finally { JigsawCheckpoint.Slot.Set(Native, live); }
+    }
     private int NextProjectionRow => Math.Max(0, (Native.MapPointHistory.ElementAtOrDefault(Native.CurrentActIndex)?.Count ?? 1) - 1);
     // Before native entry the latest coordinate is still the completed source;
     // the before-roll point has the chronological target coordinate but no new history yet.
@@ -1191,6 +1229,8 @@ public sealed class JigsawNativeSession
     private static async Task LoadCheckpoint(SerializableRun checkpoint, RunState restored,
         IReadOnlyCollection<ulong>? active = null, long round = 0)
     {
+        if (SaveSession is { } previous)
+            await JigsawNativeExploration.DrainTreasureTasks(previous);
         if (active != null)
         {
             await JigsawNativeEntryReload.Load(checkpoint, restored, active, round);
@@ -1326,6 +1366,7 @@ public sealed class JigsawNativeSession
                 return;
             var declared = Map.Nodes.Single(node => node.Id == pending.NodeId).Room;
             Map.RecordResolvedRoom(pending.NodeId, ActualRoom(Native.CurrentRoom, declared));
+            RetainTreasureCheckpoint();
             entryCheckpoint = null;
             entryFailed = false;
             JigsawCheckpoint.Capture(Native, Map);
@@ -1356,10 +1397,23 @@ internal static class JigsawMerchantExitSignal
 [HarmonyPatch(typeof(MegaCrit.Sts2.Core.Nodes.Rooms.NTreasureRoom), "OpenChest")]
 internal static class JigsawTreasureOpenSignal
 {
-    private static void Prefix()
+    private static bool Prefix(ref Task __result)
     {
+        if (JigsawNativeSession.SaveSession is { } retained &&
+            retained.Native.Players.FirstOrDefault(player => player.NetId == RunManager.Instance.NetService.NetId) is { } local &&
+            JigsawNativeExploration.RejectTreasureTask(local))
+        {
+            __result = Task.CompletedTask;
+            return false;
+        }
         if (JigsawNativeSession.Current is { } session)
             JigsawNativeExploration.TreasureOpened(session);
+        return true;
+    }
+    private static void Postfix(Task __result)
+    {
+        if (JigsawNativeSession.Current is { Map.CurrentRoomHunted: true } session)
+            JigsawNativeExploration.TreasureTaskBegan(session, RunManager.Instance.NetService.NetId, __result);
     }
 }
 
@@ -1526,7 +1580,9 @@ internal static class JigsawCaptureNativePoint
     {
         if (JigsawNativeSession.SaveSession is not { } session)
             return;
-        if (session.BeforeAncient is { } before)
+        if (session.UnfinishedTreasureCheckpoint is { } treasure)
+            __result = JigsawSaveSource.Copy(treasure);
+        else if (session.BeforeAncient is { } before)
             __result = JigsawSaveSource.Copy(before);
         else if (session.FailedEntryCheckpoint is { } failed)
             __result = JigsawSaveSource.Copy(failed);
@@ -1536,11 +1592,14 @@ internal static class JigsawCaptureNativePoint
         if (!__result.Modifiers.Any(modifier => modifier.Id == identity.Id))
             __result.Modifiers.Add(identity.ToMutable().ToSerializable());
         session.CapturePendingEntry(__result);
+        session.CaptureCompletedTreasure(__result);
     }
     private static bool Prefix(ref SerializableRun __result)
     {
         if (JigsawNativeSession.SaveSession is not { Map: not null } session)
             return true;
+        if (session.UnfinishedTreasureCheckpoint is { } treasure)
+        { __result = JigsawSaveSource.Copy(treasure); return false; }
         JigsawNativeShopSync.ThrowIfUnsettled(session);
         session.CaptureCurrentShop();
         JigsawCheckpoint.Capture(session.Native, session.Map);

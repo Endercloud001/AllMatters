@@ -37,7 +37,7 @@ internal static class JigsawHuntingNativeTests
       ("Jigsaw hunting native legacy complete points migrate from primary and selected backup", Legacy) ];
     private static void Require(bool value, string reason) => NativeEventTests.Check(value, reason);
     private static bool scriptsRegistered;
-    private static void RegisterScripts()
+    internal static void RegisterScripts()
     {
         if (scriptsRegistered) return;
         AccessTools.Method(typeof(Node).Assembly.GetType("Godot.Bridge.ScriptManagerBridge"), "LookupScriptsInAssembly").Invoke(null, [typeof(NRestSiteButton).Assembly]);
