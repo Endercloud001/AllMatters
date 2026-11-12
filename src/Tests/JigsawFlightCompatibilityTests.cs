@@ -15,7 +15,73 @@ internal static class JigsawFlightCompatibilityTests
 {
     internal static readonly (string Name, Func<Task> Test)[] Cases =
     [ ("Jigsaw compatibility Flight rejects activation without a partial session and preserves other modes", NewRuns),
-      ("Jigsaw compatibility Flight rejects marked save and real lobby validation without rewriting files", Restore) ];
+      ("Jigsaw compatibility Flight rejects marked save and real lobby validation without rewriting files", Restore),
+      ("Jigsaw compatibility native daily sampling retains Flight before during and after jigsaw", DailyCandidates) ];
+
+    private static Task DailyCandidates()
+    {
+        bool previous = JigsawPreferences.Enabled;
+        string[]? reference = null;
+        bool sampledFlight = false;
+        var originalCandidates = ModelDb.GoodModifiers.Select(modifier => modifier.Id).ToArray();
+        try
+        {
+            foreach (bool enabled in new[] { false, true, false })
+            {
+                JigsawPreferences.Enabled = enabled;
+                var player = Player.CreateForNewRun(ModelDb.Character<Ironclad>(), UnlockState.all, 1);
+                var native = RunState.CreateForTest([player], acts: [ModelDb.Act<Overgrowth>()], seed: "DAILY_COMPATIBILITY_88");
+                RunManager.Instance.SetUpNewSingleplayer(native, false);
+#if STS2_PUBLIC
+                var screen = new MegaCrit.Sts2.Core.Nodes.Screens.DailyRun.NDailyRunScreen();
+                var lobby = new MegaCrit.Sts2.Core.Multiplayer.Game.Lobby.StartRunLobby(GameMode.Daily,
+                    new NetSingleplayerGameService(), screen, new MegaCrit.Sts2.Core.Daily.TimeServerResult
+                    {
+                        serverTime = new DateTimeOffset(2026, 11, 12, 0, 0, 0, TimeSpan.Zero),
+                        localReceivedTime = new DateTimeOffset(2026, 11, 12, 0, 0, 0, TimeSpan.Zero)
+                    }, 4);
+                HarmonyLib.AccessTools.Field(screen.GetType(), "_lobby").SetValue(screen, lobby);
+#endif
+                try
+                {
+                    NativeEventTests.Check((JigsawNativeSession.TryGet(native) != null) == enabled,
+                        "The daily sampler is observed before, during and after a real jigsaw activation.");
+                    var samples = new List<string>();
+                    for (uint seed = 0; seed < 64; seed++)
+                    {
+                        var rng = new MegaCrit.Sts2.Core.Random.Rng(seed);
+#if STS2_PUBLIC
+                        var modifiers = (IReadOnlyCollection<ModifierModel>)HarmonyLib.AccessTools.Method(screen.GetType(), "RollModifiers").Invoke(screen, [rng])!;
+#else
+                        var modifiers = ModifierModel.Pick2Good1Bad(rng, [ModelDb.Character<Ironclad>()]);
+#endif
+                        sampledFlight |= modifiers.Any(modifier => modifier is Flight);
+                        samples.Add(System.Text.Json.JsonSerializer.Serialize(modifiers.Select(modifier => modifier.ToSerializable()).ToArray(),
+                            new System.Text.Json.JsonSerializerOptions { IncludeFields = true }) +
+                            ":" + HeadlessTestSetup.RngPosition(rng));
+                    }
+                    if (reference == null) reference = samples.ToArray();
+                    else NativeEventTests.Check(reference.SequenceEqual(samples),
+                        "Jigsaw cannot change any sampled modifier, generated modifier property or native RNG position for the same daily input.");
+                    NativeEventTests.Check(originalCandidates.SequenceEqual(ModelDb.GoodModifiers.Select(modifier => modifier.Id)) &&
+                        ModelDb.GoodModifiers.Any(modifier => modifier is Flight),
+                        "The original daily good-modifier candidates retain Flight and their order.");
+                }
+                finally
+                {
+#if STS2_PUBLIC
+                    lobby.CleanUp(false);
+                    lobby.InputSynchronizer.Dispose();
+                    screen.Free();
+#endif
+                    RunManager.Instance.CleanUp(false);
+                }
+            }
+            NativeEventTests.Check(sampledFlight, "The actual native daily samples include Flight; preservation is not vacuous.");
+        }
+        finally { JigsawPreferences.Enabled = previous; }
+        return Task.CompletedTask;
+    }
 
     private static Task NewRuns()
     {
