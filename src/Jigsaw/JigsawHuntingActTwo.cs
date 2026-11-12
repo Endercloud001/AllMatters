@@ -2,16 +2,45 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using HarmonyLib;
+using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Creatures;
+using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+using MegaCrit.Sts2.Core.Hooks;
 using MegaCrit.Sts2.Core.Models.Acts;
 using MegaCrit.Sts2.Core.Models.Encounters;
 using MegaCrit.Sts2.Core.Models.Monsters;
+using MegaCrit.Sts2.Core.Models.Powers;
 using MegaCrit.Sts2.Core.MonsterMoves.Intents;
 using MegaCrit.Sts2.Core.Rooms;
 using MegaCrit.Sts2.Core.Runs;
 
 namespace AllMatters.Jigsaw;
+
+[HarmonyPatch(typeof(Hook), nameof(Hook.BeforeCombatStart))]
+internal static class JigsawHuntingHiveNormalOpening
+{
+    private static void Postfix(IRunState runState, ICombatState? combatState, ref Task __result) =>
+        __result = ApplyOpening(__result, runState, combatState);
+
+    private static async Task ApplyOpening(Task original, IRunState runState, ICombatState? combatState)
+    {
+        await original;
+        if (runState is not RunState { Act: Hive, CurrentRoomCount: 1, CurrentRoom: CombatRoom room } native ||
+            room.ParentEventId != null || room.RoomType != RoomType.Monster ||
+            !ReferenceEquals(room.CombatState, combatState) ||
+            !ReferenceEquals(RunManager.Instance.DebugOnlyGetState(), native) ||
+            native.Players.FirstOrDefault() is not { } owner || !JigsawHuntingNative.RootIsHunted(owner))
+            return;
+        foreach (var player in combatState!.Players)
+        {
+            var context = new ThrowingPlayerChoiceContext();
+            await PowerCmd.Apply<WeakPower>(context, player.Creature, 1, null, null);
+            await PowerCmd.Apply<FrailPower>(context, player.Creature, 1, null, null);
+            await PowerCmd.Apply<VulnerablePower>(context, player.Creature, 1, null, null);
+        }
+    }
+}
 
 // Replace the healing call within Ponder alone; other sources of healing retain
 // the native command, even when they target this same monster during Ponder.
