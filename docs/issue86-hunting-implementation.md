@@ -38,9 +38,28 @@ public v0.107.1/product `59260271157f76a2896f0eab5bc6ea1245d8b314`；beta v0.111
 
 ## 仍需继续的 #86 工作
 
-- Flail：已准备未编译/运行的独立行为草稿，不是实现。H原文要求连枷时全玩家 Tangled1；原生机制为攻击牌附 Entangled 并额外+1费，不是无条件禁攻击。下一真实 red 覆盖原两击、已有/新增攻击、能量与 Artifact、玩家末清理及安全对照。
+- Flail：已实现并通过下述独立行为验证，尚待本增量独立审查。
 - Mystic：普通/事件战追加一只基础56HP、无初始能力、非Minion，CAST→HEAL→BUFF。六状态逐活玩家独立随机、受伤存活含自身治疗12、存活敌人含自身力量2。资源仅准备，尚未正式接入/加载/NOTICE；不以文件存在写成通过。
 - 本票各场景完整战前与胜利奖励点恢复、事件子战/同名精英普通增强、安全根快照、HP缩放一次、RNG及一次增强仍须真实端点验证；先正常消费主控最终共同接缝，不另造检查点或第二追猎开关。
 - 全12个 Glory 普通原生 scene 及事件追加、精英实际布局，完整1/4人紧凑/宽屏的真实意图/血条/目标/焦点，正式 public资源与真实端/设备集中验收仍未交付。不能用单怪 EncounterScope、临时 Marker 或少数代表怪代签。
 
 部分实现可以先审查集成以消费后续接缝；不关闭 #86、不承诺整票完成，也不将这些剩余实现转交 #88 兜底。
+
+## Flail 增量（2026-11-13）
+
+以部分提交 `a5ba509` 为起点，仅追加连枷动作 postfix：原生两击完成后，对追猎 Glory 顶层精英战的全部实际 combat 玩家各原生施加 Tangled1。保留原生目标、伤害、Artifact 阻挡/消耗、Entangled 附魔与额外能耗、玩家回合末移除逻辑。
+
+public 真实 red 位于 `.local/issue86/flail-red-public.log`：hunted 分支缺 Tangled 断言失败，exit1。此前清理断言误把所有原生攻击牌视为1费的 fixture 问题已改为精确检查本测试已有/后生成 Strike，不计为行为 red。beta 的多角色 SetUpCombat 前未初始化状态导致 hook 空引用也已按现有宿主时序修正，不改生产机制。
+
+Flail 覆盖1–4 combat角色 × 安全/追猎 × 有无Artifact，共16组；在原生目标参数刻意只传一名玩家时，仍验证原两次9伤害命中所有原生对手、全部玩家施加能力、已有与新增攻击牌1能量不足而2能量可用、技能不变、玩家回合末清理。run/session始终仅一个实际owner，不代表多端。
+
+定向双版本 `.local/issue86/flail-green-all.log` exit0；统一 `.local/issue86/flail-final-all.log` exit0，各5 PASS。两版 ReadTestLog 均 BuildExit0、HostExit0、EngineErrors0、ModMetadataErrors0，FirstException/FirstDiagnostic/PreparationFailure为空。未运行完整Check，未安装模组或启动真实游戏。当前Flail增量仅精确暂存生产、测试及本记录，未提交；此前四用例审查结论不自动覆盖本增量。
+
+### Flail 独立双轴审查
+
+2026-11-13，两名独立只读审查者分别检查 `git diff --cached a5ba509 -- src/Jigsaw/JigsawHuntingActThree.cs src/Tests/JigsawHuntingActThreeTests.cs docs/issue86-hunting-implementation.md`，读取实际完整源码、标准及双版反编译方法；均未自行运行测试。
+
+- Standards：无阻塞项。核实双版 `FlailMove(IReadOnlyList<Creature>)` 的 Task 签名、原生命令、能力来源及测试实际断言；唯一非阻塞建议是把全体HP总差进一步细化为逐玩家18伤害/两次伤害History断言。原方法体与未替换原动作提供补充依据，当前总差断言本身不单独证明每名玩家两击。
+- Spec：当前切片满足 #73 引用的 #63 H 表“连枷骑士使用连枷时，额外给所有玩家1层缠结”。等待原动作、对全部实际combat玩家施加、顶层受罚Glory精英范围、原生Artifact/攻击附魔能耗/末清理保留，未发现实现错误或范围扩张。
+
+两轴均明确：单人传输下的战斗角色测试不等于真实多端；Mystic、完整布局与整场恢复仍是 #86 未完成项，不由本次通过代签。
