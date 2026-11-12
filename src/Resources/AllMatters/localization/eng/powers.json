@@ -1,4 +1,6 @@
 {
+  "ALL_MATTERS_POWER_SPORE_CLOUD_POWER.title": "Spore Cloud",
+  "ALL_MATTERS_POWER_SPORE_CLOUD_POWER.description": "On death, apply {Amount} [gold]Vulnerable[/gold] to all living players.",
   "ALL_MATTERS_POWER_MUTAGENIC_DECAY_POWER.title": "Mutagenic Decay",
   "ALL_MATTERS_POWER_MUTAGENIC_DECAY_POWER.description": "At the end of your turn, count down. After {Amount} more turns, lose [blue]3[/blue] [gold]Strength[/gold].",
   "ALL_MATTERS_POWER_MUTAGENIC_DECAY_POWER.smartDescription": "At the end of your turn, count down. After {Amount} more turns, lose [blue]3[/blue] [gold]Strength[/gold].",
@@ -33,5 +35,8 @@
   "ALL_MATTERS_POWER_TIGHT_GRIP_POWER.description": "Whenever you play a card, lose 1 Energy.",
   "ALL_MATTERS_POWER_TIGHT_GRIP_POWER.smartDescription": "Whenever you play a card, lose 1 Energy.",
   "ALL_MATTERS_WEIGHTED.title": "Weighted",
-  "ALL_MATTERS_WEIGHTED.description": "Lose 1 Energy when this card is played."
+  "ALL_MATTERS_WEIGHTED.description": "Lose 1 Energy when this card is played.",
+  "ALL_MATTERS_POWER_SCRUTINY_POWER.title": "Scrutiny",
+  "ALL_MATTERS_POWER_SCRUTINY_POWER.description": "During this player turn, players cannot draw extra cards. Opening hand draws and cards added directly to hand are unaffected.",
+  "ALL_MATTERS_POWER_SCRUTINY_POWER.smartDescription": "During this player turn, players cannot draw extra cards. Opening hand draws and cards added directly to hand are unaffected."
 }

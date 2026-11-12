@@ -1,3 +1,4 @@
+using MegaCrit.Sts2.Core.Localization;
 using AllMatters.Jigsaw;
 using AllMatters.Jigsaw.Presentation;
 using Godot;
@@ -94,7 +95,15 @@ internal static class JigsawPresentationTests
    Require(capturedStepTip!=null,"Engine hover invokes the same native hover-tip factory used by the Boss icon.");
    var attempt=map.BeginEnter(map.AvailableDestinations.First())!;map.ConfirmEnter(attempt.Id);map.CompleteRoom(attempt.Id);
    await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
-   Require(badge.GetChild<Label>(1).Text=="14"&&capturedStepTip?.Description.Contains("14/15")==true,"Step number and hover text update together after confirmed entry.");
+   Require(badge.GetChild<Label>(1).Text=="14"&&capturedStepTip?.Description=="You can travel 14 more steps.","Step number and hover text update together after confirmed entry.");
+   Require(map.SetRemainingSteps(1).Success,"Prepare the approved last-step HUD.");
+   await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
+   Require(((Label)AccessTools.Field(typeof(JigsawScreen),"explorationNotice").GetValue(view)!).Text == new LocString("static_hover_tips","AM_JIGSAW_LAST_STEP").GetFormattedText(),"The visible exploration map notice carries the approved last-step sentence.");
+   Require(stepNumber.Text=="1" && capturedStepTip?.Description==new LocString("static_hover_tips","AM_JIGSAW_LAST_STEP").GetFormattedText(),"The actual native hover uses only the approved last-step sentence.");
+   Require(map.SetRemainingSteps(0).Success,"Prepare the approved exhausted HUD without issuing masks.");
+   await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
+   Require(((Label)AccessTools.Field(typeof(JigsawScreen),"explorationNotice").GetValue(view)!).Text == new LocString("static_hover_tips","AM_JIGSAW_EXHAUSTED").GetFormattedText(),"The visible exploration map notice carries the approved zero-step sentence.");
+   Require(stepNumber.Text=="0" && capturedStepTip?.Description==new LocString("static_hover_tips","AM_JIGSAW_EXHAUSTED").GetFormattedText(),"Zero stays visible and uses only the approved exhaustion sentence.");
    if(System.Environment.GetEnvironmentVariable("ALLMATTERS_UI_CAPTURE") is {} capture)
    {
     tree.Root.MoveChild(bar,tree.Root.GetChildCount()-1); // Native run.tscn also draws TopBar after the map screen.

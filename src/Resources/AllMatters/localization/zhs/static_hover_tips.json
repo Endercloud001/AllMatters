@@ -1,4 +1,7 @@
 {
   "AM_JIGSAW_STEPS.title": "剩余步数",
-  "AM_JIGSAW_STEPS.description": "{Remaining}/{Budget}"
+  "AM_JIGSAW_STEPS.description": "还可前行{Remaining}步。",
+  "AM_JIGSAW_LAST_STEP": "最后一步，请尽快前往Boss处。",
+  "AM_JIGSAW_EXHAUSTED": "建筑师的目光锁定了你...并降下惩罚。",
+  "AM_JIGSAW_HUNTING_RELEASED": "你感觉身上的重担消失了..."
 }

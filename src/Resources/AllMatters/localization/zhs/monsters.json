@@ -1,4 +1,7 @@
 {
+  "ALL_MATTERS_MONSTER_FUNGUS_BEAST.name": "真菌兽",
+  "ALL_MATTERS_MONSTER_FUNGUS_BEAST.moves.BITE.title": "噬咬",
+  "ALL_MATTERS_MONSTER_FUNGUS_BEAST.moves.GROW.title": "生长",
   "ALL_MATTERS_MONSTER_BEAR.name": "熊",
   "ALL_MATTERS_MONSTER_BEAR.moves.BEAR_HUG.title": "熊抱",
   "ALL_MATTERS_MONSTER_BEAR.moves.MAUL.title": "重击",

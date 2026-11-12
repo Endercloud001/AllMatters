@@ -38,6 +38,8 @@ internal static class JigsawNativeEntryReload
 
     internal static async Task Load(SerializableRun checkpoint, RunState restored, IReadOnlyCollection<ulong> active, long round)
     {
+        if (JigsawNativeSession.SaveSession is { } previous)
+            await JigsawNativeExploration.DrainTreasureTasks(previous);
         var manager = RunManager.Instance;
         var service = manager.NetService;
         var oldInput = manager.InputSynchronizer;

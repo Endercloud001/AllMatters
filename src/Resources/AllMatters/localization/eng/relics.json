@@ -38,5 +38,7 @@
   "ALL_MATTERS_PRESERVED_INSECT.shrinkDescription": "This creature's Attacks deal [blue]30%[/blue] less damage for [blue]99[/blue] turns.",
   "ALL_MATTERS_CHAMPION_BELT.title": "Champion Belt",
   "ALL_MATTERS_CHAMPION_BELT.description": "Whenever you apply [gold]Vulnerable[/gold], also apply 1 [gold]Weak[/gold].",
-  "ALL_MATTERS_CHAMPION_BELT.flavor": "A belt fit for a champion."
+  "ALL_MATTERS_CHAMPION_BELT.flavor": "A belt fit for a champion.",
+  "ALL_MATTERS_ARCHITECT_MASK.title": "Architect's Mask",
+  "ALL_MATTERS_ARCHITECT_MASK.description": "The Architect has fixed his gaze upon you.\nTreasure rooms contain no rewards.\nYou may only rest or mend at rest sites.\nMerchants no longer offer their services.\nCombat becomes more difficult."
 }

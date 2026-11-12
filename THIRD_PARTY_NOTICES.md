@@ -98,6 +98,12 @@ Ink Bottle and the global Symbiotic Virus replacement use unchanged `images/reli
 - Adapted `Sts2BalanceModCode/Monsters/Sentry.cs`: fixed requested values, two opposite first moves, one Artifact in multiplayer, AllMatters model/resource identities and native event integration.
 - Assets: the five scene/Spine/atlas/texture files in `Sts2BalanceMod/monsters/sentry/` (Spine 4.2.11). Scene and atlas paths are adapted; binary skeleton and PNG are unchanged. Original STS1 artwork remains Mega Crit/original artists' property. Redistribution follows the same Balance/ActsFromThePast provenance limitations as the Lagavulin assets above, without claiming an independent underlying artwork license audit. No game DLL, PCK or native Spine library is distributed.
 
+## Hunting Fungus Beast and Spore Cloud
+
+- The five files in `src/Resources/AllMatters/monsters/fungi_beast/` come from `Assets/ActsFromPast/ActsFromThePast/monsters/fungi_beast/` in MT-SUPER-POWER/STS2-Balance-MOD, revision `d9eff9e067b07689e722c5283e7c3e7c451961ca`. The repository declares GPLv3 and credits ActsFromThePast. Texture and binary skeleton are unchanged; scene, skeleton-data and atlas paths use AllMatters identities, and the scene's foreign script is replaced by the existing RitsuLib creature-visual factory.
+- Redistribution follows the same Balance/ActsFromThePast provenance limitations documented for Lagavulin and Sentry above. Original game artwork remains Mega Crit/original artists' property; this does not claim a separate underlying artwork license audit. No upstream DLL, PCK or native Spine library is included.
+- `images/powers/spore_cloud.png` is the project-use image supplied and authorized by the user at `AllMatters_docs/research/assets/hunting/spore-cloud.png`; it is used unchanged for both power icon sizes. The code's GPL license does not relicense the supplied artwork. Fungus behavior and localization implement the approved hunting specification.
+
 ## Sentry laser and short-beam audio
 
 - Added 2026-10-27 from the locally owned original Slay the Spire `desktop-1.0.jar`, by Mega Crit and the respective rights holders. `src/Resources/AllMatters/vfx/sentry_laser.png` is the nonrotated 981×101 packed `combat/laserThin` region at (2,104) of `vfx/vfx2.png`, located by `vfx/vfx.atlas`. No full atlas is distributed.
@@ -139,3 +145,12 @@ Champion Belt icon/outline and the Tight Grip icon are cropped and fitted to 128
 The restored purple fist icon is the original STS2 Grasp artwork, obtained from `loonai321/STS2-CombineBossln-mod` revision `cdd726c48a1b61e6102be1dea622abbae90ccb6c`, `CombineBosslnmod/images/grasp_power.png`. This is game artwork owned by Mega Crit/original artists, not original artwork of that mod and not relicensed under this repository's code license. The Weighted scene reconstructs the legacy overlay layout/tint visible in that repository's `scenes/cards/overlays/afflictions/weighted.tscn`, using the installed game's retained `shaders/afflictions/devoured.gdshader` without redistributing the shader or upstream C# code. No upstream code license is asserted. The prior STS1 choker placeholder is replaced.
 
 Champion Belt icon and outline are resized from the same owned STS1 source entries credited above, sharing an alpha bounding box and scale to restore normal relic display size.
+
+
+## Architect Mask (#82)
+
+`src/Resources/AllMatters/images/relics/architect_mask.png` is the unchanged user-provided `architect-mask.png` archived for the confirmed hunting design (#63, comment 6584771226). The project owner authorized its use in this implementation. The same image supplies the inventory, outline and large relic views. This attribution records the supplied artwork's provenance; the code's GPL license does not relicense the artwork.
+
+## Knowledge Demon Tender choice artwork (#85)
+
+`src/Resources/AllMatters/images/card_portraits/tender.png` is the unchanged user-provided `tender.png`, archived in `AllMatters_docs/research/assets/hunting/` for the confirmed hunting design (#63, comment 6584771226). The project owner authorized its use for the Knowledge Demon Tender display card. The 1,529,010-byte original is used without cropping, resizing or other image conversion. This entry records the supplied artwork's provenance and project use; the code's GPL license does not relicense the supplied artwork. Native Calamity artwork and native Tender ability text/effects are loaded from the installed game rather than redistributed here.

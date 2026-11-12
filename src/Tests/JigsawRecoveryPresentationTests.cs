@@ -88,7 +88,7 @@ internal static class JigsawRecoveryPresentationTests
             var sourceMap = ExploringMap();
             var sourceSave = sourceMap.CreateSave();
             if (huntingBoundary)
-                sourceSave = sourceSave with { Steps = sourceMap.Budget, NextEntry = sourceMap.Budget };
+                { Require(sourceMap.SetRemainingSteps(1).Success, "Prepare a real one-step hunting boundary."); sourceSave = sourceMap.CreateSave(); }
             JigsawCheckpoint.Slot.Set(native, new() { Version = 1, Act = native.CurrentActIndex, Map = sourceSave });
             await saves.SaveRun(RunManager.Instance.ToSave(null), false);
             var loaded = saves.LoadRunSave();
@@ -140,7 +140,7 @@ internal static class JigsawRecoveryPresentationTests
             bar.AddChild(boss);
             var counter = JigsawStepCounter.Attach(bar, boss);
             await HeadlessUiHost.Mount(screen, bar);
-            Require(counter.GetChild<Label>(1).Text == Math.Max(0, map.Budget - initialSteps).ToString(),
+            Require(counter.GetChild<Label>(1).Text == map.RemainingSteps.ToString(),
                 "The default production step counter reads the restored session without a test data source.");
             Require(screen.MapControl.GetNodeOrNull<Sprite2D>($"Room{initialCurrent}/Visited") is { Visible: true },
                 "The restored current ordinary room displays its native visit ring.");
@@ -170,11 +170,11 @@ internal static class JigsawRecoveryPresentationTests
             Require(map.CurrentNode == destination && map.Steps == initialSteps + 1 && restored.CurrentRoom is TreasureRoom,
                 $"Engine input must enter the selected native room and charge exactly one step after restore. Current={map.CurrentNode}, target={destination}, steps={map.Steps}, room={restored.CurrentRoom?.GetType().Name}, pending={map.PendingEntry}, click={position}, canvas={screen.MapControl.GetGlobalRect()}.");
             AssertProjection(map, exploration, lobby);
-            Require(exploration.IsHunting() == huntingBoundary, "The live recovery crosses the hunting boundary only after exceeding the budget.");
+            Require(exploration.IsHunting() == map.HuntingActive, "The live recovery reads the authoritative hunting lifecycle after completion.");
             session.ShowMap();
             await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
             await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
-            Require(counter.GetChild<Label>(1).Text == Math.Max(0, map.Budget - initialSteps - 1).ToString(),
+            Require(counter.GetChild<Label>(1).Text == map.RemainingSteps.ToString(),
                 "The default step counter refreshes after restored engine input.");
             Require(screen.MapControl.GetNodeOrNull<Sprite2D>($"Room{destination}/Visited") is { Visible: true },
                 "A destination entered after restore receives its visible visit ring.");
@@ -238,11 +238,11 @@ internal static class JigsawRecoveryPresentationTests
             snapshot.Phase == map.Phase && snapshot.Budget == map.Budget,
             "Recovery must project the active production map, including changes since the loaded checkpoint.");
         Require(map.Visited.All(exploration.IsNodeVisited) && map.Completed.All(exploration.IsNodeCompleted) &&
-            exploration.GetRemainingSteps() == map.RemainingSteps && exploration.IsHunting() == (map.Steps > map.Budget),
+            exploration.GetRemainingSteps() == map.RemainingSteps && exploration.IsHunting() == map.HuntingActive,
             "Exploration queries must read the same current map as the recovery snapshot.");
         Require(state.ExplorationState is { } shared && shared.CurrentNode == map.CurrentNode && shared.Steps == map.Steps &&
             shared.VisitedCount == map.Visited.Count && shared.CompletedCount == map.Completed.Count &&
-            shared.RemainingSteps == map.RemainingSteps && shared.IsHunting == (map.Steps > map.Budget) &&
+            shared.RemainingSteps == map.RemainingSteps && shared.IsHunting == map.HuntingActive &&
             state.SaveState is { } save && save.Steps == map.Steps && save.Budget == map.Budget && save.Phase == map.Phase.ToString(),
             "Lobby summaries must expose the same live exploration and save-stage projection to all players.");
     }

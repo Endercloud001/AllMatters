@@ -688,6 +688,7 @@ internal static class JigsawNativeTests
         {
             var console=new MegaCrit.Sts2.Core.DevConsole.DevConsole(shouldAllowDebugCommands:true);
             Require(console.GetCompletionResults("am_jigsaw_reset").Candidates.Contains("am_jigsaw_reset"),"Actual native console discovery includes the mod reset command.");
+            Require(console.GetCompletionResults("am_steps").Candidates.Contains("am_steps"),"Actual native console discovery includes the remaining-steps command as well.");
         }
         finally { JigsawConsoleHistoryHost.Suppress=false; mods.Remove(loadedMod); cache.SetValue(null,previousCache); }
         var native=RunState.CreateForTest(players:[MegaCrit.Sts2.Core.Entities.Players.Player.CreateForNewRun(

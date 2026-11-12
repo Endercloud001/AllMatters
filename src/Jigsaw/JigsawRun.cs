@@ -33,7 +33,7 @@ public sealed partial class JigsawRun
     public int Budget { get; }
     public int Steps { get; private set; }
     public int FirstProgress { get; private set; }
-    public int RemainingSteps => Math.Max(0, Budget - Steps);
+    public int RemainingSteps { get; private set; }
     public int? CurrentNode { get; private set; }
     public JigsawEnterAttempt? PendingEntry { get; private set; }
     public IReadOnlyCollection<int> Visited => visited.ToArray();
@@ -58,6 +58,7 @@ public sealed partial class JigsawRun
         if (Pool.Select(p => p.Id).Distinct().Count() != Pool.Count || Pool.SelectMany(p => p.Nodes).Select(n => n.Id).Distinct().Count() != Pool.Sum(p => p.Nodes.Count) || Pool.SelectMany(p => p.Nodes).Any(n => n.Id == 0))
             throw new ArgumentException("Piece and node IDs must be unique; zero belongs to Ancient.");
         Budget = budget;
+        RemainingSteps = budget;
         this.players = (players ?? [1UL]).ToHashSet();
         this.originalPlayers = (originalPlayers ?? this.players).ToHashSet();
         if (this.players.Count == 0 || !this.players.IsSubsetOf(this.originalPlayers))
@@ -209,6 +210,8 @@ public sealed partial class JigsawRun
         destinationVotes.Remove(player);
         roomCompleted.Remove(player);
         players.Remove(player);
+        if (CurrentNode != null && players.Count > 0 && players.All(roomCompleted.Contains))
+            ActivateHuntingAfterCompletion();
         if (Phase == JigsawPhase.Editing)
             AuthorizeIfUnanimous();
         if (Phase == JigsawPhase.Ancient && players.Count > 0 && players.All(ancientCompleted.Contains) && players.All(continued.Contains))
@@ -384,6 +387,8 @@ public sealed partial class JigsawRun
     {
         if (!AvailableDestinations.Contains(node))
             return null;
+        if (RemainingSteps == 0 && !bossChecked && !HuntingActive)
+        { HuntingActive = true; huntingPending = false; }
         destinationVotes.Clear();
         PendingEntry = new(++nextEntry, node);
         return PendingEntry;
@@ -406,6 +411,7 @@ public sealed partial class JigsawRun
         roomCompleted.Clear();
         destinationVotes.Clear();
         Steps++;
+        EnterHuntingRoot(CurrentNode.Value);
         if (visited.Add(CurrentNode.Value))
             FirstProgress++;
         return JigsawResult.Ok;
@@ -414,9 +420,11 @@ public sealed partial class JigsawRun
     {
         if (Phase != JigsawPhase.Exploring || HasDeferredAncient || CurrentNode == null || currentEntry != attempt)
             return JigsawResult.Reject(JigsawFailure.StaleCompletion);
+        ActivateHuntingAfterCompletion();
         completed.Add(CurrentNode.Value);
         CurrentNode = null;
         currentEntry = null;
+        CurrentRoomHunted = false;
         roomCompleted.Clear();
         destinationVotes.Clear();
         // Commit any pending shop transaction on room completion
@@ -486,17 +494,12 @@ public sealed partial class JigsawRun
         ClearHuntingData();
         return JigsawResult.Ok;
     }
-    /// <summary>Stub for hunting data cleanup. To be implemented in #84.</summary>
-    private void ClearHuntingData()
-    {
-        // TODO #84: Clear hunting state when transitioning between acts
-    }
-    /// <summary>Stub for mask restoration before endgame rewards. To be implemented in #09.</summary>
+    /// <summary>Clear this act's mask before the final map Boss rewards.</summary>
     public void RestoreMaskForEndgame()
     {
-        // TODO #09: Restore full mask points before final boss reward
+        CompleteMapBossVictory();
     }
-    public JigsawSave CreateSave() => new(Pool.Select(p => p with { Nodes = p.Nodes.ToArray(), InternalEdges = p.InternalEdges.ToArray() }).ToArray(), placements.Values.ToArray(), external.ToArray(), Phase, Budget, players.ToArray(), Steps, FirstProgress, visited.ToArray(), completed.ToArray(), CurrentNode, PendingEntry, nextEntry, ancientCompleted.ToArray()) { OriginalPlayers = originalPlayers.ToArray(), AutomaticWitness = AutomaticWitness is { } witness ? new(witness.Placements.ToArray(), witness.Edges.ToArray()) : null, AutomaticOperation = AutomaticOperation is { } operation ? operation with { CandidateOrder = operation.CandidateOrder.ToArray() } : null, GenerationRandomState = generationRandomState, DestinationRandomState = destinationRandomState, ResolvedRooms = resolvedRooms.Count == 0 ? null : new(resolvedRooms), ShopStates = shopInventories.Count > 0 ? shopInventories.ToDictionary(kv => $"{kv.Key.nodeId}_{kv.Key.playerId}", kv => (object)kv.Value) : null };
+    public JigsawSave CreateSave() => new(Pool.Select(p => p with { Nodes = p.Nodes.ToArray(), InternalEdges = p.InternalEdges.ToArray() }).ToArray(), placements.Values.ToArray(), external.ToArray(), Phase, Budget, players.ToArray(), Steps, FirstProgress, visited.ToArray(), completed.ToArray(), CurrentNode, PendingEntry, nextEntry, ancientCompleted.ToArray()) { OriginalPlayers = originalPlayers.ToArray(), Hunting = SaveHunting(), AutomaticWitness = AutomaticWitness is { } witness ? new(witness.Placements.ToArray(), witness.Edges.ToArray()) : null, AutomaticOperation = AutomaticOperation is { } operation ? operation with { CandidateOrder = operation.CandidateOrder.ToArray() } : null, GenerationRandomState = generationRandomState, DestinationRandomState = destinationRandomState, ResolvedRooms = resolvedRooms.Count == 0 ? null : new(resolvedRooms), ShopStates = shopInventories.Count > 0 ? shopInventories.ToDictionary(kv => $"{kv.Key.nodeId}_{kv.Key.playerId}", kv => (object)kv.Value) : null };
     public static JigsawRun Restore(JigsawSave save, IEnumerable<ulong>? activePlayers = null)
         => RestoreCore(save, activePlayers, allowDeferredAncient: false);
 
@@ -505,9 +508,11 @@ public sealed partial class JigsawRun
 
     private static JigsawRun RestoreCore(JigsawSave save, IEnumerable<ulong>? activePlayers, bool allowDeferredAncient)
     {
+        save = JigsawHuntingMigration.FromLegacy(save);
         JigsawSaveValidation.Validate(save);
         var run = new JigsawRun(save.Pool, save.Budget, save.OriginalPlayers ?? save.Players) { Phase = save.Phase, Steps = save.Steps, FirstProgress = save.FirstProgress, CurrentNode = save.CurrentNode, PendingEntry = save.PendingEntry, nextEntry = save.NextEntry, currentEntry = save.CurrentNode == null ? null : save.NextEntry };
         run.players.IntersectWith(save.Players);
+        run.RestoreHunting(save.Hunting!);
         foreach (var p in save.Placements)
             run.placements.Add(p.PieceId, p);
         run.external.AddRange(save.ExternalEdges);

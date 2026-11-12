@@ -19,6 +19,7 @@ public sealed class JigsawCheckpointData
     [JsonRequired] public int Act { get; set; }
     [JsonRequired] public JigsawSave? Map { get; set; }
     public Dictionary<int, HashSet<int>>? RevisitedHistoryIndices { get; set; }
+    public JigsawEventCombatPoint? EventCombat { get; set; }
 }
 
 /// <summary>Run data lives inside the native save, never in a second run file.</summary>
@@ -31,9 +32,10 @@ public static class JigsawCheckpoint
     public static void Capture(RunState native, JigsawRun map) =>
         Slot.Set(native, new()
         {
-            Version = 1,
+            Version = 2,
             Act = native.CurrentActIndex,
             Map = map.CreateSave(),
+            EventCombat = Slot.TryGet(native, out var combatPrevious) ? combatPrevious.EventCombat : null,
             RevisitedHistoryIndices = Slot.TryGet(native, out var previous) && previous.RevisitedHistoryIndices is { } indices
                 ? indices.ToDictionary(pair => pair.Key, pair => new HashSet<int>(pair.Value)) : null
         });

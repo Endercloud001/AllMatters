@@ -59,6 +59,8 @@ public sealed partial class JigsawRun
         if (Phase != JigsawPhase.Exploring || HasDeferredAncient || CurrentNode == null || !players.Contains(player))
             return JigsawResult.Reject(JigsawFailure.StaleCompletion);
         roomCompleted.Add(player);
+        if (players.All(roomCompleted.Contains))
+            ActivateHuntingAfterCompletion();
         return JigsawResult.Ok;
     }
 
@@ -112,9 +114,12 @@ internal static class JigsawNativeExploration
         internal long MerchantExit;
         internal long TreasureOpen;
         internal long LocalExit;
+        internal bool DrainingTreasure;
         internal readonly Dictionary<ulong, long> TerminalRewards = [];
         internal readonly Dictionary<(long Entry, ulong Player), HashSet<int>> RewardSets = [];
         internal readonly Dictionary<(long Entry, ulong Player), List<Task>> RewardSelections = [];
+        internal readonly Dictionary<(long Entry, ulong Player), List<Task>> TreasureTasks = [];
+        internal readonly Dictionary<(long Entry, ulong Player), TaskCompletionSource> TreasureSources = [];
     }
 
     private static readonly ConditionalWeakTable<JigsawNativeSession, ExitState> exits = new();
@@ -123,6 +128,73 @@ internal static class JigsawNativeExploration
 
     internal static void MerchantExited(JigsawNativeSession session) => State(session).MerchantExit = Entry(session);
     internal static void TreasureOpened(JigsawNativeSession session) => State(session).TreasureOpen = Entry(session);
+    private static TaskCompletionSource TreasureSource(JigsawNativeSession session, ulong player)
+    {
+        var key = (Entry(session), player);
+        if (!State(session).TreasureSources.TryGetValue(key, out var source))
+            State(session).TreasureSources[key] = source = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        return source;
+    }
+    internal static void TreasureSourceBegan(JigsawNativeSession session, ulong player, Task task)
+    {
+        TreasureTaskBegan(session, player, task);
+        TreasureSource(session, player).TrySetResult();
+    }
+
+    private static bool IsHuntedTreasure(JigsawNativeSession session) =>
+        session.Map is { CurrentRoomHunted: true, CurrentNode: not null } && session.Native.CurrentRoom is TreasureRoom;
+    internal static void TreasureTaskBegan(JigsawNativeSession session, ulong player, Task task)
+    {
+        var key = (Entry(session), player);
+        if (!State(session).TreasureTasks.TryGetValue(key, out var tasks))
+            State(session).TreasureTasks[key] = tasks = [];
+        tasks.Add(task);
+    }
+
+    private static IEnumerable<Task> TreasureTasks(JigsawNativeSession session, ulong player) =>
+        State(session).TreasureTasks.GetValueOrDefault((Entry(session), player)) ?? [];
+
+    internal static bool TreasureTasksFinished(JigsawNativeSession session) => session.Map is { } map &&
+        map.ActivePlayers.All(player => TreasureTasks(session, player).Any() && TreasureTasks(session, player).All(task => task.IsCompletedSuccessfully));
+
+    internal static bool HasUnsettledTreasureTasks(JigsawNativeSession session) =>
+        State(session).TreasureTasks.Values.SelectMany(tasks => tasks).Any(task => !task.IsCompletedSuccessfully);
+
+    internal static void StopNewTreasureTasks(JigsawNativeSession session)
+    {
+        if (IsHuntedTreasure(session))
+            State(session).DrainingTreasure = true;
+    }
+
+    internal static void ResumeTreasureTasksAfterFailedExit(JigsawNativeSession session)
+    {
+        if (!session.ClosedToken.IsCancellationRequested)
+            State(session).DrainingTreasure = false;
+    }
+
+    internal static bool RejectTreasureTask(MegaCrit.Sts2.Core.Entities.Players.Player player) =>
+        JigsawNativeSession.SaveSession is { } session && ReferenceEquals(session.Native, player.RunState) && State(session).DrainingTreasure;
+
+    internal static async Task DrainTreasureTasks(JigsawNativeSession session)
+    {
+        StopNewTreasureTasks(session);
+        // Native quest/reward hooks have no cancellation token. Closing our waiter
+        // cannot stop their continuations from consulting the global native run.
+        Task[] observed;
+        do
+        {
+            observed = State(session).TreasureTasks.Values.SelectMany(tasks => tasks).ToArray();
+            try
+            { await Task.WhenAll(observed); }
+            catch (Exception error)
+            {
+                // WhenAll has drained every sibling; failure still excludes this
+                // source from successful completion and preserves the old point.
+                Console.Error.WriteLine($"Jigsaw treasure task failed while draining entry {Entry(session)}: {error}");
+            }
+        }
+        while (State(session).TreasureTasks.Values.Sum(tasks => tasks.Count) != observed.Length);
+    }
     internal static void TerminalRewardsFinished(JigsawNativeSession session)
     {
         // Native terminal Proceed leaves unclaimed rewards on the stack until room
@@ -166,6 +238,15 @@ internal static class JigsawNativeExploration
         {
             if (State(session).RewardSelections.TryGetValue((entry, player), out var selections))
                 await Task.WhenAll(selections.Where(task => !task.IsCompleted).ToArray()).WaitAsync(session.ClosedToken);
+            if (IsHuntedTreasure(session))
+                await TreasureSource(session, player).Task.WaitAsync(session.ClosedToken);
+            Task[] observed;
+            do
+            {
+                observed = TreasureTasks(session, player).ToArray();
+                await Task.WhenAll(observed).WaitAsync(session.ClosedToken);
+            }
+            while (TreasureTasks(session, player).Count() != observed.Length);
         }
         catch (OperationCanceledException) when (session.ClosedToken.IsCancellationRequested) { return false; }
         return ReferenceEquals(JigsawNativeSession.Current, session) && ReferenceEquals(session.Map, map) &&
@@ -198,10 +279,15 @@ internal static class JigsawNativeExploration
 
     private static bool NativeFlowFinished(JigsawNativeSession session, ulong player, bool requireLocalSignals, bool checkRewards = true)
     {
+        if (State(session).DrainingTreasure)
+            return false;
         if (session.Map?.CurrentNode == null || session.Native.CurrentRoomCount > 1)
             return false;
         var nativePlayer = session.Native.Players.FirstOrDefault(candidate => candidate.NetId == player);
         if (nativePlayer == null)
+            return false;
+        if (checkRewards && (IsHuntedTreasure(session) && !TreasureSource(session, player).Task.IsCompletedSuccessfully ||
+            TreasureTasks(session, player).Any(task => !task.IsCompletedSuccessfully)))
             return false;
         if (checkRewards && State(session).RewardSets.TryGetValue((Entry(session), player), out var ids) &&
             ids.Any(id => !RunManager.Instance.RewardsSetSynchronizer.IsRewardsSetCompleted(nativePlayer, id)))
@@ -212,7 +298,8 @@ internal static class JigsawNativeExploration
         {
             CombatRoom combat => combat.IsPreFinished,
             EventRoom => RunManager.Instance.EventSynchronizer.GetEventForPlayer(nativePlayer)?.IsFinished == true,
-            RestSiteRoom => RunManager.Instance.RestSiteSynchronizer.GetChosenOptionIndex(player) != null,
+            RestSiteRoom => RunManager.Instance.RestSiteSynchronizer.GetChosenOptionIndex(player) != null ||
+                JigsawHuntingServices.RestBlocked(nativePlayer) && !JigsawHuntingServices.RestChoicesRemain(nativePlayer),
             TreasureRoom => (!requireLocalSignals || State(session).TreasureOpen == Entry(session)) &&
                 (RunManager.Instance.TreasureRoomRelicSynchronizer.CurrentRelics?.Count is not > 0 ||
                  RunManager.Instance.TreasureRoomRelicSynchronizer.GetPlayerVote(nativePlayer)?.voteReceived == true),
