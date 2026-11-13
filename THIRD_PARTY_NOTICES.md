@@ -106,6 +106,8 @@ Ink Bottle and the global Symbiotic Virus replacement use unchanged `images/reli
 
 ## Sentry laser and short-beam audio
 
+
+
 - Added 2026-10-27 from the locally owned original Slay the Spire `desktop-1.0.jar`, by Mega Crit and the respective rights holders. `src/Resources/AllMatters/vfx/sentry_laser.png` is the nonrotated 981×101 packed `combat/laserThin` region at (2,104) of `vfx/vfx2.png`, located by `vfx/vfx.atlas`. No full atlas is distributed.
 - `src/Resources/AllMatters/sfx/sentry_beam_short.ogg` is the unchanged `audio/sound/SOTE_SFX_SlowMagic_BeamShort_v1.ogg` from that jar. These game assets retain their original ownership; the mod's GPL code license does not relicense them.
 - `SmallLaserEffect.cs` is original AllMatters Godot implementation based on observation of the original game's behavior. No Java source, jar, game library or separately downloaded ActsFromThePast implementation is redistributed.
@@ -154,3 +156,9 @@ Champion Belt icon and outline are resized from the same owned STS1 source entri
 ## Knowledge Demon Tender choice artwork (#85)
 
 `src/Resources/AllMatters/images/card_portraits/tender.png` is the unchanged user-provided `tender.png`, archived in `AllMatters_docs/research/assets/hunting/` for the confirmed hunting design (#63, comment 6584771226). The project owner authorized its use for the Knowledge Demon Tender display card. The 1,529,010-byte original is used without cropping, resizing or other image conversion. This entry records the supplied artwork's provenance and project use; the code's GPL license does not relicense the supplied artwork. Native Calamity artwork and native Tender ability text/effects are loaded from the installed game rather than redistributed here.
+
+## Mystic monster visuals
+
+- Source: MT-SUPER-POWER/STS2-Balance-MOD, revision `d9eff9e067b07689e722c5283e7c3e7c451961ca`, checked 2026-11-14. The repository LICENSE declares GPLv3; upstream credits Balance and ActsFromThePast. Preserve those credits and Mega Crit/original artists' ownership.
+- Files: `Assets/ActsFromPast/ActsFromThePast/monsters/mystic/{mystic.tscn,mystic_skel_data.tres,mystic.spatlas,mystic.spskel,mystic.png}`. Scene, skeleton-data and atlas paths are adapted to AllMatters and the foreign script is removed; the PNG and binary skeleton are unchanged. Redistribution follows the same Balance repository declaration as the existing Lagavulin and Sentry visuals; this is not an independent chain-of-title audit or a claim to relicense the underlying game artwork.
+- Mystic's hunting-specific 56-HP model and CAST/HEAL/BUFF behavior are AllMatters implementation of the approved specification, not a copy of upstream combat AI. No game DLL, PCK or native library is included.

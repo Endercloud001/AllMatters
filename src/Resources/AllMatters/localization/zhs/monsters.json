@@ -1,4 +1,8 @@
 {
+  "ALL_MATTERS_MONSTER_MYSTIC.name": "神秘术士",
+  "ALL_MATTERS_MONSTER_MYSTIC.moves.CAST.title": "施法",
+  "ALL_MATTERS_MONSTER_MYSTIC.moves.HEAL.title": "治疗",
+  "ALL_MATTERS_MONSTER_MYSTIC.moves.BUFF.title": "增幅",
   "ALL_MATTERS_MONSTER_FUNGUS_BEAST.name": "真菌兽",
   "ALL_MATTERS_MONSTER_FUNGUS_BEAST.moves.BITE.title": "噬咬",
   "ALL_MATTERS_MONSTER_FUNGUS_BEAST.moves.GROW.title": "生长",

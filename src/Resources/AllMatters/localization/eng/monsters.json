@@ -1,4 +1,8 @@
 {
+  "ALL_MATTERS_MONSTER_MYSTIC.name": "Mystic",
+  "ALL_MATTERS_MONSTER_MYSTIC.moves.CAST.title": "Cast",
+  "ALL_MATTERS_MONSTER_MYSTIC.moves.HEAL.title": "Heal",
+  "ALL_MATTERS_MONSTER_MYSTIC.moves.BUFF.title": "Amplify",
   "ALL_MATTERS_MONSTER_FUNGUS_BEAST.name": "Fungus Beast",
   "ALL_MATTERS_MONSTER_FUNGUS_BEAST.moves.BITE.title": "Bite",
   "ALL_MATTERS_MONSTER_FUNGUS_BEAST.moves.GROW.title": "Grow",
