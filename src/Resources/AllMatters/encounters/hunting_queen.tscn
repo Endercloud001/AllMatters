@@ -13,7 +13,7 @@ mouse_filter = 2
 position = Vector2(1207, 709)
 
 [node name="all_matters_torch_left" type="Marker2D" parent="."]
-position = Vector2(1150, 695)
+position = Vector2(1050, 695)
 
 [node name="all_matters_torch_right" type="Marker2D" parent="."]
 position = Vector2(1330, 695)
