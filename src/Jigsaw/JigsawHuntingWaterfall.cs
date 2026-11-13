@@ -4,6 +4,7 @@ using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Powers;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+using MegaCrit.Sts2.Core.Hooks;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Acts;
 using MegaCrit.Sts2.Core.Models.Encounters;
@@ -72,6 +73,29 @@ internal static class JigsawHuntingWaterfall
     // Only this grant's exact new instance consumes one scaling exception.
     // Existing stacks and independent sources retain native PowerCmd behavior.
     internal static bool ConsumeFixedArtifact(ArtifactPower artifact) => fixedArtifacts.Remove(artifact);
+
+    internal static bool PreserveAfterRevival(PowerModel power)
+    {
+        if (power.IsVisible && power.TypeForCurrentAmount == PowerType.Debuff ||
+            power.Owner.Monster is not WaterfallGiant monster ||
+            !ReferenceEquals(power.Owner, monster.Creature) || !monster.Creature.Powers.Contains(power) ||
+            monster.CombatState is not { RunState: RunState native } combat ||
+            !IsCurrent(monster, native, combat))
+            return false;
+        return monster.Creature.HasPower<SteamEruptionPower>() && monster.NextMove.Id == "ABOUT_TO_BLOW_MOVE";
+    }
+}
+
+// Native Kill clears powers after awaiting Steam Eruption's revival. Keep the
+// surviving phase's buffs/hidden state there; ordinary final death still clears.
+[HarmonyPatch(typeof(Hook), nameof(Hook.ShouldPowerBeRemovedOnDeath))]
+internal static class JigsawHuntingWaterfallRevivalPowers
+{
+    private static void Postfix(PowerModel power, ref bool __result)
+    {
+        if (__result && JigsawHuntingWaterfall.PreserveAfterRevival(power))
+            __result = false;
+    }
 }
 
 [HarmonyPatch(typeof(ArtifactPower), nameof(ArtifactPower.GetScaledAmountForMultiplayer))]

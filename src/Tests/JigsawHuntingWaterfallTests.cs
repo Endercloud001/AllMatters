@@ -20,6 +20,7 @@ using MegaCrit.Sts2.Core.MonsterMoves.Intents;
 using MegaCrit.Sts2.Core.Rooms;
 using MegaCrit.Sts2.Core.Runs;
 using MegaCrit.Sts2.Core.Unlocks;
+using MegaCrit.Sts2.Core.ValueProps;
 
 internal static class JigsawHuntingWaterfallTests
 {
@@ -29,7 +30,79 @@ internal static class JigsawHuntingWaterfallTests
      ("Jigsaw hunting Waterfall native trigger leaves safe unrelated event and stale combat scopes unchanged", TriggerBoundaries),
      ("Jigsaw hunting Waterfall native moves preserve Steam Eruption capture explosion damage and final death", NativeExplosion),
      ("Jigsaw hunting Waterfall native trigger rejects stale awaited work and propagates its dependency failure", AwaitedTriggerBoundaries),
-     ("Jigsaw hunting Waterfall nested Artifact source retains native scaling before the fixed grant", ReentrantArtifact)];
+     ("Jigsaw hunting Waterfall nested Artifact source retains native scaling before the fixed grant", ReentrantArtifact),
+     ("Jigsaw hunting Waterfall first lethal damage retains one usable Artifact only for the hunted root", FirstLethalDamage)];
+
+    private static async Task FirstLethalDamage()
+    {
+        ModelDb.Inject(typeof(HiddenWaterfallState));
+        foreach (int count in new[] { 1, 4 })
+        foreach (var scope in new[] { BattleScope.Safe, BattleScope.Hunted })
+        {
+            using var fixture = new WaterfallBattle(count, scope);
+            var giant = fixture.Giant;
+            var target = giant.Creature;
+            var context = new ThrowingPlayerChoiceContext();
+            foreach (var player in fixture.Players)
+            { player.Creature.SetMaxHpInternal(1000); player.Creature.SetCurrentHpInternal(1000); }
+            await giant.AfterAddedToRoom();
+            giant.RollMove(fixture.Battle.Combat.PlayerCreatures);
+            Check(giant.NextMove.Id == "PRESSURIZE_MOVE", "The first lethal hit starts from the native opening move.");
+            await giant.PerformMove();
+            Check(target.IsAlive && target.GetPowerAmount<SteamEruptionPower>() == 15 && !target.HasPower<ArtifactPower>(),
+                "Native Pressurize establishes Steam Eruption without preloading the hunting Artifact.");
+            await PowerCmd.Apply<WeakPower>(context, target, 2, fixture.Players[0].Creature, null);
+            await PowerCmd.Apply<RegenPower>(context, target, 2, target, null);
+            await PowerCmd.Apply<HiddenWaterfallState>(context, target, 6, target, null);
+            var regen = target.GetPower<RegenPower>()!;
+            int regenBefore = regen.Amount;
+            var hidden = target.GetPower<HiddenWaterfallState>()!;
+            Check(regenBefore > 0 && hidden.Amount == 6 && !hidden.IsVisible,
+                $"A real native-scaled positive power and exact hidden state are present before the lethal hit; Regen={regenBefore}, hidden={hidden.Amount}.");
+            int historyStart = CombatManager.Instance.History.Entries.Count();
+
+            // Await the entire damage/death cleanup, not a direct Trigger call or
+            // its intermediate grant before the native death command returns.
+            await CreatureCmd.Damage(context, target, target.CurrentHp,
+                ValueProp.Unblockable | ValueProp.Unpowered, fixture.Players[0].Creature);
+
+            Check(target.IsAlive && fixture.Battle.Combat.ContainsCreature(target) &&
+                target.MaxHp == 999999999 && target.CurrentHp == 999999999 &&
+                target.HpDisplay == HpDisplay.InfiniteWithoutNumbers &&
+                giant.NextMove.Id == "ABOUT_TO_BLOW_MOVE" && giant.NextMove.Intents.Single() is StunIntent &&
+                target.GetPowerAmount<SteamEruptionPower>() == 15,
+                $"Scope={scope}, roles={count}: first lethal damage automatically enters the native living about-to-blow state and preserves Steam.");
+            bool hunted = scope == BattleScope.Hunted;
+            Check(hunted || !target.HasPower<RegenPower>() && !target.HasPower<HiddenWaterfallState>(),
+                $"Scope={scope}, roles={count}: the safe root retains ordinary native death cleanup of Regen and hidden state.");
+            Check(!hunted || ReferenceEquals(target.GetPower<RegenPower>(), regen) && regen.Amount == regenBefore &&
+                ReferenceEquals(target.GetPower<HiddenWaterfallState>(), hidden) && hidden.Amount == 6,
+                $"Scope={scope}, roles={count}: hunted revival preserves the positive Regen and exact hidden state after complete death cleanup; Regen={target.GetPowerAmount<RegenPower>()}, hidden={target.GetPowerAmount<HiddenWaterfallState>()}, Artifact={target.GetPowerAmount<ArtifactPower>()}.");
+            var grants = CombatManager.Instance.History.Entries.Skip(historyStart).OfType<PowerReceivedEntry>()
+                .Where(entry => ReferenceEquals(entry.Actor, target) && entry.Power is ArtifactPower).ToArray();
+            Check(target.GetPowerAmount<ArtifactPower>() == (hunted ? 1 : 0) &&
+                grants.Length == (hunted ? 1 : 0) && grants.All(entry => entry.Amount == 1),
+                $"Scope={scope}, roles={count}: after the complete lethal damage task only the hunted root retains exactly one granted Artifact; actual={target.GetPowerAmount<ArtifactPower>()}, grant amounts=[{string.Join(",", grants.Select(entry => entry.Amount))}].");
+            // Safe powers may also disappear during ordinary death cleanup;
+            // compare a fresh debuff after that cleanup instead of preserving Weak.
+            await PowerCmd.Apply<WeakPower>(context, target, 2, fixture.Players[0].Creature, null);
+            Check(target.GetPowerAmount<WeakPower>() == (hunted ? 0 : 2) && !target.HasPower<ArtifactPower>(),
+                $"Scope={scope}, roles={count}: the retained hunting Artifact really blocks one new Weak and is consumed, while the safe target receives Weak.");
+            await PowerCmd.Apply<ArtifactPower>(context, target, 2, target, null);
+            await PowerCmd.Apply<StrengthPower>(context, target, 3, target, null);
+            Check(target.GetPowerAmount<ArtifactPower>() == count + 1 && target.GetPowerAmount<StrengthPower>() > 0,
+                "Independent post-transition powers are present before the final real death.");
+            await giant.PerformMove();
+            giant.RollMove(fixture.Battle.Combat.PlayerCreatures);
+            Check(!target.HasPower<SteamEruptionPower>() && giant.NextMove.Id == "EXPLODE_MOVE",
+                "The original about-to-blow action consumes Steam and advances to the final explosion.");
+            await giant.PerformMove();
+            Check(target.IsDead && !fixture.Battle.Combat.ContainsCreature(target) &&
+                !target.HasPower<ArtifactPower>() && !target.HasPower<StrengthPower>() &&
+                !target.HasPower<RegenPower>() && !target.HasPower<HiddenWaterfallState>(),
+                $"Scope={scope}, roles={count}: the genuine final death still removes the creature and its independent powers.");
+        }
+    }
 
     private static async Task NativeExplosion()
     {
