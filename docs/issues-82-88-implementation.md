@@ -4,9 +4,11 @@
 
 ## 当前接续状态（2026-11-13）
 
-当前源码集成 `4df655b`，目标 **public v0.107.1 / beta v0.113.0、RitsuLib 0.6.11**。本节覆盖下方历史记录中的旧目标、资源缺失、未提交状态和旧失败位置。旧发布包与旧版通过数不代签新目标。#82–#88 仍OPEN，#84–#88仍部分实现；当前提交完整Test/Check、同提交双版包及正式实机矩阵尚未交付。
+当前源码集成 `7b08841`，目标 **public v0.107.1 / beta v0.113.0、RitsuLib 0.6.11**。本节覆盖下方历史记录中的旧目标、资源缺失、未提交状态和旧失败位置。旧发布包与旧版通过数不代签新目标。#82–#88 仍OPEN，#84–#88仍部分实现；当前提交完整Test/Check、同提交双版包及正式实机矩阵尚未交付。
 
 2026-11-14 新增：Waterfall自然致死修复 `c973505` 与帝皇蟹双臂开场 `6a6d431` 经 `dd46174` 集成，独立双轴无阻塞、正常hooks且提交差异与已审内容一致。集成树双版蟹各5＋Waterfall各7 PASS，Build/Host/Engine/Metadata均0；实际日志 `.local/executor-20261114/crab-integrated-{crab,Waterfall}-{public,public-beta}-host.log`。Waterfall完整首次致死尾部保留正面/隐藏和Artifact1、安全根与最终死亡原清理；蟹固定3不额外多人增层并保留原方向/首招。详见[暗港增量](issue84-underdocks-implementation.md)、[巢穴蟹片](issue85-hunting-implementation.md)，正式布局/输入/恢复和整批Check仍不能据此签完。
+
+Mystic正式模型与资源 `6aa65b4` 经 `7b08841` 集成：受罚Glory普通/事件唯一追加，基础56HP原生缩放、无初始能力/Minion，六状态逐活玩家独立/治疗12含空过/力量2三循环，真实Spine动作与双语。双轴0发现；正常hook四处换行已增量复核。实施及集成双版各6 PASS、四诊断0，共享生成入口Overgrowth回归双版各6 PASS；集成日志`.local/executor-20261114/mystic-integrated-{public,public-beta}-host.log`。完整12布局/战前奖励fresh恢复仍待，详[荣耀增量](issue86-hunting-implementation.md#mystic-原生模型资源与三动作闭环2026-11-14)。
 
 族母左侧睡眠随从 `3008bf6` 经 `4df655b` 集成：固定Minion1，保留本Mod Lagavulin原生睡眠/生命，族母死亡后自然清理；safe/event/非Jigsaw/独立来源不加。真实入房1≠2及无acts越界均red→green，独立双轴无发现，正常hooks且提交patch与已审范围一致。集成双版Underdocks各7 PASS，Build/Host/Engine/Metadata均0；`.local/executor-20261114/minion-integrated-{public,public-beta}-host.log`。正式布局和完整恢复仍待，详见[暗港增量](issue84-underdocks-implementation.md#matriarch-左侧睡眠随从2026-11-14)。
 

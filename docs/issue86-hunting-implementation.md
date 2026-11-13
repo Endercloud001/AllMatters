@@ -63,3 +63,17 @@ Flail 覆盖1–4 combat角色 × 安全/追猎 × 有无Artifact，共16组；�
 - Spec：当前切片满足 #73 引用的 #63 H 表“连枷骑士使用连枷时，额外给所有玩家1层缠结”。等待原动作、对全部实际combat玩家施加、顶层受罚Glory精英范围、原生Artifact/攻击附魔能耗/末清理保留，未发现实现错误或范围扩张。
 
 两轴均明确：单人传输下的战斗角色测试不等于真实多端；Mystic、完整布局与整场恢复仍是 #86 未完成项，不由本次通过代签。
+
+## Mystic 原生模型资源与三动作闭环（2026-11-14）
+
+当前源码 `6aa65b4` 经 `7b08841` 集成，目标public0.107.1/beta0.113.0、RitsuLib0.6.11，匹配资源。覆盖此前Mystic“资源仅准备、尚未接入”的旧状态；本增量仍不关闭#86。
+
+新增正式Mystic模型，基础HP56沿原生CreateCreature多人缩放一次，无初始能力/Minion。受罚Glory普通及事件根在原生Generate阶段追加唯一mutable模型，原怪/slot顺序保留，safe/nonJigsaw/其他幕/Elite/Boss排除。CAST→HEAL→BUFF循环分别以原生Rng逐活玩家独立六选一状态至其弃牌堆、受伤存活敌人含自身治疗12（无目标不取随机数仍推进）、全部存活敌人含自身固定Strength2；保留原生命令/历史及原生不额外人数增层的Strength规则。
+
+固定资源源 `MT-SUPER-POWER/STS2-Balance-MOD@d9eff9e067b07689e722c5283e7c3e7c451961ca` 的Mystic五件，PNG/二进制骨骼不变，场景/atlas路径适配并去foreign script，NOTICE保留Balance/ActsFromPast/MegaCrit归属与原美术权利边界。真实Ritsu factory创建NCreatureVisuals，Spine Idle/Attack/Hit均实际播放，Attack/Hit完成回Idle；英中文名称及动作标题实际解析。
+
+真实public原入口在模型接入前报expected1/actual0，日志实施树`.local/executor-mystic/red-public-host.log`；默认导出新增资源后原入口green。扩测试前两轮分别暴露owner二次绑定和额外角色过早进入原生牌组Populate的夹具错误；第三轮逐次卡/Rng预测吻合但覆盖不足，当前public CreateCreature在CurrentMapCoord为空时丢弃run seed，退化Act+CombatId。夹具补真实Jigsaw投影/visited coord后，不重设monster.Rng，保留64采样上限即可覆盖全部六状态及相同/不同玩家结果。这些夹具失败没有冒称产品red。
+
+最终实施`final4-{public,public-beta}-host.log`各6 PASS，四诊断0；共享生成入口受影响的既有Overgrowth组`overgrowth-regression-{public,public-beta}-host.log`各6 PASS、四诊断0，均位于`mystic-native-20261114/.local/executor-mystic/`。集成`7b08841`执行默认资源导出`Test.ps1 -Branch All -Filter 'Jigsaw Mystic'`双版各6 PASS、Build/Host/Engine/Metadata全0；日志集成树`.local/executor-20261114/mystic-integrated-{public,public-beta}-host.log`。Asset not cached及编译/格式化提示按原日志保留，不写零warning。
+
+双轴独立只读审查13文件637+/2−均0发现；正常hooks提交变为641+/2−，只将四个single-line if的return/continue换行，Standards增量复核确认无语义变化。1–4为原生combat角色而非真实多端；完整12普通场景及精英布局、完整战前/胜利奖励fresh恢复、真实端与设备仍属#86后续，不能以临时Marker/factory局部通过代签。
