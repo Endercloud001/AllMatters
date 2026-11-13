@@ -48,3 +48,15 @@
 两版原生最终Glory Boss默认奖励为空，非Holes的非空pending语义；原/恢复各真实Offer一次，严格验最终Queen身份、ExtraRewards0、Rewards.Count0、synchronizer completed=true和精确空内容，不造ExtraRewards。未验证非空领取UI。首次失败仅ActFloor在setup派生前为0的oracle阶段错误，当前保留setup0断言及实际进房后原楼层比较；第二次失败为误搬普通战斗非空奖励假设，均由两版原生方法体修正，非生产修复。
 
 独立Standards最终硬规范0；Spec P2已修复增量通过。正常hook提交patch与已审一致。实施日志 `queen-fresh-recovery-20261114/.local/executor-queen-fresh/piles-final-{public,public-beta}-host.log`；集成日志 `.local/executor-20261114/queen-fresh-integrated-{public,public-beta}-host.log`；两处命令均 `Test.ps1 -Branch All -Filter 'Jigsaw Queen fresh' -SkipResourceExport`，两版各1 PASS、Build/Host/Engine/Metadata全0，无CanvasItem RID/ObjectDB泄漏。证据为单owner、同进程两次fresh run/session/lobby；新进程、真实远端、布局/设备仍未代签，#87继续partial。
+
+## Queen 正式布局与原生输入（2026-11-14）
+
+源码`372c488`经`f55305f`集成，三文件510+/1−。真实正式NCombatRoom先创建原聚合体/Queen，再原CreatureCmd.Kill→REKINDLE/PerformMove召两只独立Torch。1/4个combat角色、1280×720/1680×720两种物理viewport，1920×1080 CanvasItems Expand逻辑画布（宽屏2520×1080）。真实Visuals/Hitbox、HP hitbox、intent sprite及非空数字label的逻辑/物理几何都在画布内；跨实体显示相互分离且不压其他enemy/player hitbox。两Torch原ATTACK文本实际parsed为10，content22×28、原label62×23、outline12，包络覆盖原frame、不裁剪内容溢出及实际transform缩放的描边，没有缩标签/改动画换绿。
+
+首次beta准备失败在原Kill→StartDeathAnim→SfxCmd.PlayDeath直调空audio owner；只隔离该精确音频边界，真实死亡/通知/召唤链保留。entry2虽1PASS仍缺HP互交oracle；主控从日志发现两Torch HP重叠，补真实readability-red-beta后得到70.19995×23.400024逻辑交集（物理46.8×15.6），遂仅将左Torch marker(1150,695)改为(1050,695)。原右Torch(1330,695)、amalgam(1207,709)、Queen(1606,695)保留；新两血条实际间距19.8logical。数字增量首次Control.GlobalScale编译失败没有native执行，随后使用CanvasItem.GetGlobalTransform基向量长度；仅有效value2-final作最终数字证据。
+
+每只敌人真实viewport MouseMotion进入精确Hitbox/IsFocused，原NTargetManager.StartTargeting和真实press/release后SelectionFinished返回同一node；控制器经真实action检测入模式，仅一次初始GrabFocus后原生左右action走含全部players的整房X序双向环并逐步核GuiGetFocusOwner/IsFocused。测试名收窄为mouse selection and controller navigation，不冒称控制器确认选中。真实TargetingArrow原场景、原Controller Label/hover/owner lifecycle和action清理保留；仅隔离NGame启动/Steam/audio及空地图生命周期，不patch hover/target/nav。每例finally恢复窗口/全局/输入/patch并free节点，未携Phrog死亡冻结。
+
+双轴独立初审及数字37+/4−增量均无硬问题；最终实施树`queen-native-layout-20261114/.local/executor-layout/value2-final-{public,public-beta}-host.log`双版各1 PASS四诊断0无RID。正常hook成功，提交patch与已审patch完全一致。集成`f55305f`默认重新导出资源后执行`Test.ps1 -Branch All -Filter 'Jigsaw Queen'`，双版各9（旧7+fresh1+布局1）PASS、Build/Host/Engine/Metadata全0，无RID/ObjectDB；日志集成树`.local/executor-20261114/queen-layout-integrated-{public,public-beta}-host.log`。
+
+本片是单run owner下1/4 combat角色、模拟鼠标/控制器action证据；不代签所有Queen意图状态、实际设备、新进程/真实远端或整票。Boss原组六项间歇故障仍暂停未修复；三次probe绿仍不是修复。空槽转#86全部12普通/3精英正式场景四组合布局，避免只继续堆Queen局部用例。

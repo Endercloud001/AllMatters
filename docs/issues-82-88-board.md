@@ -1,6 +1,6 @@
 # #82–#88 当前调度看板
 
-更新：2026-11-14。唯一维护者：集成主控。集成树：`AllMatters/.claude/worktrees/hunting-20261112`，分支`integration/issues-82-88-20261112`。当前源码HEAD=`fa41442`；流程入口已提交`776e2ef`，Holes源码`1956c17`保留。
+更新：2026-11-14。唯一维护者：集成主控。集成树：`AllMatters/.claude/worktrees/hunting-20261112`，分支`integration/issues-82-88-20261112`。当前源码HEAD=`f55305f`；流程入口已提交`776e2ef`，Holes源码`1956c17`保留。
 
 目标：public v0.107.1 / beta v0.113.0 / RitsuLib 0.6.11。本轮已实际查询GitHub，#82–#88均OPEN；当前本地切片不自动关闭issue。后续主控更新此文首和卡片，不再另建当前状态表。
 
@@ -8,7 +8,7 @@
 
 ## 拉取入口
 
-当前推进Queen正式四组合布局和密林首个普通战完整fresh恢复；Mystic模型/三动作、族母、蟹与Waterfall自然致死已集成，不重复派发这些既有行为。其他候选按依赖、验收价值及文件所有权准备。
+当前推进荣耀全部普通/精英正式四组合布局和密林首个普通战完整fresh恢复；Mystic模型/三动作、族母、蟹与Waterfall自然致死已集成，不重复派发这些既有行为。其他候选按依赖、验收价值及文件所有权准备。
 
 跨票验收盘点可由主控一次完成，用于发现#82/#83可收口项；不要把“盘点全部历史”作为后续每片的共同前置。详细操作见[批次流程](agents/batch-flow.md)。
 
@@ -16,8 +16,8 @@
 
 |卡片/issue|行为|状态|owner / worktree|依赖与热点|下一动作/证据|开始时间|
 |---|---|---|---|---|---|---|
-|C87-queen-layout / #87|真实聚合体死亡/重燃→Queen+两Torch正式节点，1/4角色×紧凑/宽屏，意图/血条/独立target与真实鼠标/控制器导航|Review|prepare_crabs / `queen-native-layout-20261114`，基`09d91c2`|独占新QueenLayout测试；Hello主控；正式scene仅实证几何失败后窄改两个Torch marker，原Queen/聚合体保留；参考Phrog和已冻结Tender真实owner宿主|三文件477+/1−已冻结发双轴；实际HP重叠70.2logical red后仅左Torch marker1150→1050，四组合双版各1全0无RID，保原Queen/amalgam/right；`.local/executor-layout/readability-fixed-*-host.log`；单入口焦点后全环真实方向/鼠标精确target|2026-11-14 02:53 +08:00|
-|C84-forest-fresh / #84|首个真实受罚Overgrowth普通遭遇→战中保存→新大厅完整战前重建、Fungus/SporeCloud/计数重置一次；真胜利非空奖励点→第二新大厅恢复领取/Proceed|Doing|docs_standards / `forest-fresh-20261114`，基`fa41442`|独占新ForestRecovery测试；Hello主控；生产/共享checkpoint只读，真缺陷先报；沿Mystic完整快照/profile隔离和旧ForestEntry原入口|独立expected保存前/初始原开场采样；最小`Jigsaw Forest fresh`双版各1起、相关旧Forest三项/Spore必要回归；布局/其他敌人恢复仍#84|2026-11-14 03:26 +08:00|
+|C86-glory-layout / #86|全部12普通含新增Mystic及3精英原生scene→1/4角色×紧凑/宽屏，真实HP/意图含数字可读/独立target与原生鼠标/左右导航|Doing|prepare_crabs / `glory-layout-20261114`，基`f55305f`|独占新GloryLayout测试；Hello主控；生产JigsawHuntingCombat布局只读直到实证red后另定窄改，原怪marker不擅动；复用Queen已审真实host/数字包络|两版Glory.GenerateAllEncounters已核18=12普通+3精英+3Boss；最小`Jigsaw Glory native layout`预计2case；不得用临时marker/factory或抽样替代15原生场景；其他意图/真实端仍#86|2026-11-14 03:36 +08:00|
+|C84-forest-fresh / #84|首个真实受罚Overgrowth普通遭遇→战中保存→新大厅完整战前重建、Fungus/SporeCloud/计数重置一次；真胜利非空奖励点→第二新大厅恢复领取/Proceed|Review|docs_standards / `forest-fresh-20261114`，基`fa41442`|独占新ForestRecovery测试；Hello主控；生产/共享checkpoint只读，真缺陷先报；沿Mystic完整快照/profile隔离和旧ForestEntry原入口|双版专项各1与旧Forest3/Spore/原动作合计6回归各6已通过，待核四诊断/发双轴；精确日志`.local/executor-forest-fresh/`；布局/其他敌人恢复仍#84|2026-11-14 03:26 +08:00|
 
 ## 候选池：尚不能派发实施
 
@@ -39,6 +39,7 @@
 
 |issue/切片|源码提交|已证范围|剩余边界/证据|
 |---|---|---|---|
+|#87 Queen正式四组合布局|`372c488`，合入`f55305f`|真Kill/重燃两Torch，原Queen/聚合体保留，1/4角色×1280/1680宽720；真实HP/意图图标及10伤文本含溢出描边不交不出屏，精确鼠标target与含players全环左右导航|实证两Torch HP交叠70.2logical后仅左marker1150→1050，血条间距19.8；双轴/数值增量0阻塞、hook patch一致，默认导出集成双版Queen各9四诊断0无RID；[布局增量](issue87-boss-implementation.md#queen-正式布局与原生输入2026-11-14)，非全部意图/实体设备/真实端|
 |#86 Mystic完整fresh|`9e52b1c`，合入`fa41442`|首原生普通受罚遭遇，独立完整开场/五堆/能量/Block/powers/RNG，实战CAST→HEAL→BUFF扰动后新大厅回CAST；真胜利非空奖励第二fresh领取/重复拒绝/原Proceed|双轴无阻塞、profile内存独立克隆还原补齐，正常hook patch一致；实施profile-final及集成双版各7四诊断0无RID；[恢复增量](issue86-hunting-implementation.md#mystic-完整战前与非空胜利奖励-fresh2026-11-14)，单owner同进程，不代签12场景布局/真实多端|
 |#85 Tender真实owner屏|`1570ab2`，合入`35bb69d`|单owner第二轮无selector旁路，真鼠标Tender能力恰一次、原screen释放、重复release不重施加、恢复怪物hitbox输入|双轴无阻塞，hook patch完全一致；集成Tender1+ActTwo8双版四诊断0无RID；[owner屏增量](issue85-hunting-implementation.md#knowledge-tender-真实-owner-选择屏2026-11-14)；多人/控制器/完整恢复未代签|
 |#87 Queen完整fresh|`5ac1e5d`，合入`09d91c2`|真实session.Enter/战中保存，两次新LoadRunLobby；完整玩家存档与五堆顺序/Energy/Block/powers、RNG/Act/敌人开场重建、重燃标记重置、终局胜利点不重开|双轴P2牌堆缺口已修复复审；正常hook patch一致，实施piles-final及集成双版各1全0无RID；[恢复增量](issue87-boss-implementation.md#queen-完整战前与终局胜利点-fresh2026-11-14)；单owner同进程新大厅，不代签新进程/真实多端或非空领奖|
