@@ -1,4 +1,7 @@
 {
+  "ALL_MATTERS_MONSTER_TORCH_HEAD.name": "Torch Head",
+  "ALL_MATTERS_MONSTER_TORCH_HEAD.moves.ATTACK.title": "Halberd Slam",
+  "QUEEN.moves.REKINDLE.title": "Rekindle",
   "ALL_MATTERS_MONSTER_MYSTIC.name": "Mystic",
   "ALL_MATTERS_MONSTER_MYSTIC.moves.CAST.title": "Cast",
   "ALL_MATTERS_MONSTER_MYSTIC.moves.HEAL.title": "Heal",

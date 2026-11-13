@@ -1,4 +1,7 @@
 {
+  "ALL_MATTERS_MONSTER_TORCH_HEAD.name": "火炬头",
+  "ALL_MATTERS_MONSTER_TORCH_HEAD.moves.ATTACK.title": "戟击",
+  "QUEEN.moves.REKINDLE.title": "重燃",
   "ALL_MATTERS_MONSTER_MYSTIC.name": "神秘术士",
   "ALL_MATTERS_MONSTER_MYSTIC.moves.CAST.title": "施法",
   "ALL_MATTERS_MONSTER_MYSTIC.moves.HEAL.title": "治疗",
