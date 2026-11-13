@@ -96,6 +96,7 @@ internal static class JigsawNetworkTests
         var directory=Environment.GetEnvironmentVariable("JIGSAW_NET_DIR")??Path.Combine(Path.GetTempPath(),"allmatters-enet-"+Guid.NewGuid());
         Directory.CreateDirectory(directory);
         var children=new List<Process>();
+        var childOutputs = new List<(HeadlessProcessOutput Output, string Role)>();
         var harmony=new HarmonyLib.Harmony("AllMatters.Tests.ENet80");
         harmony.Patch(HarmonyLib.AccessTools.Method(typeof(SaveManager),nameof(SaveManager.SaveRun)),
             prefix:new HarmonyLib.HarmonyMethod(typeof(JigsawNetworkTests),nameof(SaveThroughIsolatedManager)));
@@ -141,10 +142,9 @@ internal static class JigsawNetworkTests
                     var start=new ProcessStartInfo(OS.GetExecutablePath()){UseShellExecute=false,CreateNoWindow=true,RedirectStandardOutput=true,RedirectStandardError=true};
                     foreach(var arg in new[]{"--headless","--path",ProjectSettings.GlobalizePath("res://"),"--",Name})start.ArgumentList.Add(arg);
                     start.Environment["JIGSAW_NET_ROLE"]=childRole;start.Environment["JIGSAW_NET_DIR"]=directory;start.Environment["JIGSAW_NET_PORT"]=port.ToString();
-                    var process=Process.Start(start)!;children.Add(process);
-                    process.OutputDataReceived+=(_,e)=>{if(e.Data!=null)File.AppendAllText(Path.Combine(directory,childRole+".log"),e.Data+Environment.NewLine);};
-                    process.ErrorDataReceived+=(_,e)=>{if(e.Data!=null)File.AppendAllText(Path.Combine(directory,childRole+".err"),e.Data+Environment.NewLine);};
-                    process.BeginOutputReadLine();process.BeginErrorReadLine();
+                    var output = new HeadlessProcessOutput(start);
+                    children.Add(output.Process);
+                    childOutputs.Add((output, childRole));
                 }
                 await Until(()=>host.ConnectedPeers.Count==2,"native authenticated clients");
             }
@@ -538,10 +538,17 @@ internal static class JigsawNetworkTests
         }
         finally
         {
-            foreach(var child in children){if(!child.HasExited)child.Kill(true);child.Dispose();}
-            harmony.UnpatchAll(harmony.Id);
-            isolatedSaveManager=null;
-            RunManager.Instance.CleanUp(false);
+            try
+            {
+                await Task.WhenAll(childOutputs.Select(child => child.Output.Finish(
+                    Path.Combine(directory, child.Role + ".log"), Path.Combine(directory, child.Role + ".err"))));
+            }
+            finally
+            {
+                harmony.UnpatchAll(harmony.Id);
+                isolatedSaveManager=null;
+                RunManager.Instance.CleanUp(false);
+            }
         }
     }
 }
