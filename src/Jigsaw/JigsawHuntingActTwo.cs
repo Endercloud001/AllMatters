@@ -20,26 +20,55 @@ namespace AllMatters.Jigsaw;
 [HarmonyPatch(typeof(Hook), nameof(Hook.BeforeCombatStart))]
 internal static class JigsawHuntingHiveOpening
 {
-    private static void Postfix(IRunState runState, ICombatState? combatState, ref Task __result) =>
-        __result = ApplyOpening(__result, runState, combatState);
-
-    private static async Task ApplyOpening(Task original, IRunState runState, ICombatState? combatState)
+    private static void Postfix(IRunState runState, ICombatState? combatState, ref Task __result)
     {
-        await original;
-        if (runState is not RunState native || native.Players.FirstOrDefault() is not { } owner ||
-            !JigsawHuntingNative.RootIsHunted(owner) ||
-            native is not { Act: Hive, CurrentRoomCount: 1, CurrentRoom: CombatRoom room } ||
-            room.ParentEventId != null || room.RoomType is not (RoomType.Monster or RoomType.Elite) ||
+        if (runState is RunState native && combatState != null && native.CurrentRoom is CombatRoom room &&
+            IsCurrent(native, room, combatState))
+            __result = ApplyOpening(__result, native, room, combatState);
+    }
+
+    private static bool IsCurrent(RunState native, CombatRoom room, ICombatState combatState)
+    {
+        if (!ReferenceEquals(native.CurrentRoom, room) ||
             !ReferenceEquals(room.CombatState, combatState) ||
-            !ReferenceEquals(RunManager.Instance.DebugOnlyGetState(), native))
+            !ReferenceEquals(RunManager.Instance.DebugOnlyGetState(), native) ||
+            native.Players.FirstOrDefault() is not { } owner || !JigsawHuntingNative.RootIsHunted(owner) ||
+            native.Act is not Hive)
+            return false;
+        if (room.ParentEventId == null)
+            return native.CurrentRoomCount == 1 && room.RoomType is RoomType.Monster or RoomType.Elite;
+        return native.CurrentRoomCount == 2 && native.BaseRoom is EventRoom parent &&
+            room.ParentEventId == parent.CanonicalEvent.Id &&
+            JigsawNativeSession.TryGet(native)?.Map is { CurrentNode: not null } map &&
+            map.Nodes.Single(node => node.Id == map.CurrentNode).Room == JigsawRoom.Unknown;
+    }
+
+    private static async Task ApplyOpening(Task original, RunState native, CombatRoom room, ICombatState combatState)
+    {
+        var map = JigsawNativeSession.TryGet(native)!.Map!;
+        int? node = map.CurrentNode;
+        var pending = map.PendingEntry?.Id;
+        var parent = native.BaseRoom;
+        bool StillCurrent() => IsCurrent(native, room, combatState) && ReferenceEquals(native.BaseRoom, parent) &&
+            ReferenceEquals(JigsawNativeSession.TryGet(native)?.Map, map) &&
+            map.CurrentNode == node && map.PendingEntry?.Id == pending;
+        await original;
+        if (!StillCurrent())
             return;
-        foreach (var player in combatState!.Players)
+        bool elite = room.ParentEventId == null && room.RoomType == RoomType.Elite;
+        foreach (var player in combatState.Players)
         {
+            if (!StillCurrent())
+                return;
             var context = new ThrowingPlayerChoiceContext();
-            await PowerCmd.Apply<WeakPower>(context, player.Creature, room.RoomType == RoomType.Elite ? 2 : 1, null, null);
-            if (room.RoomType == RoomType.Elite)
+            await PowerCmd.Apply<WeakPower>(context, player.Creature, elite ? 2 : 1, null, null);
+            if (!StillCurrent())
+                return;
+            if (elite)
                 continue;
             await PowerCmd.Apply<FrailPower>(context, player.Creature, 1, null, null);
+            if (!StillCurrent())
+                return;
             await PowerCmd.Apply<VulnerablePower>(context, player.Creature, 1, null, null);
         }
     }

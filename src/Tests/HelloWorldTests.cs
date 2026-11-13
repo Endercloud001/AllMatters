@@ -84,6 +84,7 @@ internal static class HelloWorldTests
                 .Concat(JigsawHuntingTests.Cases).Concat(JigsawHuntingNativeTests.Cases).Concat(JigsawHuntingTreasureTests.Cases).Concat(JigsawCompatibilityTests.Cases).Concat(JigsawFlightCompatibilityTests.Cases).Concat(JigsawCombatCheckpointTests.Cases).Concat(JigsawHuntingUnderdocksTests.Cases).Concat(JigsawHuntingCombatTests.Cases).Concat(JigsawRecoveryNetworkTests.Cases)
                 .Concat(JigsawHuntingActTwoTests.Cases)
                 .Concat(JigsawHuntingHiveEliteTests.Cases)
+                .Concat(JigsawHuntingHiveEventTests.Cases)
                 .Concat(JigsawHuntingActThreeTests.Cases)
                 .Concat(JigsawHuntingBossTests.Cases)
                 .Concat(JigsawHuntingMultiClawTests.Cases)
