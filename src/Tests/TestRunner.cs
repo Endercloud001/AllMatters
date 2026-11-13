@@ -65,8 +65,10 @@ public partial class TestRunner : Node
             var gameAssembly = Assembly.Load("sts2");
             Console.WriteLine($"Test loaded sts2: {gameAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion}; location={gameAssembly.Location}");
             int result = await HelloWorldTests.Run(OS.GetCmdlineUserArgs(), name =>
-                // Activation starts two sequential isolated hosts, each bounded to 50 seconds.
-                watchdog.Renew(name, name == JigsawActivationTests.Name ? 120 : 60));
+                // Activation starts two isolated hosts; completed Holes starts three
+                // sequential rounds of three endpoints. Each round is bounded to 50 seconds.
+                watchdog.Renew(name, name == "Jigsaw recovery native load lobby event-holes-completed all" ? 180 :
+                    name == JigsawActivationTests.Name ? 120 : 60));
             GetTree().Quit(result);
         }
         catch (Exception exception)

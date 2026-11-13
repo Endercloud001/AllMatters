@@ -1206,11 +1206,22 @@ public sealed class JigsawNativeSession
     private bool CompletedTreasureRoot => treasureCheckpoint != null && Map is { CurrentNode: not null, CurrentRoomHunted: true } map && Native.CurrentRoom is TreasureRoom &&
         map.ActivePlayers.All(map.RoomCompletedPlayers.Contains) && JigsawNativeExploration.TreasureTasksFinished(this);
 
-    internal void CaptureCompletedTreasure(SerializableRun checkpoint)
+    private bool CompletedHolesRoot => ReferenceEquals(Current, this) && !ClosedToken.IsCancellationRequested && Map is { CurrentNode: not null, CurrentRoomHunted: true } map &&
+        Native.CurrentRoomCount == 1 && ReferenceEquals(Native.CurrentRoom, Native.BaseRoom) &&
+        Native.CurrentRoom is EventRoom { CanonicalEvent: FieldOfManSizedHoles } &&
+        Native.CurrentMapPointHistoryEntry?.Rooms.LastOrDefault()?.ModelId == ModelDb.Encounter<AllMatters.Encounters.HolesEncounter>().Id &&
+        !JigsawEventCombatCheckpoint.HasPoint(Native) && map.ActivePlayers.Count > 1 &&
+        map.ActivePlayers.All(owner => map.RoomCompletedPlayers.Contains(owner) &&
+            RunManager.Instance.EventSynchronizer.Events.Any(model => model is FieldOfManSizedHoles &&
+                model.Owner is { } player && player.NetId == owner && ReferenceEquals(player.RunState, Native) && model.IsFinished &&
+                model.Description?.LocEntryKey == "FIELD_OF_MAN_SIZED_HOLES.pages.AM_FIGHT.description") &&
+            JigsawNativeExploration.NativeFlowFinished(this, owner));
+
+    internal void CaptureCompletedRoot(SerializableRun checkpoint)
     {
-        if (!CompletedTreasureRoot || Map == null)
+        if ((!CompletedTreasureRoot && !CompletedHolesRoot) || Map == null)
             return;
-        var completed = JigsawRun.Restore(Map.CreateSave());
+        var completed = JigsawRun.Restore(Map.CreateSave(), CompletedHolesRoot ? Map.ActivePlayers : null);
         if (!completed.CompleteRoom(completed.CreateSave().NextEntry).Success)
             return;
         if (!JigsawCheckpoint.Slot.TryGet(Native, out var live) || live == null)
@@ -1630,7 +1641,7 @@ internal static class JigsawCaptureNativePoint
         if (!__result.Modifiers.Any(modifier => modifier.Id == identity.Id))
             __result.Modifiers.Add(identity.ToMutable().ToSerializable());
         session.CapturePendingEntry(__result);
-        session.CaptureCompletedTreasure(__result);
+        session.CaptureCompletedRoot(__result);
     }
     private static bool Prefix(ref SerializableRun __result)
     {

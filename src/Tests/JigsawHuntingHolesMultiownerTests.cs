@@ -212,14 +212,14 @@ internal static class JigsawHuntingHolesMultiownerTests
         }
     }
 
-    internal static async Task NetworkOwners(RunState run, RunSaveManager saves, bool reloaded, ReloadObservation? reload, bool rewards, string restoredMap,
+    internal static async Task NetworkOwners(RunState run, RunSaveManager saves, bool reloaded, ReloadObservation? reload, bool rewards, bool completed, string restoredMap,
         string directory, string role, Func<Func<bool>, string, Task> until,
         Action<string> signal, Func<string, string, bool> signaled)
     {
         if (reloaded)
         {
             if (reload == null) throw new InvalidOperationException("Fresh Holes load requires its pre-setup native opening observer.");
-            if (rewards) await RestoredRewards(run, reload, restoredMap, directory, role, until, signal, signaled);
+            if (rewards) await RestoredRewards(run, saves, reload, completed, restoredMap, directory, role, until, signal, signaled);
             else await RestoredOwners(run, reload, restoredMap, directory, role, until, signal, signaled);
             return;
         }
@@ -639,7 +639,7 @@ internal static class JigsawHuntingHolesMultiownerTests
         await until(() => peers.All(peer => signaled(peer, "holes-reward-capture-complete")), "all source endpoints finish reward capture before cleanup");
     }
 
-    private static async Task RestoredRewards(RunState run, ReloadObservation observation, string restoredMap,
+    private static async Task RestoredRewards(RunState run, RunSaveManager saves, ReloadObservation observation, bool completed, string restoredMap,
         string directory, string role, Func<Func<bool>, string, Task> until,
         Action<string> signal, Func<string, string, bool> signaled)
     {
@@ -781,7 +781,161 @@ internal static class JigsawHuntingHolesMultiownerTests
             Check(JsonNode.DeepEquals(peerExpected, JsonNode.Parse(File.ReadAllText(Path.Combine(directory, peer + ".holes-reward-finished.json")))),
                 "Every finished endpoint retains the complete independently specified terminal state, including its original predicted local discovery arrays.");
         }
+        if (completed)
+            await CaptureCompleted(run, saves, observation, child, finishedExpected, directory, role, until, signal, signaled);
     }
+
+    private static async Task CaptureCompleted(RunState run, RunSaveManager saves, ReloadObservation observation, CombatRoom child,
+        JsonNode finished, string directory, string role, Func<Func<bool>, string, Task> until,
+        Action<string> signal, Func<string, string, bool> signaled)
+    {
+        string[] peers = ["host", "2", "3"];
+        var manager = RunManager.Instance;
+        var session = JigsawNativeSession.Current!;
+        var map = session.Map!;
+        int root = map.CurrentNode!.Value;
+        // ToSave first captures the active map into the host's live checkpoint.
+        // Its old persisted roster can differ from the new lobby's independently
+        // verified live roster; other endpoints do not perform this host save.
+        var liveExpected = finished.DeepClone();
+        if (role == "host") liveExpected["Point"]!["Map"] = finished["Map"]!.DeepClone();
+        var completedMap = finished["Map"]!.DeepClone();
+        completedMap["Completed"]!.AsArray().Add(root);
+        completedMap["CurrentNode"] = null;
+        completedMap["Hunting"]!["RootHunted"] = false;
+        var expectedPoint = finished["Point"]!.DeepClone();
+        expectedPoint["Map"] = completedMap.DeepClone();
+        // Host's full saved players include its own ordered discovery arrays.
+        // A third process restores that one host document on every endpoint;
+        // it does not inherit the earlier client's in-memory profile additions.
+        var expected = new JsonObject
+        {
+            ["Players"] = finished["Players"]!.DeepClone(), ["RunRng"] = finished["RunRng"]!.DeepClone(),
+            ["History"] = finished["History"]!.DeepClone(), ["Page"] = finished["Page"]!.DeepClone(),
+            ["Point"] = expectedPoint, ["Map"] = completedMap,
+            ["SourceEndpoint"] = role, ["SourceProcess"] = Environment.ProcessId
+        };
+        File.WriteAllText(Path.Combine(directory, role + ".holes-completed-before-exit.json"), finished.ToJsonString(CompleteStateJson));
+        File.WriteAllText(Path.Combine(directory, role + ".holes-completed-process"), Environment.ProcessId.ToString());
+        async Task<(string Payload, JsonNode State)> SaveCanonical(string stage, JsonNode oracle)
+        {
+            Check(manager.ShouldSave, "Real saved-multiplayer setup enables native saves at this explicit boundary.");
+            await session.WaitForSave();
+            await SaveManager.Instance.SaveRun(null);
+            await session.WaitForSave();
+            var saved = saves.LoadAndCanonicalizeMultiplayerRunSave(1);
+            Check(saved.Success && saved.SaveData != null, "The native host completion save is independently readable.");
+            string payload = JigsawSaveSource.Serialize(saved.SaveData!);
+            var jsonType = JsonSerializationUtility.GetTypeInfo<SerializableRun>();
+            File.WriteAllText(Path.Combine(directory, stage + "-native-save.json"), JsonSerializer.Serialize(saved.SaveData!, jsonType));
+            // Reconstruct a distinct document; no oracle is filled from actual.
+            var savedRun = RunState.FromSerializable(JigsawSaveSource.Deserialize(payload));
+            var actual = CompletedState(savedRun, JigsawCheckpoint.Slot.Get(savedRun).Map!);
+            File.WriteAllText(Path.Combine(directory, stage + "-save-actual.json"), actual.ToJsonString(CompleteStateJson));
+            File.WriteAllText(Path.Combine(directory, stage + "-save-expected.json"), oracle.ToJsonString(CompleteStateJson));
+            CheckCompletedState(actual, oracle, "Host canonical save matches every independently predicted completion field at stage " + stage + ".");
+            Check(JsonNode.DeepEquals(RewardState(run, child), liveExpected),
+                "Saving a projected completed root cannot mutate the complete live player/RNG/parent/page/checkpoint/map/history state.");
+            return (payload, actual);
+        }
+        // A finished narrative alone is not an authenticated map departure.
+        if (role == "host")
+        {
+            Check(map.RoomCompletedPlayers.Count == 0, "Proceed alone has completed no owner's root exit.");
+            await SaveCanonical("completed-no-exit", liveExpected);
+            signal("holes-completed-no-exit-checked");
+        }
+        await until(() => signaled("host", "holes-completed-no-exit-checked"), "host independently saves and verifies the finished parent before any owner exits");
+        if (role == "3")
+            await until(() => signaled("host", "holes-completed-partial-checked"), "the third owner waits for a real two-owner partial-exit save");
+        // The host supplies the native map object, not an NEventRoom button.
+        // Real patched Open(false) authenticates and broadcasts this owner.
+        var nativeMap = new MegaCrit.Sts2.Core.Nodes.Screens.Map.NMapScreen();
+        try { nativeMap.Open(false); }
+        finally { nativeMap.Free(); }
+        signal("holes-completed-exit");
+        if (role != "3")
+        {
+            await until(() => signaled("host", "holes-completed-exit") && signaled("2", "holes-completed-exit") &&
+                map.RoomCompletedPlayers.Count == 2 && map.RoomCompletedPlayers.Contains(1UL) && map.RoomCompletedPlayers.Contains(2UL),
+                "exactly two authenticated owners exit while the third remains in the finished root");
+            Check(JsonNode.DeepEquals(RewardState(run, child), liveExpected), "Partial exits leave the entire finished point intact.");
+            signal("holes-completed-partial");
+            if (role == "host")
+            {
+                await until(() => signaled("2", "holes-completed-partial"), "the second owner independently verifies the partial boundary");
+                await SaveCanonical("completed-partial", liveExpected);
+                signal("holes-completed-partial-checked");
+            }
+        }
+        await until(() => peers.All(peer => signaled(peer, "holes-completed-exit")) && map.ActivePlayers.All(map.RoomCompletedPlayers.Contains),
+            "all three real patched map exits authenticate their own native owner through the ordered transport");
+        Check(JsonNode.DeepEquals(RewardState(run, child), liveExpected) && map.CurrentNode == root &&
+            map.DestinationVotes.Count == 0 && observation.OpeningCalls == 0 && observedRewards!.Count == 3,
+            "Authenticated multiplayer exits preserve the full live root, claimed inventories, all RNG and parents while destination voting remains untouched.");
+        File.WriteAllText(Path.Combine(directory, role + ".holes-completed-after-exit.json"), RewardState(run, child).ToJsonString(CompleteStateJson));
+        signal("holes-completed-verified");
+        await until(() => peers.All(peer => signaled(peer, "holes-completed-verified")), "every endpoint verifies the full pre-save state before host persistence");
+        if (role == "host")
+        {
+            // OnEdited deliberately defers normal live-room edit saves while
+            // CurrentNode remains set. This is the explicit legal SaveRun
+            // boundary after all real exits, using the existing isolated IO.
+            var captured = await SaveCanonical("completed", expected);
+            var repeated = await SaveCanonical("completed-repeat", expected);
+            Check(JsonNode.DeepEquals(captured.State, repeated.State) &&
+                repeated.State["Map"]!["Completed"]!.AsArray().Count(node => node!.GetValue<int>() == root) == 1 &&
+                map.CurrentNode == root && map.ActivePlayers.All(map.RoomCompletedPlayers.Contains) &&
+                map.DestinationVotes.Count == 0 && observation.OpeningCalls == 0 && observedRewards!.Count == 3,
+                "Repeated real host saves project the same root exactly once without changing live voting, charging steps or reopening combat/rewards.");
+            expected["SourceProcesses"] = JsonSerializer.SerializeToNode(peers.ToDictionary(peer => peer,
+                peer => int.Parse(File.ReadAllText(Path.Combine(directory, peer + ".holes-completed-process")))), CompleteStateJson);
+            File.WriteAllText(Path.Combine(directory, "completed-checkpoint.json"), repeated.Payload);
+            File.WriteAllText(Path.Combine(directory, "completed-expected.json"), expected.ToJsonString(CompleteStateJson));
+        }
+        signal("holes-completed-captured");
+        await until(() => peers.All(peer => signaled(peer, "holes-completed-captured")), "all second-round processes finish completion capture before shutdown");
+    }
+
+    internal static async Task RestoredCompleted(RunState run, ReloadObservation observation, string restoredMap,
+        string directory, string role, Func<Func<bool>, string, Task> until,
+        Action<string> signal, Func<string, string, bool> signaled)
+    {
+        string[] peers = ["host", "2", "3"];
+        var expected = JsonNode.Parse(File.ReadAllText(Path.Combine(directory, "completed-expected.json")))!;
+        // The only new-session map field comes from the existing independently
+        // checked LoadListener snapshot, not from this post-load actual.
+        expected["Map"]!["Players"] = JsonNode.Parse(restoredMap)!["Players"]!.DeepClone();
+        Check(expected["SourceEndpoint"]!.GetValue<string>() == "host" &&
+            expected["SourceProcesses"]!.AsObject().All(pair => pair.Value!.GetValue<int>() != Environment.ProcessId) &&
+            run.CurrentRoomCount == 1 && run.CurrentRoom is MapRoom && run.BaseRoom is MapRoom &&
+            observation.OpeningCalls == 0 && observedRewards is { Count: 0 } &&
+            !RunManager.Instance.EventSynchronizer.Events.Any(),
+            "A third fresh process naturally loads the completed host point as MapRoom with no recreated Holes parent, combat opening or reward set.");
+        var actual = CompletedState(run, JigsawNativeSession.Current!.Map!.CreateSave());
+        File.WriteAllText(Path.Combine(directory, role + ".holes-completed-restore-actual.json"), actual.ToJsonString(CompleteStateJson));
+        File.WriteAllText(Path.Combine(directory, role + ".holes-completed-restore-expected.json"), expected.ToJsonString(CompleteStateJson));
+        CheckCompletedState(actual, expected,
+            "Fresh native load retains the host's entire claimed players and discovery profile arrays, every run RNG field, full history, completed root and cleared finite fight page without a second exploration charge.");
+        signal("holes-completed-restored");
+        await until(() => peers.All(peer => signaled(peer, "holes-completed-restored")), "all third-round endpoints verify the same full completed host document");
+        foreach (string peer in peers)
+            Check(JsonNode.DeepEquals(actual, JsonNode.Parse(File.ReadAllText(Path.Combine(directory, peer + ".holes-completed-restore-actual.json")))),
+                "Every fresh endpoint agrees on the complete host-saved point without carrying another endpoint's earlier local discovery mutation.");
+        Console.WriteLine($"HOLES_COMPLETED_ENET role={role} original=3 active=3 fresh-process=true current=MapRoom opening=0 rewards=0 restore=complete");
+    }
+
+    private static JsonNode CompletedState(RunState run, JigsawSave map) => new JsonObject
+    {
+        ["Players"] = JsonNode.Parse(PlayersContents(run)),
+        ["RunRng"] = JsonSerializer.SerializeToNode(run.Rng.ToSerializable(), CompleteStateJson),
+        ["History"] = NativeHistory(run), ["Page"] = JsonSerializer.SerializeToNode(HolesPageState(run), CompleteStateJson),
+        ["Point"] = JsonSerializer.SerializeToNode(JigsawCheckpoint.Slot.Get(run), CompleteStateJson),
+        ["Map"] = JsonSerializer.SerializeToNode(map, CompleteStateJson)
+    };
+
+    private static void CheckCompletedState(JsonNode actual, JsonNode expected, string reason) =>
+        Check(new[] { "Players", "RunRng", "History", "Page", "Point", "Map" }.All(field => JsonNode.DeepEquals(actual[field], expected[field])), reason);
 
     private static JsonNode RewardState(RunState run, CombatRoom child) => JsonSerializer.SerializeToNode(new
     {
