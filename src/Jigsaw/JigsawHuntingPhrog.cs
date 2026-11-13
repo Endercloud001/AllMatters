@@ -18,8 +18,8 @@ namespace AllMatters.Jigsaw;
 // The authored encounter has only four worm markers. A second row leaves
 // room for the fifth creature's hitbox, health bar and intent without extending
 // into the players' target area. Small first-row offsets keep actual hitboxes
-// clear of four players. Beta also needs a rightmost inset for its health bar;
-// public's native aspect-ratio scaling requires the original rightmost slot.
+// clear of four players. The rightmost inset keeps the native health bar
+// inside both target versions' actual viewport.
 [HarmonyPatch(typeof(EncounterModel), nameof(EncounterModel.CreateScene))]
 internal static class JigsawHuntingPhrogLayout
 {
@@ -33,9 +33,7 @@ internal static class JigsawHuntingPhrogLayout
         var fifthPosition = new Vector2((first.Position.X + second.Position.X) / 2, first.Position.Y - 240);
         first.Position += new Vector2(45, 0);
         second.Position += new Vector2(15, 0);
-#if !STS2_PUBLIC
         __result.GetNode<Marker2D>(PhrogParasiteElite.GetWrigglerSlotName(3)).Position -= new Vector2(24, 0);
-#endif
         __result.AddChild(new Marker2D
         {
             Name = PhrogParasiteElite.GetWrigglerSlotName(4),
