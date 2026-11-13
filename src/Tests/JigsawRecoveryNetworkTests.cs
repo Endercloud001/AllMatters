@@ -579,7 +579,7 @@ internal static class JigsawRecoveryNetworkTests
                 await JigsawCombatCheckpointTests.NetworkOwners(listener.Native!, saves, combatReloaded, directory, role,
                     Until, Signal, Signaled);
             if (phase == "event-holes-lag")
-                await JigsawHuntingHolesMultiownerTests.NetworkOwners(listener.Native!, saves, combatReloaded, holesReload, directory, role,
+                await JigsawHuntingHolesMultiownerTests.NetworkOwners(listener.Native!, saves, combatReloaded, holesReload, listener.RestoredMap!, directory, role,
                     Until, Signal, Signaled);
             if (treasure)
             {

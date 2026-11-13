@@ -202,14 +202,14 @@ internal static class JigsawHuntingHolesMultiownerTests
         }
     }
 
-    internal static async Task NetworkOwners(RunState run, RunSaveManager saves, bool reloaded, ReloadObservation? reload,
+    internal static async Task NetworkOwners(RunState run, RunSaveManager saves, bool reloaded, ReloadObservation? reload, string restoredMap,
         string directory, string role, Func<Func<bool>, string, Task> until,
         Action<string> signal, Func<string, string, bool> signaled)
     {
         if (reloaded)
         {
             if (reload == null) throw new InvalidOperationException("Fresh Holes load requires its pre-setup native opening observer.");
-            await RestoredOwners(run, reload, directory, role, until, signal, signaled);
+            await RestoredOwners(run, reload, restoredMap, directory, role, until, signal, signaled);
             return;
         }
         var manager = RunManager.Instance;
@@ -505,7 +505,7 @@ internal static class JigsawHuntingHolesMultiownerTests
         if (cleanupFailures.Count > 0) throw new AggregateException("Holes multiowner cleanup failed.", cleanupFailures);
     }
 
-    private static async Task RestoredOwners(RunState run, ReloadObservation observation,
+    private static async Task RestoredOwners(RunState run, ReloadObservation observation, string restoredMap,
         string directory, string role, Func<Func<bool>, string, Task> until,
         Action<string> signal, Func<string, string, bool> signaled)
     {
@@ -515,6 +515,9 @@ internal static class JigsawHuntingHolesMultiownerTests
             string[] peers = ["host", "2", "3"];
             var manager = RunManager.Instance;
             var expected = JsonNode.Parse(File.ReadAllText(Path.Combine(directory, "event-opening.json")))!;
+            // LoadListener already checks the full persisted map before entry;
+            // only its active roster follows this new native lobby's order.
+            expected["State"]!["Map"]!["Players"] = JsonNode.Parse(restoredMap)!["Players"]!.DeepClone();
             Check(expected["SourceProcesses"]![role]!.GetValue<int>() != Environment.ProcessId,
                 "Each endpoint is a new process loading its predecessor's real complete save, with independent native combat objects.");
             Check(run.CurrentRoomCount == 2 && run.BaseRoom is EventRoom { CanonicalEvent: FieldOfManSizedHoles } parent &&
