@@ -4,7 +4,9 @@
 
 ## 当前接续状态（2026-11-13）
 
-当前源码集成 `35bb69d`，目标 **public v0.107.1 / beta v0.113.0、RitsuLib 0.6.11**。本节覆盖下方历史记录中的旧目标、资源缺失、未提交状态和旧失败位置。旧发布包与旧版通过数不代签新目标。#82–#88 仍OPEN，#84–#88仍部分实现；当前提交完整Test/Check、同提交双版包及正式实机矩阵尚未交付。
+当前源码集成 `fa41442`，目标 **public v0.107.1 / beta v0.113.0、RitsuLib 0.6.11**。本节覆盖下方历史记录中的旧目标、资源缺失、未提交状态和旧失败位置。旧发布包与旧版通过数不代签新目标。#82–#88 仍OPEN，#84–#88仍部分实现；当前提交完整Test/Check、同提交双版包及正式实机矩阵尚未交付。
+
+Mystic完整fresh源码`9e52b1c`合入`fa41442`：首真实普通Glory原session.Enter、完整玩家/五堆/敌人/各RNG开场恢复、CAST循环重置、非空胜利点第二新大厅实际领奖/重复拒绝/原Proceed；profile独立克隆及finally原引用完整内容还原已双轴复核，正常hook patch一致。实施及集成双版Mystic各7四诊断0无RID；详[恢复增量](issue86-hunting-implementation.md#mystic-完整战前与非空胜利奖励-fresh2026-11-14)，单owner同进程，不代签12场景布局/正式端；空槽已拉#84首普通战完整fresh。
 
 Knowledge Tender真实owner屏源码`1570ab2`已合入`35bb69d`，生产零改、正常hook patch一致、独立双轴无阻塞；集成双版Tender各1及ActTwo各8 PASS四诊断0。精确范围/宿主准备与剩余边界见[owner屏记录](issue85-hunting-implementation.md#knowledge-tender-真实-owner-选择屏2026-11-14)，不关闭#85；下一片拉取#86 Mystic完整fresh，Queen布局并行。
 

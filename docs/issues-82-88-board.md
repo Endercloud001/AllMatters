@@ -1,6 +1,6 @@
 # #82–#88 当前调度看板
 
-更新：2026-11-14。唯一维护者：集成主控。集成树：`AllMatters/.claude/worktrees/hunting-20261112`，分支`integration/issues-82-88-20261112`。当前源码HEAD=`35bb69d`；流程入口已提交`776e2ef`，Holes源码`1956c17`保留。
+更新：2026-11-14。唯一维护者：集成主控。集成树：`AllMatters/.claude/worktrees/hunting-20261112`，分支`integration/issues-82-88-20261112`。当前源码HEAD=`fa41442`；流程入口已提交`776e2ef`，Holes源码`1956c17`保留。
 
 目标：public v0.107.1 / beta v0.113.0 / RitsuLib 0.6.11。本轮已实际查询GitHub，#82–#88均OPEN；当前本地切片不自动关闭issue。后续主控更新此文首和卡片，不再另建当前状态表。
 
@@ -8,7 +8,7 @@
 
 ## 拉取入口
 
-当前推进Queen正式四组合布局和Mystic完整战前/胜利奖励fresh恢复；Mystic模型/三动作、族母、蟹与Waterfall自然致死已集成，不重复派发这些既有行为。其他候选按依赖、验收价值及文件所有权准备。
+当前推进Queen正式四组合布局和密林首个普通战完整fresh恢复；Mystic模型/三动作、族母、蟹与Waterfall自然致死已集成，不重复派发这些既有行为。其他候选按依赖、验收价值及文件所有权准备。
 
 跨票验收盘点可由主控一次完成，用于发现#82/#83可收口项；不要把“盘点全部历史”作为后续每片的共同前置。详细操作见[批次流程](agents/batch-flow.md)。
 
@@ -16,14 +16,14 @@
 
 |卡片/issue|行为|状态|owner / worktree|依赖与热点|下一动作/证据|开始时间|
 |---|---|---|---|---|---|---|
-|C87-queen-layout / #87|真实聚合体死亡/重燃→Queen+两Torch正式节点，1/4角色×紧凑/宽屏，意图/血条/独立target与真实鼠标/控制器导航|Doing|prepare_crabs / `queen-native-layout-20261114`，基`09d91c2`|独占新QueenLayout测试；Hello主控；正式scene仅实证几何失败后窄改两个Torch marker，原Queen/聚合体保留；参考Phrog和已冻结Tender真实owner宿主|两版NTargetManager/NCreature/NInputManager/NMultiplayerPlayerStateContainer已核并补API；先真实mouse/target矩形最小，再native方向环，不手调逐只GrabFocus代签；最小`Jigsaw Queen native layout`|2026-11-14 02:53 +08:00|
-|C86-mystic-fresh / #86|首个真实受罚Glory普通遭遇→战中保存→新大厅完整战前重建且Mystic/RNG/循环一次；真胜利非空奖励点→第二新大厅恢复领取不重开|Doing|docs_standards / `mystic-fresh-20261114`，基`35bb69d`|独占新MysticRecovery测试；Hello主控；生产/共享checkpoint只读，真缺陷另报；参考Queen完整快照与Holes非空奖励|独立expected来自保存前与真实初始开场；主控唯一执行；最小`Jigsaw Mystic fresh`，双版各1起，回归Mystic6；完整布局/真实多端另归#86|2026-11-14 03:03 +08:00|
+|C87-queen-layout / #87|真实聚合体死亡/重燃→Queen+两Torch正式节点，1/4角色×紧凑/宽屏，意图/血条/独立target与真实鼠标/控制器导航|Review|prepare_crabs / `queen-native-layout-20261114`，基`09d91c2`|独占新QueenLayout测试；Hello主控；正式scene仅实证几何失败后窄改两个Torch marker，原Queen/聚合体保留；参考Phrog和已冻结Tender真实owner宿主|三文件477+/1−已冻结发双轴；实际HP重叠70.2logical red后仅左Torch marker1150→1050，四组合双版各1全0无RID，保原Queen/amalgam/right；`.local/executor-layout/readability-fixed-*-host.log`；单入口焦点后全环真实方向/鼠标精确target|2026-11-14 02:53 +08:00|
+|C84-forest-fresh / #84|首个真实受罚Overgrowth普通遭遇→战中保存→新大厅完整战前重建、Fungus/SporeCloud/计数重置一次；真胜利非空奖励点→第二新大厅恢复领取/Proceed|Doing|docs_standards / `forest-fresh-20261114`，基`fa41442`|独占新ForestRecovery测试；Hello主控；生产/共享checkpoint只读，真缺陷先报；沿Mystic完整快照/profile隔离和旧ForestEntry原入口|独立expected保存前/初始原开场采样；最小`Jigsaw Forest fresh`双版各1起、相关旧Forest三项/Spore必要回归；布局/其他敌人恢复仍#84|2026-11-14 03:26 +08:00|
 
 ## 候选池：尚不能派发实施
 
 |候选/issue|具体缺口与建议切片|准备前需核清|证据入口|
 |---|---|---|---|
-|C82-rest-native / #82|原生禁Heal遗物＋追猎禁项，正式输入自然离开并保存恢复；不手删Heal/Mend|窄读尚未找到两版原生禁Heal来源：CoffeeDripper旧缓存空，现有模型中Midas仅删Smith；候选前提待核，不能人为RemoveAll换green。既有正式Proceed链和后续恢复可复用|[82审查](issue82-review.md)、`JigsawHuntingServices.RestChoicesRemain/JigsawHuntingRestExit`|
+|C82-rest-native / #82|真实原生modifier/遗物入口组合保禁用条件、追加项/加成/额外次数；无合法项正式退出另核真实来源|#82未指定禁Heal遗物，旧候选前提过窄；禁Smith单独仍留Heal，不能代签无合法项。现RestExit手删Heal/Mend及手加额外Heal仅故障模拟；两版现有源码尚未找到真实无合法项来源，CoffeeDripper空cache不可用|[82审查](issue82-review.md)、`JigsawHuntingServices.RestChoicesRemain/JigsawHuntingRestExit`，2026-11-14只读候选复核|
 |C88-evidence / #88|现有矩阵逐项归属，只补实际缺口|各玩法的恢复/UI仍由原issue承担，#88做组合交付|[覆盖地图](issues-82-88-verification-map.md)、[兼容记录](issue88-compatibility-implementation.md)|
 
 ## 暂停与等待
@@ -39,6 +39,7 @@
 
 |issue/切片|源码提交|已证范围|剩余边界/证据|
 |---|---|---|---|
+|#86 Mystic完整fresh|`9e52b1c`，合入`fa41442`|首原生普通受罚遭遇，独立完整开场/五堆/能量/Block/powers/RNG，实战CAST→HEAL→BUFF扰动后新大厅回CAST；真胜利非空奖励第二fresh领取/重复拒绝/原Proceed|双轴无阻塞、profile内存独立克隆还原补齐，正常hook patch一致；实施profile-final及集成双版各7四诊断0无RID；[恢复增量](issue86-hunting-implementation.md#mystic-完整战前与非空胜利奖励-fresh2026-11-14)，单owner同进程，不代签12场景布局/真实多端|
 |#85 Tender真实owner屏|`1570ab2`，合入`35bb69d`|单owner第二轮无selector旁路，真鼠标Tender能力恰一次、原screen释放、重复release不重施加、恢复怪物hitbox输入|双轴无阻塞，hook patch完全一致；集成Tender1+ActTwo8双版四诊断0无RID；[owner屏增量](issue85-hunting-implementation.md#knowledge-tender-真实-owner-选择屏2026-11-14)；多人/控制器/完整恢复未代签|
 |#87 Queen完整fresh|`5ac1e5d`，合入`09d91c2`|真实session.Enter/战中保存，两次新LoadRunLobby；完整玩家存档与五堆顺序/Energy/Block/powers、RNG/Act/敌人开场重建、重燃标记重置、终局胜利点不重开|双轴P2牌堆缺口已修复复审；正常hook patch一致，实施piles-final及集成双版各1全0无RID；[恢复增量](issue87-boss-implementation.md#queen-完整战前与终局胜利点-fresh2026-11-14)；单owner同进程新大厅，不代签新进程/真实多端或非空领奖|
 |#87 Queen一次重燃|`8ef5ff7`，合入`8e8b480`|真实聚合体死亡替换6个Standard意图一次，独立TorchHead50HP/10伤/Minion，原coordinator出生不攻/下轮直攻，女王激怒仅本源活火炬+2、死亡自然清理|双轴无阻塞，正常hook十处return换行已复核；默认导出集成双版各7 PASS四诊断0，无CanvasItem RID泄漏；[Queen增量](issue87-boss-implementation.md#queen-原生重燃与独立火炬2026-11-14)，完整布局/恢复/真实端仍归#87|

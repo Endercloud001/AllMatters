@@ -77,3 +77,13 @@ Flail 覆盖1–4 combat角色 × 安全/追猎 × 有无Artifact，共16组；�
 最终实施`final4-{public,public-beta}-host.log`各6 PASS，四诊断0；共享生成入口受影响的既有Overgrowth组`overgrowth-regression-{public,public-beta}-host.log`各6 PASS、四诊断0，均位于`mystic-native-20261114/.local/executor-mystic/`。集成`7b08841`执行默认资源导出`Test.ps1 -Branch All -Filter 'Jigsaw Mystic'`双版各6 PASS、Build/Host/Engine/Metadata全0；日志集成树`.local/executor-20261114/mystic-integrated-{public,public-beta}-host.log`。Asset not cached及编译/格式化提示按原日志保留，不写零warning。
 
 双轴独立只读审查13文件637+/2−均0发现；正常hooks提交变为641+/2−，只将四个single-line if的return/continue换行，Standards增量复核确认无语义变化。1–4为原生combat角色而非真实多端；完整12普通场景及精英布局、完整战前/胜利奖励fresh恢复、真实端与设备仍属#86后续，不能以临时Marker/factory局部通过代签。
+
+## Mystic 完整战前与非空胜利奖励 fresh（2026-11-14）
+
+源码`9e52b1c`经`fa41442`集成，仅新MysticRecovery与Hello注册两文件610+，生产/共享checkpoint零改。目标public0.107.1/beta0.113.0、RitsuLib0.6.11，匹配PCK。首个真实受罚Glory普通session.Enter独立采样before-roll及原开场，真实CAST→HEAL→BUFF用克隆monster RNG预测状态牌/治疗12/随机活敌Strength2及真实history，再执行一次CAST停HEAL；实际损血、金币、手牌移弃牌、run/owner RNG改变后保存。独立完整开场含全部玩家保存字段、五堆有序card.ToSerializable、Energy/Block/powers、run/owner/monster RNG、原Act/map/history与敌人slot/HP/powers/intent。
+
+首个新LoadRunLobby ready经原SetupSavedMultiplayer/GenerateMap/LoadIntoLatestMapCoord取得新run/session/room/Mystic身份，完整开场相等，Mystic唯一、HP56缩放一次、无初始能力/Minion、CAST重置；再次真实三动作证明循环与RNG原样，重复进入不扣步/不重建。真实全敌死亡→原CheckWinCondition自然prefinished保存→原Offer生成非空金卡及实际roll出的药水；原奖励真skip后第二新大厅从胜利点恢复，不增加opening/startup、无敌人。保存前room/map与奖励生成后完整玩家/RNG/history及奖励内容分阶段精确比较；原SelectLocalReward实际领取，独立预采样预测金币、卡身份/升级、药水及本端首次发现，完整原牌组保持；重复完成stack选择抛原InvalidOperationException且完整状态不变，原Proceed自然完成根一次，没有测试手调CompleteCurrentRoom或末尾补save。
+
+独立Standards/Spec初审无硬问题；采纳共享内存profile污染建议，完整SerializableProgress JSON往返切断可变统计对象后原ProgressState.FromSerializable重建独立profile，finally还原原引用并核身份/完整原内容不变。两轴18行增量通过；原战斗/奖励oracle未改。正常hook成功，提交patch与已审patch完全一致。首beta最小专项1与初final双版各7均全0；最终profile-final双版各7（旧Mystic6+新fresh1）PASS、Build/Host/Engine/Metadata0，无RID/ObjectDB，日志实施树`mystic-fresh-20261114/.local/executor-mystic-fresh/profile-final-{public,public-beta}-host.log`。
+
+集成`fa41442`实际执行`Test.ps1 -Branch All -Filter 'Jigsaw Mystic' -SkipResourceExport`，双版各7 PASS、四诊断0、无RID/ObjectDB；日志集成树`.local/executor-20261114/mystic-fresh-integrated-{public,public-beta}-host.log`。证据为单owner同进程两次新run/session/lobby；普通非空奖励恢复不代签正式领奖UI、新进程/真实多端、全部12普通及精英场景布局，#86仍partial。
