@@ -87,3 +87,9 @@ Flail 覆盖1–4 combat角色 × 安全/追猎 × 有无Artifact，共16组；�
 独立Standards/Spec初审无硬问题；采纳共享内存profile污染建议，完整SerializableProgress JSON往返切断可变统计对象后原ProgressState.FromSerializable重建独立profile，finally还原原引用并核身份/完整原内容不变。两轴18行增量通过；原战斗/奖励oracle未改。正常hook成功，提交patch与已审patch完全一致。首beta最小专项1与初final双版各7均全0；最终profile-final双版各7（旧Mystic6+新fresh1）PASS、Build/Host/Engine/Metadata0，无RID/ObjectDB，日志实施树`mystic-fresh-20261114/.local/executor-mystic-fresh/profile-final-{public,public-beta}-host.log`。
 
 集成`fa41442`实际执行`Test.ps1 -Branch All -Filter 'Jigsaw Mystic' -SkipResourceExport`，双版各7 PASS、四诊断0、无RID/ObjectDB；日志集成树`.local/executor-20261114/mystic-fresh-integrated-{public,public-beta}-host.log`。证据为单owner同进程两次新run/session/lobby；普通非空奖励恢复不代签正式领奖UI、新进程/真实多端、全部12普通及精英场景布局，#86仍partial。
+
+## Glory 正式布局与原生输入（2026-11-14）
+
+源码`a050e7b`合入`21a563f`：原生scene的Mystic追加位置按实际怪物目标框和HP条确定，自动布局只作用受罚Glory普通战，保留原生场景标记；实测Axebot目标框和Construct血条遮挡后修复。12普通及3精英拆成独立case，各自覆盖safe/hunted、1/4角色和1280×720/1680×720，核真实HP文本、可见与尺寸、意图数字和描边包络、画布边界、原生鼠标选择及方向导航；原生玩家间已有重叠按同场safe面积对照，不将其当新增错误。
+
+单个普通大case曾触发60秒watchdog且无PASS；拆分后完整双版各15 PASS。Spec审查发现数字文本及可辨尺寸未约束，返修后以同场safe原生文字高度及实际实体缩放为基准，保留真实HP当前/最大值、文本完整、意图内容与边界检查；Standards核双版API记录，返修复审均无阻塞。实施双版各15及Forest/Mystic相邻各3 PASS，集成后双版各15 PASS，Build/Host/Engine/Metadata均0；日志分别位于`glory-layout-20261114/.local/executor-glory-layout/`及集成树`.local/integration-slices/glory-layout-integrated-{beta,public}-host.log`。正常hooks仅调整单行continue格式，审查确认无语义变化；真实设备及多游戏端仍待，不能代签整票。
