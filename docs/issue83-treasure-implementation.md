@@ -65,3 +65,13 @@ public v0.107.1 与 beta v0.111.0 分开编译运行。public DLL 借用 beta PC
 4. 两端完成但未投下一房时保存重载，回探索地图；原箱不重开，Face/Spoils/hook 不重复，步数不重复扣除。
 5. 一端在任务未结束时断线，保留旧点，旧任务结束前不装新 run。永久挂起按上述限制处理，不当作已取消。
 6. 第三方按实际 Room/Task 路径逐项确认；直接支付和未返回 Task 的后台奖励单列为未支持，不能由原生场景结果推断。
+
+## 正式整房输入与自然保存恢复（2026-11-14）
+
+源码 `fb58274` 从 `4df655b` 实施，合入 `2915a6a`。public v0.107.1 / beta v0.113.0 各用匹配原生 treasure_room 场景；删除 public 裁剪 collection 与 beta 反射调用 OpenChest。viewport 真鼠标开箱，观察原 AnimIn 开始后等待 0.15 秒；TestMode/AutoSlayer 关闭、FastMode Normal，原空 Tween 未完时真实 accept/confirm 不能完成根房或写完成存档。Tween 自然结束后真鼠标 Proceed，原 room callback、terminal Task、Map.Open 自然完成根房；未手调 CompleteCurrentRoom，也未在末尾补保存。
+
+`SetUpTest(shouldSave:true)` 保留 OnEdited→SaveEdits→SaveRun，出口仅经既有 SaveHost 接隔离 RunSaveManager/MockGodotFileIo。实际自然存档进入全新 LoadRunLobby.SetReady→SetUpSavedMultiplayer→GenerateMap→LoadIntoLatestMapCoord，回 MapRoom；Face spent、Spoils 移除/任务历史一次、金币不增、开箱一次、Steps1。补齐真实 GlobalUi/ScreenStateTracker、Controller、NCard pool、CardPreview、beta VFX 父节点、NMapDrawings；唯一替代输出为无 FMOD 设备的精确 SfxCmd.Play。旧 map lookup patch 在 fresh 大厅前卸载，避免恢复仍命中旧 owner。
+
+独立 Spec 无发现；Standards 指出 setup 在 try 之前的异常清理 P2，修复覆盖首次全局改动至部分创建节点，并增量复审通过。最终一文件336+/93-；正常 hook 后提交patch与已审相同。返修双版各11 PASS、集成双版各11 PASS；BuildExit/HostExit/EngineErrors/ModMetadataErrors 均0。实施日志 `treasure-full-input-20261114/.local/executor-treasure/cleanup-final-{public,public-beta}-host.log`；集成日志 `.local/executor-20261114/treasure-integrated-{public,public-beta}-host.log`；命令均 `Test.ps1 -Branch All -Filter 'Jigsaw hunting treasure' -SkipResourceExport`。
+
+此片证明单owner原生输入与自然保存/fresh恢复；真实双游戏端、正式设备与第4批人工场景仍待，不关闭 #83。早期 entry1–12 为夹具/版本适配迭代，不计作12个产品修复；beta entry11 的引擎错误未签通过，entry12及最终组才为四诊断0。旧版/共享资源段落仅为历史。

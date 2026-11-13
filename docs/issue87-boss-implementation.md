@@ -26,3 +26,15 @@
 实验体爪击 9/10 与 3+N 增长/意图、半个玩家方回合内复生完成的专项、沙漏凋萎强化链、女王六意图/阻止死亡/整场一次重燃、火炬/激怒/Minion/原生阶段调度、完整战前与胜利奖励点恢复、旧任务隔离及正式布局/目标/焦点仍待实施验证。真实多端 Boss 计时、匹配 public 资源和设备验收另记，不能由本切片代签。
 
 共享检查点接缝由主控集成分支提供；本切片未重复实现或提前宣称三 Boss 整场恢复已交付。
+
+## Queen 原生重燃与独立火炬（2026-11-14）
+
+源码 `8ef5ff7`，基 `7b08841`，合入 `8e8b480`。当前 public v0.107.1 / beta v0.113.0、RitsuLib0.6.11；本节覆盖上方Queen尚未实施的历史状态，不关闭 #87。受罚顶层Glory QueenBoss保留原Queen/聚合体创建，聚合体真实死亡后把6个受支持Standard意图替换为一次REKINDLE，执行前不能Roll跳过；当前拼图入口不支持beta Dread。
+
+重燃行动才通过原生CreateCreature/Add召两只独立TorchHead：基础HP50，人数缩放一次，Minion1，唯一10伤自循环。原coordinator在1–4战斗角色下出生当轮不攻、下轮直攻；原Queen Enrage自身+2保留，只追加本Queen拥有且存活火炬各2，不补死火炬。真实Feed杀Minion无Fatal、主敌对照有+3MaxHP；女王真死后原生Minion清理并IsEnding。预防死亡、外来聚合体、重复通知、非受罚/事件/非Jigsaw/其他幕/非Boss/无acts/关闭场景均排除；await后重查run/session/map/room/combat/Queen身份，失败原样传播。
+
+真实首个red为死亡后仍PUPPET_STRINGS_MOVE。扩测又发现实际预加载GetAssetPaths→Queen.AssetPaths→GetIntents会创建临时状态机，旧Generate后绑定导致同Queen CWT重复key；改在MonsterModel.SetUpForCombat后仅绑定实际machine，回归覆盖死亡前、排队后、执行后三次资源枚举。final3两版7PASS仍有10 CanvasItem RID warning，不能签零泄漏；两处CreateScene明确Free后final4双版各7PASS、四诊断0且该RID警告消失，其他资源WARN仍存在。实施证据 `queen-rekindle-20261114/.local/executor-queen/{red-public,final2-public,final3-public,final3-public-beta,final4-public,final4-public-beta}-host.log`，首次red资源导入EditorSettings错误按准备诊断单列。
+
+双轴独立实际diff/API审查无阻塞；测试名已收窄Standard。正常hook仅10处单行if的return换行，Standards增量确认无语义变化，最终14文件948+。集成命令 `Test.ps1 -Branch All -Filter 'Jigsaw Queen'` 默认导出新资源，两版各7 PASS；BuildExit/HostExit/EngineErrors/ModMetadataErrors全0，无CanvasItem RID/ObjectDB泄漏。原始日志 `.local/executor-20261114/queen-integrated-{public,public-beta}-host.log`。固定素材源与既有归属写入NOTICE，未安装或启动正式游戏。
+
+正式scene保留原聚合体(1207,709)/女王(1606,695)，追加火炬(1150,695)/(1330,695)；scene/factory/Spine idle及halberd_slam/双语已证，不能由slot坐标签完整1/4人×紧凑/宽屏意图/血条/目标/焦点。完整战前与奖励fresh恢复已拉独立后续片，真实远端与暂停Boss间歇故障仍未修复，三次probe绿不作修复证据。

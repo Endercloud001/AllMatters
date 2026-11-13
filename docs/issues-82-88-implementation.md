@@ -4,7 +4,11 @@
 
 ## 当前接续状态（2026-11-13）
 
-当前源码集成 `7b08841`，目标 **public v0.107.1 / beta v0.113.0、RitsuLib 0.6.11**。本节覆盖下方历史记录中的旧目标、资源缺失、未提交状态和旧失败位置。旧发布包与旧版通过数不代签新目标。#82–#88 仍OPEN，#84–#88仍部分实现；当前提交完整Test/Check、同提交双版包及正式实机矩阵尚未交付。
+当前源码集成 `8e8b480`，目标 **public v0.107.1 / beta v0.113.0、RitsuLib 0.6.11**。本节覆盖下方历史记录中的旧目标、资源缺失、未提交状态和旧失败位置。旧发布包与旧版通过数不代签新目标。#82–#88 仍OPEN，#84–#88仍部分实现；当前提交完整Test/Check、同提交双版包及正式实机矩阵尚未交付。
+
+Queen重燃 `8ef5ff7` 合入 `8e8b480`：6个Standard意图一次替换，独立TorchHead50HP/10伤/Minion，原生出生时机、激怒仅存活本源+2、Feed/死亡清理均验证。修正真实资源预览重复CWT绑定与测试scene释放；双轴无阻塞，正常hook十处return换行已复核。默认导出集成双版各7 PASS、四诊断0，无CanvasItem RID/ObjectDB泄漏；日志 `.local/executor-20261114/queen-integrated-{public,public-beta}-host.log`。详[Queen增量](issue87-boss-implementation.md#queen-原生重燃与独立火炬2026-11-14)，完整恢复已拉独立片、完整布局/真实端及Boss间歇故障仍待。
+
+宝箱正式整房输入 `fb58274` 合入 `2915a6a`：真实开箱/Proceed、原空Tween早按负例、自然保存与新大厅MapRoom恢复，Face/Spoils/Steps不重复。双轴无未解决发现，setup清理P2已修复复审；正常hook patch一致。返修及集成双版各11 PASS、四诊断0；集成日志 `.local/executor-20261114/treasure-integrated-{public,public-beta}-host.log`，详[宝箱增量](issue83-treasure-implementation.md#正式整房输入与自然保存恢复2026-11-14)。真实双游戏端/设备仍待；已拉Knowledge Tender owner UI片，不以小片绿关闭 #83。
 
 2026-11-14 新增：Waterfall自然致死修复 `c973505` 与帝皇蟹双臂开场 `6a6d431` 经 `dd46174` 集成，独立双轴无阻塞、正常hooks且提交差异与已审内容一致。集成树双版蟹各5＋Waterfall各7 PASS，Build/Host/Engine/Metadata均0；实际日志 `.local/executor-20261114/crab-integrated-{crab,Waterfall}-{public,public-beta}-host.log`。Waterfall完整首次致死尾部保留正面/隐藏和Artifact1、安全根与最终死亡原清理；蟹固定3不额外多人增层并保留原方向/首招。详见[暗港增量](issue84-underdocks-implementation.md)、[巢穴蟹片](issue85-hunting-implementation.md)，正式布局/输入/恢复和整批Check仍不能据此签完。
 
