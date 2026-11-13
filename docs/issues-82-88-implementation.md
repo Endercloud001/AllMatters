@@ -2,11 +2,11 @@
 
 日期：2026-11-12。本对话主控集成，开发起点 `f7e915c`，集成分支 `integration/issues-82-88-20261112`。
 
-## 当前接续状态（2026-11-13）
+## 当前接续状态（2026-11-14）
 
-当前源码集成 `2e61481`，目标 **public v0.107.1 / beta v0.113.0、RitsuLib 0.6.11**。本节覆盖下方历史记录中的旧目标、资源缺失、未提交状态和旧失败位置。旧发布包与旧版通过数不代签新目标。#82–#88 仍OPEN，#84–#88仍部分实现；当前提交完整Test/Check、同提交双版包及正式实机矩阵尚未交付。
+本交接审查起点HEAD `1464953`（最新源码合入`2e61481`），目标 **public v0.107.1 / beta v0.113.0、RitsuLib 0.6.11**。本节覆盖下方历史记录中的旧目标、资源缺失、未提交状态和旧失败位置。旧发布包与旧版通过数不代签新目标。#82–#88 仍OPEN，#84–#88仍部分实现；当前提交完整Test/Check、同提交双版包及正式实机矩阵尚未交付。跨对话当前两片在制及准确日志、未提交文件、下一步见[唯一调度看板的交接节](issues-82-88-board.md#2026-11-14-对话交接)；Glory最新beta单例60秒watchdog退出而没有PASS，SoulFysh仅beta开场1例green，均未集成。
 
-密林首普通完整fresh源码`c7dbd18`合入`2c44d4b`：原session.Enter独立完整开场，真BITE/GROW使counter1/Strength3后新大厅回counter0/Strength0；末敌孢子Vulnerable2、原清理与BurningBlood回血6、自然胜利保存后第二fresh非空领取/重复拒绝/原Proceed。双轴0发现、正常hook patch一致；专项双版各1、相关各6、集成fresh各1四诊断0无RID，详[密林恢复](issue84-overgrowth-implementation.md#密林首普通完整战前与胜利奖励-fresh2026-11-14)。单owner同进程，不签其他敌人恢复/布局/真实端；当前拉Knowledge选择计数与非终局奖励fresh，Glory布局已取得Mystic压原Axebot目标框的真实red，待窄修共享布局接缝。
+密林首普通完整fresh源码`c7dbd18`合入`2c44d4b`：原session.Enter独立完整开场，真BITE/GROW使counter1/Strength3后新大厅回counter0/Strength0；末敌孢子Vulnerable2、原清理与BurningBlood回血6、自然胜利保存后第二fresh非空领取/重复拒绝/原Proceed。双轴0发现、正常hook patch一致；专项双版各1、相关各6、集成fresh各1四诊断0无RID，详[密林恢复](issue84-overgrowth-implementation.md#密林首普通完整战前与胜利奖励-fresh2026-11-14)。单owner同进程，不签其他敌人恢复/布局/真实端。其后Knowledge选择计数与非终局奖励fresh已合入；Glory布局的Mystic遮挡曾取得真实red，当前状态见唯一调度看板。
 
 Knowledge选择计数及非终局Boss奖励fresh源码`5b88af8`合入`2e61481`：原首选Calamity生效/counter1/SLAP实际保存后，新大厅完整原开场counter0并再现第一对；自然胜利第二fresh实际金币100/卡奖励领取、重复拒绝/原Proceed。双轴0发现、正常hook patch一致；实施专项双版各1/ActTwo各8，集成专项各1四诊断0无RID；详[Knowledge恢复](issue85-hunting-implementation.md#knowledge-选择计数与非终局奖励-fresh2026-11-14)。单owner同进程，两版本次均未roll出药水，不代签未完成多owner选择/正式UI/首普通Hive。
 

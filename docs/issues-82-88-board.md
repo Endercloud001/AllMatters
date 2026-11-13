@@ -1,14 +1,21 @@
 # #82–#88 当前调度看板
 
-更新：2026-11-14。唯一维护者：集成主控。集成树：`AllMatters/.claude/worktrees/hunting-20261112`，分支`integration/issues-82-88-20261112`。当前源码HEAD=`2e61481`；流程入口已提交`776e2ef`，Holes源码`1956c17`保留。
+更新：2026-11-14。唯一维护者：集成主控。集成树：`AllMatters/.claude/worktrees/hunting-20261112`，分支`integration/issues-82-88-20261112`。本交接审查起点HEAD=`1464953`（最新源码合入`2e61481`）；流程入口已提交`776e2ef`，Holes源码`1956c17`保留。
 
 目标：public v0.107.1 / beta v0.113.0 / RitsuLib 0.6.11。本轮已实际查询GitHub，#82–#88均OPEN；当前本地切片不自动关闭issue。后续主控更新此文首和卡片，不再另建当前状态表。
 
-**当前活跃WIP 1/2；暂停1；Ready 0。** Waterfall `c973505`、蟹 `6a6d431` 均已集成到 `dd46174`，交叉回归双版蟹5＋Waterfall7 PASS。族母随从`3008bf6`已合入`4df655b`，集成双版Underdocks各7 PASS；Mystic`6aa65b4`已合入`7b08841`、集成双版各6 PASS；宝箱正式输入片已集成，Knowledge Tender真实owner选择屏已集成；Queen重燃已集成，Queen完整fresh已集成，拉正式四组合布局。两片写文件独立，不依赖暂停中的 Boss；主控唯一执行。本轮沿用既有批次宿主证据，不重启为新批次。
+**交接保留在制2/2；技术诊断暂停1；Ready 0。** Glory与SoulFysh的独立树均有未提交候选；本对话已停止实施/执行，未移交任何后台测试进程。Knowledge fresh已合入并记录，Boss间歇故障未修。本文与实施索引的交接改动已暂存，独立双轴审查因服务端503未完成，尚未提交。新主控先核Git与原始日志、审查暂存diff，再接续这两片；不从旧主仓或main覆盖它们。
 
 ## 拉取入口
 
-当前推进荣耀全部普通/精英正式四组合布局；Knowledge选择计数/非终局奖励fresh已集成，空槽准备SoulFysh左右随从。Mystic模型/三动作、族母、蟹与Waterfall自然致死不重复派发；其他候选按依赖、验收价值及文件所有权准备。
+当前先收口Glory正式布局和SoulFysh左右随从两个在制片；Seapunk需等待Glory共享`JigsawHuntingCombat.cs`布局接缝集成。其他候选按依赖、验收价值及文件所有权准备。
+
+### 2026-11-14 对话交接
+
+- 集成树在写本交接前为`1464953`，交接改动只涉及本看板和实施索引；主仓`f7e915c`旧删除/未跟踪文件未动。已集成Forest `c7dbd18→2c44d4b`及Knowledge `5b88af8→2e61481`，各有独立双轴、正常hooks与集成双版专项；先前实施记录/索引已提交至`eeda0dc`、`1464953`。不要重跑文档变更所对应的行为用例。
+- Glory树`glory-layout-20261114`基`f55305f`、分支`test/issue86-glory-layout-20261114`，**未提交**：改`src/Jigsaw/JigsawHuntingCombat.cs`中Mystic有scene追加坐标、新`src/Jigsaw/JigsawHuntingGloryLayout.cs`自动布局、`src/Tests/JigsawHuntingGloryLayoutTests.cs`及Hello注册。Godot导出留下多份`.import`工作区改动，提交前查实际numstat，勿误纳入。两版最近编译`compile4-{public,public-beta}.log`均0。最初beta`entry1-beta-host.log`在Axebots新增Mystic hitbox/HP交原Axebot真实red；`focus3-beta-host.log`证实scene修复已走完Axebots四组合，但在Construct Menagerie自动布局有新增HP遮挡。最新`automatic4-beta-host.log`在Devoted Sculptor Weak的1角色1680×720运行中命中`TestRunner`每用例60秒看门狗：Build0/Host1/Passed空，Engine/Metadata0，退出时4条CanvasItem RID与ObjectDB泄漏；**不能将途中已测场景记为15场景通过**。当前一个普通用例串行跑12遭遇×safe/hunted×1/4角色×两宽，下一步按遭遇拆为有独立PASS的原生用例，保全矩阵和oracle，再对新源码双版跑专项及受影响Forest/Mystic场景。public行为本轮未运行，尚无双轴审查/提交/合并。
+- SoulFysh树`soulfysh-minions-20261114`基`1464953`、分支`feat/issue84-soulfysh-minions-20261114`，**未提交**：新`src/Jigsaw/JigsawHuntingSoulFysh.cs`、新`src/Tests/JigsawHuntingSoulFyshTests.cs`、Hello注册。beta默认资源导出`red-beta-host.log`取得真生成`expected=3, actual=1`；加生产后`green1-beta-host.log`原开场1 PASS，Build/Host/Engine/Metadata0，未测public行为；该次编译仍有新测试第82行三处CS8602警告，另有既有Phrog测试CS8604。当前正式测试只注册这个开场1例；未完成的扩展草稿留在忽略文件`.local/soulfysh-expanded.cs.txt`，不得把草稿当成已跑/已审。下一步读草稿与现候选，补真Boss死亡自然清Minion、safe/事件/过期来源及1/4角色两宽正式HP/意图/鼠标/焦点，先按实际缺口跑最小case，再双版相关Underdocks回归和双轴审查。两树都有Hello注册，串行合并时保留两条。
+- #87 Boss原六项2绿1同症状红、随后三次probe绿且探针已撤回，故障仍未修；诊断B树与主仓`.local/main-control-20261113-resume/boss-warmed-callback-current-diagnosis.md`保留。没有区分假说的新证据前不重跑或签修复。最终完整Check、同提交双版包/许可和人工矩阵仍属#88，当前任何局部通过都不能关#82–#88整票。
 
 跨票验收盘点可由主控一次完成，用于发现#82/#83可收口项；不要把“盘点全部历史”作为后续每片的共同前置。详细操作见[批次流程](agents/batch-flow.md)。
 
@@ -16,14 +23,15 @@
 
 |卡片/issue|行为|状态|owner / worktree|依赖与热点|下一动作/证据|开始时间|
 |---|---|---|---|---|---|---|
-|C86-glory-layout / #86|全部12普通含新增Mystic及3精英原生scene→1/4角色×紧凑/宽屏，真实HP/意图含数字可读/独立target与原生鼠标/左右导航|Doing|prepare_crabs / `glory-layout-20261114`，基`f55305f`|独占新GloryLayout测试；Hello主控；已证red后授权窄改JigsawHuntingCombat.Postfix共享追加布局，原怪marker不擅动；复用Queen已审真实host/数字包络|两版编译0error；beta entry1首AxebotsNormal真实red：新增Mystic hitbox交原Axebot22×250、HP交目标框28×19logical；public未执行，作者据实窄修，日志实施树.local/executor-glory-layout/entry1-beta-host.log；最小`Jigsaw Glory native layout`2case；不得用临时marker/factory或抽样替代15原生场景；其他意图/真实端仍#86|2026-11-14 03:36 +08:00|
+|C84-soulfysh / #84|受罚顶层SoulFyshBoss开场→左Toadpole/右SludgeSpinner各Minion1，保原怪/HP/动作；Boss死自然清随从，正式布局可选|Doing，跨对话接续|原owner docs_standards / `soulfysh-minions-20261114`，基`1464953`|独占新SoulFysh生产/测试；Hello主控已在本树注册；Glory共享Combat只读|真实red`expected3/actual1`后beta开场1 PASS四诊断0，public未执行；扩展草稿仅在忽略`.local/soulfysh-expanded.cs.txt`，按上方交接先完成自然死亡/正式布局及反例；完整fresh另片|2026-11-14 04:09 +08:00|
+|C86-glory-layout / #86|全部12普通含新增Mystic及3精英原生scene→1/4角色×紧凑/宽屏，真实HP/意图数字/target鼠标选择与左右导航|Doing，跨对话接续|原owner prepare_crabs / `glory-layout-20261114`，基`f55305f`|独占GloryLayout测试、Combat.Postfix及新自动布局patch；Hello在本树注册；原scene markers保留|初始Axebot与Construct遮挡都有真实red；最新`automatic4-beta-host.log`因普通单例超过60秒watchdog，Build0/Host1/Passed空、RID4/ObjectDB；下一步按遭遇拆用例保15场景完整oracle后复验，public未执行，详上方交接|2026-11-14 03:36 +08:00|
 
 ## 候选池：尚不能派发实施
 
 |候选/issue|具体缺口与建议切片|准备前需核清|证据入口|
 |---|---|---|---|
 |C82-rest-native / #82|真实原生modifier/遗物入口组合保禁用条件、追加项/加成/额外次数；无合法项正式退出另核真实来源|#82未指定禁Heal遗物，旧候选前提过窄；禁Smith单独仍留Heal，不能代签无合法项。现RestExit手删Heal/Mend及手加额外Heal仅故障模拟；两版现有源码尚未找到真实无合法项来源，CoffeeDripper空cache不可用|[82审查](issue82-review.md)、`JigsawHuntingServices.RestChoicesRemain/JigsawHuntingRestExit`，2026-11-14只读候选复核|
-|C84-soulfysh / #84|受罚顶层SoulFyshBoss原生开场→左Toadpole/右SludgeSpinner各Minion1，保原怪/HP/动作，Boss死亡自然清随从，正式布局可选|主控已补双版四类型并核beta113；无scene原列表左右布局；待现片流出后从最新集成建独立树，独占Underdocks接缝/新测试，Hello主控；完整fresh另列后续|`.local/hunting-rules-current.md`暗港、双版API与原Minion/Kill消费者；与Glory共享Combat文件不争写|
+|C84-seapunk / #84|暗港普通/Unknown每场相对原生追加一只正常Seapunk，保HP/原动作/非Minion与整场一次；真实全池布局及恢复|等待Glory共享Combat接缝合入；双版14候选=10regular/4weak，3scene：GremlinMerc(Slots空但merc原slot)、LivingFog保bomb1–5、TwoTailedRats保first–fifth；其余无scene。原有Seapunk遭遇必须相对+1，不断言全场仅1只|集成双版Underdocks/Seapunk/14Encounter API已齐；原GetAssetPaths按生成后列表预载，不需改AllPossibleMonsters；H规则含Unknown精英/Boss同名子战|
 |C88-evidence / #88|现有矩阵逐项归属，只补实际缺口|各玩法的恢复/UI仍由原issue承担，#88做组合交付|[覆盖地图](issues-82-88-verification-map.md)、[兼容记录](issue88-compatibility-implementation.md)|
 
 ## 暂停与等待
@@ -62,11 +70,11 @@
 |Issue|本地已有成果摘要|仍需收口（非详尽验收替代）|
 |---|---|---|
 |#82|限步/面具/服务限制、迁移和控制台已集成|当前目标相关回归、适用输入/网络与交付证据|
-|#83|空箱/Face/Spoils、异步等待、恢复与双端证据已集成|正式整房输入/动画与单owner自然保存已集成；真实双游戏端/设备与退出归属仍待|
+|#83|空箱/Face/Spoils、异步等待、正式整房输入与单owner自然保存恢复已集成|真实双游戏端/设备与退出归属仍待|
 |#84|暗港/密林多片、共享检查点、Waterfall自然致死规则|其余随从/规则、事件、适用恢复/网络与正式布局|
-|#85|Knowledge/Hive、蟹开场；Holes三种三端恢复已集成|owner UI/连续事件、正式布局/输入/自动UI保存、其他战斗恢复与适用真实端|
-|#86|Mecha/Soul/Flail/Mystic原生动作及资源双版专项已集成|全场景/精英布局、完整战前/奖励fresh恢复和真实端|
-|#87|Aeonglass/TestSubject、MultiClaw、Wither已集成|Boss间歇问题、完整恢复/布局/真实端；Queen重燃与TorchHead生命周期已集成|
+|#85|Knowledge/Hive、蟹开场、Knowledge Tender owner屏与fresh、Holes三种三端恢复已集成|连续事件、其他正式布局/输入/自动UI保存、其他战斗恢复与适用真实端|
+|#86|Mecha/Soul/Flail/Mystic原生动作、Mystic完整fresh及资源双版专项已集成|全场景/精英布局、其他适用恢复和真实端|
+|#87|Aeonglass/TestSubject、MultiClaw、Wither、Queen重燃/TorchHead/完整fresh/布局已集成|Boss间歇问题、其他适用恢复/布局/真实端|
 |#88|兼容目标资源、Compass/Flight/控制台/每日字段已集成|组合验收归属、最终Check/双版包/许可、人工矩阵；不替原票承担缺失玩法|
 
 人工验收项仍属于各issue，由主控整理可执行批次再交用户；不能为避免停顿就宣布人工通过，也不让用户每完成一个自动化片来回传话。
