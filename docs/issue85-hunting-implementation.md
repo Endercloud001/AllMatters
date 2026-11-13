@@ -165,3 +165,13 @@ Tender 图为用户提供的1,529,010字节原件 `tender.png`，按 #63 设计�
 实施树 `crab-opening-20261114/.local/executor-crab/` 保存实际日志。最终 `Test.ps1 -Branch All -Filter 'Jigsaw hunting crab' -SkipResourceExport` 双版各5 PASS；受影响 ActTwo8/Hive12/ActThree5/旧Waterfall6 各目标均通过，Build/Host/Engine/Metadata全0。真实背景有 Asset not cached WARN，未称零警告。期间缺using与init-only赋值两次编译准备失败均保留，不冒称行为red。
 
 独立 Standards、Spec 对 fixed `776e2ef` 的三文件 staged diff 均0发现；正常 commit hooks 成功，提交差异与已审差异完全相同。集成 `dd46174` 后串行蟹各5及包含新自然致死的 Waterfall各7 PASS，四诊断全0；集成日志 `.local/executor-20261114/crab-integrated-{crab,Waterfall}-{public,public-beta}-host.log`。完整正式布局/输入、蟹战前与奖励fresh恢复、真实远端及整批Check/同提交包仍属后续，#85未被局部测试关闭。
+
+## Knowledge Tender 真实 owner 选择屏（2026-11-14）
+
+源码`1570ab2`经`35bb69d`集成，目标public0.107.1/beta0.113.0、RitsuLib0.6.11，匹配PCK。仅新测试与Hello注册两文件417+，生产零改。单owner受罚Hive顶层KnowledgeBoss原五步循环第二轮关闭TestMode/AutoSlayer、清空selector；真实PerformMove打开原Sloth/Tender屏、正式卡图与格式化文本，原350ms等待后viewport鼠标点Tender hitbox。原生PowerReceivedEntry只一次、Tender1/Sloth0，展示牌不入牌组/堆；原CardsSelected→Overlay.Remove→QueueFree释放一次，重复release不重加，next原招Slap。真实怪物Hitbox.GuiInput在屏前/屏中/退出后作输入对照。
+
+宿主准备中的编译、空RunSet额外preload、空GlobalUi wrapper吞鼠标、缺action/hover parent、Ritsu挂树时roomContainer未绑定分别分类保留，不冒称产品red。最终真实NGame viewport、HoverTipsContainer、24个按需新增并finally撤销的原生action、先roomContainer后挂树保留真实hover/owner lifecycle；仅隔离NGame启动/Steam/audio和空地图生命周期，没有卸Ritsu事件或改共享HeadlessUiHost。entry5虽1PASS仍Engine13/RID3、entry6/7虽1PASS仍Engine1，均未签绿。
+
+最终实施树`knowledge-tender-ui-20261114/.local/executor-tender/owner-final-{public,public-beta}-host.log`双版各1 PASS、四诊断0无RID/ObjectDB；相关`acttwo-final-*`双版各8 PASS四诊断0。独立Standards/Spec无阻塞；SkipNativeLifecycle命名增量仅同为false方法拆名，两轴源码复核无行为变化，复用上述行为证据。正常commit hook成功，提交patch与已审patch完全一致。
+
+集成`35bb69d`串行执行`Test.ps1 -Branch All -Filter 'Jigsaw Knowledge native Tender' -SkipResourceExport`双版各1 PASS及`-Filter 'Jigsaw hunting act two'`双版各8 PASS，Build/Host/Engine/Metadata均0，无RID/ObjectDB。日志集成树`.local/executor-20261114/tender-integrated-{public,public-beta}-host.log`和`tender-acttwo-integrated-*`。本片仅1920×1080、当前语言、单owner鼠标；多人选择时序/死亡缺席断线、键盘控制器、完整布局/恢复和正式端仍待#85，不能据此关闭整票。

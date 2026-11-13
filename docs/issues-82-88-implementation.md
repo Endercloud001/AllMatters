@@ -4,7 +4,9 @@
 
 ## 当前接续状态（2026-11-13）
 
-当前源码集成 `09d91c2`，目标 **public v0.107.1 / beta v0.113.0、RitsuLib 0.6.11**。本节覆盖下方历史记录中的旧目标、资源缺失、未提交状态和旧失败位置。旧发布包与旧版通过数不代签新目标。#82–#88 仍OPEN，#84–#88仍部分实现；当前提交完整Test/Check、同提交双版包及正式实机矩阵尚未交付。
+当前源码集成 `35bb69d`，目标 **public v0.107.1 / beta v0.113.0、RitsuLib 0.6.11**。本节覆盖下方历史记录中的旧目标、资源缺失、未提交状态和旧失败位置。旧发布包与旧版通过数不代签新目标。#82–#88 仍OPEN，#84–#88仍部分实现；当前提交完整Test/Check、同提交双版包及正式实机矩阵尚未交付。
+
+Knowledge Tender真实owner屏源码`1570ab2`已合入`35bb69d`，生产零改、正常hook patch一致、独立双轴无阻塞；集成双版Tender各1及ActTwo各8 PASS四诊断0。精确范围/宿主准备与剩余边界见[owner屏记录](issue85-hunting-implementation.md#knowledge-tender-真实-owner-选择屏2026-11-14)，不关闭#85；下一片拉取#86 Mystic完整fresh，Queen布局并行。
 
 Queen完整fresh `5ac1e5d` 合入 `09d91c2`：真实session.Enter战前来源与两次新LoadRunLobby，独立完整玩家/五堆顺序/Energy/Block/powers、RNG/Act/map/history/敌人开场重建，once重置、终局胜利点不重召。审查牌堆P2已补真实移牌扰动复审，正常hook patch一致；实施及集成双版各1四诊断0无RID，集成`.local/executor-20261114/queen-fresh-integrated-{public,public-beta}-host.log`。详[Queen恢复增量](issue87-boss-implementation.md#queen-完整战前与终局胜利点-fresh2026-11-14)，原生最终幕空奖励不等于非空领奖已验；单owner同进程fresh大厅，布局已拉下一片、真实远端/进程重启未证。
 
