@@ -56,3 +56,13 @@ Fungus 五原资源来自 MT-SUPER-POWER/STS2-Balance-MOD `d9eff9e067b07689e722c
 guard追加独立Spec/Standards复审均已完成：两名审查者实际读取working相对index的精确两个文件差异、相关源码/原生方法、真实负例及红绿日志，均无可行动发现；未自行运行测试。原先所有会话、人数、追猎根、幕、唯一房间、父事件及遭遇身份条件均保留，仅调整短路顺序。此返修与原24文件切片一并提交，不据此扩张整票完成范围。
 
 Phrog 在集成全量顺序下的事件回调热身与画布隔离返修、真实红绿证据、双轴审查及最终验证状态另见 [Phrog 原生 UI 测试隔离诊断](issue84-phrog-test-isolation.md)。该返修仅修改测试宿主，画布验证范围明确为默认/Auto 的 Expand 模型。
+
+## 密林首普通完整战前与胜利奖励 fresh（2026-11-14）
+
+源码`c7dbd18`经`2c44d4b`集成，仅新增ForestRecovery测试及Hello注册两文件640+，生产与共享checkpoint未改。目标public0.107.1/beta0.113.0、RitsuLib0.6.11，匹配资源；首个真实受罚Overgrowth普通`session.Enter`沿固定seed自然选遭遇，没有挑选或替换Encounter。独立采样before-roll与原开场，完整比较玩家保存字段、五堆有序`Card.ToSerializable`、Energy/Block/powers、run/owner/monster RNG、Act/map/history、敌人slot/HP/powers/intent及菌兽私有`consecutiveBites`。
+
+真实BITE6、独立克隆RNG预测40%分支（必要时第二次BITE强制GROW）、GROW获得Strength3，再BITE9；source实际保存时counter1/Strength3。新LoadRunLobby ready沿原SetupSavedMultiplayer/GenerateMap/LoadIntoLatestMapCoord重建新run/session/room，完整原开场恢复，counter0/Strength0、唯一菌兽HP28只缩放一次、Spore2且无Minion；再次进入同根不扣第二次步数。真实移牌、损血、金币和RNG扰动使回退比较能检出错误，不只比较未变化的空状态。
+
+原生命令杀死其他敌人，再令菌兽最后死亡，孢子实际增加Vulnerable2并进入Ending；原CheckWinCondition/Player.AfterCombatEnd清理能力与Block、原BurningBlood回血6后自然prefinished保存。source原奖励生成非空金币/卡/药后skip，第二新大厅从胜利点重建，无新敌人或opening；保存前boundary与生成后完整玩家/RNG/map/history及奖励内容分阶段取expected。原同步领取实际改变金币、卡身份/升级与药水，独立预测本端profile发现；重复领取拒绝且完整状态不变，原Proceed只完成一次，不手调Complete或末尾补Save。完整SerializableProgress经JSON往返与原FromSerializable隔离，finally恢复原profile引用并核完整原内容不变。
+
+独立Standards/Spec均0发现，实际审查完整640+及原生消费者；正常hook后patch与已审内容一致。实施树`forest-fresh-20261114/.local/executor-forest-fresh/`中最小`entry1-beta-host.log`与`final-public-host.log`各1 PASS，`related-final-{public,public-beta}-host.log`各6 PASS。集成`2c44d4b`执行`Test.ps1 -Branch All -Filter 'Jigsaw Forest fresh' -SkipResourceExport`，双版各1 PASS，日志集成树`.local/executor-20261114/forest-fresh-integrated-{public,public-beta}-host.log`；以上Build/Host/Engine/Metadata全0，无RID/ObjectDB诊断。证据仅单owner同进程两次新大厅，不代签其他#84敌人的完整恢复、正式布局、真实多端或新进程。

@@ -4,7 +4,9 @@
 
 ## 当前接续状态（2026-11-13）
 
-当前源码集成 `f55305f`，目标 **public v0.107.1 / beta v0.113.0、RitsuLib 0.6.11**。本节覆盖下方历史记录中的旧目标、资源缺失、未提交状态和旧失败位置。旧发布包与旧版通过数不代签新目标。#82–#88 仍OPEN，#84–#88仍部分实现；当前提交完整Test/Check、同提交双版包及正式实机矩阵尚未交付。
+当前源码集成 `2c44d4b`，目标 **public v0.107.1 / beta v0.113.0、RitsuLib 0.6.11**。本节覆盖下方历史记录中的旧目标、资源缺失、未提交状态和旧失败位置。旧发布包与旧版通过数不代签新目标。#82–#88 仍OPEN，#84–#88仍部分实现；当前提交完整Test/Check、同提交双版包及正式实机矩阵尚未交付。
+
+密林首普通完整fresh源码`c7dbd18`合入`2c44d4b`：原session.Enter独立完整开场，真BITE/GROW使counter1/Strength3后新大厅回counter0/Strength0；末敌孢子Vulnerable2、原清理与BurningBlood回血6、自然胜利保存后第二fresh非空领取/重复拒绝/原Proceed。双轴0发现、正常hook patch一致；专项双版各1、相关各6、集成fresh各1四诊断0无RID，详[密林恢复](issue84-overgrowth-implementation.md#密林首普通完整战前与胜利奖励-fresh2026-11-14)。单owner同进程，不签其他敌人恢复/布局/真实端；当前拉Knowledge选择计数与非终局奖励fresh，Glory布局已取得Mystic压原Axebot目标框的真实red，待窄修共享布局接缝。
 
 Queen正式布局源码`372c488`合入`f55305f`：实证两Torch血条70.2logical交叠后仅左marker1150→1050；1/4角色×1280/1680宽720真实节点、HP/意图含10伤文字溢出描边不交不出屏、精确鼠标target与含players原生双向焦点环。双轴及数字增量无阻塞，正常hook patch一致；默认导出集成双版Queen9四诊断0无RID，详[布局记录](issue87-boss-implementation.md#queen-正式布局与原生输入2026-11-14)。不代签全部意图/真实设备或Boss间歇故障；空槽拉#86全部12普通/3精英布局。
 
