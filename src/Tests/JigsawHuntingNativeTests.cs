@@ -132,7 +132,13 @@ internal static class JigsawHuntingNativeTests
             var hotkeys = new NHotkeyManager();
             AccessTools.Property(typeof(MegaCrit.Sts2.Core.Nodes.NGame), "HotkeyManager").SetValue(MegaCrit.Sts2.Core.Nodes.NGame.Instance, hotkeys);
             await HeadlessUiHost.Mount(hotkeys);
-            var root = ResourceLoader.Load<PackedScene>("res://scenes/rooms/standard_merchant_room.tscn").Instantiate<Control>();
+            const string merchantScene =
+#if STS2_PUBLIC
+                "res://scenes/rooms/merchant_room.tscn";
+#else
+                "res://scenes/rooms/standard_merchant_room.tscn";
+#endif
+            var root = ResourceLoader.Load<PackedScene>(merchantScene).Instantiate<Control>();
             var shopUi = root.GetNode<NMerchantInventory>("%Inventory");
             shopUi.GetParent().RemoveChild(shopUi); root.Free();
 #if STS2_PUBLIC
@@ -150,7 +156,7 @@ internal static class JigsawHuntingNativeTests
                 var realInventory = ((MerchantRoom)session.Native.CurrentRoom!).Inventories()[0];
                 string realStock = JsonSerializer.Serialize(JigsawNativeShopPersistence.Capture(realInventory));
                 shopUi.Initialize(realInventory, MerchantRoom.Dialogue);
-                // The shared beta inventory also contains inactive Blitz placeholders.
+                // The beta inventory also contains inactive Blitz placeholders.
                 // Check every real populated good, including the removal service.
                 var slots = shopUi.FindChildren("*", "", true, false).OfType<NMerchantSlot>()
                     .Where(slot => slot.Entry != null).ToArray();
