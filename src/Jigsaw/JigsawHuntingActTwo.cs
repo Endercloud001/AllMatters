@@ -7,6 +7,7 @@ using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Hooks;
+using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Acts;
 using MegaCrit.Sts2.Core.Models.Encounters;
 using MegaCrit.Sts2.Core.Models.Monsters;
@@ -16,6 +17,64 @@ using MegaCrit.Sts2.Core.Rooms;
 using MegaCrit.Sts2.Core.Runs;
 
 namespace AllMatters.Jigsaw;
+
+[HarmonyPatch]
+internal static class JigsawHuntingCrabOpening
+{
+    private static readonly ConditionalWeakTable<ArtifactPower, object> fixedArtifacts = new();
+
+    private static IEnumerable<MethodBase> TargetMethods() =>
+    [ AccessTools.Method(typeof(Crusher), nameof(Crusher.AfterAddedToRoom)),
+      AccessTools.Method(typeof(Rocket), nameof(Rocket.AfterAddedToRoom)) ];
+
+    private static bool IsCurrent(MonsterModel monster, RunState native, CombatRoom room) =>
+        ReferenceEquals(RunManager.Instance.DebugOnlyGetState(), native) &&
+        ReferenceEquals(native.CurrentRoom, room) && native.CurrentRoomCount == 1 &&
+        room.ParentEventId == null && room.Encounter is KaiserCrabBoss &&
+        ReferenceEquals(room.CombatState, monster.CombatState) &&
+        room.CombatState.ContainsCreature(monster.Creature) && monster.Creature.IsAlive && !CombatManager.Instance.IsEnding &&
+        native.Players.FirstOrDefault() is { } owner && JigsawHuntingNative.RootIsHunted(owner) &&
+        native.Act is Hive;
+
+    private static void Postfix(MonsterModel __instance, ref Task __result)
+    {
+        if (__instance.CombatState?.RunState is RunState native && native.CurrentRoom is CombatRoom room &&
+            IsCurrent(__instance, native, room))
+            __result = GrantArtifact(__result, __instance, native, room);
+    }
+
+    private static async Task GrantArtifact(Task original, MonsterModel monster, RunState native, CombatRoom room)
+    {
+        var map = JigsawNativeSession.TryGet(native)!.Map!;
+        int? node = map.CurrentNode;
+        var pending = map.PendingEntry?.Id;
+        await original;
+        if (!IsCurrent(monster, native, room) || !ReferenceEquals(JigsawNativeSession.TryGet(native)?.Map, map) ||
+            map.CurrentNode != node || map.PendingEntry?.Id != pending)
+            return;
+        var artifact = (ArtifactPower)ModelDb.Power<ArtifactPower>().ToMutable();
+        fixedArtifacts.Add(artifact, new object());
+        try
+        {
+            await PowerCmd.Apply(new ThrowingPlayerChoiceContext(), artifact, monster.Creature, 3, monster.Creature, null);
+        }
+        finally { fixedArtifacts.Remove(artifact); }
+    }
+
+    internal static bool ConsumeFixedArtifact(ArtifactPower artifact) => fixedArtifacts.Remove(artifact);
+}
+
+[HarmonyPatch(typeof(ArtifactPower), nameof(ArtifactPower.GetScaledAmountForMultiplayer))]
+internal static class JigsawHuntingCrabArtifactScaling
+{
+    private static bool Prefix(ArtifactPower __instance, decimal amount, ref decimal __result)
+    {
+        if (!JigsawHuntingCrabOpening.ConsumeFixedArtifact(__instance))
+            return true;
+        __result = amount;
+        return false;
+    }
+}
 
 [HarmonyPatch(typeof(Hook), nameof(Hook.BeforeCombatStart))]
 internal static class JigsawHuntingHiveOpening
