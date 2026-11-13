@@ -9,12 +9,15 @@ using MegaCrit.Sts2.Core.Map;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Acts;
 using MegaCrit.Sts2.Core.Models.Characters;
+using MegaCrit.Sts2.Core.Models.Events;
 using MegaCrit.Sts2.Core.Models.Monsters;
 using MegaCrit.Sts2.Core.Models.Powers;
 using MegaCrit.Sts2.Core.Multiplayer;
 using MegaCrit.Sts2.Core.Rooms;
 using MegaCrit.Sts2.Core.Runs;
 using MegaCrit.Sts2.Core.Unlocks;
+using MegaCrit.Sts2.Core.ValueProps;
+using System.Text.Json;
 
 internal static class JigsawHuntingUnderdocksTests
 {
@@ -22,7 +25,177 @@ internal static class JigsawHuntingUnderdocksTests
     [ ("Jigsaw hunting Underdocks Gardeners open with fixed nine and preserve slots moves and other Skittish sources", Gardeners),
       ("Jigsaw hunting Underdocks Skulking Colony keeps fixed shell twenty adds plating six and preserves native health and later sources", Colony),
       ("Jigsaw hunting Underdocks Terror Eel adds weakness after original vulnerable to exactly the native targets", Eel),
-      ("Jigsaw hunting Underdocks Matriarch halves native scaled maximum and current health without waking", MatriarchHealth) ];
+      ("Jigsaw hunting Underdocks Matriarch halves native scaled maximum and current health without waking", MatriarchHealth),
+      ("Jigsaw hunting Underdocks Matriarch adds one sleeping Lagavulin minion on the left", MatriarchMinion),
+      ("Jigsaw hunting Underdocks Matriarch minion excludes safe event non Jigsaw and independent Lagavulin sources", MatriarchMinionBoundaries),
+      ("Jigsaw hunting Underdocks Matriarch no acts native generation keeps the original single Boss", MatriarchNoActs) ];
+
+    private static Task MatriarchNoActs()
+    {
+        var player = Player.CreateForNewRun(ModelDb.Character<Ironclad>(), UnlockState.all, 1);
+        var native = RunState.CreateForTest([player], acts: [], seed: "HUNTING84_MATRIARCH_NO_ACTS");
+        var manager = RunManager.Instance;
+        manager.SetUpTest(native, new NetSingleplayerGameService());
+        try
+        {
+            var encounter = ModelDb.AllEncounters.Single(model =>
+                model.AllPossibleMonsters.Any(monster => monster is LagavulinMatriarch)).ToMutable();
+            native.PushRoom(new CombatRoom(encounter, native));
+            Check(JigsawNativeSession.TryGet(native) == null, "The native generator has no Jigsaw session and no acts.");
+            encounter.GenerateMonstersWithSlots(native);
+            Check(encounter.MonstersWithSlots.Count == 1 && encounter.MonstersWithSlots[0].Item1 is LagavulinMatriarch &&
+                encounter.MonstersWithSlots[0].Item2 == null,
+                "A genuine no-act native Matriarch generation remains one original unslotted Boss, without accessing a nonexistent act.");
+            return Task.CompletedTask;
+        }
+        finally
+        {
+            CombatManager.Instance.Reset(true); manager.CleanUp(false);
+        }
+    }
+
+    private static async Task MatriarchMinion()
+    {
+        var openings = new Dictionary<int, string>();
+        for (int count = 1; count <= 4; count++)
+        for (int replay = 0; replay <= 1; replay++)
+        {
+            var players = Enumerable.Range(1, count).Select(id =>
+                Player.CreateForNewRun(ModelDb.Character<Ironclad>(), UnlockState.all, (ulong)id)).ToArray();
+            var native = RunState.CreateForTest([players[0]], acts: [ModelDb.Act<Underdocks>()], seed: "HUNTING84_MATRIARCH_MINION");
+            var manager = RunManager.Instance;
+            ulong? previousId = LocalContext.NetId;
+            manager.SetUpTest(native, new NetSingleplayerGameService()); LocalContext.NetId = 1;
+            try
+            {
+                var encounter = ModelDb.AllEncounters.Single(model =>
+                    model.AllPossibleMonsters.Any(monster => monster is LagavulinMatriarch)).ToMutable();
+                JigsawCheckpoint.Capture(native, Root(true, JigsawRoom.Boss)); JigsawNativeSession.Restore(native);
+                native.AppendToMapPointHistory(MapPointType.Boss, RoomType.Boss, encounter.Id);
+                for (int index = 1; index < players.Length; index++) native.AddPlayerDebug(players[index], index);
+                int historyStart = CombatManager.Instance.History.Entries.Count();
+                using (HeadlessCombatInProgress.EnterEvent())
+                    await manager.EnterRoom(new CombatRoom(encounter, native));
+                var room = (CombatRoom)native.CurrentRoom!;
+                Check(room.CombatState.Enemies.Count == 2,
+                    $"The actual hunted Matriarch opening contains its original Boss and exactly one added Lagavulin; expected=2, actual={room.CombatState.Enemies.Count}.");
+                var minion = room.CombatState.Enemies[0];
+                var boss = room.CombatState.Enemies[1];
+                Check(minion.Monster is AllMatters.Monsters.Lagavulin { StartsAwake: false, IsAwake: false } &&
+                    boss.Monster is LagavulinMatriarch { IsAwake: false, IsShellAwake: false } &&
+                    minion.GetPowerAmount<MinionPower>() == 1 && minion.IsSecondaryEnemy && boss.IsPrimaryEnemy &&
+                    minion.GetPowerAmount<AllMatters.Powers.AsleepLagavulinPower>() == 3 &&
+                    minion.Monster.NextMove.Id == AllMatters.Monsters.Lagavulin.SLEEP &&
+                    boss.GetPowerAmount<AsleepPower>() == 3 && boss.Monster.NextMove.Id == "SLEEP_MOVE",
+                    "The original Mod Lagavulin opens asleep with Minion one before the original sleeping Matriarch in native left-to-right order.");
+                Check(encounter.MonstersWithSlots.Select(pair => pair.Item1).SequenceEqual(new[] { minion.Monster, boss.Monster }) &&
+                    encounter.MonstersWithSlots.All(pair => pair.Item2 == null) && !encounter.HasScene &&
+                    minion.SlotName == null && boss.SlotName == null,
+                    "The unslotted native Boss encounter preserves the original Matriarch and uses list ordering for its left companion, without a synthetic scene marker.");
+                Check(ReferenceEquals(minion.Monster!.RunRng, native.Rng) && ReferenceEquals(boss.Monster!.RunRng, native.Rng) &&
+                    !ReferenceEquals(minion.Monster.Rng, boss.Monster.Rng) &&
+                    room.CombatState.Players.Count == count,
+                    "Native creature creation binds the shared run RNG and distinct monster RNGs for the actual one to four combat roles.");
+                Check(minion.Monster.MinInitialHp == 109 && minion.Monster.MaxInitialHp == 111 &&
+                    Enumerable.Range(109, 3).Any(hp => minion.MaxHp == (int)MegaCrit.Sts2.Core.Entities.Creatures.Creature.ScaleHpForMultiplayer(
+                        hp, encounter, count, native.CurrentActIndex)) && minion.CurrentHp == minion.MaxHp,
+                    $"roles={count}: the existing Lagavulin keeps its original HP range and exactly one native multiplayer scaling; actual={minion.MaxHp}.");
+                int bossExpected = (int)MegaCrit.Sts2.Core.Entities.Creatures.Creature.ScaleHpForMultiplayer(
+                    222, encounter, count, native.CurrentActIndex) / 2;
+                Check(boss.MaxHp == bossExpected && boss.CurrentHp == bossExpected,
+                    $"roles={count}: adding a minion preserves the Matriarch's native scaled and then halved full health, expected={bossExpected}, actual={boss.CurrentHp}/{boss.MaxHp}.");
+                var grants = CombatManager.Instance.History.Entries.Skip(historyStart).OfType<PowerReceivedEntry>()
+                    .Where(entry => entry.Power is MinionPower).ToArray();
+                Check(grants.Length == 1 && ReferenceEquals(grants[0].Actor, minion) && grants[0].Amount == 1 &&
+                    minion.HasPower<AllMatters.Powers.MetallicizePower>() &&
+                    !CombatManager.Instance.History.Entries.Skip(historyStart).OfType<DamageReceivedEntry>().Any(),
+                    "The exact added creature receives one fixed Minion grant after its normal sleeping powers, without damage or wake-up.");
+                Check(encounter.GetAssetPaths(native).Contains("res://AllMatters/monsters/lagavulin/lagavulin.tscn"),
+                    "The actual encounter asset enumeration includes the existing Mod Lagavulin scene before native combat preloading.");
+                string opening = JigsawHuntingCombatTests.Opening(room) + JsonSerializer.Serialize(native.Rng.ToSerializable());
+                if (replay == 0) openings[count] = opening;
+                else Check(opening == openings[count],
+                    "Repeating the same actual room entry seed reproduces HP, powers, moves, individual monster RNG positions and the run RNG together.");
+                bool rejected = false;
+                try { encounter.GenerateMonstersWithSlots(native); }
+                catch (InvalidOperationException) { rejected = true; }
+                Check(rejected && encounter.MonstersWithSlots.Count == 2 && room.CombatState.Enemies.Count == 2,
+                    "The native repeat-generation guard still rejects a second generation without another companion.");
+                await CreatureCmd.Damage(new ThrowingPlayerChoiceContext(), boss, boss.CurrentHp,
+                    ValueProp.Unblockable | ValueProp.Unpowered, players[0].Creature);
+                Check(boss.IsDead && minion.IsDead && !room.CombatState.ContainsCreature(boss) &&
+                    !room.CombatState.ContainsCreature(minion),
+                    "Actual lethal damage to the Matriarch runs native primary-enemy death and removes the still-sleeping Minion naturally.");
+            }
+            finally
+            {
+                CombatManager.Instance.Reset(true); manager.CleanUp(false); LocalContext.NetId = previousId;
+            }
+        }
+    }
+
+    private static async Task MatriarchMinionBoundaries()
+    {
+        foreach (var scope in new[] { "safe", "event", "non-Jigsaw", "independent" })
+        {
+            var player = Player.CreateForNewRun(ModelDb.Character<Ironclad>(), UnlockState.all, 1);
+            var native = RunState.CreateForTest([player], acts: [ModelDb.Act<Underdocks>()], seed: "HUNTING84_MATRIARCH_MINION_BOUNDARIES");
+            var manager = RunManager.Instance;
+            ulong? previousId = LocalContext.NetId;
+            manager.SetUpTest(native, new NetSingleplayerGameService()); LocalContext.NetId = 1;
+            try
+            {
+                var encounter = ModelDb.AllEncounters.Single(model =>
+                    model.AllPossibleMonsters.Any(monster => monster is LagavulinMatriarch)).ToMutable();
+                var parent = scope == "event" ? ModelDb.Event<InfestedAutomaton>() : null;
+                if (parent != null)
+                {
+                    manager.GenerateRooms(); await manager.GenerateMap();
+                    native.AddVisitedMapCoord(native.Map.StartingMapPoint.coord);
+                }
+                if (scope != "non-Jigsaw")
+                {
+                    JigsawCheckpoint.Capture(native, Root(scope != "safe", scope == "event" ? JigsawRoom.Unknown : JigsawRoom.Boss));
+                    JigsawNativeSession.Restore(native);
+                }
+                using (HeadlessCombatInProgress.EnterEvent())
+                {
+                    if (parent != null)
+                    {
+                        native.AppendToMapPointHistory(MapPointType.Unknown, RoomType.Event, parent.Id);
+                        await manager.EnterRoom(new EventRoom(parent));
+                        await manager.EnterRoomWithoutExitingCurrentRoom(
+                            new CombatRoom(encounter, native) { ParentEventId = parent.Id }, fadeToBlack: false);
+                    }
+                    else
+                    {
+                        native.AppendToMapPointHistory(MapPointType.Boss, RoomType.Boss, encounter.Id);
+                        await manager.EnterRoom(new CombatRoom(encounter, native));
+                    }
+                }
+                var room = (CombatRoom)native.CurrentRoom!;
+                bool huntedBoss = scope == "independent";
+                Check(room.CombatState.Enemies.Count == (huntedBoss ? 2 : 1) &&
+                    room.CombatState.Enemies.Count(creature => creature.Monster is AllMatters.Monsters.Lagavulin) == (huntedBoss ? 1 : 0),
+                    $"scope={scope}: only the hunted top-level Jigsaw Boss receives one Lagavulin; actual enemies={room.CombatState.Enemies.Count}.");
+                Check(scope != "event" || native.CurrentRoomCount == 2 && room.ParentEventId != null && JigsawHuntingNative.RootIsHunted(player),
+                    "The event counterexample is an actually hunted child Boss, rather than a safe run.");
+                Check(scope != "non-Jigsaw" || JigsawNativeSession.TryGet(native) == null,
+                    "The non-Jigsaw counterexample has no bound domain session.");
+                var independent = await CreatureCmd.Add(ModelDb.Monster<AllMatters.Monsters.Lagavulin>().ToMutable(), room.CombatState);
+                Check(!independent.HasPower<MinionPower>() && independent.IsPrimaryEnemy &&
+                    independent.GetPowerAmount<AllMatters.Powers.AsleepLagavulinPower>() == 3 &&
+                    independent.Monster!.NextMove.Id == AllMatters.Monsters.Lagavulin.SLEEP,
+                    $"scope={scope}: an independent native Add of the same Mod Lagavulin retains its normal sleeping, primary-enemy identity.");
+                Check(room.CombatState.Enemies.Count(creature => creature.HasPower<MinionPower>()) == (huntedBoss ? 1 : 0),
+                    "Adding another source neither grants it Minion nor changes the previously added companion.");
+            }
+            finally
+            {
+                CombatManager.Instance.Reset(true); manager.CleanUp(false); LocalContext.NetId = previousId;
+            }
+        }
+    }
 
     private static async Task MatriarchHealth()
     {
