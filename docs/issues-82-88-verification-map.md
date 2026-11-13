@@ -4,11 +4,19 @@
 
 ## 后续实施增量（均未作为整票交付）
 
+最新集成 `c8f3bb1`，目标public0.107.1/beta0.113.0/RitsuLib0.6.11，匹配public资源及辅助依赖已齐。商店场景、Phrog右侧布局、Hive精英Weak2、MultiClaw9/10及原生3+N、public启动Task观察修复均已独立双轴审查并正常集成；准确提交、专项数量和边界见[实施索引](issues-82-88-implementation.md#当前接续状态2026-11-13)。
+
+public全量已越过旧367/424/487失败，在496项PASS后因ENet子进程stdout日志AppendAllText文件占用异常退出1（Build0/Engine25/Metadata0，无最终通过汇总）。`c8f3bb1`改为持续drain双流、await终结后写证据，双版3项进程边界和7项实际ENet奖励/故障场景均通过且诊断0，同提交public全量随后推进至504项PASS，因第6个reward场景子进程3的winner临时文件重命名共享拒绝而退出1；Build0/Engine25/Metadata0，仍无最终通过汇总。旧输出回调异常未重现，新占用者未知，不认定两者同源。历史占用者未知，显式读句柄注入不冒称历史崩溃完整复现。beta495 PASS检查点有26条已分类EngineErrors，不能称0；新增RunRng断言和切片另有双版专项。Hive/MultiClaw仍不代签整票，完整恢复/正式布局/真实多端、完整Check及同提交双版包仍待。以下较早“当前”与旧版本/资源缺失段落均按历史检查点解释，不覆盖本段。
+
+2026-11-13 新目标增量：用户确认 public v0.107.1 / beta v0.113.0；兼容检查点 `1d1dac0` 已集成，受影响专项双版各23通过、0失败并经独立两轴/返修复审；主控集成后 TestSubject双版各3通过。此前v0.111.0结果仍按历史版本解释。新版beta全量299项后首败旧坏档分类，完整Test/Check尚未通过；旧public全量262项后因资源/ENet错误失败，匹配public PCK未齐，Agent按用户要求调查补齐。V04下一片将保留新版原生Steam云存档安全策略，仅适配可恢复损坏夹具及拒绝回退负例，不以新增兜底放宽安全。完整细节见实施索引；不代签本表任意整组或正式多端验收。
+
 最新集成锚点为 `bcd4060`：#85 的六case切片 `4641f0f`及普通开场`847cc845`、#86 的四case切片 `a5ba509`及Flail增量`c8b5fdd`、#87 的四case切片 `4a0c58b` 均已完成独立双轴审查并合入；#85/#86 首次合并后双版各10通过，Flail来源最新双版各5、Hive来源各7通过，后续合并专项尚待运行。#88 每日64种子原生抽样及字段完整序列化测试 `4aae096` 经 `f5d8dde` 合入，修复后双版各1通过。日志与准确边界见实施索引；下面首轮逐票叙述和W85–W87保留为历史来源，不再表示未提交。最终组合检查及同提交双版包仍待完成。
 
 #84 暗港 Gardener/SkulkingColony/TerrorEel 双版各3和独立双轴审查通过，来源`936f557`经`551d85a`合入。密林24文件部分切片已暂存进入双轴审查，Vantom双版各3及随后Phrog回归各4通过；Phrog 真节点/非零原生死亡动画与1/4角色、两尺寸几何专项已证，public有40条已知共享beta PCK的NHotkeyIcon诊断。实际指针/焦点、Infested显示5、完整文本布局仍待，不能将这些局部结果当作完整G验收。
 
 本轮最新更新至`2840635`：Matriarch生命切片`281110c`经`54a6cc0`合入，暗港最新双版各4；密林`2594715`正常消费新基后合入`2840635`，独立双轴与两次返修复审闭环，最终组合双版各25通过。首次组合发现无Jigsaw/无幕run.Act越界，已真实红绿并补原生生成反例；Phrog清理后双5，betaEngine0/public56全部同NHotkeyIcon。旧“Infested显示5”待办已撤回：原生Single能力图标和说明无数量显示，不能以Amount4推断可见缺陷；真实spawn5已证。当前整票仍partial，完整范围/证据以[实施索引](issues-82-88-implementation.md)和各票实现记录为准。
+
+后续全量回归记录至本地`08b2e89`：Hive非会话guard已修复；Phrog两项顺序/真实canvas宿主问题经普通回归及双轴审查闭环，定向双7通过，public96条NHotkey诊断、Auto/Expand边界保留。正确源码full Check beta492通过，public在Boss首次五卡setup重复超时，正在诊断。不能以资源/Build均通过改写全量测试FAIL；详见[测试隔离与完整日志分类](issue84-phrog-test-isolation.md)。远端PR104最近同步为`3e45694`，后续本地提交尚未推送。
 
 - 集成分支已含审查通过的 #82/#83、#88 兼容切片 `080104f` 和 #84 共享完整点 `d8fb141`（merge `31bb112`）。#84–#87 逐敌工作树尚未提交或合入；独立审查状态逐项列明，局部通过不能当作最终包事实。
 - #84：主工作树的真菌、Byrdonis、Effigy、完整战前/胜利点、Colosseum第二场、Kin、BeastCry、五虫、DenseVegetation治疗后开战恢复、真实场景named Marker均已有局部双版通过。Kin真实同move重入、Byrdonis其他Regen来源反例已修到精确来源。Named Marker存在仍不证明整房hitbox、意图、血条、焦点或非零死亡动画。公共恢复正在提取无新怪物依赖的独立审查测试。

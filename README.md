@@ -27,7 +27,7 @@
 3. 将完整 RitsuLib 包安装到 `mods/STS2-RitsuLib/`，保留 `compat`、`shared`、`assets.zip` 等内容，不要仅复制单个 DLL。
 4. 通过 Steam 启动游戏，在模组列表中启用 RitsuLib 与 AllMatters。
 
-开发与验证目标为 **public 0.107.1** 和 **public-beta 0.111.0**，不代表其他游戏版本已验证兼容。已有自动化与部分 public-beta 实机验收记录；完整 public 游戏环境、真实联机、保存恢复和回放仍有待验证项。
+上面的预览发布包保留原有 **public 0.107.1 / public-beta 0.111.0** 验证范围。2026-11-13 起，#82–#88 的接续开发按用户确认迁移至 **public 0.107.1 / public-beta 0.113.0**，开发依赖改为 [RitsuLib 0.6.11 完整 variant-pack](https://github.com/BAKAOLC/STS2-RitsuLib/releases/download/v0.6.11/STS2-RitsuLib.0.6.11.variant-pack.zip)。迁移状态与实际验证范围见 [实施索引](docs/issues-82-88-implementation.md)；这不表示旧发布包已获得新版兼容验证。匹配 public 开发资源已备齐；正式游戏端、设备与整批组合验证仍有缺项。
 
 ## 从源码构建
 

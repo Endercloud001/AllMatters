@@ -2,6 +2,32 @@
 
 日期：2026-11-12。本对话主控集成，开发起点 `f7e915c`，集成分支 `integration/issues-82-88-20261112`。
 
+## 当前接续状态（2026-11-13）
+
+当前集成 `c8f3bb1`，目标 **public v0.107.1 / beta v0.113.0、RitsuLib 0.6.11**。本节覆盖下方历史记录中的旧目标、资源缺失、未提交状态和旧失败位置。旧发布包与旧版通过数不代签新目标。#82–#88 仍OPEN，#84–#88仍部分实现；完整Test/Check、同提交双版包及正式实机矩阵尚未交付。
+
+匹配public资源及辅助依赖已备齐，位于主仓 `.local/public-resource-recovery-20261113/public107-content/`。辅助依赖来自本机匹配文件及官方Sentry5.0.0 NuGet net9.0，临时复用已有官方depot manifest校验；未混用不匹配beta Sentry、未新增仓库校验清单。`8a69527`将DLL/PCK/Spine绑定所选目标并打印来源，修正beta首房ArcaneScroll夹具，保留真实副作用及Player/整组RunRng回滚重放。原交接在工作区父目录 `AllMatters_docs/handoffs/`；各树docs实际为普通目录，不自动同步。
+
+本轮已审、正常hooks提交并集成的增量：`c81a63b`按版本选择真实商店场景，双版各1；`2f2f8d5`修public Phrog第四槽右侧内缩，测试/阈值不改，双版全组各7；`6d84776`实现Hive精英Weak2且普通三项各1保留，双版各2；`9f6a896`经`f4056c3`合入MultiClaw基伤9/A9+10，保留原生3+N/目标/Strength/Suck/第三阶段动作，并修无Jigsaw空acts的helper读取顺序，双版各4。以上均独立Standards/Spec无未解决发现，专项Build/Host/Engine/Metadata均0。1–4combat角色不代表正式客户端；beta Dread不属于当前Standard拼图入口，本片不扩展支持或改原生4+N。
+
+public匹配资源全量先后在367项后商店场景、424项后Phrog几何、487项后TestSubject启动Task捕获处失败。`62c49de`只修测试观察：在真实caller原调用后观察同一Task，保留CTS/StartCombatInternal/RunSafely及全部两复生、九回合、3/6/9断言。public专用两Phrog前置有真实red/green，Boss专项public6/beta5，诊断0。独立probe已确认capture为空时原生coordinator实际round1/hand5，不能写成原生战斗未启动。更广beta混合UI/backend前置的不同订阅异常仍未解决。
+
+随后public全量在496项PASS后Host1退出（Build0/Engine25/Metadata0，无最终通过汇总），新失败是ENet子进程stdout回调AppendAllText的文件占用IOException，历史句柄占用者未知。`c8f3bb1`改为双流立即持续读取、await终结后保存证据，原同步/奖励/非零退出断言保留；独立双轴审查0发现，双版各3个进程边界用例及7个真实ENet奖励/故障场景分别通过，专项诊断0。读句柄故障注入只证明原回调IO/输出丢失链，不冒称重现历史host崩溃。同提交public全量随后在504项PASS后Host1退出（Build0/Engine25/Metadata0，无最终通过汇总）：第6个奖励场景automatic failure的子进程3在 `JigsawNetworkTests.cs:211` 将 `3.winner.tmp` 重命名为 `3.winner` 时遇共享拒绝，Host继而等待all callbacks超时。旧输出回调IOException未再出现，完整子错误已保存；新的句柄占用者仍未知，不能认定与旧日志问题同源。
+
+beta全量495 PASS是新增RunRng断言与本轮切片之前的检查点，Build0/Host0/Metadata0；新增断言及切片已有双版专项。该轮EngineErrors26已分类：20条恢复/损坏注入等负例、CursedTome联机致死1、TeaTrial视觉脚本1、treasure emptyTween NRE1、退出资源3，不能写零引擎错误。最新public失败日志为兼容树 `.local/host-20261113/public-full-c8f3bb1-host.log`；上一轮日志为同目录 `public-full-f4056c3-boss-observer-WIP-host.log`，专项及原始红绿也在该目录；上一轮为已审同内容WIP，正常hook后patch一致；最新一轮直接运行已提交c8f3bb1。主控审查/资源来源记录在主仓 `.local/main-control-20261113-resume/`。
+
+## 兼容迁移历史与已集成证据
+
+2026-11-13 主控接续：交接时本地 `08b2e89`，保留两个既有文档更新及暂存的 Boss 测试启动修复。该修复的独立 Standards / Spec 审查均无发现，尚未提交。新批次 `Test.ps1 -Branch All` 在 beta 编译阶段失败（4 项 API 错误，未进入行为测试），日志为集成树 `.local/tests/main-control-takeover-20261113.log`。本机 beta 已更新至 v0.113.0（commit `16ac0fe3`）；用户明确选择调整目标为 **public v0.107.1 / public-beta v0.113.0，先完成兼容迁移**。旧 v0.111.0 的通过数仅为历史证据，不代签新目标。
+
+当前首批安排：`fix/beta-0113-compat-20261113` 独立工作树先迁移 API 与验证宿主；其实施者独占 native / build / formatter。其余代理只读整理后续切片。宿主就绪后优先分派 #85 Hive 精英开场 Weak2 与 #87 实验体 MultiClaw 9/10、3+N；两者分别独占 ActTwo 与 Boss 文件，HelloWorldTests 注册和集成由主控串行处理。每片须重新核对 v0.113.0 API、真实 red / green、双版验证及独立两轴审查；旧草稿不计通过。
+
+2026-11-13 兼容检查点：`1d1dac04792006a262edd31c53139c93b85831de` 已快进合入集成分支，57 文件（602+/163-），含此前已审 Boss 启动修复。最小版本分派保留 public 原API，beta 切至 v0.113.0，完整 RitsuLib 0.6.11 作为独立开发依赖。真实商店迁至 MerchantSynchronizer，保留库存身份/价格/RNG、sender/receiver 限制及原生任务与 ordered stock 收敛前的保存阻塞。测试选择器沿真实 CardSelectorStack 临时绑定跑局、异常后恢复；地图新资源路径仅 beta 条件化。双轴审查及两次增量返修复审无未解决发现；曾发现并真实修复多端测试绕过同步入口，以及商店 FTUE 前过早完成根房的问题。
+
+该提交受影响专项两版各23通过、0失败（Peck1、Light1、Grip1、fungus4、Insatiable1、Flight4、TestSubject3、native shop4、recovery shop4），每组构建/宿主退出0，详细记录在兼容树 `.local/compat-final-checks.json`。beta 另有真实三进程 ENet1、MerchantExit/FTUE1、selector scope1通过。主控合入后 TestSubject 双版各3复验通过，Build/Host/Engine/Metadata均0，日志集成树 `.local/main-control-20261113/integrated-boss-both.log`。人数为宿主角色或原生 ENet 进程，不代签正式多游戏端。
+
+全量仍未通过：beta299项后首次失败于旧 `schema_version` 对象坏档注入。新版原生 MigrationManager 为保护 Steam 云存档，对有效 JSON 的跑局加载失败原地保留且拒绝回退，不能添加 Mod 泛型兜底；下一片仅适配故障夹具并保留安全负例。public先前全量262项后失败于旧资源路径/ENet错误洪泛，匹配0.107.1的完整PCK/原生资源仍缺；用户要求Agent自行补齐，正调查合法本地缓存及可用来源。没有完整 public UI、完整迁移、整批 Check 或正式包通过结论。原工作树/stash/备份保留，未推送、未安装或启动游戏。
+
 需求以 [#73](https://github.com/Endercloud001/AllMatters/issues/73) 和各 issue 最新明确修订为准；实现导航见 [开发准备](issues-82-88-development-preparation-2026-11-12.md)，新增图片与返回怪物的来源见 [素材来源](issues-82-88-asset-sources.md)。本索引只记录分工、证据和未验范围，不另立规则或接口。
 
 ## 排程和文件归属
@@ -46,6 +72,8 @@
 2026-11-13 密林整合完成：完整备份旧index/工作文件后，旧基90c7970正常merge最新集成54a6cc0，再以3way仅应用已审24文件；原七共享文件与Flight检查取新基，Hello保留全部注册。组合测试发现Vantom guard过早读取非Jigsaw无幕run.Act的真实失败，调序先检查有效会话，新增原生生成负例；独立两轴追加复审通过。最终双25通过，Build/Host/Metadata0、无异常/准备失败，betaEngine0/public56全部同NHotkeyIcon。2594715经2840635已合入，两树干净；备份与stash aee7502保留。Infested原生Single图标与当前说明不显示数量，旧“显示4应5”待办缺乏事实依据，已撤回假设，不新增tooltip；实际五虫生成已证。最终整票组合Check及同提交包尚待运行。
 
 2026-11-13 整批检查回归：7d5070a已同步草稿PR104，但advisory推送钩子Check All两版均在旧Ember用例失败，Hive开场guard也过早读取非Jigsaw无幕run.Act。资源/脚本/空白/双版Build通过不代签测试。新增真实无幕Hook负例先同异常red，最小前置有效会话判断后ActTwo双版各8、Ember各1通过，独立两轴均0发现；完整Check仍待重跑。原失败、修复红绿日志完整归档于集成树`.local/integration-slices/hive-guard-regression-20261113/`，不能以旧专项通过覆盖这次全量失败。
+
+2026-11-13 当前本地08b2e89（远端草稿仍3e45694）：Hive guard已提交复审修复；全量顺序继续暴露Phrog测试宿主热调用绕过晚装Notify补丁，以及将物理窗口误当画布的问题。两项分别最小化、真实red→green和独立双轴复审，修复只在测试宿主；Phrog最新双版各7通过，public96条同NHotkey诊断，Auto/Expand模式明确，不覆盖Keep。正确源码full Check beta492通过；public相同首次五卡setup超时重复两次，已转Boss子代理独立诊断，仍不能声明整批Check通过。完整故障、编码恢复、引擎日志分类与证据见[Phrog测试隔离](issue84-phrog-test-isolation.md)。
 
 以下为早期预检来源索引（当时尚待 #82；当前以表格和接续增量为准）：本机 `.local/research/issue83-implementation-approach.md`（宝箱原生开箱、任务及空 Tween）及 `implementation-82-88-assets.md`（已核实的用户素材与 Balance 固定版本资源路线）。另派只读调查核实宝箱异步任务/完整保存点及 #84 的完整战斗表；这些记录描述预检阶段，不撤销上文已经集成的 #82/#83 和共享检查点。
 

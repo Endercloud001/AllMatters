@@ -6,7 +6,7 @@
     <TestDotNetRoot>.local/tools/dotnet9</TestDotNetRoot>
     <IlspyPath>.local/tools/ilspycmd.exe</IlspyPath>
     <GameLogDir></GameLogDir>
-    <!-- Unpack the complete RitsuLib 0.6.7 variant-pack here, or set an absolute directory. -->
-    <RitsuLibDir>$(MSBuildThisFileDirectory).local/dependencies/RitsuLib-0.6.7</RitsuLibDir>
+    <!-- Unpack the complete RitsuLib 0.6.11 variant-pack here, or set an absolute directory. -->
+    <RitsuLibDir>$(MSBuildThisFileDirectory).local/dependencies/RitsuLib-0.6.11</RitsuLibDir>
   </PropertyGroup>
 </Project>

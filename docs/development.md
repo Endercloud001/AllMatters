@@ -1,5 +1,13 @@
 # 开发环境
 
+## 当前开发目标（2026-11-13）
+
+用户确认后，#82–#88 的接续开发目标调整为 **public v0.107.1 / public-beta v0.113.0**。本机 beta `release_info.json` 为 v0.113.0、commit `16ac0fe3`；旧 v0.111.0 的测试记录仅为历史证据。兼容迁移与当前结果见 [实施索引](issues-82-88-implementation.md)，尚不能把旧版通过数视作新目标已通过。
+
+此次开发依赖使用完整 RitsuLib **0.6.11 variant-pack**，独立保存在 `.local/dependencies/RitsuLib-0.6.11/`，保留旧包。`RitsuLibDir` 可在本机 `Paths.local.props` 指定；public 编译引用 `compat/0.107.1`，beta 引用 `compat/0.113.0`，均须来自同一完整包。官方包包含两个目标不等于 AllMatters 行为已验证；新目标仍需实际宿主、保存恢复及受影响流程的验证。不向游戏安装目录复制产物或依赖。
+
+API 反编译按实际版本分目录：`.local/api/queries/public-v0.107.1/`、`.local/api/queries/public-beta-v0.113.0/`；保留旧 `.local/api/queries/public-beta-v0.111.0/` 用于比较，不覆盖或混写新旧证据。匹配 public 资源及所需辅助依赖已准备到主仓 `.local/public-resource-recovery-20261113/public107-content/`；`8a69527` 起宿主按实际目标加载 DLL / PCK / Spine，日志输出目标目录、资源路径和实际程序集版本。匹配资源的专项通过与完整回归分别留证，当前结论见[实施索引](issues-82-88-implementation.md)。
+
 ## 已发现环境（2026-10-20）
 
 - .NET SDK：9.0.319；项目目标 net9.0。
@@ -22,7 +30,7 @@ pwsh -NoProfile -File ./tools/Build.ps1 -Branch public-beta
 pwsh -NoProfile -File ./tools/Build.ps1 -Branch public -GameDataDir 'D:/STS2-public/data_sts2_windows_x86_64'
 ```
 
-Paths.local.props 不提交 Git；PublicGameDataDir 与 BetaGameDataDir 分别指向两套 DLL。本工作区前者指向从 GitHub 核对后下载的 0.107.1 实际 DLL，后者指向本机 Steam beta 安装；复制示例 props 会覆盖这些本地设置，请按实际路径填写。也可直接运行 `dotnet build -p:GameBranch=public-beta`。引用游戏程序集时 Private=false，避免把游戏 DLL 打包进 Mod。
+Paths.local.props 不提交 Git；PublicGameDataDir 与 BetaGameDataDir 分别指向两套 `data_sts2_windows_x86_64` DLL 目录。本工作区前者使用独立 public 开发资源，后者使用本机 Steam beta 安装。无界面测试还要求所选数据目录的父目录含匹配的 `SlayTheSpire2.pck` 与 Spine 原生库，以及该版本所需辅助 DLL；不再以 beta 目录替 public 补依赖。保留本地配置后再按实际路径填写示例，也可直接运行 `dotnet build -p:GameBranch=public-beta`。引用游戏程序集时 Private=false，避免把游戏 DLL 打包进 Mod。
 
 输出按分支隔离到 `dist/<branch>/AllMatters/`；构建不会自动写游戏目录。现在包含 DLL、manifest、PCK、GPLv3 LICENSE 和来源声明。构建脚本先导入 `src/Resources/`，再用 `src/Tooling/PackResources.gd` 的原生 `PCKPacker` 打包纹理导入文件及原样场景/Spine 资源，不依赖 Windows 导出模板。`tools/ExportResources.ps1` 可单独运行；`tools/Test.ps1` 也会先导出最新 PCK。
 
@@ -30,7 +38,7 @@ Paths.local.props 不提交 Git；PublicGameDataDir 与 BetaGameDataDir 分别�
 
 默认公开版完整运行环境的准备：可通过 Steam 切换至默认分支，退出游戏后准备独立开发副本，再切回 public-beta。GitHub 下载的 DLL 足以进行本轮方法体检查和编译，但没有 PCK、原生库等完整环境，不能用于启动游戏验收。本次未切换 Steam 分支或修改存档；已更新 mods 中的 AllMatters 并安装 RitsuLib，原 AllMatters 已备份。
 
-你好世界的无界面测试使用目标分支真实游戏程序集、Godot 原生运行环境及本机 beta 资源包，测试命令和替代的宿主边界见 验证记录（本地记录：`docs/testing/hello-world.md`，不随仓库分发）。两个分支测试按顺序运行，不能并行使用同一测试输出目录。
+无界面测试使用所选分支真实游戏程序集、匹配的 PCK / Spine 及 Godot 原生运行环境。旧记录中 public 共用 beta PCK 的结果只代表当时范围，不能替代匹配 public 资源后的回归。测试宿主替代的边界仍见 验证记录（本地记录：`docs/testing/hello-world.md`，不随仓库分发）。两个分支测试按顺序运行，不能并行使用同一测试输出目录。
 
 ## 测试
 
@@ -304,9 +312,9 @@ Windows 上子代理会话仍持有 worktree 文件句柄时，`git worktree rem
 
 ## 文档与参考目录
 
-本工作区 `AllMatters/docs` 是指向 `../AllMatters_docs` 的 junction，Git 索引保存其中的普通文档文件。重新 clone 时 docs 是普通目录，不依赖原机器路径。参考源码保存在 .local/references，由 .gitignore 排除。编译只枚举 src/**/*.cs，避免误编译参考仓库。
+先检查各树 `docs` 的实际目录属性和 junction 目标，再决定文档是否共享。2026-11-13 接续时主仓、集成树、兼容树的 `docs` 均为普通目录，`AllMatters_docs` 中的本机交接不会自动出现在各树内。文档由主控统一修改和集成，不依赖本机链接参与构建。参考源码保存在 .local/references，由 .gitignore 排除。编译只枚举 src/**/*.cs，避免误编译参考仓库。
 
-`.local/` 保存依赖、API 资料、运行工具与日志，路径不经过 `docs/`。本机旧 `docs/local/`、`docs/references/` 保留兼容入口，新的默认值和 Paths.local.props 均使用 `.local/`。历史测试日志中的旧路径不重写。切换分支后若 docs junction 被 Git 替换为普通目录，先保留文档改动再恢复 junction；本机依赖仍可直接从 `.local/` 使用。
+`.local/` 保存依赖、API 资料、运行工具与日志，路径不经过 `docs/`。本机旧 `docs/local/`、`docs/references/` 保留兼容入口，新的默认值和 Paths.local.props 均使用 `.local/`。历史测试日志中的旧路径不重写。切换分支后先保留文档改动、核对实际目录关系，再处理链接；不自动替换已有普通目录。本机依赖仍可直接从 `.local/` 使用。
 
 不运行上游项目，避免其自动部署、更新 API stub 等构建副作用。升级 RitsuLib 时需先验证版本与两分支 API，再调整引用及对应 manifest，不直接照搬上游的浮动包版本和自动部署脚本。
 
