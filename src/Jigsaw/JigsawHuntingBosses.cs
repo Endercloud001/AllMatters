@@ -51,9 +51,10 @@ internal static class JigsawHuntingBosses
     }
 
     internal static bool IsHuntedBoss(MonsterModel monster) =>
-        monster.CombatState.RunState is { Act: Glory, CurrentRoomCount: 1, CurrentRoom: CombatRoom room } run &&
-        ReferenceEquals(room.Encounter, monster.CombatState.Encounter) && room.Encounter.RoomType == RoomType.Boss &&
-        run.Players.FirstOrDefault() is { } player && JigsawHuntingNative.RootIsHunted(player);
+        monster.CombatState.RunState is { } run && run.Players.FirstOrDefault() is { } player &&
+        JigsawHuntingNative.RootIsHunted(player) &&
+        run is { Act: Glory, CurrentRoomCount: 1, CurrentRoom: CombatRoom room } &&
+        ReferenceEquals(room.Encounter, monster.CombatState.Encounter) && room.Encounter.RoomType == RoomType.Boss;
 
     internal static async Task InitializeAeonglass(Aeonglass monster)
     {
@@ -69,6 +70,16 @@ internal static class JigsawHuntingBosses
             presence.DynamicVars["CardsLeft"].BaseValue = 12;
             await PowerCmd.Apply(new ThrowingPlayerChoiceContext(), presence, monster.Creature, 6, monster.Creature, null);
         }
+    }
+}
+
+[HarmonyPatch(typeof(TestSubject), "MultiClawDamage", MethodType.Getter)]
+internal static class JigsawHuntingSubjectMultiClawDamage
+{
+    private static void Postfix(TestSubject __instance, ref int __result)
+    {
+        if (__instance.Creature.CombatState != null && JigsawHuntingBosses.IsHuntedBoss(__instance))
+            __result = __instance.CombatState.RunState.AscensionLevel >= 9 ? 10 : 9;
     }
 }
 
