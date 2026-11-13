@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using HarmonyLib;
+using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
@@ -9,6 +10,8 @@ using MegaCrit.Sts2.Core.Models.Encounters;
 using MegaCrit.Sts2.Core.Models.Monsters;
 using MegaCrit.Sts2.Core.Models.Powers;
 using MegaCrit.Sts2.Core.Rooms;
+using MegaCrit.Sts2.Core.Runs;
+using Lagavulin = AllMatters.Monsters.Lagavulin;
 
 namespace AllMatters.Jigsaw;
 
@@ -18,6 +21,34 @@ internal static class JigsawHuntingUnderdocks
     private static readonly ConditionalWeakTable<SkittishPower, OpeningSkittish> openingSkittish = new();
     private sealed class OpeningColonyPower;
     private static readonly ConditionalWeakTable<PowerModel, OpeningColonyPower> openingColony = new();
+    private static readonly ConditionalWeakTable<Lagavulin, object> matriarchMinions = new();
+
+    internal static bool IsHuntedMatriarchEncounter(IRunState runState, EncounterModel encounter)
+    {
+        if (encounter is not LagavulinMatriarchBoss || runState is not RunState native ||
+            !ReferenceEquals(RunManager.Instance.DebugOnlyGetState(), native) ||
+            JigsawNativeSession.TryGet(native)?.Map is not { } map ||
+            native.Players.FirstOrDefault() is not { } owner || !JigsawHuntingNative.RootIsHunted(owner) ||
+            native is not { Act: Underdocks, CurrentRoomCount: 1, CurrentRoom: CombatRoom { ParentEventId: null } room } ||
+            !ReferenceEquals(room.Encounter, encounter))
+            return false;
+        int? nodeId = map.CurrentNode ?? map.PendingEntry?.NodeId;
+        return nodeId != null && map.Nodes.Single(node => node.Id == nodeId).Room is JigsawRoom.Boss or JigsawRoom.SecondBoss;
+    }
+
+    internal static void MarkMatriarchMinion(Lagavulin monster) => matriarchMinions.Add(monster, new object());
+    internal static bool IsMatriarchMinion(Lagavulin monster) => matriarchMinions.TryGetValue(monster, out _);
+
+    internal static async Task GrantMatriarchMinion(Task original, Lagavulin monster)
+    {
+        await original;
+        if (!matriarchMinions.Remove(monster) || monster.CombatState is not { } combat ||
+            !combat.ContainsCreature(monster.Creature) || !monster.Creature.IsAlive || CombatManager.Instance.IsEnding ||
+            combat.RunState.CurrentRoom is not CombatRoom room || !ReferenceEquals(room.CombatState, combat) ||
+            !IsHuntedMatriarchEncounter(combat.RunState, combat.Encounter))
+            return;
+        await PowerCmd.Apply<MinionPower>(new ThrowingPlayerChoiceContext(), monster.Creature, 1, monster.Creature, null);
+    }
 
     internal static bool IsHuntedCombat(MonsterModel monster) =>
         monster.CombatState.RunState is { Act: Underdocks, CurrentRoomCount: 1, CurrentRoom: CombatRoom room } native &&
@@ -68,6 +99,31 @@ internal static class JigsawHuntingUnderdocks
         room.ParentEventId == null && room.Encounter is LagavulinMatriarchBoss &&
         ReferenceEquals(room.CombatState, monster.CombatState) && native.Players.FirstOrDefault() is { } player &&
         JigsawHuntingNative.RootIsHunted(player);
+}
+
+[HarmonyPatch(typeof(EncounterModel), nameof(EncounterModel.GenerateMonstersWithSlots))]
+internal static class JigsawHuntingMatriarchEnemies
+{
+    private static void Postfix(EncounterModel __instance, IRunState runState, ref IReadOnlyList<(MonsterModel, string?)> ____monstersWithSlots)
+    {
+        if (!JigsawHuntingUnderdocks.IsHuntedMatriarchEncounter(runState, __instance))
+            return;
+        var minion = (Lagavulin)ModelDb.Monster<Lagavulin>().ToMutable();
+        JigsawHuntingUnderdocks.MarkMatriarchMinion(minion);
+        // This encounter has no authored slots. Native list positioning puts
+        // the added monster left of the untouched original Matriarch.
+        ____monstersWithSlots = [(minion, null), .. ____monstersWithSlots];
+    }
+}
+
+[HarmonyPatch(typeof(Lagavulin), nameof(Lagavulin.AfterAddedToRoom))]
+internal static class JigsawHuntingMatriarchMinionOpening
+{
+    private static void Postfix(Lagavulin __instance, ref Task __result)
+    {
+        if (JigsawHuntingUnderdocks.IsMatriarchMinion(__instance))
+            __result = JigsawHuntingUnderdocks.GrantMatriarchMinion(__result, __instance);
+    }
 }
 
 [HarmonyPatch(typeof(LagavulinMatriarch), nameof(LagavulinMatriarch.AfterAddedToRoom))]
