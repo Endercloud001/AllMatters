@@ -849,6 +849,8 @@ internal static class JigsawNativeTests
             }
             if(preview) await PreviewRoom(session);
             string beforeReward = System.Text.Json.JsonSerializer.Serialize(native.Players[0].ToSerializable());
+            var beforeRewardCards = native.Players[0].Deck.Cards.ToArray();
+            string beforeRewardRunRng = System.Text.Json.JsonSerializer.Serialize(native.Rng.ToSerializable());
             MegaCrit.Sts2.Core.Saves.SerializableRun? interrupted = null;
             if (actualPartial) JigsawAncientRewardBoundaryHost.BeforeDone = current =>
             {
@@ -856,13 +858,21 @@ internal static class JigsawNativeTests
                 Require(!current.IsFinished && !session.AncientReady &&
                     System.Text.Json.JsonSerializer.Serialize(native.Players[0].ToSerializable()) != beforeReward,
                     "The actual native option has applied effects before event completion.");
+#if STS2_PUBLIC
+                Require(!native.Players[0].Deck.Cards.Contains(beforeRewardCards[0]),
+                    "The actual Precise Scissors option removes the selected card before Done.");
+#else
+                var addedCards = native.Players[0].Deck.Cards.Except(beforeRewardCards).ToArray();
+                Require(addedCards.Length == 1 && addedCards[0].Rarity == MegaCrit.Sts2.Core.Entities.Cards.CardRarity.Rare,
+                    "The actual Arcane Scroll option adds one native rare card before Done.");
+#endif
                 interrupted = RunManager.Instance.ToSave(null);
             };
             var option=ancient.CurrentOptions.Single(o=>o.Relic?.Id.Entry==
 #if STS2_PUBLIC
                 "PRECISE_SCISSORS"
 #else
-                "POMANDER"
+                "ARCANE_SCROLL"
 #endif
             );
             using(global::HeadlessNativeApi.UseSelector(new NativeEventTests.Select(native.Players[0].Deck.Cards.First()))) await option.Chosen();
@@ -879,6 +889,7 @@ internal static class JigsawNativeTests
             {
                 Require(interrupted != null, "The real Ancient Done callback exposes the partial reward checkpoint.");
                 string completeReward = System.Text.Json.JsonSerializer.Serialize(native.Players[0].ToSerializable());
+                string completeRewardRunRng = System.Text.Json.JsonSerializer.Serialize(native.Rng.ToSerializable());
                 string choice = option.Relic!.Id.Entry;
                 await manager.SaveRun(interrupted!, false);
                 var partial = manager.LoadRunSave();
@@ -886,6 +897,8 @@ internal static class JigsawNativeTests
                 var rollback = RunState.FromSerializable(partial.SaveData!);
                 Require(System.Text.Json.JsonSerializer.Serialize(rollback.Players[0].ToSerializable()) == beforeReward,
                     "Actual option relic and card side effects roll back to the complete prereward player.");
+                Require(System.Text.Json.JsonSerializer.Serialize(rollback.Rng.ToSerializable()) == beforeRewardRunRng,
+                    "Actual native option rollback restores every run RNG stream to the prereward point.");
                 await RunManager.Instance.SetUpSavedSingleplayer(rollback, partial.SaveData!);
                 MegaCrit.Sts2.Core.Context.LocalContext.NetId = rollback.Players[0].NetId;
                 await RunManager.Instance.GenerateMap(); await RunManager.Instance.LoadIntoLatestMapCoord(null);
@@ -903,6 +916,8 @@ internal static class JigsawNativeTests
                 Require(MegaCrit.Sts2.Core.Saves.SaveManager.Instance.IsRelicSeen(option.Relic!), "Native profile discovery survives reward rollback.");
                 Require(recovered.AncientReady && recovered.Map!.Phase==JigsawPhase.Exploring && JsonNode.DeepEquals(expected, actual),
                     "Replaying the real choice applies all remaining native player effects exactly once.");
+                Require(System.Text.Json.JsonSerializer.Serialize(rollback.Rng.ToSerializable()) == completeRewardRunRng,
+                    "Replaying the real choice restores the complete reward run RNG state without extra draws.");
                 return;
             }
             if(finishedAncient)

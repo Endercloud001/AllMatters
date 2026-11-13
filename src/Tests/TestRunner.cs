@@ -34,16 +34,19 @@ public partial class TestRunner : Node
             };
             string pack = Assembly.GetExecutingAssembly().GetCustomAttributes<AssemblyMetadataAttribute>()
                 .Single(attribute => attribute.Key == "GameResourcePack").Value!;
+            Console.WriteLine($"Test dependency directory: {Path.GetFullPath(directory)}");
+            Console.WriteLine($"Test game resource pack: {Path.GetFullPath(pack)}");
             if (!ProjectSettings.LoadResourcePack(Path.GetFullPath(pack), replaceFiles: false))
             {
-                throw new Exception("Cannot mount the beta game's resources for headless tests.");
+                throw new Exception("Cannot mount the selected game's resources for headless tests.");
             }
             string modPack = Assembly.GetExecutingAssembly().GetCustomAttributes<AssemblyMetadataAttribute>()
                 .Single(attribute => attribute.Key == "ModResourcePack").Value!;
             string spineExtension = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(modPack)!, "../.local/spine.gdextension"));
             string spineLibrary = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(pack)!,
                 "libspine_godot.windows.template_release.x86_64.dll")).Replace('\\', '/');
-            if (!File.Exists(spineLibrary)) throw new Exception("Resource tests require the installed beta Spine library.");
+            Console.WriteLine($"Test Spine library: {spineLibrary}");
+            if (!File.Exists(spineLibrary)) throw new Exception("Resource tests require the selected game's Spine library.");
             Directory.CreateDirectory(Path.GetDirectoryName(spineExtension)!);
             string spineConfiguration = $"""
                 [configuration]
@@ -56,9 +59,11 @@ public partial class TestRunner : Node
             if (!File.Exists(spineExtension) || File.ReadAllText(spineExtension) != spineConfiguration)
                 File.WriteAllText(spineExtension, spineConfiguration);
             if (GDExtensionManager.LoadExtension(spineExtension) != GDExtensionManager.LoadStatus.Ok)
-                throw new Exception("Cannot load the installed beta Spine extension for resource tests.");
+                throw new Exception("Cannot load the selected game's Spine extension for resource tests.");
             if (!ProjectSettings.LoadResourcePack(Path.GetFullPath(modPack), replaceFiles: false))
                 throw new Exception("Build the AllMatters resource pack before running event tests.");
+            var gameAssembly = Assembly.Load("sts2");
+            Console.WriteLine($"Test loaded sts2: {gameAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion}; location={gameAssembly.Location}");
             int result = await HelloWorldTests.Run(OS.GetCmdlineUserArgs(), name =>
                 // Activation starts two sequential isolated hosts, each bounded to 50 seconds.
                 watchdog.Renew(name, name == JigsawActivationTests.Name ? 120 : 60));

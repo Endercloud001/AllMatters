@@ -28,8 +28,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
-    <AssemblyMetadata Include="DependencyDirectory" Value="$(BetaGameDataDir)" />
-    <AssemblyMetadata Include="GameResourcePack" Value="$(BetaGameDataDir)/../SlayTheSpire2.pck" />
+    <AssemblyMetadata Include="DependencyDirectory" Value="$(GameDataDir)" />
+    <AssemblyMetadata Include="GameResourcePack" Value="$(GameDataDir)/../SlayTheSpire2.pck" />
     <AssemblyMetadata Include="ModResourcePack" Value="$(MSBuildProjectDirectory)/../../dist/AllMatters.pck" />
     <AssemblyMetadata Include="RitsuLibDirectory" Value="$(RitsuLibDir)" />
     <AssemblyMetadata Include="RitsuLibTarget" Value="$(RitsuLibReferenceTarget)" />
