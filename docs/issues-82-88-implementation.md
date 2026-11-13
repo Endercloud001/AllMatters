@@ -4,11 +4,13 @@
 
 ## 当前接续状态（2026-11-13）
 
-当前集成 `df6a1f9`，目标 **public v0.107.1 / beta v0.113.0、RitsuLib 0.6.11**。本节覆盖下方历史记录中的旧目标、资源缺失、未提交状态和旧失败位置。旧发布包与旧版通过数不代签新目标。#82–#88 仍OPEN，#84–#88仍部分实现；完整Test/Check、同提交双版包及正式实机矩阵尚未交付。
+当前集成 `070a0ae`，目标 **public v0.107.1 / beta v0.113.0、RitsuLib 0.6.11**。本节覆盖下方历史记录中的旧目标、资源缺失、未提交状态和旧失败位置。旧发布包与旧版通过数不代签新目标。#82–#88 仍OPEN，#84–#88仍部分实现；当前提交完整Test/Check、同提交双版包及正式实机矩阵尚未交付。
+
+`c469b9a` 已集成 Waterfall 原生 Trigger 后清可见当前负面、固定新增 Artifact1，并保留原 Steam/AboutToBlow/Explode 链；真实遭遇是 Underdocks 的 `WaterfallGiantBoss`，不是 Elite。独立双轴0发现，双版各6项专项及同提交受影响组合 public19/beta18通过，专项 Build/Host/Engine/Metadata均0；初次致死自动 Trigger、整场恢复和正式布局仍未证。`070a0ae` 已集成 Hive 事件普通开场：匹配父事件及已接受受罚 Unknown 根的子战统一 Weak/Frail/Vulnerable各1，顶层精英仍Weak2；真实 AM_FIGHT 同步器、原生开场及下一完整回合、1–4combat角色/Artifact0–3和跨await失效/异常已验证，独立双轴0发现。合入后同070a0ae两版各 Hive10+ActTwo8+EventCombat4，共44项通过，六日志四诊断均0，位于兼容树 `.local/host-20261113/hive-integrated-{hive,acttwo,eventcombat}-{public,public-beta}-host.log`。两版自然衰减保留：public跳首tick，beta记录三条-1；不通过改生产统一。连续独立事件战、Holes战前/奖励恢复、正式UI及真实多端仍属#85后续，不能以既有Colosseum/Vegetation恢复测试代签。
 
 匹配public资源及辅助依赖已备齐，位于主仓 `.local/public-resource-recovery-20261113/public107-content/`。辅助依赖来自本机匹配文件及官方Sentry5.0.0 NuGet net9.0，临时复用已有官方depot manifest校验；未混用不匹配beta Sentry、未新增仓库校验清单。`8a69527`将DLL/PCK/Spine绑定所选目标并打印来源，修正beta首房ArcaneScroll夹具，保留真实副作用及Player/整组RunRng回滚重放。原交接在工作区父目录 `AllMatters_docs/handoffs/`；各树docs实际为普通目录，不自动同步。
 
-同提交 `df6a1f9` 已完成匹配资源双版全量：public509 / beta507 PASS，Build / Host / Metadata均0，EngineErrors分别25 / 26，不能称零错误。`df6a1f9`仅对ENet winner证据发布遇Win32共享/锁拒绝32/33作20ms等待、500ms有界处理；临时文件写一次、原子Move不覆盖、其他IO立即失败及原网络超时保留。真实自然red与锁注入红绿、双版各3文件边界和7个真实奖励/故障场景均已验证，独立双轴0发现、正常hooks范围无漂移。public日志 `public-full-df6a1f9-host.log`、beta日志 `beta-full-df6a1f9-host.log` 位于兼容树 `.local/host-20261113/`。当前宿主已健康，可继续Waterfall等未完切片，完整项目Check和最终包仍待。
+同提交 `df6a1f9` 已完成匹配资源双版全量：public509 / beta507 PASS，Build / Host / Metadata均0，EngineErrors分别25 / 26，不能称零错误；此全量尚未在后续 Waterfall/Hive 提交重跑。`df6a1f9`仅对ENet winner证据发布遇Win32共享/锁拒绝32/33作20ms等待、500ms有界处理；临时文件写一次、原子Move不覆盖、其他IO立即失败及原网络超时保留。真实自然red与锁注入红绿、双版各3文件边界和7个真实奖励/故障场景均已验证，独立双轴0发现、正常hooks范围无漂移。public日志 `public-full-df6a1f9-host.log`、beta日志 `beta-full-df6a1f9-host.log` 位于兼容树 `.local/host-20261113/`。当前宿主已健康，可继续未完切片，完整项目Check和最终包仍待。
 
 诊断分类仍分别保留：public18条坏档/名单保护负例+1worker注入，其余视觉缺类1、managed action pop2、退出资源3；beta19条坏档/名单保护+1worker注入+1CursedTome原生多人场外致死保护，其余视觉缺类1、treasure EmptyTween的NTreasureRoom.EnableSkipAfterDelay→ActiveScreenContext.GetCurrentScreen NRE1、退出资源3。CursedTome保护阻止死亡并恢复1HP，不能写成已真实杀死。详细逐行记录在主仓 `.local/main-control-20261113-resume/{public,beta}-df6a1f9-diagnostics.md`。以下失败位置保留为历史进展，不覆盖本次全量结果。
 

@@ -86,3 +86,13 @@ Tender 图为用户提供的1,529,010字节原件 `tender.png`，按 #63 设计�
 修复后 `tools/Test.ps1 -Branch All -Filter 'Jigsaw hunting act two' -SkipResourceExport` 双版各8通过，既有 `Native counters ember tea grants Strength and Dexterity for five event combats` 双版各1通过。归档同目录 `act-two-green-{public,public-beta}.log` 与 `ember-green-{public,public-beta}.log`，ReadTestLog 均 BuildExit0、HostExit0、EngineErrors0、ModMetadataErrors0，三项异常/诊断/准备字段为空。完整 Check 尚待主控重跑，本轮专项通过不能把原失败完整检查改写为通过。
 
 独立Standards与Spec分别实际读取本次三文件暂存差异、相关会话/原生/测试源码及归档红绿日志，均0发现、无阻塞项。确认没有更改Ember夹具、扩大作用域或新增状态；新增负例直接调用真实Hook。两审查者只读，未重跑测试，整票partial和完整Check重跑责任不变。
+
+## Hive 事件开场增量（2026-11-13）
+
+`070a0ae` 从 `c469b9a` 开始实施并集成：两层 EventRoom→CombatRoom、父ID匹配且已接受受罚 Unknown 根的 Hive 子战，统一以原生 PowerCmd 施加 Weak/Frail/Vulnerable各1；事件具名Elite/Boss也用普通规则，顶层Elite保留Weak2。原Hook任务及异常保留，原任务、每个命令await后重核run/房间/combat/map/根身份。无新增applied标记或存档格式。非Jigsaw空acts且已压战斗房的真实负例先双版越界，再恢复Root检查先于Act读取。
+
+新增8项测试包括1–4combat角色×Artifact0–3、刚扣至0安全根与身份负例、构造事件Elite/Boss对照、真实共享Holes页经同步器选择AM_FIGHT及原coordinator同Hook/startup任务、真实Transient首攻与下一完整玩家回合，以及原Hook/首Weak命令实际依赖await中的失效和原异常透传。初始三项各1/history恰3；次回合public按原生跳首次tick仍各1，beta按原生各降0且精确新增三条-1，开场Hook仍仅1次、根/步数/房间历史不变。原生版本差异来自PowerCmd对SkipNextDurationTick的条件，未改生产来统一结果。
+
+正式Standards硬规范0/smell0、Spec阻塞0/范围扩张0，均实读相同三路径807+/12-、当前两版API及原始日志；Spec审查者仅贡献注册1行和执行，未编写生产/新测试，实施者未自审。正常hooks前后patch一致。合入后同070a0ae双版各Hive10（旧Elite2+新增8）、ActTwo8、EventCombat4，共44 PASS；Build/Host/Engine/Metadata均0，日志兼容树 `.local/host-20261113/hive-integrated-{hive,acttwo,eventcombat}-{public,public-beta}-host.log`。新片红绿和最终10项原日志在保留的hive-event worktree `.local/executor-hive-event/`。
+
+Holes实际AM_FIGHT入口已证，但连续两独立子战、Holes完整战前/胜利奖励点恢复、正式布局/UI和真实多端仍待本票后续。现有事件检查点只支持Colosseum/DenseVegetation，不能以这4项旧回归代签Holes恢复；当前提交未重复全量509/507、未完成完整Check或最终同提交双版包，#85仍部分实现。

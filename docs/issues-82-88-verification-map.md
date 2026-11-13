@@ -4,7 +4,9 @@
 
 ## 后续实施增量（均未作为整票交付）
 
-最新集成 `df6a1f9`，目标public0.107.1/beta0.113.0/RitsuLib0.6.11，匹配public资源及辅助依赖已齐。商店场景、Phrog右侧布局、Hive精英Weak2、MultiClaw9/10及原生3+N、public启动Task观察修复均已独立双轴审查并正常集成；准确提交、专项数量和边界见[实施索引](issues-82-88-implementation.md#当前接续状态2026-11-13)。
+最新集成 `070a0ae`，目标public0.107.1/beta0.113.0/RitsuLib0.6.11，匹配public资源及辅助依赖已齐。商店场景、Phrog右侧布局、Hive精英Weak2、MultiClaw9/10及原生3+N、public启动Task观察修复、Waterfall清负面与Artifact1、Hive事件普通三项各1均已独立双轴审查并正常集成；准确提交、专项数量和边界见[实施索引](issues-82-88-implementation.md#当前接续状态2026-11-13)。
+
+Waterfall在c469b9a受影响组合public19/beta18通过，实际是具名Boss；Hive在070a0ae同提交两版各Hive10+ActTwo8+EventCombat4，共44项通过，均Build/Host/Engine/Metadata0。真实AM_FIGHT选项、原生同Hook任务和完整下一回合已验证；public首次负面tick跳过与beta三条-1衰减均按原生保留。事件Elite/Boss普通增强的构造反例不代表自然事件池，1–4combat角色不代表真实多端。Holes战前/奖励恢复、连续独立事件战、Waterfall首次致死自动Trigger及完整正式布局仍未证，仍由对应#84/#85后续片承担，不转嫁#88。
 
 同提交df6a1f9匹配资源双版全量已完整通过public509 / beta507，Build / Host / Metadata均0，Engine25 / 26；完整Check、同提交最终双版包、正式游戏端及#84–#88剩余机制/恢复/布局仍未交付。winner证据发布共享拒绝已真实最小red及有界处理、独立双轴审查、双版各3边界与7实际奖励/故障场景验证。两版引擎诊断分别分类，仍保留Visuals/动作队列/treasure空Tween/退出资源等实际限制，不能写零错误；准确来源见实施索引文首。以下全量失败均按历史检查点解释。
 
