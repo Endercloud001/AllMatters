@@ -278,6 +278,9 @@ internal static class JigsawNativeTests
       ("Jigsaw native successful native retry supersedes failed editor save", ()=>CoalescedEdits(false, failFirst:true, nativeRetry:true)),
       ("Jigsaw native old pending edits cannot save a replacement run", ()=>CoalescedEdits(true)),
       ("Jigsaw native checkpoint recovery fault matrix", CheckpointFaultMatrix),
+#if !STS2_PUBLIC
+      ("Jigsaw native valid JSON with invalid schema retains primary without reading backup", CheckpointSchemaRejected),
+#endif
       ("Jigsaw native backup restores the exact pool and native player from one source", BackupSource),
       ("Jigsaw native act enters real map room before Ancient rewards", EditingBeforeAncient),
       ("Jigsaw native automatic enters actual Ancient from saved authorized operation", Automatic),
@@ -1163,11 +1166,15 @@ internal static class JigsawNativeTests
         finally {view.Free();nativeMap.Free();}
     }
 
-    private static async Task CheckpointFaultMatrix()
+    private static Task CheckpointFaultMatrix() => CheckpointFaultMatrix(false);
+#if !STS2_PUBLIC
+    private static Task CheckpointSchemaRejected() => CheckpointFaultMatrix(true);
+#endif
+    private static async Task CheckpointFaultMatrix(bool schemaObjectOnly)
     {
         foreach (bool multiplayer in new[] { false, true })
         foreach (bool synchronous in new[] { false, true })
-        foreach (string scenario in new[] { "normal", "missing", "corrupt", "rename-fails", "write-fails" })
+        foreach (string scenario in schemaObjectOnly ? new[] { "schema-object" } : new[] { "normal", "missing", "corrupt", "rename-fails", "write-fails" })
         {
             var native = (RunState)HeadlessTestSetup.PlayerWithRun("CHECKPOINT_76").RunState;
             RunManager.Instance.SetUpTest(native, new NetSingleplayerGameService());
@@ -1186,11 +1193,16 @@ internal static class JigsawNativeTests
                 await manager.SaveRun(RunManager.Instance.ToSave(null), multiplayer);
                 string main = io.ReadFile(path), backup = io.ReadFile(path + ".backup");
                 if (scenario == "missing") io.DeleteFile(path);
-                if (scenario is "corrupt" or "rename-fails")
+                if (scenario is "corrupt" or "rename-fails" or "schema-object")
                 {
                     var invalid = JsonNode.Parse(main)!;
                     invalid["schema_version"] = new JsonObject { ["invalid"] = true };
+#if STS2_PUBLIC
                     io.SetFileContent(path, invalid.ToJsonString());
+#else
+                    // Malformed JSON exercises backup selection; parsed schema failures are retained.
+                    io.SetFileContent(path, scenario == "schema-object" ? invalid.ToJsonString() : "{\"schema_version\":");
+#endif
                     if (scenario == "rename-fails") io.RenameFileAction = (_, _) => throw new IOException("Injected preservation failure");
                 }
                 if (scenario == "write-fails")
@@ -1207,8 +1219,34 @@ internal static class JigsawNativeTests
                     Require(rejected && saved == 0 && io.ReadFile(path) == main && io.ReadFile(path + ".backup") == backup,
                         "Failed native write cannot signal success or change either complete checkpoint.");
                 }
+                io.Calls.Clear();
                 var loaded = multiplayer ? manager.LoadMultiplayerRunSave() : manager.LoadRunSave();
+#if !STS2_PUBLIC
+                if (scenario == "schema-object")
+                {
+                    Require(!loaded.Success && loaded.SaveData == null && loaded.Status == MegaCrit.Sts2.Core.Saves.ReadSaveStatus.Unrecoverable,
+                        "Valid JSON with an invalid schema value is an unrecoverable primary, not a backup recovery trigger.");
+                    Require(!io.Calls.Any(call => call.Method is "ReadFile" or "ReadFileAsync" && Equals(call.Args[0], path + ".backup")) &&
+                        !io.Calls.Any(call => call.Method == "RenameFile"),
+                        "An unrecoverable parsed primary neither reads its backup nor renames the cloud-managed run file.");
+                    var invalid = JsonNode.Parse(main)!;
+                    invalid["schema_version"] = new JsonObject { ["invalid"] = true };
+                    Require(io.ReadFile(path) == invalid.ToJsonString() && io.ReadFile(path + ".backup") == backup,
+                        "The rejected schema leaves the primary and backup bytes unchanged.");
+                    Console.WriteLine($"CHECKPOINT_76 scenario={scenario}; multiplayerPath={multiplayer}; synchronous={synchronous}; status={loaded.Status}; backupRead=False; rename=False; host=isolated-IO");
+                    continue;
+                }
+#endif
                 Require(loaded.Success && loaded.SaveData != null, "Native recovery must return an actual parsed object.");
+#if !STS2_PUBLIC
+                if (scenario == "rename-fails")
+                {
+                    Require(!io.Calls.Any(call => call.Method == "RenameFile") &&
+                        io.ReadFile(path) == "{\"schema_version\":" && io.ReadFile(path + ".backup") == backup,
+                        "Native run recovery leaves both files in place without attempting the injected rename failure.");
+                    Console.WriteLine("CHECKPOINT_76 runFilePolicy=leave-in-place; renameAttempts=0; injectedRenameFailure=unexercised");
+                }
+#endif
                 var restored = RunState.FromSerializable(loaded.SaveData!);
                 bool fromBackup = scenario is "missing" or "corrupt" or "rename-fails";
                 var expected = fromBackup ? first : second;
@@ -1361,9 +1399,13 @@ internal static class JigsawNativeTests
             JigsawCheckpoint.Slot.TryGet(native, out var secondPoint);
             secondPoint.RevisitedHistoryIndices = new() { [0] = [2] };
             await manager.SaveRun(RunManager.Instance.ToSave(null), false);
+#if STS2_PUBLIC
             var corrupt = JsonNode.Parse(io.ReadFile(path))!.AsObject();
             corrupt["schema_version"] = new JsonObject { ["invalid"] = true };
             io.SetFileContent(path, corrupt.ToJsonString());
+#else
+            io.SetFileContent(path, "{\"schema_version\":");
+#endif
             var loaded = manager.LoadRunSave();
             Require(loaded.Success && loaded.SaveData != null, "Native backup must load.");
             var restored = RunState.FromSerializable(loaded.SaveData!);

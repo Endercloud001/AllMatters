@@ -433,8 +433,12 @@ internal static class JigsawHuntingNativeTests
             io.SetFileContent(path, legacy.ToJsonString()); io.SetFileContent(path + ".backup", legacy.ToJsonString());
             if (backup)
             {
+#if STS2_PUBLIC
                 var corrupt = original.DeepClone(); corrupt["schema_version"] = new System.Text.Json.Nodes.JsonObject { ["invalid"] = true };
                 io.SetFileContent(path, corrupt.ToJsonString());
+#else
+                io.SetFileContent(path, "{\"schema_version\":");
+#endif
             }
             var loaded = saves.LoadRunSave(); Require(loaded.Success && loaded.SaveData != null, "Native primary or backup parsing retains the old complete point.");
             var restored = RunState.FromSerializable(loaded.SaveData!);
