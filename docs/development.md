@@ -119,6 +119,8 @@ CLI 遇到连接问题时按 [GitHub 操作约定](agents/issue-tracker.md) 处�
 
 ## 并行实施与 worktree
 
+多issue拆片、WIP/角色配置、派发顺序和测试复用见[批次流程](agents/batch-flow.md)；#82–#88当前拉取入口为[唯一调度看板](issues-82-88-board.md)。先确定行为切片和所有权，再按本节创建/复用worktree，完成一片后继续拉取就绪项。
+
 ### Worktree 创建前验证
 
 **每次创建 worktree 前，必须确认上下文和目标**：
