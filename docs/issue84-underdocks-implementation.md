@@ -50,7 +50,7 @@
 
 ## 尚未完成
 
-Matriarch 左侧既有 Lagavulin 随从、Soul Fysh、Seapunk 等剩余规则仍待实现。Waterfall 已由实施索引后续记录及下节自然致死增量覆盖；旧版资源边界不代签当前目标。
+本节当时尚未实现的 Matriarch 左侧随从已由下方2026-11-14增量覆盖；Soul Fysh、Seapunk 等剩余规则仍待实现。Waterfall 已由实施索引后续记录及下节自然致死增量覆盖；旧版资源边界不代签当前目标。
 
 这些测试使用单人传输服务下的 1–4 个战斗角色；它们不证明四端点联机。public 宿主使用共享 beta PCK，不代表 public 正式资源验收。真实场景输入、目标选择和布局、整场战前/胜利恢复及最终整批 Check 需另行验证。
 ## Waterfall 首次自然致死尾部修复（2026-11-14）
@@ -64,3 +64,13 @@ Matriarch 左侧既有 Lagavulin 随从、Soul Fysh、Seapunk 等剩余规则仍
 实施树 `waterfall-lethal-20261114` 的 `.local/executor-waterfall-lethal/` 保存实际红绿；`Test.ps1 -Branch All -Filter 'Jigsaw hunting Waterfall' -SkipResourceExport` 双版各7 PASS，补 safe 断言后精确新例双版各1 PASS，Build/Host/Engine/Metadata均0。beta 编译既有 CS8785 warning 未冒称零警告。目标 public0.107.1/beta0.113.0，RitsuLib0.6.11，使用匹配资源，不沿用旧共享beta资源结论。
 
 独立 Standards、Spec 对 fixed `776e2ef` 两文件 staged diff均无阻塞；Standards 提出的 safe 清理反例已补并只读增量复核通过。正常 commit hooks 成功，提交差异与已审差异完全相同；CA1310无可用code fix提示不改变退出0。正式UI、布局、完整恢复、真实远端及整批Check/包仍未由本片代签。
+
+## Matriarch 左侧睡眠随从（2026-11-14）
+
+源码 `3008bf6` 经 `4df655b` 合入。受罚顶层 Underdocks 的原生 `LagavulinMatriarchBoss.GenerateMonstersWithSlots` 前置一只本 Mod Lagavulin，保留原生创建/HP/RNG和睡眠链；精确 mutable 实例完成原 `AfterAddedToRoom` 后授固定 `MinionPower1`。不虚构槽位、不加持久 marker；原族母多人生命减半与睡眠不变。真实 Damage 杀死族母后，仍在睡眠的爪牙自然清理。
+
+真实 public 入房先报敌人数1而非2，修后通过；新增非Jigsaw无acts反例又捕获 predicate 在校验session/root之前读取Act的越界，真实red后将校验前置。安全根、真实事件子房、非Jigsaw及独立同类来源不加随从；1–4角色验证固定Minion1、原睡眠/能力与HP。初次扩测中的Metallicize类型和事件父房准备错误属夹具失败，修复后完整重跑，没有把它们归为产品red。
+
+实施树 `matriarch-minion-20261114/.local/executor-minion/final4-{public,public-beta}-host.log` 双版各7 PASS，Build/Host/Engine/Metadata全0。集成 `4df655b` 实际运行 `Test.ps1 -Branch All -Filter 'Jigsaw hunting Underdocks' -SkipResourceExport`，双版各7 PASS且四诊断0；日志在集成树 `.local/executor-20261114/minion-integrated-{public,public-beta}-host.log`。资源未变化，复用该树有效PCK。正常hooks退出0，CA1310无可用code fix提示保留，不能写成零警告；提交patch与双轴已审暂存patch完全一致。
+
+Standards与Spec两轴独立读取最终230+/1−两文件及实际双版日志，均无发现。正式场景布局、完整战前/奖励fresh恢复和真实玩家端仍归#84，不以本片关闭整票。
