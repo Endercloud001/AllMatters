@@ -47,7 +47,7 @@ Tender 图为用户提供的1,529,010字节原件 `tender.png`，按 #63 设计�
 
 ## 仍须完成
 
-- Hive 顶层普通开场已由下述增量实现；精英开场规则、事件只普通增强、Crusher/Rocket 固定 Artifact3及原包围/方向、实际完整场地布局仍待。
+- Hive 顶层普通/精英和事件普通增强已由后续增量实现；Crusher/Rocket 固定 Artifact3及原包围/方向见本轮蟹片；实际完整场地布局仍待。
 - 真实1–4玩家逐 owner 选择、原生网络同步与独立完成；不能在 singleplayer 塞入多角色绕过会话边界。
 - 正式 Godot 选择屏的真实打开、选择、关闭/free、任务仅续一次、输入路由及回到战斗焦点；public需匹配其正式资源，beta PCK不能代签。Tender纹理、描述格式化和长文本布局仍待实际验证。
 - 入口前死亡、等待期间死亡/断线/缺席、重复/迟到选择、退出/恢复后的旧任务清理；原生远端 WaitForRemoteChoice 无取消token，Dispose仅注销handler，不能以局部关闭token声称安全。
@@ -153,3 +153,15 @@ Tender 图为用户提供的1,529,010字节原件 `tender.png`，按 #63 设计�
 独立 Standards 无硬违规，阶段分派分散为非阻塞维护建议；Spec 无阻塞，host roster、保存副本名单及watchdog增量均分别复审0新增发现。正常预hook及commit hook成功，283个tracked C#字节未变，提交diff与已审patch一致。本片未验证部分领取恢复或正式客户端输入，#85仍部分完成。
 
 集成树同源码 `1956c17` 串行复验双版 `event-` 各4 PASS，Build／Host／Engine／Metadata全0；实际日志 `.local/executor-holes-completed/integrated-event-{public,public-beta}-host.log`。完成点目录 public `b6ef480e-09d6-40b9-9bd3-49e09c0e05ec`、beta `dc22b61a-bfbc-4f44-966f-5f206f7dfda2`，各三轮九份.err为空、第三轮三端均 MapRoom／opening=0／rewards=0。
+
+## 帝皇蟹双臂开场固定 Artifact3（2026-11-14）
+
+源码 `6a6d431` 经 `dd46174` 合入。包装 Crusher/Rocket 原 `AfterAddedToRoom()` Task，等待原开场全部完成后，各以本次精确 mutable Artifact 实例授予3层；缩放例外只消费一次，独立和嵌套来源继续原生人数缩放。原方向、CrabRage、玩家 Surrounded、背景显现及当前双版不同首招完整保留。beta0.113.0 的原 Rocket 首招为 CALCULATING，public0.107.1 为 TARGETING_RETICLE，未用旧beta源码代签。
+
+首个真实 public red 已先确认左右/怒气/包围及真实背景，再在受罚 Crusher Artifact实际0≠3失败；另一个真实生命周期 red 在原开场方向命令暂停后移出敌人名单、保留 CombatState 引用，旧适配仍追加 Artifact。修复重核原 run/room/combat/map/node/pending、仍在敌方名单、存活且 combat未结束，原异常照常传播，没有永久 applied 标记。
+
+新5例覆盖 safe/hunted×1–4个combat角色、真实双臂/槽位及原开场、独立/重入 Artifact、非Jigsaw/异幕/真实事件父子栈（仍只有普通增强），以及原Task暂停后的移除、死亡、换map/room/run、关闭会话和原依赖异常。使用真实 Kaiser 背景节点；房间仅提供背景所有权，未挂完整战斗UI，不声称正式布局或远端联机。
+
+实施树 `crab-opening-20261114/.local/executor-crab/` 保存实际日志。最终 `Test.ps1 -Branch All -Filter 'Jigsaw hunting crab' -SkipResourceExport` 双版各5 PASS；受影响 ActTwo8/Hive12/ActThree5/旧Waterfall6 各目标均通过，Build/Host/Engine/Metadata全0。真实背景有 Asset not cached WARN，未称零警告。期间缺using与init-only赋值两次编译准备失败均保留，不冒称行为red。
+
+独立 Standards、Spec 对 fixed `776e2ef` 的三文件 staged diff 均0发现；正常 commit hooks 成功，提交差异与已审差异完全相同。集成 `dd46174` 后串行蟹各5及包含新自然致死的 Waterfall各7 PASS，四诊断全0；集成日志 `.local/executor-20261114/crab-integrated-{crab,Waterfall}-{public,public-beta}-host.log`。完整正式布局/输入、蟹战前与奖励fresh恢复、真实远端及整批Check/同提交包仍属后续，#85未被局部测试关闭。

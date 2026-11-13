@@ -4,7 +4,9 @@
 
 ## 当前接续状态（2026-11-13）
 
-当前源码集成 `1956c17`，目标 **public v0.107.1 / beta v0.113.0、RitsuLib 0.6.11**。本节覆盖下方历史记录中的旧目标、资源缺失、未提交状态和旧失败位置。旧发布包与旧版通过数不代签新目标。#82–#88 仍OPEN，#84–#88仍部分实现；当前提交完整Test/Check、同提交双版包及正式实机矩阵尚未交付。
+当前源码集成 `dd46174`，目标 **public v0.107.1 / beta v0.113.0、RitsuLib 0.6.11**。本节覆盖下方历史记录中的旧目标、资源缺失、未提交状态和旧失败位置。旧发布包与旧版通过数不代签新目标。#82–#88 仍OPEN，#84–#88仍部分实现；当前提交完整Test/Check、同提交双版包及正式实机矩阵尚未交付。
+
+2026-11-14 新增：Waterfall自然致死修复 `c973505` 与帝皇蟹双臂开场 `6a6d431` 经 `dd46174` 集成，独立双轴无阻塞、正常hooks且提交差异与已审内容一致。集成树双版蟹各5＋Waterfall各7 PASS，Build/Host/Engine/Metadata均0；实际日志 `.local/executor-20261114/crab-integrated-{crab,Waterfall}-{public,public-beta}-host.log`。Waterfall完整首次致死尾部保留正面/隐藏和Artifact1、安全根与最终死亡原清理；蟹固定3不额外多人增层并保留原方向/首招。详见[暗港增量](issue84-underdocks-implementation.md)、[巢穴蟹片](issue85-hunting-implementation.md)，正式布局/输入/恢复和整批Check仍不能据此签完。
 
 Holes完成片 `1956c17` 补全已领／Proceed后全员真实 `NMapScreen.Open(false)` 认证→原生host SaveRun→第三轮全新三端 LoadRunLobby 自然 MapRoom。父事件完成与根完成保存分开：无退出／仅两端退出不提升，全员完成才投影保存副本，重复保存根只计一次且live投票根保留。expected按阶段及端点/profile归属核对完整Players／RNG／history／Page／Point／Map；固定host名单 `[1,3,2]` 覆盖保存副本顺序。实施树双版event-各4 PASS、宝箱共用恢复各1 PASS，四诊断均0，日志 Holes 树 `.local/executor-holes-completed/ordered-event-final-{public,public-beta}-host.log`、`treasure-final-{public,public-beta}-host.log`。独立双轴无阻塞，正常hooks差异无漂移。裸地图节点调用真实入口、显式native保存并隔离IO；正式输入／自动UI保存／部分领取恢复未证，详见[Holes完成片](issue85-hunting-implementation.md#holes-全员退出后的完成点保存2026-11-13)。
 

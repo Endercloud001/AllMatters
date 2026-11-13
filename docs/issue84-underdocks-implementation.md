@@ -50,6 +50,17 @@
 
 ## 尚未完成
 
-Matriarch 左侧既有 Lagavulin 随从、Soul Fysh、Waterfall Giant、Seapunk 等剩余规则仍待实现。
+Matriarch 左侧既有 Lagavulin 随从、Soul Fysh、Seapunk 等剩余规则仍待实现。Waterfall 已由实施索引后续记录及下节自然致死增量覆盖；旧版资源边界不代签当前目标。
 
 这些测试使用单人传输服务下的 1–4 个战斗角色；它们不证明四端点联机。public 宿主使用共享 beta PCK，不代表 public 正式资源验收。真实场景输入、目标选择和布局、整场战前/胜利恢复及最终整批 Check 需另行验证。
+## Waterfall 首次自然致死尾部修复（2026-11-14）
+
+源码 `c973505` 修复一个直接调用 Trigger 的旧六例未能发现的生产缺陷：原生 `CreatureCmd.Damage` 首次致死，经 SteamEruption.AfterDeath 等待 Trigger 复活后，Kill 仍执行死亡能力清理，把新 Artifact1、原 Regen 和隐藏状态全部清成0。真实 public red2 为 Build0、Host1，明确输出 `Regen=0, hidden=0, Artifact=0`，不是编译或夹具失败。
+
+新增 `Hook.ShouldPowerBeRemovedOnDeath(PowerModel)` postfix 保留原 listeners；仅当前合法受罚 Waterfall、仍存活在同一 combat、Steam 尚在且 ABOUT_TO_BLOW 阶段，保留精确属于该怪物的当前正面/隐藏能力。可见当前负面仍走原清理；安全根、过期实例和最终死亡不扩大豁免，不新增保存标记。
+
+新增第7例以1/4个 combat角色×safe/hunted执行原生 Pressurize→完整首次致死 Damage→实际 Artifact 挡一次 Weak→原生 AboutToBlow/Explode 最终死亡。独立保存致死前真实 Regen 实例/原生缩放量和隐藏实例，核完整返回后不变；safe 明确按原生清除两者；最终独立 Artifact/Strength 以及 Regen/隐藏状态均清除。测试没有直接调用 Trigger，也没有跳过 Kill/AfterDeath。Regen普通来源沿原生人数缩放，本片不重算该算法。
+
+实施树 `waterfall-lethal-20261114` 的 `.local/executor-waterfall-lethal/` 保存实际红绿；`Test.ps1 -Branch All -Filter 'Jigsaw hunting Waterfall' -SkipResourceExport` 双版各7 PASS，补 safe 断言后精确新例双版各1 PASS，Build/Host/Engine/Metadata均0。beta 编译既有 CS8785 warning 未冒称零警告。目标 public0.107.1/beta0.113.0，RitsuLib0.6.11，使用匹配资源，不沿用旧共享beta资源结论。
+
+独立 Standards、Spec 对 fixed `776e2ef` 两文件 staged diff均无阻塞；Standards 提出的 safe 清理反例已补并只读增量复核通过。正常 commit hooks 成功，提交差异与已审差异完全相同；CA1310无可用code fix提示不改变退出0。正式UI、布局、完整恢复、真实远端及整批Check/包仍未由本片代签。
