@@ -4,7 +4,9 @@
 
 ## 当前接续状态（2026-11-13）
 
-当前集成 `070a0ae`，目标 **public v0.107.1 / beta v0.113.0、RitsuLib 0.6.11**。本节覆盖下方历史记录中的旧目标、资源缺失、未提交状态和旧失败位置。旧发布包与旧版通过数不代签新目标。#82–#88 仍OPEN，#84–#88仍部分实现；当前提交完整Test/Check、同提交双版包及正式实机矩阵尚未交付。
+当前集成 `8869289`，目标 **public v0.107.1 / beta v0.113.0、RitsuLib 0.6.11**。本节覆盖下方历史记录中的旧目标、资源缺失、未提交状态和旧失败位置。旧发布包与旧版通过数不代签新目标。#82–#88 仍OPEN，#84–#88仍部分实现；当前提交完整Test/Check、同提交双版包及正式实机矩阵尚未交付。
+
+`8869289` 已集成受罚 Holes 单 owner 完整检查点：真实共享 AM_FIGHT 战前回退、胜利奖励点重载与实际领取、Proceed/Resume 父事件终结；保留完整玩家、run/owner event/monster RNG、初始敌人及根房历史，旧父页动作实际不可重放。新增7例还覆盖真实连续两次回退、安全根本次扣至0、四种非法 parent/encounter/resume 组合及受控真实 pending-option 正常完成/同 entry 换 map 拒绝。后者先双版复现旧任务写入替换地图，再以地图引用检查最小修复。独立双轴及增量复审均无剩余发现，正常 hooks 仅排版。合入后同8869289每版 Holes14+Checkpoint8+EventCombat4，共52 PASS；六跑 Build/Host/Metadata均0，Holes每版各1条预期旧请求拒绝 Engine 诊断，其余四跑 Engine0。日志兼容树 `.local/executor-holes-integrated/holes-integrated-{holes,checkpoint,eventcombat}-{public,public-beta}-host.log`。真实多 owner/三进程恢复仍由#85下一片承担；奖励测试显式调用 CompleteCurrentRoom 模拟宿主缺少地图UI的退出边界，不代签正式UI全链。
 
 `c469b9a` 已集成 Waterfall 原生 Trigger 后清可见当前负面、固定新增 Artifact1，并保留原 Steam/AboutToBlow/Explode 链；真实遭遇是 Underdocks 的 `WaterfallGiantBoss`，不是 Elite。独立双轴0发现，双版各6项专项及同提交受影响组合 public19/beta18通过，专项 Build/Host/Engine/Metadata均0；初次致死自动 Trigger、整场恢复和正式布局仍未证。`070a0ae` 已集成 Hive 事件普通开场：匹配父事件及已接受受罚 Unknown 根的子战统一 Weak/Frail/Vulnerable各1，顶层精英仍Weak2；真实 AM_FIGHT 同步器、原生开场及下一完整回合、1–4combat角色/Artifact0–3和跨await失效/异常已验证，独立双轴0发现。合入后同070a0ae两版各 Hive10+ActTwo8+EventCombat4，共44项通过，六日志四诊断均0，位于兼容树 `.local/host-20261113/hive-integrated-{hive,acttwo,eventcombat}-{public,public-beta}-host.log`。两版自然衰减保留：public跳首tick，beta记录三条-1；不通过改生产统一。连续独立事件战、Holes战前/奖励恢复、正式UI及真实多端仍属#85后续，不能以既有Colosseum/Vegetation恢复测试代签。
 

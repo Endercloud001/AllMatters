@@ -95,4 +95,14 @@ Tender 图为用户提供的1,529,010字节原件 `tender.png`，按 #63 设计�
 
 正式Standards硬规范0/smell0、Spec阻塞0/范围扩张0，均实读相同三路径807+/12-、当前两版API及原始日志；Spec审查者仅贡献注册1行和执行，未编写生产/新测试，实施者未自审。正常hooks前后patch一致。合入后同070a0ae双版各Hive10（旧Elite2+新增8）、ActTwo8、EventCombat4，共44 PASS；Build/Host/Engine/Metadata均0，日志兼容树 `.local/host-20261113/hive-integrated-{hive,acttwo,eventcombat}-{public,public-beta}-host.log`。新片红绿和最终10项原日志在保留的hive-event worktree `.local/executor-hive-event/`。
 
-Holes实际AM_FIGHT入口已证，但连续两独立子战、Holes完整战前/胜利奖励点恢复、正式布局/UI和真实多端仍待本票后续。现有事件检查点只支持Colosseum/DenseVegetation，不能以这4项旧回归代签Holes恢复；当前提交未重复全量509/507、未完成完整Check或最终同提交双版包，#85仍部分实现。
+该事件开场片当时尚未覆盖Holes恢复，不能以当时Colosseum/DenseVegetation的4项回归代签。后续单owner恢复证据见下段；连续两独立子战、正式布局/UI和真实多端仍待本票后续。当前未重复全量509/507、未完成完整Check或最终同提交双版包，#85仍部分实现。
+
+## Holes 单 owner 完整检查点（2026-11-13）
+
+`8869289` 从 `1d6515e` 实施：只扩精确 FieldOfManSizedHoles/HolesEncounter/resume=true 组合，沿既有完整原生来源保存/恢复，有限父页与owner RNG保存在既有holesPage扩展。重建后父页保留原生锁定AM_FIGHT选项，实际调用不改变状态，直到真实Proceed/Resume结束专用叙述；奖励保存前刷新owner RNG，再由Ritsu ToSave Postfix导出。未新增全局恢复框架或存档格式。
+
+7项新测试覆盖真实AM_FIGHT战前与奖励恢复、实际领取/Proceed及完成点重载、连续两次完整回退、安全Unknown本次扣至0、真实保存单字段变异的4种非法组合，以及受控真实pending-option正常完成与同entry换map拒绝。玩家与所有run/owner event/monster RNG均独立完整比较；beta显式IncludeFields包含counter和四个state，真实推进后断言快照变化。原生history以其JSON规则规范化空Variables，不删除字段。未通过改动原生衰减、奖励生成或等待API语义取得通过。
+
+正式Standards与Spec初审各有1条非阻塞建议，复用现父页快照并补完整monster RNG敏感性后，双方增量复审均0发现。正常hooks仅对两生产文件排版，四文件1184+/9-。合入后同8869289两版各Holes14+Checkpoint8+EventCombat4，共52 PASS，Build/Host/Metadata均0；Holes每版1条Engine为预期旧请求拒绝，余四跑Engine0。日志兼容树 `.local/executor-holes-integrated/holes-integrated-{holes,checkpoint,eventcombat}-{public,public-beta}-host.log`；原红绿与六次完整monster RNG专项保留在Holes工作树 `.local/executor-holes-checkpoint/`。
+
+范围仍限单owner。真实多owner/三进程恢复紧接本票后续，不转#88；奖励用例显式CompleteCurrentRoom只模拟宿主缺地图UI退出的边界，不能代签正式UI全链。连续独立事件战、正式布局/输入、真实客户端、完整项目Check与同提交最终包仍未完成。
