@@ -113,4 +113,19 @@ Tender 图为用户提供的1,529,010字节原件 `tender.png`，按 #63 设计�
 
 两处oracle按原生阶段修正并各自保留完整比较：checkpoint在原生NativeEnter之前；首次入房的SyncPlayerDataMessage会在其后合并远端discovery，而fresh房栈直接重建。恢复Players expected取最后owner完成时的独立完整采样，并分别核对Before和真实canonical save；首次开场只允许已证的远端Mask discovery变化，其余完整玩家字段不变。新大厅active roster取当前原生大厅，使用LoadListener入房前独立完整验证的RestoredMap.Players；不排序数组、删字段或以恢复actual生成expected。三端面具实体均保留，临时诊断probe已移除。
 
-初版及roster增量分别独立Standards/Spec审查，均0剩余发现；正常hooks后提交内容与已审diff一致。集成树同`e088feb`运行 `./tools/Test.ps1 -Branch <target> -Filter 'Jigsaw recovery native load lobby event-' -SkipResourceExport`，public v0.107.1及beta v0.113.0各2 PASS，覆盖原event-combat-lag与新增event-holes-lag，Build/Host/Engine/Metadata全0；日志 `.local/executor-holes-integrated/event-pair-final-{public,public-beta}-host.log`。这是自动化真实独立端进程；三端胜利奖励保存/领取/fresh reload、连续独立事件战、正式布局/输入及真实客户端仍由#85后续承担，当前未重跑完整Check或最终同提交双版包。
+初版及roster增量分别独立Standards/Spec审查，均0剩余发现；正常hooks后提交内容与已审diff一致。集成树同`e088feb`运行 `./tools/Test.ps1 -Branch <target> -Filter 'Jigsaw recovery native load lobby event-' -SkipResourceExport`，public v0.107.1及beta v0.113.0各2 PASS，覆盖原event-combat-lag与新增event-holes-lag，Build/Host/Engine/Metadata全0；日志 `.local/executor-holes-integrated/event-pair-final-{public,public-beta}-host.log`。这是自动化真实独立端进程；三端胜利奖励片见下段，连续独立事件战、正式布局/输入及真实客户端仍由#85后续承担，当前未重跑完整Check或最终同提交双版包。
+
+
+## Holes 三端胜利奖励保存与全新三端恢复（2026-11-13）
+
+`31e849a` 仅扩既有两测试文件328+/16-，沿用三端真实ENet投票/owner延迟/开场，再实际击杀并等待原生胜利保存。双版合法自动保存点在 AfterCombatVictory/玩家战后清理/history 更新之后、MarkPreFinished→SaveRun，先于奖励生成。领取完成栈只在session内；本片没有证明或虚构部分已领存档的重建边界。
+
+四阶段来源：`CaptureRewards` 的既有保存回调包装在真正写入前独立采样完整玩家、run/owner RNG、history、map，再核对实际canonical保存及live稳定；原进程真实生成后三owner的完整奖励身份和完整状态构成fresh expected；新大厅Map.Players仅采用LoadListener在入房前以checkpoint+Connected独立完整核对的roster；领取前由完整来源数组、profile事前seen集合和两版PotionCmd/ProgressSaveManager规则预测每端药水发现记录。字段和顺序均保留，不从fresh actual回填恢复预期。
+
+全新三个PID经真实LoadRunLobby加载同一个host胜利点，不重开战斗Hook，逐项比较完整奖励、玩家、run/owner RNG、父页、Point/Page、地图、history及原生房描述。真实同步领取核对金币、原完整牌组前缀、两张新增牌身份与升级、药水；已完成本端空stack的重复调用在发送消息前拒绝并完整不变。领取后全状态跨端比较按各端独立发现预期变换，这是一致性证据；独立领取oracle范围为前述库存及发现记录。真实Proceed结束三名owner专用叙述，完整expected只允许父页完成/清空选项和NativeHoles.ClearFight四字段变化，其余完整状态不变。
+
+实施树同源码双版运行 `./tools/Test.ps1 -Branch <target> -Filter 'Jigsaw recovery native load lobby event-' -SkipResourceExport` 各3 PASS，含旧event-combat-lag、Holes战前、新event-holes-reward，Build/Host/Engine/Metadata全0。日志 Holes 树 `.local/executor-holes-reward/event-final-{public,public-beta}-host.log`；奖励证据beta `d598a811-4c7a-4593-af53-295a433fe167`、public `5e4d5be2-ee71-4de2-90e0-92b0db6100b8`，各三source capture+三fresh restore、六个.err为空。独立双轴0发现，正常hooks前后283个tracked C#字节不变、提交diff与已审一致。
+
+集成树同 `31e849a` 串行复验相同 `event-` 组合，public / beta 各3 PASS，Build/Host/Engine/Metadata全0；最终日志 `.local/executor-holes-reward/integrated-event-{public,public-beta}-host.log`。奖励目录分别为public `5bda2fe6-1044-4435-8980-4c96945df0f1`、beta `2a588df1-0b24-44c0-9f1f-a54de92fe69a`，各三capture+三fresh、六.err为空。
+
+本轮两次行为返工分别揭示夹具遗漏原生访问坐标（旧战前专用加载前缀曾掩盖）和领取后的本端药水发现规则；另一次末尾断言变量重名仅是编译失败，未算宿主red。详细等待/实验记主仓controller-state，不新增流程系统。多端完成点第三轮fresh、连续独立事件战、正式布局/输入/真实客户端、全量Check与最终同提交包仍待，#85未整票完成。
