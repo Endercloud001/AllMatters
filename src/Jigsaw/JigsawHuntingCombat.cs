@@ -48,10 +48,11 @@ internal static class JigsawHuntingOpeningEnemies
         if (JigsawHuntingCombat.IsVantomBossRoot(runState, __instance))
             ____monstersWithSlots = [(ModelDb.Monster<Inklet>().ToMutable(), null),
                 .. ____monstersWithSlots, (ModelDb.Monster<Inklet>().ToMutable(), null)];
-        if (JigsawHuntingCombat.IsOrdinaryRoot(runState) && runState.Act is Overgrowth)
+        if (JigsawHuntingCombat.IsOrdinaryRoot(runState) && runState.Act is Overgrowth or Glory)
         {
             JigsawHuntingCombat.RegisterLayout(__instance);
-            ____monstersWithSlots = [.. ____monstersWithSlots, (ModelDb.Monster<FungusBeast>().ToMutable(),
+            MonsterModel addition = runState.Act is Glory ? ModelDb.Monster<Mystic>().ToMutable() : ModelDb.Monster<FungusBeast>().ToMutable();
+            ____monstersWithSlots = [.. ____monstersWithSlots, (addition,
                 __instance.HasScene ? JigsawHuntingCombat.AdditionSlot : null)];
         }
     }
