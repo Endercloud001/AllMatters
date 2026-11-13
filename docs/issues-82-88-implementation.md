@@ -4,7 +4,9 @@
 
 ## 当前接续状态（2026-11-13）
 
-当前源码集成 `8e8b480`，目标 **public v0.107.1 / beta v0.113.0、RitsuLib 0.6.11**。本节覆盖下方历史记录中的旧目标、资源缺失、未提交状态和旧失败位置。旧发布包与旧版通过数不代签新目标。#82–#88 仍OPEN，#84–#88仍部分实现；当前提交完整Test/Check、同提交双版包及正式实机矩阵尚未交付。
+当前源码集成 `09d91c2`，目标 **public v0.107.1 / beta v0.113.0、RitsuLib 0.6.11**。本节覆盖下方历史记录中的旧目标、资源缺失、未提交状态和旧失败位置。旧发布包与旧版通过数不代签新目标。#82–#88 仍OPEN，#84–#88仍部分实现；当前提交完整Test/Check、同提交双版包及正式实机矩阵尚未交付。
+
+Queen完整fresh `5ac1e5d` 合入 `09d91c2`：真实session.Enter战前来源与两次新LoadRunLobby，独立完整玩家/五堆顺序/Energy/Block/powers、RNG/Act/map/history/敌人开场重建，once重置、终局胜利点不重召。审查牌堆P2已补真实移牌扰动复审，正常hook patch一致；实施及集成双版各1四诊断0无RID，集成`.local/executor-20261114/queen-fresh-integrated-{public,public-beta}-host.log`。详[Queen恢复增量](issue87-boss-implementation.md#queen-完整战前与终局胜利点-fresh2026-11-14)，原生最终幕空奖励不等于非空领奖已验；单owner同进程fresh大厅，布局已拉下一片、真实远端/进程重启未证。
 
 Queen重燃 `8ef5ff7` 合入 `8e8b480`：6个Standard意图一次替换，独立TorchHead50HP/10伤/Minion，原生出生时机、激怒仅存活本源+2、Feed/死亡清理均验证。修正真实资源预览重复CWT绑定与测试scene释放；双轴无阻塞，正常hook十处return换行已复核。默认导出集成双版各7 PASS、四诊断0，无CanvasItem RID/ObjectDB泄漏；日志 `.local/executor-20261114/queen-integrated-{public,public-beta}-host.log`。详[Queen增量](issue87-boss-implementation.md#queen-原生重燃与独立火炬2026-11-14)，完整恢复已拉独立片、完整布局/真实端及Boss间歇故障仍待。
 

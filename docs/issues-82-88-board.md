@@ -1,14 +1,14 @@
 # #82–#88 当前调度看板
 
-更新：2026-11-14。唯一维护者：集成主控。集成树：`AllMatters/.claude/worktrees/hunting-20261112`，分支`integration/issues-82-88-20261112`。当前源码HEAD=`8e8b480`；流程入口已提交`776e2ef`，Holes源码`1956c17`保留。
+更新：2026-11-14。唯一维护者：集成主控。集成树：`AllMatters/.claude/worktrees/hunting-20261112`，分支`integration/issues-82-88-20261112`。当前源码HEAD=`09d91c2`；流程入口已提交`776e2ef`，Holes源码`1956c17`保留。
 
 目标：public v0.107.1 / beta v0.113.0 / RitsuLib 0.6.11。本轮已实际查询GitHub，#82–#88均OPEN；当前本地切片不自动关闭issue。后续主控更新此文首和卡片，不再另建当前状态表。
 
-**当前活跃WIP 2/2；暂停1；Ready 0。** Waterfall `c973505`、蟹 `6a6d431` 均已集成到 `dd46174`，交叉回归双版蟹5＋Waterfall7 PASS。族母随从`3008bf6`已合入`4df655b`，集成双版Underdocks各7 PASS；Mystic`6aa65b4`已合入`7b08841`、集成双版各6 PASS；宝箱正式输入片已集成，拉取Knowledge Tender真实owner选择屏；Queen重燃已集成，下一片补Queen完整fresh恢复。两片写文件独立，不依赖暂停中的 Boss；主控唯一执行。本轮沿用既有批次宿主证据，不重启为新批次。
+**当前活跃WIP 2/2；暂停1；Ready 0。** Waterfall `c973505`、蟹 `6a6d431` 均已集成到 `dd46174`，交叉回归双版蟹5＋Waterfall7 PASS。族母随从`3008bf6`已合入`4df655b`，集成双版Underdocks各7 PASS；Mystic`6aa65b4`已合入`7b08841`、集成双版各6 PASS；宝箱正式输入片已集成，拉取Knowledge Tender真实owner选择屏；Queen重燃已集成，Queen完整fresh已集成，拉正式四组合布局。两片写文件独立，不依赖暂停中的 Boss；主控唯一执行。本轮沿用既有批次宿主证据，不重启为新批次。
 
 ## 拉取入口
 
-当前推进Knowledge Tender真实owner选择屏和Queen完整fresh恢复；Mystic、族母、蟹与Waterfall自然致死已集成，不重复派发。其他候选按依赖、验收价值及文件所有权准备。
+当前推进Knowledge Tender真实owner选择屏和Queen正式四组合布局；Mystic、族母、蟹与Waterfall自然致死已集成，不重复派发。其他候选按依赖、验收价值及文件所有权准备。
 
 跨票验收盘点可由主控一次完成，用于发现#82/#83可收口项；不要把“盘点全部历史”作为后续每片的共同前置。详细操作见[批次流程](agents/batch-flow.md)。
 
@@ -16,8 +16,8 @@
 
 |卡片/issue|行为|状态|owner / worktree|依赖与热点|下一动作/证据|开始时间|
 |---|---|---|---|---|---|---|
-|C87-queen-fresh / #87|原生Queen战中保存→新大厅完整战前重建并重置一次标记→真实胜利保存/奖励生成→第二新大厅奖励点不重召|Doing|prepare_crabs / `queen-fresh-recovery-20261114`，基`8e8b480`|独占新QueenRecovery测试；原Queen模块/7项/checkpoint/Holes只读；Hello主控|复用session.Enter完整来源与LoadRunLobby；expected来自独立原开场/保存前与奖励后采样，区分阶段RNG；最小`Jigsaw Queen fresh`双版各1，不触暂停Boss。选择因#87明确拥有完整恢复责任，不能转最终票|2026-11-14 02:25 +08:00|
-|C85-owner-ui-tender / #85|单owner原生Knowledge第二轮真实屏幕选择Tender→能力恰一次且展示牌不入堆→overlay退出释放/恢复战斗输入、重复释放不重施加|Doing|docs_standards / `knowledge-tender-ui-20261114`，基`2915a6a`|独占新Knowledge UI测试；生产只读、Hello主控；实际overlay/正式战斗宿主，第二轮无selector旁路|两版已核API；最小`Jigsaw Knowledge native Tender choice`后ActTwo相关回归；选择该片因现有selector绿不能证明owner屏幕与下层输入恢复|2026-11-14 02:20 +08:00|
+|C87-queen-layout / #87|真实聚合体死亡/重燃→Queen+两Torch正式节点，1/4角色×紧凑/宽屏，意图/血条/独立target与真实鼠标/控制器导航|Doing|prepare_crabs / `queen-native-layout-20261114`，基`09d91c2`|独占新QueenLayout测试；Hello主控；正式scene仅实证几何失败后窄改两个Torch marker，原Queen/聚合体保留；参考Phrog和已冻结Tender真实owner宿主|两版NTargetManager/NCreature/NInputManager/NMultiplayerPlayerStateContainer已核并补API；先真实mouse/target矩形最小，再native方向环，不手调逐只GrabFocus代签；最小`Jigsaw Queen native layout`|2026-11-14 02:53 +08:00|
+|C85-owner-ui-tender / #85|单owner原生Knowledge第二轮真实屏幕选择Tender→能力恰一次且展示牌不入堆→overlay退出释放/恢复战斗输入、重复释放不重施加|Review|docs_standards / `knowledge-tender-ui-20261114`，基`2915a6a`|独占新Knowledge UI测试；生产只读、Hello主控；实际overlay/正式战斗宿主，第二轮无selector旁路|最终owner-final双版各1全0无RID/ObjectDB，实际hitbox→overlay隔离→Tender→退屏输入；补足真实hover/game viewport/Ritsu挂树owner时序与action，生产0改；两文件417+暂存，独立双轴无阻塞/命名增量已复核；ActTwo相关回归双版各8全0，待正常hook提交集成|2026-11-14 02:20 +08:00|
 
 ## 候选池：尚不能派发实施
 
@@ -39,6 +39,7 @@
 
 |issue/切片|源码提交|已证范围|剩余边界/证据|
 |---|---|---|---|
+|#87 Queen完整fresh|`5ac1e5d`，合入`09d91c2`|真实session.Enter/战中保存，两次新LoadRunLobby；完整玩家存档与五堆顺序/Energy/Block/powers、RNG/Act/敌人开场重建、重燃标记重置、终局胜利点不重开|双轴P2牌堆缺口已修复复审；正常hook patch一致，实施piles-final及集成双版各1全0无RID；[恢复增量](issue87-boss-implementation.md#queen-完整战前与终局胜利点-fresh2026-11-14)；单owner同进程新大厅，不代签新进程/真实多端或非空领奖|
 |#87 Queen一次重燃|`8ef5ff7`，合入`8e8b480`|真实聚合体死亡替换6个Standard意图一次，独立TorchHead50HP/10伤/Minion，原coordinator出生不攻/下轮直攻，女王激怒仅本源活火炬+2、死亡自然清理|双轴无阻塞，正常hook十处return换行已复核；默认导出集成双版各7 PASS四诊断0，无CanvasItem RID泄漏；[Queen增量](issue87-boss-implementation.md#queen-原生重燃与独立火炬2026-11-14)，完整布局/恢复/真实端仍归#87|
 |#83 正式整房开箱输入|`fb58274`，合入`2915a6a`|匹配双版正式场景，真实鼠标开箱/Proceed，原空Tween与早按负例，自然完成/保存，新大厅回MapRoom不重复Face/Spoils/扣步|正常hooks，提交patch与已审一致；Standards setup异常清理P2已修复复审；实施返修/集成双版各11 PASS四诊断0；[宝箱增量](issue83-treasure-implementation.md#正式整房输入与自然保存恢复2026-11-14)，真实双游戏端/设备仍待|
 |#86 Mystic原生闭环|`6aa65b4`，合入`7b08841`|普通/事件受罚Glory追加基础HP56、无初始能力；CAST六等概率独立、HEAL12/空过、BUFF2完整循环；原生资源factory/Spine/双语|双轴0发现；hook仅四处单行if格式换行已增量复核；集成默认导出资源双版各6 PASS、四诊断0；[荣耀增量](issue86-hunting-implementation.md#mystic-原生模型资源与三动作闭环2026-11-14)，12场景布局/完整fresh恢复未代签|

@@ -38,3 +38,13 @@
 双轴独立实际diff/API审查无阻塞；测试名已收窄Standard。正常hook仅10处单行if的return换行，Standards增量确认无语义变化，最终14文件948+。集成命令 `Test.ps1 -Branch All -Filter 'Jigsaw Queen'` 默认导出新资源，两版各7 PASS；BuildExit/HostExit/EngineErrors/ModMetadataErrors全0，无CanvasItem RID/ObjectDB泄漏。原始日志 `.local/executor-20261114/queen-integrated-{public,public-beta}-host.log`。固定素材源与既有归属写入NOTICE，未安装或启动正式游戏。
 
 正式scene保留原聚合体(1207,709)/女王(1606,695)，追加火炬(1150,695)/(1330,695)；scene/factory/Spine idle及halberd_slam/双语已证，不能由slot坐标签完整1/4人×紧凑/宽屏意图/血条/目标/焦点。完整战前与奖励fresh恢复已拉独立后续片，真实远端与暂停Boss间歇故障仍未修复，三次probe绿不作修复证据。
+
+## Queen 完整战前与终局胜利点 fresh（2026-11-14）
+
+源码 `5ac1e5d`，合入 `09d91c2`，两文件525+且生产/共享checkpoint零改动。原生GenerateRooms后用已核SetBossEncounter明确本例Queen，再session.Enter取得生产RetainRoomCheckpoint；两次新大厅不再次设Boss。原开场独立采样完整玩家保存字段、run/owner/monster RNG、原生Acts/history/coords、完整拼图map和敌人slot/HP/powers/intent。审查P2指出Player.ToSerializable没有战斗牌堆，已补逐owner五堆有序card.ToSerializable、当前Energy/Block/powers；真实手牌移弃牌、损血/金币/各RNG改变及一只火炬死亡/激怒后实际保存，再以原expected完整比较，未从恢复对象回填。
+
+第一次LoadRunLobby.AddLocalHostPlayer/SetReady自然SetUpSavedMultiplayer/GenerateMap/LoadIntoLatestMapCoord，取得新run/session/room/Queen/聚合体身份；原始完整开场相同，0火炬、聚合体活、步数/预算/NextEntry/history不重复。再次真实死亡/重燃两只新Torch证明整场once重置，旧聚合体迟到通知不增召。原生Queen真死/Minion清理→CheckWinCondition→实际prefinished保存；第二新大厅恢复终局胜利点，opening/startup增量0、无敌人火炬，原room/map/history/所有RNG按对应阶段精确相同。
+
+两版原生最终Glory Boss默认奖励为空，非Holes的非空pending语义；原/恢复各真实Offer一次，严格验最终Queen身份、ExtraRewards0、Rewards.Count0、synchronizer completed=true和精确空内容，不造ExtraRewards。未验证非空领取UI。首次失败仅ActFloor在setup派生前为0的oracle阶段错误，当前保留setup0断言及实际进房后原楼层比较；第二次失败为误搬普通战斗非空奖励假设，均由两版原生方法体修正，非生产修复。
+
+独立Standards最终硬规范0；Spec P2已修复增量通过。正常hook提交patch与已审一致。实施日志 `queen-fresh-recovery-20261114/.local/executor-queen-fresh/piles-final-{public,public-beta}-host.log`；集成日志 `.local/executor-20261114/queen-fresh-integrated-{public,public-beta}-host.log`；两处命令均 `Test.ps1 -Branch All -Filter 'Jigsaw Queen fresh' -SkipResourceExport`，两版各1 PASS、Build/Host/Engine/Metadata全0，无CanvasItem RID/ObjectDB泄漏。证据为单owner、同进程两次fresh run/session/lobby；新进程、真实远端、布局/设备仍未代签，#87继续partial。
