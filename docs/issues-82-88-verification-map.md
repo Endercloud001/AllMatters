@@ -4,7 +4,9 @@
 
 ## 后续实施增量（均未作为整票交付）
 
-最新集成 `c8f3bb1`，目标public0.107.1/beta0.113.0/RitsuLib0.6.11，匹配public资源及辅助依赖已齐。商店场景、Phrog右侧布局、Hive精英Weak2、MultiClaw9/10及原生3+N、public启动Task观察修复均已独立双轴审查并正常集成；准确提交、专项数量和边界见[实施索引](issues-82-88-implementation.md#当前接续状态2026-11-13)。
+最新集成 `df6a1f9`，目标public0.107.1/beta0.113.0/RitsuLib0.6.11，匹配public资源及辅助依赖已齐。商店场景、Phrog右侧布局、Hive精英Weak2、MultiClaw9/10及原生3+N、public启动Task观察修复均已独立双轴审查并正常集成；准确提交、专项数量和边界见[实施索引](issues-82-88-implementation.md#当前接续状态2026-11-13)。
+
+同提交df6a1f9匹配资源双版全量已完整通过public509 / beta507，Build / Host / Metadata均0，Engine25 / 26；完整Check、同提交最终双版包、正式游戏端及#84–#88剩余机制/恢复/布局仍未交付。winner证据发布共享拒绝已真实最小red及有界处理、独立双轴审查、双版各3边界与7实际奖励/故障场景验证。两版引擎诊断分别分类，仍保留Visuals/动作队列/treasure空Tween/退出资源等实际限制，不能写零错误；准确来源见实施索引文首。以下全量失败均按历史检查点解释。
 
 public全量已越过旧367/424/487失败，在496项PASS后因ENet子进程stdout日志AppendAllText文件占用异常退出1（Build0/Engine25/Metadata0，无最终通过汇总）。`c8f3bb1`改为持续drain双流、await终结后写证据，双版3项进程边界和7项实际ENet奖励/故障场景均通过且诊断0，同提交public全量随后推进至504项PASS，因第6个reward场景子进程3的winner临时文件重命名共享拒绝而退出1；Build0/Engine25/Metadata0，仍无最终通过汇总。旧输出回调异常未重现，新占用者未知，不认定两者同源。历史占用者未知，显式读句柄注入不冒称历史崩溃完整复现。beta495 PASS检查点有26条已分类EngineErrors，不能称0；新增RunRng断言和切片另有双版专项。Hive/MultiClaw仍不代签整票，完整恢复/正式布局/真实多端、完整Check及同提交双版包仍待。以下较早“当前”与旧版本/资源缺失段落均按历史检查点解释，不覆盖本段。
 

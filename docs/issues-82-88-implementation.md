@@ -4,9 +4,13 @@
 
 ## 当前接续状态（2026-11-13）
 
-当前集成 `c8f3bb1`，目标 **public v0.107.1 / beta v0.113.0、RitsuLib 0.6.11**。本节覆盖下方历史记录中的旧目标、资源缺失、未提交状态和旧失败位置。旧发布包与旧版通过数不代签新目标。#82–#88 仍OPEN，#84–#88仍部分实现；完整Test/Check、同提交双版包及正式实机矩阵尚未交付。
+当前集成 `df6a1f9`，目标 **public v0.107.1 / beta v0.113.0、RitsuLib 0.6.11**。本节覆盖下方历史记录中的旧目标、资源缺失、未提交状态和旧失败位置。旧发布包与旧版通过数不代签新目标。#82–#88 仍OPEN，#84–#88仍部分实现；完整Test/Check、同提交双版包及正式实机矩阵尚未交付。
 
 匹配public资源及辅助依赖已备齐，位于主仓 `.local/public-resource-recovery-20261113/public107-content/`。辅助依赖来自本机匹配文件及官方Sentry5.0.0 NuGet net9.0，临时复用已有官方depot manifest校验；未混用不匹配beta Sentry、未新增仓库校验清单。`8a69527`将DLL/PCK/Spine绑定所选目标并打印来源，修正beta首房ArcaneScroll夹具，保留真实副作用及Player/整组RunRng回滚重放。原交接在工作区父目录 `AllMatters_docs/handoffs/`；各树docs实际为普通目录，不自动同步。
+
+同提交 `df6a1f9` 已完成匹配资源双版全量：public509 / beta507 PASS，Build / Host / Metadata均0，EngineErrors分别25 / 26，不能称零错误。`df6a1f9`仅对ENet winner证据发布遇Win32共享/锁拒绝32/33作20ms等待、500ms有界处理；临时文件写一次、原子Move不覆盖、其他IO立即失败及原网络超时保留。真实自然red与锁注入红绿、双版各3文件边界和7个真实奖励/故障场景均已验证，独立双轴0发现、正常hooks范围无漂移。public日志 `public-full-df6a1f9-host.log`、beta日志 `beta-full-df6a1f9-host.log` 位于兼容树 `.local/host-20261113/`。当前宿主已健康，可继续Waterfall等未完切片，完整项目Check和最终包仍待。
+
+诊断分类仍分别保留：public18条坏档/名单保护负例+1worker注入，其余视觉缺类1、managed action pop2、退出资源3；beta19条坏档/名单保护+1worker注入+1CursedTome原生多人场外致死保护，其余视觉缺类1、treasure EmptyTween的NTreasureRoom.EnableSkipAfterDelay→ActiveScreenContext.GetCurrentScreen NRE1、退出资源3。CursedTome保护阻止死亡并恢复1HP，不能写成已真实杀死。详细逐行记录在主仓 `.local/main-control-20261113-resume/{public,beta}-df6a1f9-diagnostics.md`。以下失败位置保留为历史进展，不覆盖本次全量结果。
 
 本轮已审、正常hooks提交并集成的增量：`c81a63b`按版本选择真实商店场景，双版各1；`2f2f8d5`修public Phrog第四槽右侧内缩，测试/阈值不改，双版全组各7；`6d84776`实现Hive精英Weak2且普通三项各1保留，双版各2；`9f6a896`经`f4056c3`合入MultiClaw基伤9/A9+10，保留原生3+N/目标/Strength/Suck/第三阶段动作，并修无Jigsaw空acts的helper读取顺序，双版各4。以上均独立Standards/Spec无未解决发现，专项Build/Host/Engine/Metadata均0。1–4combat角色不代表正式客户端；beta Dread不属于当前Standard拼图入口，本片不扩展支持或改原生4+N。
 
