@@ -23,7 +23,11 @@ internal static class JigsawHuntingBossTests
       ("Jigsaw hunting Boss Aeonglass mixed owner twelfth plays generate five ordered statuses and reset displays", AeonglassPlays),
       ("Jigsaw hunting Boss Test Subject first real revival replaces only its phase two grants", TestSubjectFirstRevival),
       ("Jigsaw hunting Boss Test Subject native second revival and nine complete player turns", TestSubjectTurns),
-      ("Jigsaw hunting Boss Test Subject native startup after a completed prior room teardown", TestSubjectAfterPriorRoom) ];
+      ("Jigsaw hunting Boss Test Subject native startup after a completed prior room teardown", TestSubjectAfterPriorRoom),
+#if STS2_PUBLIC
+      ("Jigsaw hunting Boss Test Subject native startup survives warmed creature callbacks", TestSubjectAfterWarmedCallbacks),
+#endif
+    ];
 
     private static async Task TestSubjectAfterPriorRoom()
     {
@@ -33,6 +37,18 @@ internal static class JigsawHuntingBossTests
             "Jigsaw hunting native zero selection saves and enters first Boss punished").Test();
         await TestSubjectTurns();
     }
+
+#if STS2_PUBLIC
+    private static async Task TestSubjectAfterWarmedCallbacks()
+    {
+        await JigsawHuntingActOneTests.Cases.Single(test => test.Name ==
+            "JigsawHuntingActOne Phrog nonzero native death preserves five node visibility").Test();
+        await JigsawHuntingActOneTests.Cases.Single(test => test.Name ==
+            "JigsawHuntingActOne Phrog native UI survives backend creature callback warmup and cleanup").Test();
+        await TestSubjectTurns();
+    }
+
+#endif
 
     private static Creature? heldSubject;
     private static TaskCompletionSource? revivalReached;
@@ -54,7 +70,24 @@ internal static class JigsawHuntingBossTests
     private static bool SkipCombatFtue(ref bool __result) { __result = true; return false; }
 #if STS2_PUBLIC
     private static Task? nativeStartup;
-    private static void CaptureNativeStartup(Task __result) => nativeStartup = __result;
+    private static void CaptureNativeStartup(Task task) => nativeStartup = task;
+
+    private static IEnumerable<HarmonyLib.CodeInstruction> ObserveNativeStartup(IEnumerable<HarmonyLib.CodeInstruction> instructions)
+    {
+        var start = HarmonyLib.AccessTools.Method(typeof(CombatManager), nameof(CombatManager.StartCombatInternal));
+        var capture = HarmonyLib.AccessTools.Method(typeof(JigsawHuntingBossTests), nameof(CaptureNativeStartup));
+        foreach (var instruction in instructions)
+        {
+            yield return instruction;
+            if (instruction.opcode == System.Reflection.Emit.OpCodes.Call && Equals(instruction.operand, start))
+            {
+                // Observe the same task that the native caller passes to RunSafely.
+                // A late callee postfix can miss a previously inlined startup.
+                yield return new HarmonyLib.CodeInstruction(System.Reflection.Emit.OpCodes.Dup);
+                yield return new HarmonyLib.CodeInstruction(System.Reflection.Emit.OpCodes.Call, capture);
+            }
+        }
+    }
 #endif
 
     private static async Task Until(Func<bool> ready, string reason)
@@ -72,8 +105,8 @@ internal static class JigsawHuntingBossTests
         patch.Patch(HarmonyLib.AccessTools.Method(typeof(CreatureCmd), nameof(CreatureCmd.SetMaxHp)),
             prefix: new HarmonyLib.HarmonyMethod(typeof(JigsawHuntingBossTests), nameof(HoldSecondRevival)));
 #if STS2_PUBLIC
-        patch.Patch(HarmonyLib.AccessTools.Method(typeof(CombatManager), nameof(CombatManager.StartCombatInternal)),
-            postfix: new HarmonyLib.HarmonyMethod(typeof(JigsawHuntingBossTests), nameof(CaptureNativeStartup)));
+        patch.Patch(HarmonyLib.AccessTools.Method(typeof(CombatManager), nameof(CombatManager.AfterCombatRoomLoaded)),
+            transpiler: new HarmonyLib.HarmonyMethod(typeof(JigsawHuntingBossTests), nameof(ObserveNativeStartup)));
 #endif
         try
         {
