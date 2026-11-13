@@ -8,6 +8,8 @@ using MegaCrit.Sts2.Core.Rooms;
 using MegaCrit.Sts2.Core.Runs;
 using System.Runtime.CompilerServices;
 using Godot;
+using MegaCrit.Sts2.Core.Assets;
+using MegaCrit.Sts2.Core.Nodes.Combat;
 
 namespace AllMatters.Jigsaw;
 
@@ -69,6 +71,48 @@ internal static class JigsawHuntingEncounterLayout
             .Where(marker => marker != null).ToArray();
         float left = originalMarkers.Length == 0 ? 1200 : originalMarkers.Min(marker => marker!.Position.X);
         float ground = originalMarkers.Length == 0 ? 740 : originalMarkers.Max(marker => marker!.Position.Y);
-        __result.AddChild(new Marker2D { Name = JigsawHuntingCombat.AdditionSlot, Position = new Vector2(left - 260, ground) });
+        var position = new Vector2(left - 260, ground);
+        if (__instance.MonstersWithSlots.Single(pair => pair.Item2 == JigsawHuntingCombat.AdditionSlot).Item1 is Mystic mystic)
+        {
+            // Keep the Forest addition unchanged. Glory's scene markers are
+            // centres: a fixed centre distance ignores Axebot's wider bounds.
+            var template = PreloadManager.Cache.GetScene(NCreature.AssetPaths.Single()).Instantiate<NCreature>();
+            try
+            {
+                var hpHitbox = template.GetNode<Control>("%HealthBar").GetNode<Control>("%HpBarHitbox").GetGlobalRect();
+                (float Left, float Right) Extents(MonsterModel monster)
+                {
+                    var visuals = monster.CreateVisuals();
+                    try
+                    {
+                        // NCreature._Ready uses the same zero visual origin.
+                        visuals.Position = Vector2.Zero;
+                        var bounds = visuals.GetNode<Control>("%Bounds").GetGlobalRect();
+                        // NHealthBar.UpdateLayoutForCreatureBounds expands the
+                        // actual bar by this amount; its fixed target may be wider.
+                        float padding = (24f - monster.HpBarSizeReduction) * 0.5f;
+                        return (Mathf.Min(bounds.Position.X, Mathf.Min(bounds.Position.X - padding, hpHitbox.Position.X)),
+                            Mathf.Max(bounds.End.X, Mathf.Max(bounds.End.X + padding, hpHitbox.End.X)));
+                    }
+                    finally { visuals.Free(); }
+                }
+                var addition = Extents(mystic);
+                var sceneTransform = __result.GetGlobalTransform();
+                var origin = sceneTransform * position;
+                // Leave a 24-unit gap between display envelopes, not centres.
+                const float clearance = 24f;
+                foreach (var (monster, slot) in __instance.MonstersWithSlots.Where(pair => pair.Item2 != JigsawHuntingCombat.AdditionSlot))
+                {
+                    var marker = slot == null ? null : __result.GetNodeOrNull<Marker2D>(slot);
+                    if (marker == null)
+                        continue;
+                    var original = Extents(monster);
+                    origin.X = Mathf.Min(origin.X, marker.GlobalPosition.X + original.Left - addition.Right - clearance);
+                }
+                position = sceneTransform.AffineInverse() * origin;
+            }
+            finally { template.Free(); }
+        }
+        __result.AddChild(new Marker2D { Name = JigsawHuntingCombat.AdditionSlot, Position = position });
     }
 }
