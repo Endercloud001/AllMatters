@@ -18,7 +18,7 @@ using MegaCrit.Sts2.Core.Runs;
 namespace AllMatters.Jigsaw;
 
 [HarmonyPatch(typeof(Hook), nameof(Hook.BeforeCombatStart))]
-internal static class JigsawHuntingHiveNormalOpening
+internal static class JigsawHuntingHiveOpening
 {
     private static void Postfix(IRunState runState, ICombatState? combatState, ref Task __result) =>
         __result = ApplyOpening(__result, runState, combatState);
@@ -29,14 +29,16 @@ internal static class JigsawHuntingHiveNormalOpening
         if (runState is not RunState native || native.Players.FirstOrDefault() is not { } owner ||
             !JigsawHuntingNative.RootIsHunted(owner) ||
             native is not { Act: Hive, CurrentRoomCount: 1, CurrentRoom: CombatRoom room } ||
-            room.ParentEventId != null || room.RoomType != RoomType.Monster ||
+            room.ParentEventId != null || room.RoomType is not (RoomType.Monster or RoomType.Elite) ||
             !ReferenceEquals(room.CombatState, combatState) ||
             !ReferenceEquals(RunManager.Instance.DebugOnlyGetState(), native))
             return;
         foreach (var player in combatState!.Players)
         {
             var context = new ThrowingPlayerChoiceContext();
-            await PowerCmd.Apply<WeakPower>(context, player.Creature, 1, null, null);
+            await PowerCmd.Apply<WeakPower>(context, player.Creature, room.RoomType == RoomType.Elite ? 2 : 1, null, null);
+            if (room.RoomType == RoomType.Elite)
+                continue;
             await PowerCmd.Apply<FrailPower>(context, player.Creature, 1, null, null);
             await PowerCmd.Apply<VulnerablePower>(context, player.Creature, 1, null, null);
         }
