@@ -175,3 +175,13 @@ Tender 图为用户提供的1,529,010字节原件 `tender.png`，按 #63 设计�
 最终实施树`knowledge-tender-ui-20261114/.local/executor-tender/owner-final-{public,public-beta}-host.log`双版各1 PASS、四诊断0无RID/ObjectDB；相关`acttwo-final-*`双版各8 PASS四诊断0。独立Standards/Spec无阻塞；SkipNativeLifecycle命名增量仅同为false方法拆名，两轴源码复核无行为变化，复用上述行为证据。正常commit hook成功，提交patch与已审patch完全一致。
 
 集成`35bb69d`串行执行`Test.ps1 -Branch All -Filter 'Jigsaw Knowledge native Tender' -SkipResourceExport`双版各1 PASS及`-Filter 'Jigsaw hunting act two'`双版各8 PASS，Build/Host/Engine/Metadata均0，无RID/ObjectDB。日志集成树`.local/executor-20261114/tender-integrated-{public,public-beta}-host.log`和`tender-acttwo-integrated-*`。本片仅1920×1080、当前语言、单owner鼠标；多人选择时序/死亡缺席断线、键盘控制器、完整布局/恢复和正式端仍待#85，不能据此关闭整票。
+
+## Knowledge 选择计数与非终局奖励 fresh（2026-11-14）
+
+源码`5b88af8`经`2e61481`集成，仅新增KnowledgeRecovery测试及Hello注册两文件652+，生产与共享checkpoint未改。目标public0.107.1/beta0.113.0、RitsuLib0.6.11，匹配资源。源局实际Hive、非最后幕，只在source设置原`KnowledgeDemonBoss`遭遇；普通`session.Enter`前独立采样before-roll，原开场独立保存完整玩家/五堆有序卡牌/Energy/Block/powers、run/owner/monster RNG、Act/map/history、敌人HP/slot/intent及私有诅咒计数和IsBurnt。
+
+原首轮展示MindRot/Calamity，实际选择Calamity经原OnChosen和外层Task完成，Calamity1、counter1、下一招SLAP。能力expected在动作前从完整快照独立追加，不从事后powers取值；展示牌不入永久或五个战斗牌堆。随后真实损血/金币/移牌/RNG扰动并保存，新LoadRunLobby ready沿原setup/map/load创建新run/session/room/demon，恢复完整原开场、counter0、首轮诅咒/满HP/无旧能力，不二扣；再次真实选择确为第一对而非Sloth/Tender。
+
+真实击杀唯一Boss→原CheckWinCondition、战后清理及BurningBlood回血6→自然prefinished保存；原非终局Hive Boss生成非空奖励，保存前boundary与奖励生成后内容/玩家/RNG分阶段取expected。源skip不付库存，第二新大厅不重开战斗，真实同步领取、重复拒绝、原Proceed完成根一次，不手调Complete或末尾补Save。两版实际均为金币100及卡牌两项，没有roll出药水；代码保留原药水可选分支和独立profile发现预测，不把未出现的药水领取写成已执行。profile完整JSON克隆隔离，finally恢复原引用及完整原内容。
+
+独立Standards/Spec实读完整652+及双版原生消费者均0发现；正常hook成功，提交patch与已审patch完全一致。实施树`knowledge-fresh-20261114/.local/executor-knowledge-fresh/entry1-beta-host.log`和`final-public-host.log`各1 PASS，`related-final-{public,public-beta}-host.log`各8 PASS，均Build/Host/Engine/Metadata0、无RID/ObjectDB。集成`2e61481`专项双版各1及相关ActTwo各8 PASS、四诊断0无RID，日志集成树`.local/executor-20261114/knowledge-fresh-integrated-{public,public-beta}-host.log`与`knowledge-acttwo-integrated-*`。单owner同进程两次新大厅，不代签正式选择UI、未完成的多owner选择、真实远端/新进程或Hive首普通完整恢复。

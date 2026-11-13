@@ -1,14 +1,14 @@
 # #82–#88 当前调度看板
 
-更新：2026-11-14。唯一维护者：集成主控。集成树：`AllMatters/.claude/worktrees/hunting-20261112`，分支`integration/issues-82-88-20261112`。当前源码HEAD=`2c44d4b`；流程入口已提交`776e2ef`，Holes源码`1956c17`保留。
+更新：2026-11-14。唯一维护者：集成主控。集成树：`AllMatters/.claude/worktrees/hunting-20261112`，分支`integration/issues-82-88-20261112`。当前源码HEAD=`2e61481`；流程入口已提交`776e2ef`，Holes源码`1956c17`保留。
 
 目标：public v0.107.1 / beta v0.113.0 / RitsuLib 0.6.11。本轮已实际查询GitHub，#82–#88均OPEN；当前本地切片不自动关闭issue。后续主控更新此文首和卡片，不再另建当前状态表。
 
-**当前活跃WIP 2/2；暂停1；Ready 0。** Waterfall `c973505`、蟹 `6a6d431` 均已集成到 `dd46174`，交叉回归双版蟹5＋Waterfall7 PASS。族母随从`3008bf6`已合入`4df655b`，集成双版Underdocks各7 PASS；Mystic`6aa65b4`已合入`7b08841`、集成双版各6 PASS；宝箱正式输入片已集成，Knowledge Tender真实owner选择屏已集成；Queen重燃已集成，Queen完整fresh已集成，拉正式四组合布局。两片写文件独立，不依赖暂停中的 Boss；主控唯一执行。本轮沿用既有批次宿主证据，不重启为新批次。
+**当前活跃WIP 1/2；暂停1；Ready 0。** Waterfall `c973505`、蟹 `6a6d431` 均已集成到 `dd46174`，交叉回归双版蟹5＋Waterfall7 PASS。族母随从`3008bf6`已合入`4df655b`，集成双版Underdocks各7 PASS；Mystic`6aa65b4`已合入`7b08841`、集成双版各6 PASS；宝箱正式输入片已集成，Knowledge Tender真实owner选择屏已集成；Queen重燃已集成，Queen完整fresh已集成，拉正式四组合布局。两片写文件独立，不依赖暂停中的 Boss；主控唯一执行。本轮沿用既有批次宿主证据，不重启为新批次。
 
 ## 拉取入口
 
-当前推进荣耀全部普通/精英正式四组合布局和知识恶魔选择计数/非终局奖励fresh恢复；Mystic模型/三动作、族母、蟹与Waterfall自然致死已集成，不重复派发这些既有行为。其他候选按依赖、验收价值及文件所有权准备。
+当前推进荣耀全部普通/精英正式四组合布局；Knowledge选择计数/非终局奖励fresh已集成，空槽准备SoulFysh左右随从。Mystic模型/三动作、族母、蟹与Waterfall自然致死不重复派发；其他候选按依赖、验收价值及文件所有权准备。
 
 跨票验收盘点可由主控一次完成，用于发现#82/#83可收口项；不要把“盘点全部历史”作为后续每片的共同前置。详细操作见[批次流程](agents/batch-flow.md)。
 
@@ -17,13 +17,13 @@
 |卡片/issue|行为|状态|owner / worktree|依赖与热点|下一动作/证据|开始时间|
 |---|---|---|---|---|---|---|
 |C86-glory-layout / #86|全部12普通含新增Mystic及3精英原生scene→1/4角色×紧凑/宽屏，真实HP/意图含数字可读/独立target与原生鼠标/左右导航|Doing|prepare_crabs / `glory-layout-20261114`，基`f55305f`|独占新GloryLayout测试；Hello主控；已证red后授权窄改JigsawHuntingCombat.Postfix共享追加布局，原怪marker不擅动；复用Queen已审真实host/数字包络|两版编译0error；beta entry1首AxebotsNormal真实red：新增Mystic hitbox交原Axebot22×250、HP交目标框28×19logical；public未执行，作者据实窄修，日志实施树.local/executor-glory-layout/entry1-beta-host.log；最小`Jigsaw Glory native layout`2case；不得用临时marker/factory或抽样替代15原生场景；其他意图/真实端仍#86|2026-11-14 03:36 +08:00|
-|C85-knowledge-fresh / #85|原Hive Knowledge Boss第一轮真实选择/私有计数与战斗扰动后保存→新大厅完整战前/第一对与counter0；真胜利非终局奖励第二fresh|Doing|docs_standards / `knowledge-fresh-20261114`，基`2c44d4b`|独占新KnowledgeRecovery测试；Hello主控；生产/共享checkpoint只读，真缺陷先报；原SetBossEncounter只在source设场景，恢复不设|已核KnowledgeDemon私有`_curseOfKnowledgeCounter`、原ActTwo/Forest/Queen入口；最小`Jigsaw Knowledge fresh`双版各1起，ActTwo8相关；owner UI/多人时序/首普通房仍#85后续|2026-11-14 03:49 +08:00|
 
 ## 候选池：尚不能派发实施
 
 |候选/issue|具体缺口与建议切片|准备前需核清|证据入口|
 |---|---|---|---|
 |C82-rest-native / #82|真实原生modifier/遗物入口组合保禁用条件、追加项/加成/额外次数；无合法项正式退出另核真实来源|#82未指定禁Heal遗物，旧候选前提过窄；禁Smith单独仍留Heal，不能代签无合法项。现RestExit手删Heal/Mend及手加额外Heal仅故障模拟；两版现有源码尚未找到真实无合法项来源，CoffeeDripper空cache不可用|[82审查](issue82-review.md)、`JigsawHuntingServices.RestChoicesRemain/JigsawHuntingRestExit`，2026-11-14只读候选复核|
+|C84-soulfysh / #84|受罚顶层SoulFyshBoss原生开场→左Toadpole/右SludgeSpinner各Minion1，保原怪/HP/动作，Boss死亡自然清随从，正式布局可选|主控已补双版四类型并核beta113；无scene原列表左右布局；待现片流出后从最新集成建独立树，独占Underdocks接缝/新测试，Hello主控；完整fresh另列后续|`.local/hunting-rules-current.md`暗港、双版API与原Minion/Kill消费者；与Glory共享Combat文件不争写|
 |C88-evidence / #88|现有矩阵逐项归属，只补实际缺口|各玩法的恢复/UI仍由原issue承担，#88做组合交付|[覆盖地图](issues-82-88-verification-map.md)、[兼容记录](issue88-compatibility-implementation.md)|
 
 ## 暂停与等待
@@ -39,6 +39,7 @@
 
 |issue/切片|源码提交|已证范围|剩余边界/证据|
 |---|---|---|---|
+|#85 Knowledge计数/非终局奖励fresh|`5b88af8`，合入`2e61481`|原首选Calamity/counter1/SLAP保存→新大厅完整原开场counter0/首对；自然胜利第二fresh金币100/卡领取、重复拒绝/原Proceed|双轴0发现、hook patch一致；实施及集成fresh双版各1/ActTwo各8四诊断0无RID；[恢复增量](issue85-hunting-implementation.md#knowledge-选择计数与非终局奖励-fresh2026-11-14)，单owner同进程，本次无药水roll，普通Hive/多owner/UI未代签|
 |#84 密林首普通完整fresh|`c7dbd18`，合入`2c44d4b`|首真实受罚Overgrowth普通session.Enter，完整开场五堆/RNG/根房同点，真BITE/GROW source counter1→新大厅counter0；末敌孢子Vulnerable2→原清理/回血6→真胜利第二fresh非空领奖/Proceed|双轴0发现、hook patch一致；专项双版各1及相关各6全0，集成双版fresh各1四诊断0无RID；[恢复增量](issue84-overgrowth-implementation.md#密林首普通完整战前与胜利奖励-fresh2026-11-14)，单owner同进程，其他敌人/布局/真实端待|
 |#87 Queen正式四组合布局|`372c488`，合入`f55305f`|真Kill/重燃两Torch，原Queen/聚合体保留，1/4角色×1280/1680宽720；真实HP/意图图标及10伤文本含溢出描边不交不出屏，精确鼠标target与含players全环左右导航|实证两Torch HP交叠70.2logical后仅左marker1150→1050，血条间距19.8；双轴/数值增量0阻塞、hook patch一致，默认导出集成双版Queen各9四诊断0无RID；[布局增量](issue87-boss-implementation.md#queen-正式布局与原生输入2026-11-14)，非全部意图/实体设备/真实端|
 |#86 Mystic完整fresh|`9e52b1c`，合入`fa41442`|首原生普通受罚遭遇，独立完整开场/五堆/能量/Block/powers/RNG，实战CAST→HEAL→BUFF扰动后新大厅回CAST；真胜利非空奖励第二fresh领取/重复拒绝/原Proceed|双轴无阻塞、profile内存独立克隆还原补齐，正常hook patch一致；实施profile-final及集成双版各7四诊断0无RID；[恢复增量](issue86-hunting-implementation.md#mystic-完整战前与非空胜利奖励-fresh2026-11-14)，单owner同进程，不代签12场景布局/真实多端|
