@@ -4,15 +4,19 @@
 
 ## 后续实施增量（均未作为整票交付）
 
-最新源码集成 `31e849a`，目标public0.107.1/beta0.113.0/RitsuLib0.6.11，匹配public资源及辅助依赖已齐。商店场景、Phrog右侧布局、Hive精英Weak2、MultiClaw9/10及原生3+N、public启动Task观察修复、Waterfall清负面与Artifact1、Hive事件普通三项各1、Holes单owner战前/奖励恢复、Wither强化链及Holes三端战前/胜利奖励恢复均已独立双轴审查并正常集成；准确提交、专项数量和边界见[实施索引](issues-82-88-implementation.md#当前接续状态2026-11-13)。
+最新源码集成 `1956c17`，目标public0.107.1/beta0.113.0/RitsuLib0.6.11，匹配public资源及辅助依赖已齐。商店场景、Phrog右侧布局、Hive精英Weak2、MultiClaw9/10及原生3+N、public启动Task观察修复、Waterfall清负面与Artifact1、Hive事件普通三项各1、Holes单owner战前/奖励恢复、Wither强化链及Holes三端战前/胜利奖励恢复均已独立双轴审查并正常集成；准确提交、专项数量和边界见[实施索引](issues-82-88-implementation.md#当前接续状态2026-11-13)。
+
+Holes完成片 `1956c17` 补全已领／Proceed后全员真实 `NMapScreen.Open(false)` 认证→原生host SaveRun→第三轮全新三端 LoadRunLobby 自然 MapRoom。父事件完成与根完成保存分开：无退出／仅两端退出不提升，全员完成才投影保存副本，重复保存根只计一次且live投票根保留。expected按阶段及端点/profile归属核对完整Players／RNG／history／Page／Point／Map；固定host名单 `[1,3,2]` 覆盖保存副本顺序。实施树双版event-各4 PASS、宝箱共用恢复各1 PASS，四诊断均0，日志 Holes 树 `.local/executor-holes-completed/ordered-event-final-{public,public-beta}-host.log`、`treasure-final-{public,public-beta}-host.log`。独立双轴无阻塞，正常hooks差异无漂移。裸地图节点调用真实入口、显式native保存并隔离IO；正式输入／自动UI保存／部分领取恢复未证，详见[Holes完成片](issue85-hunting-implementation.md#holes-全员退出后的完成点保存2026-11-13)。
+
+集成树同源码 `1956c17` 串行复验双版 `event-` 各4 PASS，Build／Host／Engine／Metadata全0；实际日志 `.local/executor-holes-completed/integrated-event-{public,public-beta}-host.log`。完成点目录 public `b6ef480e-09d6-40b9-9bd3-49e09c0e05ec`、beta `dc22b61a-bfbc-4f44-966f-5f206f7dfda2`，各三轮九份.err为空、第三轮三端均 MapRoom／opening=0／rewards=0。
 
 Holes三端新增证据为真实ENet三进程投票/最后owner任务屏障/完整保存，再启动全新三进程经LoadRunLobby恢复；完整玩家、所有相关RNG、敌人、有限锁定父页、检查点、根房及history均比较，开场一次且旧动作inert。预期区分pre-opening checkpoint与首次原生discovery同步，并采用入房前独立完整验证的新大厅roster顺序。集成树同e088feb双版各event-combat-lag+event-holes-lag共4 PASS，Build/Host/Engine/Metadata全0，日志 `.local/executor-holes-integrated/event-pair-final-{public,public-beta}-host.log`。这是自动化宿主独立端进程证据；新增奖励片与Boss限定复现见下段。正式客户端/输入与最终全量Check/双版包仍未证。
 
-Holes三端奖励片 `31e849a` 复用真实投票/最后owner任务，自动胜利保存后观察完整原生奖励，再从host保存点启动三个新PID恢复；完整source→fresh玩家、run/owner RNG、父页、Point/Page、地图、history、奖励身份比较。领取前预测每端本地药水首次发现记录；实际金币/奖励牌身份升级/药水、重复领取拒绝及Proceed后的完整允许变换均验证。实施树双版event-组合各3 PASS，四诊断均0，日志 Holes 树 `.local/executor-holes-reward/event-final-{public,public-beta}-host.log`。两轴独立审查0发现、正常hooks差异无漂移；不声称部分已领取存档可恢复，或多端完成点第三轮fresh已验证。
+Holes三端奖励片 `31e849a` 复用真实投票/最后owner任务，自动胜利保存后观察完整原生奖励，再从host保存点启动三个新PID恢复；完整source→fresh玩家、run/owner RNG、父页、Point/Page、地图、history、奖励身份比较。领取前预测每端本地药水首次发现记录；实际金币/奖励牌身份升级/药水、重复领取拒绝及Proceed后的完整允许变换均验证。实施树双版event-组合各3 PASS，四诊断均0，日志 Holes 树 `.local/executor-holes-reward/event-final-{public,public-beta}-host.log`。两轴独立审查0发现、正常hooks差异无漂移；不声称部分已领取存档可恢复；当时未覆盖的多端完成点第三轮fresh见上方 Holes 完成片。
 
 集成树同 `31e849a` 串行复验相同 `event-` 组合，public / beta 各3 PASS，Build/Host/Engine/Metadata全0；最终日志 `.local/executor-holes-reward/integrated-event-{public,public-beta}-host.log`。奖励目录分别为public `5bda2fe6-1044-4435-8980-4c96945df0f1`、beta `2a588df1-0b24-44c0-9f1f-a54de92fe69a`，各三capture+三fresh、六.err为空。
 
-Boss本轮原六项保持原runner，三次新进程前两次6PASS、第三次第六第一段Phrog HP链同症状失败（本轮1/3，非稳定率）；当前间歇复现、根因未知、未修复。三次均0 warning/约1.2秒构建，未做JIT变量/探针/生产补丁。日志 Boss 树 `.local/executor-boss-warmed/reward-window-original-{1,2,3}-public-host.log`，有限预算到此停止。
+Boss本轮原六项保持原runner，三次新进程前两次6PASS、第三次第六第一段Phrog HP链同症状失败（本轮1/3，非稳定率）；当前间歇复现、根因未知、未修复。三次均0 warning/约1.2秒构建，未做JIT变量/探针/生产补丁。日志 Boss 树 `.local/executor-boss-warmed/reward-window-original-{1,2,3}-public-host.log`，原条件有限预算停止。后续低扰动内存观测仅跑三个原组六项新进程，各6 PASS且四诊断0，首Kill均8对Notify、当前tracker/combat/owner匹配、mode true→false→true；未捕获带探针原错，不作修复或JIT结论。日志同目录 `mode-probe-{1,2,3}-public-host.log`，临时probe已备份后精确撤回，预算未扩大。
 
 Holes在8869289同提交两版各Holes14+Checkpoint8+EventCombat4，共52 PASS，Build/Host/Metadata均0；Holes每版1条预期ownership拒绝Engine诊断，其余四跑Engine0。新增7例贯穿真实AM_FIGHT、完整玩家/run+event+monster RNG与初始敌人恢复、实际奖励身份/领取/Proceed、完成点重载、重复两次回退、安全扣0与非法组合；原生pending集合延迟完成效果进入保存点，换成同entry新map则拒绝旧任务且不写状态。奖励用例显式调用CompleteCurrentRoom模拟宿主缺失的地图UI退出，不代签正式界面。此历史组合未涵盖多owner；最新三端战前及奖励证据见上段，其余适用恢复仍属#85后续、不转#88；当前全量与最终包仍未重跑。
 

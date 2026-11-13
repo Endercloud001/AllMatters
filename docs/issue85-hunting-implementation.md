@@ -128,4 +128,28 @@ Tender 图为用户提供的1,529,010字节原件 `tender.png`，按 #63 设计�
 
 集成树同 `31e849a` 串行复验相同 `event-` 组合，public / beta 各3 PASS，Build/Host/Engine/Metadata全0；最终日志 `.local/executor-holes-reward/integrated-event-{public,public-beta}-host.log`。奖励目录分别为public `5bda2fe6-1044-4435-8980-4c96945df0f1`、beta `2a588df1-0b24-44c0-9f1f-a54de92fe69a`，各三capture+三fresh、六.err为空。
 
-本轮两次行为返工分别揭示夹具遗漏原生访问坐标（旧战前专用加载前缀曾掩盖）和领取后的本端药水发现规则；另一次末尾断言变量重名仅是编译失败，未算宿主red。详细等待/实验记主仓controller-state，不新增流程系统。多端完成点第三轮fresh、连续独立事件战、正式布局/输入/真实客户端、全量Check与最终同提交包仍待，#85未整票完成。
+本轮两次行为返工分别揭示夹具遗漏原生访问坐标（旧战前专用加载前缀曾掩盖）和领取后的本端药水发现规则；另一次末尾断言变量重名仅是编译失败，未算宿主red。详细等待/实验记主仓controller-state，不新增流程系统。该奖励切片当时未包括完成点第三轮 fresh；其新增证据见下节。连续独立事件战、正式布局/输入/真实客户端、全量Check与最终同提交包仍待，#85未整票完成。
+
+
+## Holes 全员退出后的完成点保存（2026-11-13）
+
+父事件结束没有使多人根房成为持久化完成点。真实 `NMapScreen.Open(false)` 经生产补丁提交本端 owner 的 `CompleteRoom` managed action；所有端完成认证后，live 根仍保留给下一目的地投票，旧保存也因此保留根节点。首 public 窄例实际在 host canonical 保存比较失败：只有 Map 与 Point.Map 各自的 CurrentNode、RootHunted、Completed 三字段未提升，其余完整玩家、RNG、history、Page 一致。
+
+本增量仅对受罚 Holes 专用 AM_FIGHT 结束页补保存副本投影：当前会话、单层匹配父房、最后历史为 HolesEncounter、无战前 EventCombat、所有在局 owner 的真实退出认证和原生必要流程均完成，才复用已有宝箱的 copy-map／CaptureDocument／finally 恢复 live slot 路径。live 根、完成认证与下一目的地投票不被提前清除；未退出或仅两人退出时不提升，重复保存也只追加一次根完成，不增加探索步数。
+
+|阶段|expected 来源|端点与 profile 归属|
+|---|---|---|
+|领取及 Proceed 后|上一阶段完整 expected，只应用已证父页完成／ClearFight 规则|每端各自保留领取前预测的发现数组；不能互换客户端 profile|
+|未退出／两端退出的 host 保存|操作前完整状态；正常 ToSave 先以已独立核验的 live map 刷新 Point.Map|只有 host 保存并刷新 live slot；客户端仍保留旧 Point.Map 名单顺序|
+|全员退出的完成保存|操作前完整 map 仅追加 root 到 Completed、清 CurrentNode／RootHunted，同时应用于 Point.Map|实际 host canonical save；完整 Players 含 host 视角的有序发现数组|
+|第三轮全新大厅及入房|已独立验证的 host 完成保存；live Map.Players 仅采用 Listener 入房前独立完整核验的当前 roster|三个新进程均恢复同一个 host 文档，不继承第二轮各客户端的本地发现；Point.Map 保持保存归属|
+
+测试复用真实胜利保存→新三端领取／Proceed，再由各端调用一次真实 `Open(false)`；宿主只提供裸 NMapScreen，未派发正式事件按钮或设备输入。根仍在 live 房内，OnEdited 不自动保存；测试显式调用原生 SaveManager.SaveRun(null)，仅替代已有隔离 IO，不声称自动 UI 保存。四次 host 实际保存覆盖无退出、两端退出、全员退出、重复完成；每次 canonical 的 Players／全部 run RNG／history／Page／Point／Map 完整比较，并核 live 状态只发生正常 Point.Map 刷新。
+
+源码提交 `1956c17`，四文件226+/27-。固定异序名单后的窄例双版各1 PASS，最终 `event-` 相邻组合双版各4 PASS，Build／Host／Engine／Metadata 均0；日志 Holes 树 `.local/executor-holes-completed/ordered-budget-{public,public-beta}-host.log`、`ordered-event-final-{public,public-beta}-host.log`。最终组合完成点目录 public `02248181-7be4-4904-85e4-91461936f65a`、beta `9bb508e1-7242-40b8-b43f-f89bed9ab8c3`，每例三轮九个端点.err均空，第三轮三条 HOLES_COMPLETED_ENET 均为 MapRoom／opening=0／rewards=0。完整已领库存、host 发现数组、RNG、history、清理后 Page 与已完成根保留。共用宝箱路径 `treasure-hunting absent` 双版各1 PASS、四诊断0，日志同目录 `treasure-final-{public,public-beta}-host.log`。
+
+返工保留两处真实差异：no-exit oracle 必须包含正常 ToSave 对 host Point.Map 的 live roster 刷新；Holes 保存副本 Restore 必须显式传入 ActivePlayers，避免默认 OriginalPlayers 重建使有序名单改变。新例每轮真实先连3、核host大厅后再连2，固定host `[1,3,2]`；客户端按各自独立核验的正常名单比较，不排序或删字段。固定异序首轮在第三轮启动遇总case60秒watchdog；仅该精确用例改180秒，每轮50秒及其他用例预算保持。
+
+独立 Standards 无硬违规，阶段分派分散为非阻塞维护建议；Spec 无阻塞，host roster、保存副本名单及watchdog增量均分别复审0新增发现。正常预hook及commit hook成功，283个tracked C#字节未变，提交diff与已审patch一致。本片未验证部分领取恢复或正式客户端输入，#85仍部分完成。
+
+集成树同源码 `1956c17` 串行复验双版 `event-` 各4 PASS，Build／Host／Engine／Metadata全0；实际日志 `.local/executor-holes-completed/integrated-event-{public,public-beta}-host.log`。完成点目录 public `b6ef480e-09d6-40b9-9bd3-49e09c0e05ec`、beta `dc22b61a-bfbc-4f44-966f-5f206f7dfda2`，各三轮九份.err为空、第三轮三端均 MapRoom／opening=0／rewards=0。
