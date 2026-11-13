@@ -1,6 +1,6 @@
 # #85 巢穴追猎实施记录（部分实现）
 
-更新：2026-11-13。本文记录 #85 已完成的首六个开发切片及其自动验证范围，供后续集成、实施和验收参考。#85 尚未完成；本记录不代表正式游戏、多人、界面或整场恢复验收通过。
+更新：2026-11-13。本文记录 #85 已完成开发切片及其自动验证范围，供后续集成、实施和验收参考。#85 尚未完成；本记录不代表正式游戏、完整界面或整票恢复验收通过。自动化三端范围见文末 Holes 增量。
 
 ## 本次可集成范围
 
@@ -106,3 +106,11 @@ Tender 图为用户提供的1,529,010字节原件 `tender.png`，按 #63 设计�
 正式Standards与Spec初审各有1条非阻塞建议，复用现父页快照并补完整monster RNG敏感性后，双方增量复审均0发现。正常hooks仅对两生产文件排版，四文件1184+/9-。合入后同8869289两版各Holes14+Checkpoint8+EventCombat4，共52 PASS，Build/Host/Metadata均0；Holes每版1条Engine为预期旧请求拒绝，余四跑Engine0。日志兼容树 `.local/executor-holes-integrated/holes-integrated-{holes,checkpoint,eventcombat}-{public,public-beta}-host.log`；原红绿与六次完整monster RNG专项保留在Holes工作树 `.local/executor-holes-checkpoint/`。
 
 范围仍限单owner。真实多owner/三进程恢复紧接本票后续，不转#88；奖励用例显式CompleteCurrentRoom只模拟宿主缺地图UI退出的边界，不能代签正式UI全链。连续独立事件战、正式布局/输入、真实客户端、完整项目Check与同提交最终包仍未完成。
+
+## Holes 三端战前保存与全新三端恢复（2026-11-13）
+
+`f9ccd3c` / `e088feb` 只增加 `JigsawHuntingHolesMultiownerTests.cs` 并扩展既有 `JigsawRecoveryNetworkTests.cs` 分派。真实ENet三端先验证单票/混合票不执行，再一致投票登记三个真实Chosen任务，owner3延迟时无半份战前点或子房；其gold、owner event RNG和run RNG最终效果全部完成后捕获完整保存。随后结束原进程，启动三个新PID，经真实LoadRunLobby从host存档恢复父子房、完整玩家、run/owner/monster RNG、敌人开场、有限锁定父页、检查点、地图根房及history；一次开场、不二扣，实际调用旧锁定动作仍不改变完整状态。
+
+两处oracle按原生阶段修正并各自保留完整比较：checkpoint在原生NativeEnter之前；首次入房的SyncPlayerDataMessage会在其后合并远端discovery，而fresh房栈直接重建。恢复Players expected取最后owner完成时的独立完整采样，并分别核对Before和真实canonical save；首次开场只允许已证的远端Mask discovery变化，其余完整玩家字段不变。新大厅active roster取当前原生大厅，使用LoadListener入房前独立完整验证的RestoredMap.Players；不排序数组、删字段或以恢复actual生成expected。三端面具实体均保留，临时诊断probe已移除。
+
+初版及roster增量分别独立Standards/Spec审查，均0剩余发现；正常hooks后提交内容与已审diff一致。集成树同`e088feb`运行 `./tools/Test.ps1 -Branch <target> -Filter 'Jigsaw recovery native load lobby event-' -SkipResourceExport`，public v0.107.1及beta v0.113.0各2 PASS，覆盖原event-combat-lag与新增event-holes-lag，Build/Host/Engine/Metadata全0；日志 `.local/executor-holes-integrated/event-pair-final-{public,public-beta}-host.log`。这是自动化真实独立端进程；三端胜利奖励保存/领取/fresh reload、连续独立事件战、正式布局/输入及真实客户端仍由#85后续承担，当前未重跑完整Check或最终同提交双版包。

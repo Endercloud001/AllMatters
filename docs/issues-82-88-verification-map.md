@@ -4,9 +4,11 @@
 
 ## 后续实施增量（均未作为整票交付）
 
-最新集成 `8869289`，目标public0.107.1/beta0.113.0/RitsuLib0.6.11，匹配public资源及辅助依赖已齐。商店场景、Phrog右侧布局、Hive精英Weak2、MultiClaw9/10及原生3+N、public启动Task观察修复、Waterfall清负面与Artifact1、Hive事件普通三项各1、Holes单owner战前/奖励恢复均已独立双轴审查并正常集成；准确提交、专项数量和边界见[实施索引](issues-82-88-implementation.md#当前接续状态2026-11-13)。
+最新源码集成 `e088feb`，目标public0.107.1/beta0.113.0/RitsuLib0.6.11，匹配public资源及辅助依赖已齐。商店场景、Phrog右侧布局、Hive精英Weak2、MultiClaw9/10及原生3+N、public启动Task观察修复、Waterfall清负面与Artifact1、Hive事件普通三项各1、Holes单owner战前/奖励恢复、Wither强化链及Holes三端战前恢复均已独立双轴审查并正常集成；准确提交、专项数量和边界见[实施索引](issues-82-88-implementation.md#当前接续状态2026-11-13)。
 
-Holes在8869289同提交两版各Holes14+Checkpoint8+EventCombat4，共52 PASS，Build/Host/Metadata均0；Holes每版1条预期ownership拒绝Engine诊断，其余四跑Engine0。新增7例贯穿真实AM_FIGHT、完整玩家/run+event+monster RNG与初始敌人恢复、实际奖励身份/领取/Proceed、完成点重载、重复两次回退、安全扣0与非法组合；原生pending集合延迟完成效果进入保存点，换成同entry新map则拒绝旧任务且不写状态。奖励用例显式调用CompleteCurrentRoom模拟宿主缺失的地图UI退出，不代签正式界面。真实多owner/三进程恢复仍属#85后续，不转#88；当前全量与最终包仍未重跑。
+Holes三端新增证据为真实ENet三进程投票/最后owner任务屏障/完整保存，再启动全新三进程经LoadRunLobby恢复；完整玩家、所有相关RNG、敌人、有限锁定父页、检查点、根房及history均比较，开场一次且旧动作inert。预期区分pre-opening checkpoint与首次原生discovery同步，并采用入房前独立完整验证的新大厅roster顺序。集成树同e088feb双版各event-combat-lag+event-holes-lag共4 PASS，Build/Host/Engine/Metadata全0，日志 `.local/executor-holes-integrated/event-pair-final-{public,public-beta}-host.log`。这是自动化宿主独立端进程证据；三端胜利奖励恢复、正式客户端/输入与最终全量Check/双版包仍未证。Boss旧原组HP异常与本轮原组六项green并存，根因未定，不能由局部green关闭该缺口。
+
+Holes在8869289同提交两版各Holes14+Checkpoint8+EventCombat4，共52 PASS，Build/Host/Metadata均0；Holes每版1条预期ownership拒绝Engine诊断，其余四跑Engine0。新增7例贯穿真实AM_FIGHT、完整玩家/run+event+monster RNG与初始敌人恢复、实际奖励身份/领取/Proceed、完成点重载、重复两次回退、安全扣0与非法组合；原生pending集合延迟完成效果进入保存点，换成同entry新map则拒绝旧任务且不写状态。奖励用例显式调用CompleteCurrentRoom模拟宿主缺失的地图UI退出，不代签正式界面。此历史组合未涵盖多owner；最新三端战前证据见上段，三端胜利奖励仍属#85后续、不转#88；当前全量与最终包仍未重跑。
 
 Waterfall在c469b9a受影响组合public19/beta18通过，实际是具名Boss；Hive在070a0ae同提交两版各Hive10+ActTwo8+EventCombat4，共44项通过，均Build/Host/Engine/Metadata0。真实AM_FIGHT选项、原生同Hook任务和完整下一回合已验证；public首次负面tick跳过与beta三条-1衰减均按原生保留。事件Elite/Boss普通增强的构造反例不代表自然事件池，1–4combat角色不代表真实多端。连续独立事件战、Waterfall首次致死自动Trigger及完整正式布局仍未证，仍由对应#84/#85后续片承担，不转嫁#88；Holes单owner恢复新增证据见上段。
 
