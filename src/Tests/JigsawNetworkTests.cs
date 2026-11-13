@@ -65,6 +65,21 @@ internal static class JigsawNetworkTests
     }
     private static void ObserveTake(ulong __0) { executed.Add(__0); Console.WriteLine("ENET CALLBACK sender="+__0); }
     internal const string Name="Jigsaw native ENet editor broadcast";
+    internal static async Task PublishWinnerEvidence(string source, string destination)
+    {
+        var clock = Stopwatch.StartNew();
+        while (true)
+        {
+            try { File.Move(source, destination); return; }
+            catch (IOException error) when ((error.HResult & 0xffff) is 32 or 33)
+            {
+                // Only a sharing/lock refusal can be transient. Preserve atomic
+                // publication and report the original IO error when it persists.
+                if (clock.Elapsed >= TimeSpan.FromMilliseconds(500)) throw;
+                await Task.Delay(20);
+            }
+        }
+    }
     public static async Task Run()
     {
         // Keep vanilla model-cache authentication independent of mutation by earlier tests.
@@ -208,7 +223,7 @@ internal static class JigsawNetworkTests
             if(session.Map!.Holdings.Count!=1)throw new Exception("Contending native actions must accept exactly one shared holding.");
             var winner=session.Map!.Holdings.Keys.Single();
             File.WriteAllText(Path.Combine(directory,role+".winner.tmp"),winner+":"+string.Join(",",executed));
-            File.Move(Path.Combine(directory,role+".winner.tmp"),Path.Combine(directory,role+".winner"));
+            await PublishWinnerEvidence(Path.Combine(directory,role+".winner.tmp"),Path.Combine(directory,role+".winner"));
             await Until(()=>new[]{"host","2","3"}.All(r=>File.Exists(Path.Combine(directory,r+".winner"))),"all callbacks");
             if(new[]{"host","2","3"}.Select(r=>File.ReadAllText(Path.Combine(directory,r+".winner"))).Distinct().Count()!=1)throw new Exception("Native peers disagree on shared piece owner.");
             Console.WriteLine($"ENET ACCEPTED role={role} sender={net.NetId} winner={winner} holdings={session.Map.Holdings.Count} callbacks={string.Join(",",executed)}");
