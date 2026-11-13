@@ -56,6 +56,14 @@ internal static class JigsawHuntingHolesMultiownerTests
         internal int OpeningCalls;
     }
     private static StartupObservation? observedStartup;
+    private static List<RewardsSet>? observedRewards;
+    private static void ObserveRewards(RewardsSet set) => observedRewards?.Add(set);
+    private static void WatchRewards(Harmony patch)
+    {
+        observedRewards = [];
+        patch.Patch(AccessTools.Method(typeof(RewardsSetSynchronizer), nameof(RewardsSetSynchronizer.BeginRewardsSet)),
+            prefix: new HarmonyMethod(typeof(JigsawHuntingHolesMultiownerTests), nameof(ObserveRewards)));
+    }
 
     private sealed class PendingEntryObservation(EventOption option)
     {
@@ -163,9 +171,10 @@ internal static class JigsawHuntingHolesMultiownerTests
             if (ReferenceEquals(combat.RunState, RunManager.Instance.DebugOnlyGetState()) && combat.CurrentSide == CombatSide.Player)
                 ReadyRound = combat.RoundNumber;
         }
-        internal ReloadObservation()
+        internal ReloadObservation(bool rewards = false)
         {
             observedStartup = state;
+            if (rewards) WatchRewards(patch);
             var start = AccessTools.Method(typeof(CombatManager), "StartCombatInternal");
             patch.Patch(AccessTools.Method(start.GetCustomAttribute<AsyncStateMachineAttribute>()!.StateMachineType, "MoveNext"),
                 transpiler: new HarmonyMethod(typeof(JigsawHuntingHolesMultiownerTests), nameof(ObserveOpening)));
@@ -193,6 +202,7 @@ internal static class JigsawHuntingHolesMultiownerTests
             try { await AwaitStopped(state); } catch (Exception error) { failures.Add(error); }
             Cleanup(() => CombatManager.Instance.TurnStarted -= PlayerTurnReady);
             observedStartup = null;
+            observedRewards = null;
             Cleanup(() => host.Patch(AccessTools.PropertyGetter(typeof(CombatManager), nameof(CombatManager.IsInProgress)),
                 prefix: new HarmonyMethod(typeof(HeadlessCombatInProgress), "Prefix")));
             Cleanup(() => host.Patch(AccessTools.PropertyGetter(typeof(CombatManager), nameof(CombatManager.IsEnding)),
@@ -202,14 +212,15 @@ internal static class JigsawHuntingHolesMultiownerTests
         }
     }
 
-    internal static async Task NetworkOwners(RunState run, RunSaveManager saves, bool reloaded, ReloadObservation? reload, string restoredMap,
+    internal static async Task NetworkOwners(RunState run, RunSaveManager saves, bool reloaded, ReloadObservation? reload, bool rewards, string restoredMap,
         string directory, string role, Func<Func<bool>, string, Task> until,
         Action<string> signal, Func<string, string, bool> signaled)
     {
         if (reloaded)
         {
             if (reload == null) throw new InvalidOperationException("Fresh Holes load requires its pre-setup native opening observer.");
-            await RestoredOwners(run, reload, restoredMap, directory, role, until, signal, signaled);
+            if (rewards) await RestoredRewards(run, reload, restoredMap, directory, role, until, signal, signaled);
+            else await RestoredOwners(run, reload, restoredMap, directory, role, until, signal, signaled);
             return;
         }
         var manager = RunManager.Instance;
@@ -247,6 +258,7 @@ internal static class JigsawHuntingHolesMultiownerTests
                 AccessTools.Method(typeof(SaveManager), nameof(SaveManager.UpdateProgressAfterCombatWon)) })
                 patch.Patch(method, prefix: new HarmonyMethod(typeof(JigsawHuntingHolesMultiownerTests), nameof(SkipProfile)));
             observedStartup = observation;
+            if (rewards) WatchRewards(patch);
             combatManager.TurnStarted += PlayerTurnReady;
             Check(run.Players.Select(player => player.NetId).Order().SequenceEqual(new ulong[] { 1, 2, 3 }) &&
                 JigsawNativeSession.Current!.Map!.ActivePlayers.Order().SequenceEqual(new ulong[] { 1, 2, 3 }) &&
@@ -260,6 +272,10 @@ internal static class JigsawHuntingHolesMultiownerTests
             }
             var parent = ModelDb.Event<FieldOfManSizedHoles>();
             run.AppendToMapPointHistory(MapPointType.Unknown, RoomType.Event, parent.Id);
+            // The native prefinished reward loader re-enters the last visited
+            // coordinate. Match the existing single-owner Holes fixture before
+            // entering the source event; battle rollback has its own load seam.
+            if (rewards) run.AddVisitedMapCoord(run.Map.StartingMapPoint.coord);
             Check(run.MapPointHistory.Sum(points => points.Count) == 1,
                 "The live three-process fixture reaches the shared Holes roll on its actual first history floor.");
             JigsawCheckpoint.Capture(run, AcceptedRoot(run.Players.Select(owner => owner.NetId).ToArray()));
@@ -410,6 +426,11 @@ internal static class JigsawHuntingHolesMultiownerTests
             string liveMonsterRng = MonsterRngContents(child);
             string liveParents = ParentsContents(owners);
             string acceptedPoint = JsonSerializer.Serialize(point, CompleteStateJson);
+            if (rewards)
+            {
+                await CaptureRewards(run, saves, observation, directory, role, until, signal, signaled);
+                return;
+            }
             await JigsawNativeSaveHost.Save!(null);
             var saved = saves.LoadAndCanonicalizeMultiplayerRunSave(1);
             Check(saved.Success && saved.SaveData != null &&
@@ -488,6 +509,7 @@ internal static class JigsawHuntingHolesMultiownerTests
             catch (Exception error) { cleanupFailures.Add(error); }
             Cleanup("TurnStarted unsubscribe", () => combatManager.TurnStarted -= PlayerTurnReady);
             observedStartup = null;
+            observedRewards = null;
             if (hostTouched)
             {
                 Cleanup("IsInProgress host restore", () => host.Patch(AccessTools.PropertyGetter(typeof(CombatManager), nameof(CombatManager.IsInProgress)),
@@ -504,6 +526,296 @@ internal static class JigsawHuntingHolesMultiownerTests
         }
         if (cleanupFailures.Count > 0) throw new AggregateException("Holes multiowner cleanup failed.", cleanupFailures);
     }
+
+    private static async Task CaptureRewards(RunState run, RunSaveManager saves, StartupObservation observation,
+        string directory, string role, Func<Func<bool>, string, Task> until,
+        Action<string> signal, Func<string, string, bool> signaled)
+    {
+        string[] peers = ["host", "2", "3"];
+        var manager = RunManager.Instance;
+        var child = (CombatRoom)run.CurrentRoom!;
+        var owners = manager.EventSynchronizer.Events.OrderBy(model => model.Owner!.NetId).ToArray();
+        string mapBefore = JsonSerializer.Serialize(JigsawNativeSession.Current!.Map!.CreateSave(), CompleteStateJson);
+        foreach (var owner in run.Players)
+        {
+            await CreatureCmd.Damage(new ThrowingPlayerChoiceContext(), owner.Creature, 11, ValueProp.Unpowered,
+                child.CombatState.Enemies.First());
+            await PlayerCmd.GainGold(19 + (int)owner.NetId, owner);
+        }
+        run.Rng.Niche.NextInt(100);
+        foreach (var owner in owners) owner.Rng.NextInt(100);
+        signal("holes-victory-ready");
+        await until(() => peers.All(peer => signaled(peer, "holes-victory-ready")), "all replicas finish independent pre-victory effects");
+        string? postPlayers = null, postRng = null, postOwners = null, postMap = null;
+        JsonNode? postHistory = null;
+        var previousSave = JigsawNativeSaveHost.Save;
+        JigsawNativeSaveHost.Save = async room =>
+        {
+            if (ReferenceEquals(room, child) && child.IsPreFinished)
+            {
+                postPlayers = PlayersContents(run);
+                postRng = JsonSerializer.Serialize(run.Rng.ToSerializable(), CompleteStateJson);
+                postOwners = OwnersRngContents(owners);
+                postHistory = NativeHistory(run);
+                postMap = JsonSerializer.Serialize(JigsawNativeSession.Current!.Map!.CreateSave(), CompleteStateJson);
+            }
+            await previousSave!(room);
+        };
+        try
+        {
+            var kill = CreatureCmd.Kill(child.CombatState.Enemies.ToArray(), force: true);
+            await until(() => kill.IsCompleted, "actual enemy deaths finish while native transport is pumped");
+            await kill;
+            // Same native finalization seam as the single-owner reward fixture.
+            // No room/save flag is assigned by this test.
+            if (!child.IsPreFinished)
+            {
+                var finish = (Task)AccessTools.Method(typeof(CombatManager), "EndCombatInternal", Type.EmptyTypes)
+                    .Invoke(CombatManager.Instance, null)!;
+                await until(() => finish.IsCompleted, "the real native victory finalization and save complete");
+                await finish;
+            }
+        }
+        finally { JigsawNativeSaveHost.Save = previousSave; }
+        Check(postPlayers != null && postRng != null && postOwners != null && postMap == mapBefore &&
+            PlayersContents(run) == postPlayers && JsonSerializer.Serialize(run.Rng.ToSerializable(), CompleteStateJson) == postRng &&
+            OwnersRngContents(owners) == postOwners && JsonNode.DeepEquals(NativeHistory(run), postHistory),
+            "Independent sampling immediately before the native victory save remains unchanged after all native finalization work.");
+        var won = saves.LoadAndCanonicalizeMultiplayerRunSave(1);
+        Check(won.Success && won.SaveData?.PreFinishedRoom is
+            { IsPreFinished: true, ShouldResumeParentEvent: true, ParentEventId: var parentId } &&
+            parentId == child.ParentEventId && child.IsPreFinished &&
+            JigsawCheckpoint.Slot.TryGet(run, out var point) && point.EventCombat == null &&
+            JsonSerializer.Serialize(won.SaveData.Players.ToArray(), CompleteStateJson) == postPlayers &&
+            JsonSerializer.Serialize(won.SaveData.SerializableRng, CompleteStateJson) == postRng &&
+            PageOwnersContents(run) == postOwners &&
+            JsonSerializer.Serialize(JigsawNativeSession.Current!.Map!.CreateSave(), CompleteStateJson) == mapBefore,
+            "Native three-owner victory saves the full independently sampled postbattle players, run RNG and all owner RNG before any reward generation, clears rollback and preserves the accepted root.");
+        Check(observedRewards is { Count: 0 }, "The actual victory save precedes every native room-end reward offer.");
+        string payload = JigsawSaveSource.Serialize(won.SaveData!);
+        await child.OfferRoomEndRewards();
+        await until(() => observedRewards is { Count: 3 } && observedRewards.All(set => set.Rewards.All(reward => reward.IsPopulated)),
+            "the original room generates and offers one complete native reward set for each actual owner");
+        var sets = observedRewards!.OrderBy(set => set.Player.NetId).ToArray();
+        CheckRewardSets(sets);
+        Check(sets.All(set => !manager.RewardsSetSynchronizer.IsRewardsSetCompleted(set) &&
+            set.Rewards.All(reward => !reward.SuccessfullySelected)), "All three original owners remain genuinely unclaimed at the saved reward boundary.");
+        var state = RewardState(run, child);
+        // Fresh parent reconstruction retains the accepted finite page, rather
+        // than the former session's chosen initial option instances.
+        var expected = state.DeepClone();
+        expected["Parents"] = ExpectedLockedParents(owners);
+        expected["History"] = NativeHistory(run);
+        var rewards = RewardContents(sets);
+        File.WriteAllText(Path.Combine(directory, role + ".holes-reward-source.json"), state.ToJsonString(CompleteStateJson));
+        File.WriteAllText(Path.Combine(directory, role + ".holes-reward-contents.json"), rewards.ToJsonString(CompleteStateJson));
+        File.WriteAllText(Path.Combine(directory, role + ".holes-process"), Environment.ProcessId.ToString());
+        signal("holes-reward-sampled");
+        await until(() => peers.All(peer => signaled(peer, "holes-reward-sampled")), "all original endpoints independently sample the generated reward state");
+        foreach (string peer in peers)
+        {
+            Check(JsonNode.DeepEquals(state, JsonNode.Parse(File.ReadAllText(Path.Combine(directory, peer + ".holes-reward-source.json")))) &&
+                JsonNode.DeepEquals(rewards, JsonNode.Parse(File.ReadAllText(Path.Combine(directory, peer + ".holes-reward-contents.json")))),
+                "All three original endpoints agree on the entire generated state and complete owner-specific reward contents.");
+        }
+        if (role == "host")
+        {
+            File.WriteAllText(Path.Combine(directory, "combat-checkpoint.json"), payload);
+            File.WriteAllText(Path.Combine(directory, "event-opening.json"), JsonSerializer.Serialize(new
+            {
+                State = expected, Rewards = rewards,
+                SourceProcesses = peers.ToDictionary(peer => peer,
+                    peer => int.Parse(File.ReadAllText(Path.Combine(directory, peer + ".holes-process"))))
+            }, CompleteStateJson));
+        }
+        // Release real source stacks only after capture; skip cannot pay gold,
+        // cards or potions and is not persisted over the earlier victory point.
+        manager.RewardsSetSynchronizer.SkipLocalRewardsSet();
+        await until(() => sets.All(set => manager.RewardsSetSynchronizer.IsRewardsSetCompleted(set)), "all source owners synchronize their cleanup skips");
+        Check(PlayersContents(run) == state["Players"]!.ToJsonString(CompleteStateJson) &&
+            sets.All(set => set.Rewards.All(reward => !reward.SuccessfullySelected)), "Original source cleanup pays none of the saved rewards.");
+        Console.WriteLine($"HOLES_REWARD_ENET role={role} original=3 active=3 save=before-generation capture=complete");
+        signal("holes-reward-capture-complete");
+        await until(() => peers.All(peer => signaled(peer, "holes-reward-capture-complete")), "all source endpoints finish reward capture before cleanup");
+    }
+
+    private static async Task RestoredRewards(RunState run, ReloadObservation observation, string restoredMap,
+        string directory, string role, Func<Func<bool>, string, Task> until,
+        Action<string> signal, Func<string, string, bool> signaled)
+    {
+        string[] peers = ["host", "2", "3"];
+        var manager = RunManager.Instance;
+        var expected = JsonNode.Parse(File.ReadAllText(Path.Combine(directory, "event-opening.json")))!;
+        expected["State"]!["Map"]!["Players"] = JsonNode.Parse(restoredMap)!["Players"]!.DeepClone();
+        File.WriteAllText(Path.Combine(directory, role + ".holes-reward-entry.json"), JsonSerializer.Serialize(new
+        {
+            Process = Environment.ProcessId, SourceProcess = expected["SourceProcesses"]![role],
+            run.CurrentRoomCount, Current = run.CurrentRoom?.GetType().FullName, Base = run.BaseRoom?.GetType().FullName,
+            BaseEvent = (run.BaseRoom as EventRoom)?.CanonicalEvent.GetType().FullName,
+            CurrentRoom = run.CurrentRoom is CombatRoom entryRoom ? entryRoom.ToSerializable() : null,
+            observation.OpeningCalls, Rewards = observedRewards?.Count,
+            State = run.CurrentRoom is CombatRoom entryChild ? RewardState(run, entryChild) : null
+        }, CompleteStateJson));
+        Check(expected["SourceProcesses"]![role]!.GetValue<int>() != Environment.ProcessId &&
+            run.CurrentRoomCount == 2 && run.BaseRoom is EventRoom { CanonicalEvent: FieldOfManSizedHoles } parent &&
+            run.CurrentRoom is CombatRoom { Encounter: HolesEncounter, IsPreFinished: true, ShouldResumeParentEventAfterCombat: true } room &&
+            room.ParentEventId == parent.CanonicalEvent.Id && observation.OpeningCalls == 0,
+            "Each fresh process loads the actual native prefinished reward child and its matching Holes parent without a combat opening.");
+        var child = (CombatRoom)run.CurrentRoom!;
+        await until(() => observedRewards is { Count: 3 } && observedRewards.All(set => set.Rewards.All(reward => reward.IsPopulated)),
+            "fresh native room loading regenerates every owner's complete reward set");
+        var sets = observedRewards!.OrderBy(set => set.Player.NetId).ToArray();
+        CheckRewardSets(sets);
+        var actual = RewardState(run, child);
+        File.WriteAllText(Path.Combine(directory, role + ".holes-reward-restore-actual.json"), actual.ToJsonString(CompleteStateJson));
+        File.WriteAllText(Path.Combine(directory, role + ".holes-reward-restore-expected.json"), expected["State"]!.ToJsonString(CompleteStateJson));
+        Check(JsonNode.DeepEquals(actual, expected["State"]) && JsonNode.DeepEquals(RewardContents(sets), expected["Rewards"]),
+            "Fresh reward generation exactly matches independently sampled original full players, all RNG, parents, point/page, map, history, room and every gold/card/potion reward.");
+        Check(sets.All(set => !manager.RewardsSetSynchronizer.IsRewardsSetCompleted(set) && set.Rewards.All(reward => !reward.SuccessfullySelected)) &&
+            manager.EventSynchronizer.Events.All(model => !model.IsFinished && model.CurrentOptions.All(option => option.IsLocked)),
+            "No saved reward is preclaimed and all three accepted parents stay unfinished and locked until actual Proceed.");
+        var baselines = sets.ToDictionary(set => set.Player.NetId, set => new
+        {
+            set.Player.Gold, Deck = set.Player.Deck.Cards.Select(card => card.ToSerializable()).ToArray(),
+            Potions = set.Player.PotionSlots.Where(potion => potion != null).Select(potion => potion!.Id).ToArray(),
+            GoldReward = set.Rewards.OfType<GoldReward>().Sum(reward => reward.Amount),
+            Cards = set.Rewards.OfType<CardReward>().Select(reward => new { reward.Cards.First().Id, reward.Cards.First().CurrentUpgradeLevel }).ToArray(),
+            PotionRewards = set.Rewards.OfType<PotionReward>().Select(reward => reward.Potion!.Id).ToArray()
+        });
+        using var selector = HeadlessNativeApi.UseSelector(new JigsawHuntingCombatTests.TakeCardReward());
+        ulong localId = role == "host" ? 1UL : ulong.Parse(role);
+        var local = sets.Single(set => set.Player.NetId == localId);
+        // Potion discovery is profile/local-owner state. Its ordered player
+        // append is predicted from the verified preclaim source document and
+        // the independent profile set before any endpoint is allowed to claim.
+        var discoveries = expected["State"]!["Players"]!.AsArray().Select(player => new
+        {
+            NetId = player!["net_id"]!.GetValue<ulong>(),
+            Potions = player["discovered_potions"]!.DeepClone().AsArray()
+        }).ToArray();
+        var seenPotions = SaveManager.Instance.Progress.DiscoveredPotions.ToHashSet();
+        foreach (var reward in local.Rewards.OfType<PotionReward>())
+            if (seenPotions.Add(reward.Potion!.Id))
+                discoveries.Single(player => player.NetId == localId).Potions.Add(JsonSerializer.SerializeToNode(reward.Potion.Id, CompleteStateJson));
+        var discoveryExpected = JsonSerializer.SerializeToNode(discoveries, CompleteStateJson)!;
+        File.WriteAllText(Path.Combine(directory, role + ".holes-reward-discovery-expected.json"), discoveryExpected.ToJsonString(CompleteStateJson));
+        signal("holes-reward-restored");
+        await until(() => peers.All(peer => signaled(peer, "holes-reward-restored")), "all fresh replicas validate complete source state and independently sample claim inventories/profile discovery before any claim");
+        foreach (var reward in local.Rewards.ToArray())
+        {
+            var selection = manager.RewardsSetSynchronizer.SelectLocalReward(reward);
+            await until(() => selection.IsCompleted, "a real owner reward selection completes through the native transport");
+            Check(await selection, "The actual local native synchronized reward is accepted.");
+        }
+        await until(() => sets.All(set => manager.RewardsSetSynchronizer.IsRewardsSetCompleted(set)), "all three owners' actual reward selections finish on every replica");
+        foreach (var set in sets)
+        {
+            var baseline = baselines[set.Player.NetId];
+            Check(set.Rewards.All(reward => reward.SuccessfullySelected) && set.Player.Gold == baseline.Gold + baseline.GoldReward &&
+                set.Player.Deck.Cards.Count == baseline.Deck.Length + baseline.Cards.Length &&
+                JsonNode.DeepEquals(JsonSerializer.SerializeToNode(set.Player.Deck.Cards.Take(baseline.Deck.Length).Select(card => card.ToSerializable()).ToArray(), CompleteStateJson),
+                    JsonSerializer.SerializeToNode(baseline.Deck, CompleteStateJson)) &&
+                JsonNode.DeepEquals(JsonSerializer.SerializeToNode(set.Player.Deck.Cards.Skip(baseline.Deck.Length).Select(card => new { card.Id, card.CurrentUpgradeLevel }).ToArray(), CompleteStateJson),
+                    JsonSerializer.SerializeToNode(baseline.Cards, CompleteStateJson)) &&
+                JsonNode.DeepEquals(JsonSerializer.SerializeToNode(set.Player.PotionSlots.Where(potion => potion != null).Select(potion => potion!.Id).ToArray(), CompleteStateJson),
+                    JsonSerializer.SerializeToNode(baseline.Potions.Concat(baseline.PotionRewards).ToArray(), CompleteStateJson)),
+                "Every owner receives exactly the offered gold, the selector's exact two card identities and upgrade levels and any offered potions, preserving the previous ordered inventory.");
+        }
+        var claimed = RewardState(run, child);
+        foreach (var discovery in discoveries)
+            Check(JsonNode.DeepEquals(claimed["Players"]!.AsArray().Single(player => player!["net_id"]!.GetValue<ulong>() == discovery.NetId)!["discovered_potions"], discovery.Potions),
+                "Complete ordered potion discovery equals its independent preclaim prediction: only this endpoint's first-seen, actually procured local potion is appended.");
+        bool rejected = false;
+        try { await manager.RewardsSetSynchronizer.SelectLocalReward(local.Rewards[0]); }
+        catch (InvalidOperationException) { rejected = true; }
+        Check(rejected && JsonNode.DeepEquals(RewardState(run, child), claimed),
+            "Selecting an already completed native reward stack is rejected with no second payment or complete-state change.");
+        File.WriteAllText(Path.Combine(directory, role + ".holes-reward-claimed.json"), claimed.ToJsonString(CompleteStateJson));
+        signal("holes-reward-claimed");
+        await until(() => peers.All(peer => signaled(peer, "holes-reward-claimed")), "all fresh owners finish exact claims and duplicate rejection");
+        foreach (string peer in peers)
+        {
+            var peerExpected = claimed.DeepClone();
+            foreach (var discovery in JsonNode.Parse(File.ReadAllText(Path.Combine(directory, peer + ".holes-reward-discovery-expected.json")))!.AsArray())
+                peerExpected["Players"]!.AsArray().Single(player => player!["net_id"]!.GetValue<ulong>() == discovery!["NetId"]!.GetValue<ulong>())!["discovered_potions"] = discovery!["Potions"]!.DeepClone();
+            Check(JsonNode.DeepEquals(peerExpected, JsonNode.Parse(File.ReadAllText(Path.Combine(directory, peer + ".holes-reward-claimed.json")))),
+                "All three fresh endpoints agree on every claimed field with each complete local discovery list independently predicted before claims; no field or array is ignored.");
+        }
+        // EventModel.SetEventFinished clears options; Holes ClearFight clears
+        // only these four accepted-fight fields. Everything else must remain.
+        var finishedExpected = claimed.DeepClone();
+        foreach (var finishedParent in finishedExpected["Parents"]!.AsArray())
+        {
+            finishedParent!["IsFinished"] = true;
+            finishedParent["Options"] = new JsonArray();
+        }
+        finishedExpected["Page"]!["AcceptedFight"] = false;
+        finishedExpected["Page"]!["FightRoot"] = null;
+        finishedExpected["Page"]!["FightEntry"] = 0;
+        finishedExpected["Page"]!["FightOwners"] = new JsonObject();
+        var proceed = HeadlessNativeApi.Proceed(manager);
+        await until(() => proceed.IsCompleted, "real terminal Proceed resumes the parent while transport is pumped");
+        await proceed;
+        var pending = manager.EventSynchronizer.AwaitPendingOptionTasks();
+        await until(() => pending.IsCompleted, "all native parent resume work finishes");
+        await pending;
+        Check(run.CurrentRoomCount == 1 && run.CurrentRoom is EventRoom && observation.OpeningCalls == 0 && observedRewards.Count == 3 &&
+            manager.EventSynchronizer.Events.Count() == 3 && manager.EventSynchronizer.Events.All(model => model.IsFinished &&
+                model.Description!.LocEntryKey == "FIELD_OF_MAN_SIZED_HOLES.pages.AM_FIGHT.description" && model.CurrentOptions.All(option => option.IsLocked)) &&
+            JsonNode.DeepEquals(JsonNode.Parse(PlayersContents(run)), claimed["Players"]) &&
+            JsonNode.DeepEquals(JsonSerializer.SerializeToNode(run.Rng.ToSerializable(), CompleteStateJson), claimed["RunRng"]) &&
+            JsonNode.DeepEquals(JsonSerializer.SerializeToNode(JigsawNativeSession.Current!.Map!.CreateSave(), CompleteStateJson), claimed["Map"]),
+            "Actual terminal Proceed finishes all three dedicated Holes parents without another opening, reward, player/RNG change or exploration charge.");
+        var finished = RewardState(run, child);
+        File.WriteAllText(Path.Combine(directory, role + ".holes-reward-finished.json"), finished.ToJsonString(CompleteStateJson));
+        Check(JsonNode.DeepEquals(finished, finishedExpected),
+            "Proceed changes exactly the independently specified finished parent options and accepted-fight page fields; complete players, all RNG, checkpoint, history, root and exited child descriptor remain intact.");
+        Console.WriteLine($"HOLES_REWARD_ENET role={role} original=3 active=3 fresh-process=true opening=0 claimed=all duplicate=rejected parent=finished restore=complete");
+        signal("holes-reward-finished");
+        await until(() => peers.All(peer => signaled(peer, "holes-reward-finished")), "all fresh endpoints finish real native Proceed before cleanup");
+        foreach (string peer in peers)
+        {
+            var peerExpected = finishedExpected.DeepClone();
+            foreach (var discovery in JsonNode.Parse(File.ReadAllText(Path.Combine(directory, peer + ".holes-reward-discovery-expected.json")))!.AsArray())
+                peerExpected["Players"]!.AsArray().Single(player => player!["net_id"]!.GetValue<ulong>() == discovery!["NetId"]!.GetValue<ulong>())!["discovered_potions"] = discovery!["Potions"]!.DeepClone();
+            Check(JsonNode.DeepEquals(peerExpected, JsonNode.Parse(File.ReadAllText(Path.Combine(directory, peer + ".holes-reward-finished.json")))),
+                "Every finished endpoint retains the complete independently specified terminal state, including its original predicted local discovery arrays.");
+        }
+    }
+
+    private static JsonNode RewardState(RunState run, CombatRoom child) => JsonSerializer.SerializeToNode(new
+    {
+        Players = JsonNode.Parse(PlayersContents(run)),
+        RunRng = JsonSerializer.SerializeToNode(run.Rng.ToSerializable(), CompleteStateJson),
+        OwnerRng = JsonNode.Parse(OwnersRngContents(RunManager.Instance.EventSynchronizer.Events)),
+        Parents = JsonNode.Parse(ParentsContents(RunManager.Instance.EventSynchronizer.Events)),
+        Point = JsonSerializer.SerializeToNode(JigsawCheckpoint.Slot.Get(run), CompleteStateJson),
+        Page = JsonSerializer.SerializeToNode(HolesPageState(run), CompleteStateJson),
+        Map = JsonSerializer.SerializeToNode(JigsawNativeSession.Current!.Map!.CreateSave(), CompleteStateJson),
+        History = NativeHistory(run), Room = child.ToSerializable()
+    }, CompleteStateJson)!;
+
+    private static JsonNode? NativeHistory(RunState run)
+    {
+        var type = JsonSerializationUtility.GetTypeInfo<MapPointHistoryEntry>();
+        return JsonSerializer.SerializeToNode(JsonSerializer.Deserialize(JsonSerializer.Serialize(run.CurrentMapPointHistoryEntry!, type), type), CompleteStateJson);
+    }
+
+    private static JsonNode RewardContents(IEnumerable<RewardsSet> sets) => JsonSerializer.SerializeToNode(sets.Select(set => new
+    {
+        set.Player.NetId,
+        Rewards = set.Rewards.Select(reward => new
+        {
+            Type = reward.GetType().FullName, Data = reward is CardReward ? null : reward.ToSerializable(),
+            Potion = (reward as PotionReward)?.Potion?.Id,
+            Cards = (reward as CardReward)?.Cards.Select(card => card.ToSerializable()).ToArray()
+        }).ToArray()
+    }).ToArray(), CompleteStateJson)!;
+
+    private static void CheckRewardSets(RewardsSet[] sets) => Check(sets.Select(set => set.Player.NetId).SequenceEqual(new ulong[] { 1, 2, 3 }) &&
+        sets.All(set => set.Rewards.All(reward => reward.IsPopulated) && set.Rewards.OfType<GoldReward>().Count() == 2 &&
+            set.Rewards.OfType<CardReward>().Count() == 2 && !set.Rewards.OfType<RelicReward>().Any()),
+        "Every actual owner receives the complete native doubled Holes gold/card offers and no relic reward.");
 
     private static async Task RestoredOwners(RunState run, ReloadObservation observation, string restoredMap,
         string directory, string role, Func<Func<bool>, string, Task> until,
