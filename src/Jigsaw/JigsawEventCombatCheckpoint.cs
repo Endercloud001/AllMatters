@@ -55,27 +55,34 @@ internal static class JigsawEventCombatCheckpoint
     {
         if (native.CurrentRoom is CombatRoom { IsPreFinished: true } &&
             JigsawCheckpoint.Slot.TryGet(native, out var data))
+        {
+            HolesSharedPage.CaptureFinishedFight(native);
             data.EventCombat = null;
+        }
     }
 
     internal static bool CanCapture(AbstractRoom room, out JigsawNativeSession? session)
     {
         session = JigsawNativeSession.Current;
         return room is CombatRoom { ParentEventId: not null } combat &&
-            session?.Native.BaseRoom is EventRoom { CanonicalEvent: Colosseum or DenseVegetation } parent &&
+            session?.Native.BaseRoom is EventRoom parent &&
             combat.ParentEventId == parent.CanonicalEvent.Id &&
+            (parent.CanonicalEvent is Colosseum or DenseVegetation ||
+                parent.CanonicalEvent is FieldOfManSizedHoles && combat is
+                { Encounter: HolesEncounter, ShouldResumeParentEventAfterCombat: true }) &&
             session.Map is { CurrentRoomHunted: true };
     }
 
     internal static async Task Enter(RunManager manager, CombatRoom room, bool fade, JigsawNativeSession session)
     {
         var parent = session.Native.CurrentRoom;
-        long rootEntry = session.Map!.CreateSave().NextEntry;
+        var map = session.Map!;
+        long rootEntry = map.CreateSave().NextEntry;
         // The event callback returns before we wait for all owners' preceding
         // option work; never await the callback from inside itself.
         await Task.Yield();
         await manager.EventSynchronizer.AwaitPendingOptionTasks();
-        if (JigsawNativeSession.Current != session || parent is not EventRoom ||
+        if (JigsawNativeSession.Current != session || !ReferenceEquals(session.Map, map) || parent is not EventRoom ||
             !ReferenceEquals(session.Native.CurrentRoom, parent) || session.Map?.CreateSave().NextEntry != rootEntry)
             throw new InvalidOperationException("事件战斗所属的拼图会话已变化。");
         var snapshot = JigsawSaveSource.Copy(manager.ToSave(null));
@@ -94,6 +101,7 @@ internal static class JigsawEventCombatCheckpoint
         if (!JigsawCheckpoint.Slot.TryGet(session.Native, out var data))
             throw new InvalidDataException("事件战前点缺少拼图根房。");
         data.EventCombat = point;
+        HolesSharedPage.RecordAcceptedFight(session, room);
         JigsawSaveSource.CaptureDocument(snapshot, session.Native);
         sources.Remove(session.Native);
         sources.Add(session.Native, new(snapshot));
@@ -122,8 +130,15 @@ internal static class JigsawEventCombatCheckpoint
         }
         RequireOwner();
         var enter = AccessTools.Method(typeof(RunManager), "EnterRoomInternal", [typeof(AbstractRoom), typeof(bool)]);
-        EventModel parent = point.Combat.ParentEventId == ModelDb.Event<Colosseum>().Id
-            ? ModelDb.Event<Colosseum>() : ModelDb.Event<DenseVegetation>();
+        EventModel parent;
+        if (point.Combat.ParentEventId == ModelDb.Event<Colosseum>().Id)
+            parent = ModelDb.Event<Colosseum>();
+        else if (point.Combat.ParentEventId == ModelDb.Event<DenseVegetation>().Id)
+            parent = ModelDb.Event<DenseVegetation>();
+        else if (point.Combat.ParentEventId == ModelDb.Event<FieldOfManSizedHoles>().Id)
+            parent = ModelDb.Event<FieldOfManSizedHoles>();
+        else
+            throw new InvalidDataException("事件战前点的父事件不受支持。");
         var parentRoom = new EventRoom(parent);
         await (Task)enter.Invoke(manager, [parentRoom, true])!;
         RequireOwner(parentRoom);
@@ -136,15 +151,21 @@ internal static class JigsawEventCombatCheckpoint
         {
             if (model is Colosseum colosseum)
                 colosseum.RestoreCombatPhase(point.Combat.ShouldResumeParentEvent);
+            else if (model is DenseVegetation vegetation)
+                NativeDenseVegetation.RestoreCombatPhase(vegetation);
+            else if (model is FieldOfManSizedHoles holes)
+                HolesFightReturn.RestoreCombatPhase(holes);
             else
-                NativeDenseVegetation.RestoreCombatPhase((DenseVegetation)model);
+                throw new InvalidDataException("事件战前点的重建父事件不受支持。");
             AccessTools.Property(typeof(EventModel), nameof(EventModel.Rng)).SetValue(model, Restore(point.Owners[model.Owner!.NetId]));
         }
         var room = CombatRoom.FromSerializable(point.Combat, session.Native);
         await (Task)enter.Invoke(manager, [room, false])!;
     }
 
-    private static bool ValidEncounter(JigsawEventCombatPoint point) => point.Combat.ParentEventId == ModelDb.Event<DenseVegetation>().Id
+    private static bool ValidEncounter(JigsawEventCombatPoint point) => point.Combat.ParentEventId == ModelDb.Event<FieldOfManSizedHoles>().Id
+        ? point.Combat.ShouldResumeParentEvent && point.Combat.EncounterId == ModelDb.Encounter<HolesEncounter>().Id
+        : point.Combat.ParentEventId == ModelDb.Event<DenseVegetation>().Id
         ? !point.Combat.ShouldResumeParentEvent && point.Combat.EncounterId == ModelDb.Encounter<DenseVegetationEventEncounter>().Id
         : point.Combat.ParentEventId == ModelDb.Event<Colosseum>().Id && (point.Combat.ShouldResumeParentEvent
         ? point.Combat.EncounterId == ModelDb.Encounter<ColosseumFirstEncounter>().Id
