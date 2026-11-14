@@ -74,3 +74,11 @@
 实施树 `matriarch-minion-20261114/.local/executor-minion/final4-{public,public-beta}-host.log` 双版各7 PASS，Build/Host/Engine/Metadata全0。集成 `4df655b` 实际运行 `Test.ps1 -Branch All -Filter 'Jigsaw hunting Underdocks' -SkipResourceExport`，双版各7 PASS且四诊断0；日志在集成树 `.local/executor-20261114/minion-integrated-{public,public-beta}-host.log`。资源未变化，复用该树有效PCK。正常hooks退出0，CA1310无可用code fix提示保留，不能写成零警告；提交patch与双轴已审暂存patch完全一致。
 
 Standards与Spec两轴独立读取最终230+/1−两文件及实际双版日志，均无发现。正式场景布局、完整战前/奖励fresh恢复和真实玩家端仍归#84，不以本片关闭整票。
+
+## SoulFysh 左右随从与正式布局（2026-11-14）
+
+源码`2d3658c`经`d9b80b4`合入：受罚顶层Underdocks的SoulFyshBoss/SecondBoss在原生生成列表左加Toadpole、右加SludgeSpinner，精确mutable随从完成原AfterAddedToRoom后各授Minion1，保原怪HP、首招、原生人数缩放与死亡链。真实Boss致死后原生清理随从；safe、事件子房、非Jigsaw、异幕、无acts、普通根及过期/异常原Task等边界不追加或不授予。
+
+正式原生布局在1/4角色×1280/1680宽720核HP/意图包络、画布边界、鼠标目标与方向导航；单人紧凑真red发现Boss血条分别压左右随从约7logical，限定当前受罚三怪行的PositionEnemies补丁窄调X后同例green。四人夹具曾误把玩家原生重叠和两次挂载绝对坐标差当新增故障，改用同场safe玩家身份对的既有重叠对照，敌人相关几何仍严格；这些夹具失败不冒称产品red。原生too wide警告保留，实测几何及输入通过，不写零warning。
+
+实施和集成双版SoulFysh各10 PASS、集成Underdocks相邻各7 PASS，Build/Host/Engine/Metadata均0。原始日志为实施树`.local/executor-soulfysh/final-suite-{beta,public}-host.log`、集成树`.local/integration-slices/soulfysh-integrated-{beta,public}-host.log`及`soulfysh-underdocks-regression-{beta,public}-host.log`。独立Standards/Spec无阻塞，正常hooks三处仅换行已复核。覆盖1/4 combat角色，不代签2/3角色、完整存档fresh、真实多游戏端或实机；整票仍未完成。

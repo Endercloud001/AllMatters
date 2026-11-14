@@ -4,7 +4,7 @@
 
 ## 当前接续状态（2026-11-14）
 
-本交接审查起点HEAD `1464953`（最新源码合入`2e61481`），目标 **public v0.107.1 / beta v0.113.0、RitsuLib 0.6.11**。本节覆盖下方历史记录中的旧目标、资源缺失、未提交状态和旧失败位置。旧发布包与旧版通过数不代签新目标。#82–#88 仍OPEN，#84–#88仍部分实现；当前提交完整Test/Check、同提交双版包及正式实机矩阵尚未交付。跨对话当前两片在制及准确日志、未提交文件、下一步见[唯一调度看板的交接节](issues-82-88-board.md#2026-11-14-对话交接)；Glory最新beta单例60秒watchdog退出而没有PASS，SoulFysh仅beta开场1例green，均未集成。
+当前源码HEAD `d9b80b4`，目标 **public v0.107.1 / beta v0.113.0、RitsuLib 0.6.11**。本节覆盖下方历史记录中的旧目标、资源缺失、未提交状态和旧失败位置。旧发布包与旧版通过数不代签新目标。#82–#88仍部分验收；当前提交完整Test/Check、同提交双版包及正式实机矩阵尚未交付。Glory布局`a050e7b`经`21a563f`合入，实施及集成双版各15 PASS；SoulFysh`2d3658c`经`d9b80b4`合入，实施及集成双版各10 PASS，四诊断均0，两片均独立双轴审查及正常hooks完成。当前调度见[唯一看板](issues-82-88-board.md)，旧交接的watchdog和仅beta开场green已被后续证据覆盖。
 
 密林首普通完整fresh源码`c7dbd18`合入`2c44d4b`：原session.Enter独立完整开场，真BITE/GROW使counter1/Strength3后新大厅回counter0/Strength0；末敌孢子Vulnerable2、原清理与BurningBlood回血6、自然胜利保存后第二fresh非空领取/重复拒绝/原Proceed。双轴0发现、正常hook patch一致；专项双版各1、相关各6、集成fresh各1四诊断0无RID，详[密林恢复](issue84-overgrowth-implementation.md#密林首普通完整战前与胜利奖励-fresh2026-11-14)。单owner同进程，不签其他敌人恢复/布局/真实端。其后Knowledge选择计数与非终局奖励fresh已合入；Glory布局的Mystic遮挡曾取得真实red，当前状态见唯一调度看板。
 
