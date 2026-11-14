@@ -13,10 +13,10 @@
 |#82 限步/面具/服务|`46a2d5b`领域/保存/恢复投影、HUD、控制台和服务限制；`09fa14f`→`76e49d2`真实休息遗物及双run自然离开|[实施记录](issue82-hunting-implementation.md)、[双轴审查](issue82-review.md)；休息遗物及原native rest集成双版各2，四诊断0|
 |#83 空宝箱|`90c7970`空奖励/Face/Spoils及任务等待；`fb58274`→`2915a6a`双版正式整房鼠标/Proceed与自然保存恢复|[实施记录](issue83-treasure-implementation.md)、[双轴审查](issue83-review.md)；最新集成双版各11，四诊断0；未知直接支付/未返回Task后台不宣称通用拦截|
 |#84 密林|原生逐敌规则、Phrog五虫及Vantom普通墨宝、正式布局/鼠标/全焦点环、密林首普通及Phrog/Vantom战前与胜利奖励fresh|[密林记录](issue84-overgrowth-implementation.md)；Phrog最新组集成双版各8，Vantom最新组各13，四诊断0|
-|#84 暗港|共享完整检查点`d8fb141`→`31bb112`；Gardener/Colony/Eel、Matriarch生命/睡眠随从/fresh、Waterfall复生/fresh、SoulFysh随从/fresh/布局、Seapunk14场开场/fresh/布局|[共享接缝](issue84-combat-checkpoint-seam.md)、[暗港记录](issue84-underdocks-implementation.md)；最新Waterfall`2fb2b0a`→`eb4837c`集成双版各8，四诊断0。Matriarch布局仍在制|
-|#85 巢穴/知识/蟹/Holes|ActTwo规则、Hive精英与事件开场/Hive首普通fresh；Knowledge三轮单owner规则、Tender真实屏与单ownerfresh；帝皇蟹固定Artifact3与原场景保持；Holes单owner及三端战前/奖励/完成点恢复|[巢穴记录](issue85-hunting-implementation.md)；蟹最新集成双版各9，Holes完成点`1956c17`双版event各4。Knowledge首轮双owner片仍在制|
+|#84 暗港|共享完整检查点`d8fb141`→`31bb112`；Gardener/Colony/Eel、Matriarch生命/睡眠随从/fresh、Waterfall复生/fresh、SoulFysh随从/fresh/布局、Seapunk14场开场/fresh/布局|[共享接缝](issue84-combat-checkpoint-seam.md)、[暗港记录](issue84-underdocks-implementation.md)；最新Waterfall`2fb2b0a`→`eb4837c`集成双版各8，四诊断0。Matriarch布局`6655b2c`→`10b05df`已集成，双版各5四诊断0|
+|#85 巢穴/知识/蟹/Holes|ActTwo规则、Hive精英与事件开场/Hive首普通fresh；Knowledge三轮单owner规则、Tender真实屏与单ownerfresh；帝皇蟹固定Artifact3与原场景保持；Holes单owner及三端战前/奖励/完成点恢复|[巢穴记录](issue85-hunting-implementation.md)；蟹最新集成双版各9，Holes完成点`1956c17`双版event各4。Knowledge首轮双owner片`1d22277`→`e93d304`已集成，双版各1四诊断0|
 |#86 荣耀普通/精英|Mecha/SoulNexus/Flail原生规则；Mystic正式模型/资源/三动作/fresh；`a050e7b`→`21a563f`12普通/3精英正式布局及输入|[荣耀记录](issue86-hunting-implementation.md)；布局集成双版各15、相关Forest/Mystic各3，四诊断0|
-|#87 荣耀Boss|Aeonglass个人12计数/五状态/Wither及fresh；TestSubject复生/计时/Skittish/Suck/MultiClaw/fresh；Queen一次重燃/TorchHead/激怒/fresh/布局|[Boss记录](issue87-boss-implementation.md)；Queen布局后集成各9、Aeonglass/TestSubject fresh各1，双版四诊断0。间歇P87故障未修，个人正式UI片Ready|
+|#87 荣耀Boss|Aeonglass个人12计数/五状态/Wither及fresh；TestSubject复生/计时/Skittish/Suck/MultiClaw/fresh；Queen一次重燃/TorchHead/激怒/fresh/布局|[Boss记录](issue87-boss-implementation.md)；Queen布局后集成各9、Aeonglass/TestSubject fresh各1，双版四诊断0。间歇P87故障未修，个人正式UI片在制|
 |#88 兼容/交付|`080104f`GoldenCompass/WingedBoots与Flight边界；控制台注册/执行；`4aae096`→`f5d8dde`64种子每日modifier字段/RNG验证|[兼容记录](issue88-compatibility-implementation.md)、[控制台](issues-82-88-console-reference.md)；最终当前源码Check/同提交包/集中人工矩阵仍待|
 
 ## 完整检查与已知诊断

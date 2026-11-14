@@ -156,3 +156,10 @@ Matriarch真实追加睡眠Lagavulin，区别于帝皇蟹仅加效果的原场�
 主控已实际补齐API（导出exit0，文件都在集成树`.local/api/queries/`）：beta113 `MegaCrit.Sts2.Core.Models.Powers.PlatingPower.decompiled.cs`确认`12*(2*n-1)`；public107 `MegaCrit.Sts2.Core.Models.Singleton.MultiplayerScalingModel.decompiled.cs`及beta113 `MegaCrit.Sts2.Core.Models.MultiplayerScalingModel.decompiled.cs`均确认act0=1.1、act1=1.2、act2 Boss=1.3/其他1.2。原PowerModel通用多人公式为amount×combat人数×该系数，具体何时启用/取整须结合两版PowerCmd及当前遭遇独立核对；API导出不能充当返修行为通过。
 
 接手先修未完成Metallicize oracle并核对现有Plating未暂存差异，再在该树最小运行`./tools/Test.ps1 -Branch public-beta -Filter 'Jigsaw Matriarch native layout sleep and damage-awake roles=4 physical=1280x720' -SkipResourceExport`。稳定后双版prefix`Jigsaw Matriarch native layout`完整5例（四组合＋合法SecondBoss代表），再受影响Underdocks7与Matriarch fresh1；只归档实际启动目标。最终将新生产/新测试/Hello三文件精确stage、独立双轴、正常hooks、串行集成与集成验证。完整#84、真实游戏/设备验收仍未完成；唯一调度见[看板](issues-82-88-board.md)。
+### 2026-11-14 implement 接续（进行中）
+
+已核两版 PowerCmd/PowerModel/ApplyInternal：本片单幕 act0 的四角色 Plating=84、Metallicize=35（8×4×1.1 后截断），单角色仍为12/8。仅修测试独立 oracle，生产布局未因固定值失败改动。最小 roles4/1280×720 beta 已通过1，Build/Host/Engine/Metadata均0；原始日志位于实施树 .local/executor-matriarch-layout/oracle-resume-roles4-beta-host.log。双版五例与相邻回归进行中，尚未签完整矩阵、审查或集成。
+
+接续双版布局各5、Underdocks各7、Matriarch fresh各1均通过，Build/Host/Engine/Metadata全0。实施树原始日志 .local/executor-matriarch-layout/oracle-resume-{layout,underdocks,fresh}-{public-beta,public}-host.log；主控以集成树新版ReadTestLog -StrictDiagnostics解析实际日志。本树仍旧Test脚本，无本轮summary.json，不伪造自动归档。三文件1040+已暂存送独立双轴，尚未提交/集成。
+
+实施6655b2c经10b05df合入：独立Spec无发现，Standards无阻塞、仅重复包络几何的非阻塞建议，未扩重构。正常hooks退出0，CA1310无可用修复提示保留；reviewed.patch与committed.patch逐字节一致，113项.import保留。集成当前双版layout各5 PASS四诊断0；严格归档.local/tests/archives/matriarch-layout-integrated-20261114-174346277-6e3f7a6e00a644fbab0f1c96d9379034/summary.json及两目标原始日志。真实端/完整#84仍未签。

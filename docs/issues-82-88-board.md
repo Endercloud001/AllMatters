@@ -2,7 +2,7 @@
 
 更新：2026-11-14。唯一维护者：集成主控；集成树`AllMatters/.claude/worktrees/hunting-20261112`，分支`integration/issues-82-88-20261112`，源码基点=`5d127b0`。目标为public0.107.1 / beta0.113.0 / RitsuLib0.6.11。源码切片集成不代表整票关闭；本板不推断GitHub实时状态。
 
-**玩法在制2/2（交接冻结）、Ready1、技术诊断暂停1。** 用户另行授权依次实施复盘的六项开发加速改进；不恢复下列玩法片，两片源码与暂存区按原记录保留。
+**玩法在制1/2（已恢复）、Ready0、技术诊断暂停1。** 2026-11-14 用户通过 implement 明确恢复交接玩法片；恢复时核实集成 HEAD=`c0e62aa`，当前源码=`10b05df`，Knowledge/Matriarch 起点仍为`f1eb1dd`/`eb4837c`。Knowledge 已集成并通过双版专项；Matriarch 已集成并通过双版布局；Aeonglass owner 独占工具链推进正式 UI 测试。原暂存与 `.import` 改动保留，未跟踪交接文档不纳入本片提交。
 
 ## 复盘改进实施（2026-11-14）
 
@@ -25,11 +25,11 @@
 
 |卡片/issue|行为|状态|owner / worktree|依赖与热点|下一动作/证据|开始时间|
 |---|---|---|---|---|---|---|
-|C85-knowledge-owner / #85|两真实owner首轮错峰选择、等待/归属/屏幕释放及原下一招|Verify/beta绿，交接冻结|`glory_layout` / `knowledge-owner-20261114`，基`f1eb1dd`|新KnowledgeMultiOwnerTests/Hello；生产和公共宿主只读|最新entry9-beta 1PASS四诊断0、child错误流空；暂存672+未提交，public及相关组合/双轴/hooks/集成待；退出问题及下一命令见上方当前交接和#85实施记录|2026-11-14 拉取|
-|C84-matriarch-layout / #84|追加睡眠Lagavulin睡/醒完整显示与原生输入|Verify/多人oracle返修未完，交接冻结|`matriarch_fresh_prepare` / `matriarch-layout-20261114`，基`eb4837c`|新MatriarchLayout生产85行未跟踪；测试/Hello暂存949+，测试另4+/2-未暂存|真实几何red后专用整树平移，awake3-beta1四诊断0；全组beta两例PASS后roles4固定Plating断言失败，public未跑；Plating公式已改未测，Metallicize公式待修；下一最小roles4，见上方当前交接/#84记录|2026-11-14 拉取|
-|C87-aeonglass-ui / #87|正式本地个人counter图标/数字/真实hover随12次出牌与五状态溢出更新重置12|Ready|待分配，未建树|新AeonglassUiTests/Hello；默认tests-only，无新增怪物不改原布局|brief `.local/batch-scope-audit/aeonglass-ui-next-slice.md`；双版NPower/Container真实消费链已核，本地四模型仅显示本地Target；先实际PCK tooltip，不推断原Amount6已适配，双版各2，复用模型/fresh证据|2026-11-14 准备|
+|C85-knowledge-owner / #85|首轮双owner错峰选择与屏释放|Integrated|knowledge / knowledge-owner-20261114|tests-only两文件|1d22277→e93d304；集成双版各1 PASS四诊断0，严格归档knowledge-owner-integrated-20261114-173527158-d598714f64cd459da98a9b97dfc305cc；自然调度/等待断线仍未签|2026-11-14 拉取|
+|C84-matriarch-layout / #84|追加睡眠Lagavulin睡/醒完整显示与原生输入|Integrated|matriarch / matriarch-layout-20261114|三文件1040+|6655b2c→10b05df；实施双版layout5/Underdocks7/fresh1；集成双版layout5四诊断0，严格归档matriarch-layout-integrated-20261114-174346277-6e3f7a6e00a644fbab0f1c96d9379034|2026-11-14 拉取|
+|C87-aeonglass-ui / #87|正式本地个人counter图标/数字/真实hover随12次出牌与五状态溢出更新重置12|Doing/真实tooltip red修复|aeonglass_ui / aeonglass-ui-20261114，基e93d304|owner独占工具链；已批准精确hunted HoverTips展示与eng/zhs本地化修复|beta label12但真实tooltip仍每6次仅Wither；safe同文，Engine/Metadata0；不改Amount6或原布局，先单人回绿再双版各2例|2026-11-14 拉取|
 
-### 2026-11-14 15:49 主控停止交接（当前入口）
+### 2026-11-14 15:49 历史停止交接（已由上方当前卡片覆盖）
 
 接手先核实际Git状态，再读目标卡及逐票在制记录；不依赖旧会话agent继续工作。最近检查没有本批次Godot/dotnet/ilspy/Test.ps1进程或待回收执行session。日志在**各实施树**的`.local/executor-knowledge-owner/`和`.local/executor-matriarch-layout/`，不是集成树同名目录。
 
