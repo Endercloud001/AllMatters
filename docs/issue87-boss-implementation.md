@@ -68,3 +68,11 @@
 新LoadRunLobby生成新run/session/room/怪与presence身份，完整原开场五堆顺序/Energy/Block/powers、敌HP/意图/WitherUpgradeCount、个人counter/display、原生玩家/RNG/acts/map/history/根房一致，重复Enter不再增强或扣步。真实致死→原生CheckWinCondition、BurningBlood回血6及胜利保存，第二新大厅敌人0且startup/opening不增加，最终Glory原生空奖励completed且精确内容保持；不造ExtraRewards，不声称非空领奖。Profile深克隆及原引用/全内容恢复与全局清理保留。
 
 独立Standards/Spec实读595+/0两文件及相关双版消费者均无阻塞；beta缺失AeonglassBoss/CardCmd已实际导出窄核。双版编译0错误，默认资源导出后实施`.local/executor-aeonglass-fresh/first-{beta,public}-host.log`各1 PASS；正常hooks成功，提交patch与已审暂存完全一致。集成树`.local/integration-slices/aeonglass-fresh-integrated-{beta,public}-host.log`双版各1 PASS，Build/Host/Engine/Metadata均0。单owner同进程两次新大厅，不代签真实多端/新进程、正式设备输入或#87整票；暂停Boss原组六项诊断未被本片重跑或签修。
+
+## TestSubject 第三阶段与细看完整 fresh（2026-11-14）
+
+测试源码`d0ca778`经`cc0bc71`集成，生产未改。合法Act2实际session.Enter后，原生Kill/SetReadyToEndTurn经原协调器两次RESPAWN进入第三形态，再真实推进至FullTurns3/Scrutiny1并验证额外抽牌被拒；不改MaxHp、不写phase/clock。旧复生计数2、真实死亡ExtraFields.TestSubjectKills增量2、五堆/HP/Block/金币与三RNG扰动后实际SaveRun。新LoadRunLobby完整重建原第一形态及初始能力/意图、五堆顺序/Energy/powers、run/owner/monster RNG、完整RunExtraFields/acts/map/history/根房；旧clock不存在、respawns0、重复Enter无重增强/扣步。
+
+新战斗再次原生两复生，新clock仅1且额外抽牌实际接受，随后真实最终Kill→原CheckWinCondition、BurningBlood回血及胜利保存。第二新大厅无敌人/无startup或opening增加，原最终Glory空奖励completed且内容一致，不造非空奖励；profile深克隆及原引用/全内容恢复。独立Standards无硬问题（BeforeBoss准备重复为非阻塞维护建议，未扩大本片重构），Spec无阻塞；正常hooks退出0且提交patch与已审暂存完全一致。
+
+实施树`.local/executor-testsubject-fresh/first-{beta,public}-host.log`双版各1 PASS；集成树`.local/integration-slices/testsubject-fresh-integrated-{beta,public}-host.log`双版各1 PASS，Build/Host/Engine/Metadata均0；首轮默认导出匹配资源，集成资源未变复用。单owner同进程两新大厅，不代签原九回合人数矩阵以外的新覆盖、真实多端/设备或整票；暂停的暖Phrog原组间歇故障未被重跑或签修。空槽拉取#82真实MiniatureTent剩余操作及Shovel原生附加项验证。

@@ -1,14 +1,14 @@
 # #82–#88 当前调度看板
 
-更新：2026-11-14。唯一维护者：集成主控。集成树：`AllMatters/.claude/worktrees/hunting-20261112`，分支`integration/issues-82-88-20261112`。当前源码HEAD=`8481af1`（Seapunk布局、Hive及Aeonglass完整fresh已合入）；交接审查起点为`1464953`，流程入口`776e2ef`、Holes源码`1956c17`保留。
+更新：2026-11-14。唯一维护者：集成主控。集成树：`AllMatters/.claude/worktrees/hunting-20261112`，分支`integration/issues-82-88-20261112`。当前源码HEAD=`cc0bc71`（TestSubject完整fresh已合入）；交接审查起点为`1464953`，流程入口`776e2ef`、Holes源码`1956c17`保留。
 
 目标：public v0.107.1 / beta v0.113.0 / RitsuLib 0.6.11。本轮已实际查询GitHub，#82–#88均OPEN；当前本地切片不自动关闭issue。后续主控更新此文首和卡片，不再另建当前状态表。
 
-**当前在制2/2：Phrog五虫正式布局准备、TestSubject多阶段完整fresh准备；技术诊断暂停1；Ready 0。** Glory和SoulFysh开场均已独立双轴审查、正常hooks提交并集成；SoulFysh完整专项集成双版各17及此前Underdocks各7 PASS，四诊断0。下节旧交接记录仅保留当时失败签名，当前动作以活跃卡为准。
+**当前在制2/2：Phrog五虫正式布局返修、原生休息遗物/额外操作实施；技术诊断暂停1；Ready 0。** Glory和SoulFysh开场均已独立双轴审查、正常hooks提交并集成；SoulFysh完整专项集成双版各17及此前Underdocks各7 PASS，四诊断0。下节旧交接记录仅保留当时失败签名，当前动作以活跃卡为准。
 
 ## 拉取入口
 
-Seapunk开场及完整fresh已集成，正式14场布局已修真实scene/自动行遮挡并完成实施双版各14，集成双版各14 PASS四诊断0；生成锚点有效不等于HP和目标输入可用。Aeonglass完整fresh已集成8481af1，实施及集成双版各1 PASS四诊断0、独立双轴无阻塞、正常hooks patch一致；继续Phrog正式布局与TestSubject旧阶段回滚；主控继续唯一执行native/API/build/hooks。
+Seapunk开场及完整fresh已集成，正式14场布局已修真实scene/自动行遮挡并完成实施双版各14，集成双版各14 PASS四诊断0；生成锚点有效不等于HP和目标输入可用。Aeonglass完整fresh已集成8481af1，实施及集成双版各1 PASS四诊断0、独立双轴无阻塞、正常hooks patch一致；TestSubject完整fresh已集成cc0bc71，实施/集成双版各1四诊断0；继续Phrog正式布局与原生休息遗物；主控继续唯一执行native/API/build/hooks。
 
 ### 2026-11-14 对话交接
 
@@ -23,14 +23,13 @@ Seapunk开场及完整fresh已集成，正式14场布局已修真实scene/自动
 
 |卡片/issue|行为|状态|owner / worktree|依赖与热点|下一动作/证据|开始时间|
 |---|---|---|---|---|---|---|
-|C87-testsubject-fresh / #87|实际TestSubject两次复生旧阶段/细看/计时→新大厅完整原开场→自然终局胜利第二fresh不重开|Doing/窄准备|`soulfysh_recovery_prepare` / `testsubject-fresh-20261114`，基`8481af1`|新TestSubjectRecoveryTests/Hello；Boss生产只读；与Phrog布局独立，不依赖暂停原组六项|复用Aeonglass/Queen完整恢复宿主；先核现BossTurns原生两复生与九回合接缝，明确旧状态怎样由实际动作形成，不重复整个人数矩阵|2026-11-14 接续|
-|C84-phrog-layout / #84|真实Phrog非零死亡→五虫正式完整HP/意图/鼠标目标/左右焦点可用，1/4角色两宽|Doing/窄准备|`glory_layout` / `phrog-layout-20261114`，基`2cf965c`|独占PhrogNodeTests及必要Phrog专用布局；Hello只在需新case时一行；与Aeonglass不共享生产|旧Geometry仅hitbox和图标边界，缺实际HP文字/意图数值描边及正式目标/导航；复用现有真实死亡链，先读API再冻结候选|2026-11-14 接续|
+|C82-rest-native / #82|真实MiniatureTent保剩余Heal→Mend，两角色原生Shovel附加Dig在safe可用/受罚禁用|Doing/窄准备|`soulfysh_recovery_prepare` / `rest-native-20261114`，基`cc0bc71`|新RestRelicTests/Hello；Rest生产只读；原UI/双端依实际接缝定，不手加第二Heal或patch Hook造容量|已核两版MiniatureTent、public Generate/Mend/Shovel，准备`.local/batch-scope-audit/rest-native-next-slice.md`；先窄核local正式Mend目标及native同步器，不将无合法项模拟混进真实来源|2026-11-14 接续|
+|C84-phrog-layout / #84|真实Phrog非零死亡→五虫正式完整HP/意图/鼠标目标/左右焦点可用，1/4角色两宽|Doing/窄准备|`glory_layout` / `phrog-layout-20261114`，基`2cf965c`|独占PhrogNodeTests及必要Phrog专用布局；Hello只在需新case时一行；与Aeonglass不共享生产|新完整文字/描边/鼠标/导航候选编译双版0错误；beta首native1角色1280捕获六对真实重叠（最大HP交63.65logical宽，五虫上排HP压下排intent）；Build0/Host1/Passed空/EngineMetadata0，原red归档phrog树.local/executor-phrog-layout/first-native2-beta-host.log；仅专用markers返修，public尚未运行|2026-11-14 接续|
 
 ## 候选池：尚不能派发实施
 
 |候选/issue|具体缺口与建议切片|准备前需核清|证据入口|
 |---|---|---|---|
-|C82-rest-native / #82|真实原生modifier/遗物入口组合保禁用条件、追加项/加成/额外次数；无合法项正式退出另核真实来源|#82未指定禁Heal遗物，旧候选前提过窄；禁Smith单独仍留Heal，不能代签无合法项。现RestExit手删Heal/Mend及手加额外Heal仅故障模拟；两版现有源码尚未找到真实无合法项来源，CoffeeDripper空cache不可用|[82审查](issue82-review.md)、`JigsawHuntingServices.RestChoicesRemain/JigsawHuntingRestExit`，2026-11-14只读候选复核|
 
 ## 暂停与等待
 
@@ -45,6 +44,7 @@ Seapunk开场及完整fresh已集成，正式14场布局已修真实scene/自动
 
 |issue/切片|源码提交|已证范围|剩余边界/证据|
 |---|---|---|---|
+|#87 TestSubject完整fresh|`d0ca778`，合入`cc0bc71`|真实两复生/第三形态clock3细看拒抽→fresh第一形态/clock缺席，再两复生新clock1可抽，终局第二fresh不重开|双轴无阻塞、正常hooks patch一致；实施及集成双版各1四诊断0；[记录](issue87-boss-implementation.md#testsubject-第三阶段与细看完整-fresh2026-11-14)，终局空奖/单owner同进程，不签暖Phrog修复或真实端|
 |#87 Aeonglass完整fresh|`fff3232`，合入`8481af1`|真实个人旧counter11/五状态/Ebb护甲与全战斗扰动，新大厅完整开场counter12，真实胜利第二大厅终局不重开|独立双轴无阻塞、正常hooks patch一致；实施及集成双版各1四诊断0；[记录](issue87-boss-implementation.md#aeonglass-个人计数与终局完整-fresh2026-11-14)，终局空奖励，不签非空领奖/真实端|
 |#84 Seapunk正式14场布局|`02b5f60`，合入`10797aa`|14普通逐场safe/hunted×1/4角色×两宽，正式HP/意图描边、鼠标精确目标及含玩家左右环，scene原marker保持|实施及集成双版各14、相邻Glory/SoulFysh scene各1+1四诊断0；双轴含无scene增量无阻塞，正常hooks；玩家display对豁免边界见[记录](issue84-underdocks-implementation.md#seapunk-正式布局与原生输入2026-11-14)，真实端待|
 |#85 Hive首普通完整fresh|`c2cb995`，合入`2cf965c`|真实Act1/SpinyToad进入、三负面原History各一次、竖刺扰动后完整五堆/RNG/根房回滚、两新大厅非空领取/重复拒绝/原Proceed|独立双轴源码无阻塞、正常hooks patch一致；实施/集成双版各1四诊断0；[记录](issue85-hunting-implementation.md#hive-首普通完整-fresh2026-11-14)，无药水roll/真实多端/正式奖励输入|

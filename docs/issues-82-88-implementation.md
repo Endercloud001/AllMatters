@@ -4,13 +4,13 @@
 
 ## 当前接续状态（2026-11-14）
 
-Aeonglass完整fresh`fff3232`合`8481af1`：真实13次AutoPlay旧counter11/五状态及Ebb护甲，实际保存→新大厅完整开场counter12→自然终局胜利第二大厅不重开；实施及集成双版各1四诊断0，双轴无阻塞、正常hooks patch一致。详[Aeonglass恢复](issue87-boss-implementation.md#aeonglass-个人计数与终局完整-fresh2026-11-14)，最终Glory原生空奖励不签非空领奖/真实端。继续Phrog正式布局与TestSubject旧阶段完整fresh。
+Aeonglass完整fresh`fff3232`合`8481af1`：真实13次AutoPlay旧counter11/五状态及Ebb护甲，实际保存→新大厅完整开场counter12→自然终局胜利第二大厅不重开；实施及集成双版各1四诊断0，双轴无阻塞、正常hooks patch一致。详[Aeonglass恢复](issue87-boss-implementation.md#aeonglass-个人计数与终局完整-fresh2026-11-14)，最终Glory原生空奖励不签非空领奖/真实端。TestSubject完整fresh`d0ca778`合`cc0bc71`，真实旧clock3/细看拒抽→完整第一形态fresh→新clock1可抽→终局第二fresh，实施及集成双版各1四诊断0、双轴无阻塞及正常hooks patch一致，详[TestSubject恢复](issue87-boss-implementation.md#testsubject-第三阶段与细看完整-fresh2026-11-14)。继续Phrog正式布局与#82原生休息遗物。
 
 Hive首普通完整fresh`c2cb995`合`2cf965c`：实际Act1原生session.Enter、三负面各1一次History、Spikes刺态/五堆/RNG扰动后新大厅完整开场，胜利第二新大厅非空金币/卡领取/重复拒绝/原Proceed；实施/集成双版各1四诊断0、独立双轴源码无阻塞、正常hooks patch一致，详[Hive恢复](issue85-hunting-implementation.md#hive-首普通完整-fresh2026-11-14)。Seapunk14场布局`02b5f60`合`10797aa`，实施及集成双版各14及相邻scene各1+1绿、四诊断0，详[布局记录](issue84-underdocks-implementation.md#seapunk-正式布局与原生输入2026-11-14)；当前调度以唯一看板为准。
 
 Seapunk开场`a7c9c52`经`efdc880`合入：普通/Unknown相对原生追加一个正常非Minion，14池×1–4角色、三scene实际slot及原生循环/需击败；双轴及旧Underdocks oracle增量通过，正常hooks patch一致，实施/集成双版各5四诊断0。共享入口/Glory scene及Underdocks回归已绿，详[Seapunk记录](issue84-underdocks-implementation.md#seapunk-普通与事件原生开场2026-11-14)。完整fresh`97cf05a`经`d7fec1c`合入：已有同类与Gremlin真实scene两case，实施双版各2/集成开场+fresh各7四诊断0、独立双轴无阻塞、正常hooks patch一致，详[Seapunk恢复](issue84-underdocks-implementation.md#seapunk-已有同类与-scene-完整-fresh2026-11-14)。正式14场布局已补证，见上段。SoulFysh完整fresh`84124b9`合`8643b20`，旧Unknown边界oracle协调`3e83ea5`合`44ce260`；三fresh及2/3角色四开场，实施/集成双版各17四诊断0、双轴无阻塞、正常hooks patch一致，详[恢复记录](issue84-underdocks-implementation.md#soulfysh-完整-fresh-与最终-boss-边界2026-11-14)。实际金币/卡非空奖励，无药水roll，不签真实多端/正式奖励按钮。
 
-当前源码HEAD `8481af1`，目标 **public v0.107.1 / beta v0.113.0、RitsuLib 0.6.11**。本节覆盖下方历史记录中的旧目标、资源缺失、未提交状态和旧失败位置。旧发布包与旧版通过数不代签新目标。#82–#88仍部分验收；当前提交完整Test/Check、同提交双版包及正式实机矩阵尚未交付。Glory布局`a050e7b`经`21a563f`合入，实施及集成双版各15 PASS；SoulFysh`2d3658c`经`d9b80b4`合入，实施及集成双版各10 PASS，四诊断均0，两片均独立双轴审查及正常hooks完成。当前调度见[唯一看板](issues-82-88-board.md)，旧交接的watchdog和仅beta开场green已被后续证据覆盖。
+当前源码HEAD `cc0bc71`，目标 **public v0.107.1 / beta v0.113.0、RitsuLib 0.6.11**。本节覆盖下方历史记录中的旧目标、资源缺失、未提交状态和旧失败位置。旧发布包与旧版通过数不代签新目标。#82–#88仍部分验收；当前提交完整Test/Check、同提交双版包及正式实机矩阵尚未交付。Glory布局`a050e7b`经`21a563f`合入，实施及集成双版各15 PASS；SoulFysh`2d3658c`经`d9b80b4`合入，实施及集成双版各10 PASS，四诊断均0，两片均独立双轴审查及正常hooks完成。当前调度见[唯一看板](issues-82-88-board.md)，旧交接的watchdog和仅beta开场green已被后续证据覆盖。
 
 密林首普通完整fresh源码`c7dbd18`合入`2c44d4b`：原session.Enter独立完整开场，真BITE/GROW使counter1/Strength3后新大厅回counter0/Strength0；末敌孢子Vulnerable2、原清理与BurningBlood回血6、自然胜利保存后第二fresh非空领取/重复拒绝/原Proceed。双轴0发现、正常hook patch一致；专项双版各1、相关各6、集成fresh各1四诊断0无RID，详[密林恢复](issue84-overgrowth-implementation.md#密林首普通完整战前与胜利奖励-fresh2026-11-14)。单owner同进程，不签其他敌人恢复/布局/真实端。其后Knowledge选择计数与非终局奖励fresh已合入；Glory布局的Mystic遮挡曾取得真实red，当前状态见唯一调度看板。
 
