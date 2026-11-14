@@ -1,14 +1,14 @@
 # #82–#88 当前调度看板
 
-更新：2026-11-14。唯一维护者：集成主控。集成树：`AllMatters/.claude/worktrees/hunting-20261112`，分支`integration/issues-82-88-20261112`。当前源码HEAD=`cc0bc71`（TestSubject完整fresh已合入）；交接审查起点为`1464953`，流程入口`776e2ef`、Holes源码`1956c17`保留。
+更新：2026-11-14。唯一维护者：集成主控。集成树：`AllMatters/.claude/worktrees/hunting-20261112`，分支`integration/issues-82-88-20261112`。当前源码HEAD=`22a2cc3`（Phrog完整显示与输入已合入）；交接审查起点为`1464953`，流程入口`776e2ef`、Holes源码`1956c17`保留。
 
 目标：public v0.107.1 / beta v0.113.0 / RitsuLib 0.6.11。本轮已实际查询GitHub，#82–#88均OPEN；当前本地切片不自动关闭issue。后续主控更新此文首和卡片，不再另建当前状态表。
 
-**当前在制2/2：Phrog五虫正式布局返修、原生休息遗物/额外操作实施；技术诊断暂停1；Ready 0。** Glory和SoulFysh开场均已独立双轴审查、正常hooks提交并集成；SoulFysh完整专项集成双版各17及此前Underdocks各7 PASS，四诊断0。下节旧交接记录仅保留当时失败签名，当前动作以活跃卡为准。
+**当前在制2/2：Vantom正式布局、原生休息遗物/额外操作宿主返修；技术诊断暂停1；Ready 0。** Glory和SoulFysh开场均已独立双轴审查、正常hooks提交并集成；SoulFysh完整专项集成双版各17及此前Underdocks各7 PASS，四诊断0。下节旧交接记录仅保留当时失败签名，当前动作以活跃卡为准。
 
 ## 拉取入口
 
-Seapunk开场及完整fresh已集成，正式14场布局已修真实scene/自动行遮挡并完成实施双版各14，集成双版各14 PASS四诊断0；生成锚点有效不等于HP和目标输入可用。Aeonglass完整fresh已集成8481af1，实施及集成双版各1 PASS四诊断0、独立双轴无阻塞、正常hooks patch一致；TestSubject完整fresh已集成cc0bc71，实施/集成双版各1四诊断0；继续Phrog正式布局与原生休息遗物；主控继续唯一执行native/API/build/hooks。
+Seapunk开场及完整fresh已集成，正式14场布局已修真实scene/自动行遮挡并完成实施双版各14，集成双版各14 PASS四诊断0；生成锚点有效不等于HP和目标输入可用。Aeonglass完整fresh已集成8481af1，实施及集成双版各1 PASS四诊断0、独立双轴无阻塞、正常hooks patch一致；TestSubject完整fresh已集成cc0bc71，实施/集成双版各1四诊断0；Phrog完整显示/输入已由3961924→22a2cc3集成、实施及集成双版各7四诊断0；继续Vantom正式布局与原生休息遗物；主控继续唯一执行native/API/build/hooks。
 
 ### 2026-11-14 对话交接
 
@@ -23,8 +23,8 @@ Seapunk开场及完整fresh已集成，正式14场布局已修真实scene/自动
 
 |卡片/issue|行为|状态|owner / worktree|依赖与热点|下一动作/证据|开始时间|
 |---|---|---|---|---|---|---|
-|C82-rest-native / #82|真实MiniatureTent保剩余Heal→Mend，两角色原生Shovel附加Dig在safe可用/受罚禁用|Doing/窄准备|`soulfysh_recovery_prepare` / `rest-native-20261114`，基`cc0bc71`|新RestRelicTests/Hello；Rest生产只读；原UI/双端依实际接缝定，不手加第二Heal或patch Hook造容量|已核两版MiniatureTent、public Generate/Mend/Shovel，准备`.local/batch-scope-audit/rest-native-next-slice.md`；先窄核local正式Mend目标及native同步器，不将无合法项模拟混进真实来源|2026-11-14 接续|
-|C84-phrog-layout / #84|真实Phrog非零死亡→五虫正式完整HP/意图/鼠标目标/左右焦点可用，1/4角色两宽|Doing/窄准备|`glory_layout` / `phrog-layout-20261114`，基`2cf965c`|独占PhrogNodeTests及必要Phrog专用布局；Hello只在需新case时一行；与Aeonglass不共享生产|新完整文字/描边/鼠标/导航候选编译双版0错误；beta首native1角色1280捕获六对真实重叠（最大HP交63.65logical宽，五虫上排HP压下排intent）；Build0/Host1/Passed空/EngineMetadata0，原red归档phrog树.local/executor-phrog-layout/first-native2-beta-host.log；仅专用markers返修，public尚未运行|2026-11-14 接续|
+|C84-vantom-layout / #84|受罚Boss/SecondBoss两墨宝与Vantom正式自动布局、完整HP/意图及精确输入|Doing/实施|`glory_layout` / `vantom-layout-20261114`，基`22a2cc3`|新VantomLayoutTests/Hello；真几何red后才改专用布局，非三marker scene|Phrog已流出，按明确墨宝正式布局验收拉取；树创建/忽略目录检查通过，默认导出及原开场双版基线各1 PASS四诊断0，已派发；brief在集成树.local/batch-scope-audit/vantom-layout-next-slice.md，八独立case，先4角色紧凑|2026-11-14 11:49|
+|C82-rest-native / #82|真实MiniatureTent保剩余Heal→Mend，两角色原生Shovel附加Dig在safe可用/受罚禁用|Doing/正式Rest宿主返修|`soulfysh_recovery_prepare` / `rest-native-20261114`，基`cc0bc71`|新RestRelicTests/Hello；Rest生产只读；复用既有ENet child两run，不手加第二Heal或patch Hook|真实两run候选双版编译0错误；beta握手/Sidecar已过，首_ready缺screenShake宿主依赖，补真实对象后已越过。screen-shake-beta-host.log仍Build0/Host1/无PASS：Heal点击未到远端，child等history超时退出，cleanup另有peer-null引擎错误1。已核按钮AnimateIn后才启用鼠标，改等原可点击/真实focus，public native未运行；保真实双方自然下一根，不伪ready/绕guard，修后增量双轴|2026-11-14 接续|
 
 ## 候选池：尚不能派发实施
 
@@ -44,6 +44,7 @@ Seapunk开场及完整fresh已集成，正式14场布局已修真实scene/自动
 
 |issue/切片|源码提交|已证范围|剩余边界/证据|
 |---|---|---|---|
+|#84 Phrog五虫完整显示/原生输入|`3961924`，合入`22a2cc3`|原非零死亡/五虫链，1/4角色两宽完整HP与意图描边、精确鼠标target、含玩家左右全环及模型/RNG不变|初始六对及新增完整HP相交red均已修；独立双轴返修闭环、正常hooks patch一致；实施/集成双版各7四诊断0；[记录](issue84-overgrowth-implementation.md#phrog-五虫完整显示与原生输入2026-11-14)。不签暂停Boss诊断、完整fresh/真实端|
 |#87 TestSubject完整fresh|`d0ca778`，合入`cc0bc71`|真实两复生/第三形态clock3细看拒抽→fresh第一形态/clock缺席，再两复生新clock1可抽，终局第二fresh不重开|双轴无阻塞、正常hooks patch一致；实施及集成双版各1四诊断0；[记录](issue87-boss-implementation.md#testsubject-第三阶段与细看完整-fresh2026-11-14)，终局空奖/单owner同进程，不签暖Phrog修复或真实端|
 |#87 Aeonglass完整fresh|`fff3232`，合入`8481af1`|真实个人旧counter11/五状态/Ebb护甲与全战斗扰动，新大厅完整开场counter12，真实胜利第二大厅终局不重开|独立双轴无阻塞、正常hooks patch一致；实施及集成双版各1四诊断0；[记录](issue87-boss-implementation.md#aeonglass-个人计数与终局完整-fresh2026-11-14)，终局空奖励，不签非空领奖/真实端|
 |#84 Seapunk正式14场布局|`02b5f60`，合入`10797aa`|14普通逐场safe/hunted×1/4角色×两宽，正式HP/意图描边、鼠标精确目标及含玩家左右环，scene原marker保持|实施及集成双版各14、相邻Glory/SoulFysh scene各1+1四诊断0；双轴含无scene增量无阻塞，正常hooks；玩家display对豁免边界见[记录](issue84-underdocks-implementation.md#seapunk-正式布局与原生输入2026-11-14)，真实端待|

@@ -66,3 +66,15 @@ Phrog 在集成全量顺序下的事件回调热身与画布隔离返修、真�
 原生命令杀死其他敌人，再令菌兽最后死亡，孢子实际增加Vulnerable2并进入Ending；原CheckWinCondition/Player.AfterCombatEnd清理能力与Block、原BurningBlood回血6后自然prefinished保存。source原奖励生成非空金币/卡/药后skip，第二新大厅从胜利点重建，无新敌人或opening；保存前boundary与生成后完整玩家/RNG/map/history及奖励内容分阶段取expected。原同步领取实际改变金币、卡身份/升级与药水，独立预测本端profile发现；重复领取拒绝且完整状态不变，原Proceed只完成一次，不手调Complete或末尾补Save。完整SerializableProgress经JSON往返与原FromSerializable隔离，finally恢复原profile引用并核完整原内容不变。
 
 独立Standards/Spec均0发现，实际审查完整640+及原生消费者；正常hook后patch与已审内容一致。实施树`forest-fresh-20261114/.local/executor-forest-fresh/`中最小`entry1-beta-host.log`与`final-public-host.log`各1 PASS，`related-final-{public,public-beta}-host.log`各6 PASS。集成`2c44d4b`执行`Test.ps1 -Branch All -Filter 'Jigsaw Forest fresh' -SkipResourceExport`，双版各1 PASS，日志集成树`.local/executor-20261114/forest-fresh-integrated-{public,public-beta}-host.log`；以上Build/Host/Engine/Metadata全0，无RID/ObjectDB诊断。证据仅单owner同进程两次新大厅，不代签其他#84敌人的完整恢复、正式布局、真实多端或新进程。
+
+## Phrog 五虫完整显示与原生输入（2026-11-14）
+
+源码`3961924`经`22a2cc3`合入，限定`JigsawHuntingPhrogLayout`及原`JigsawHuntingPhrogNodeTests`两文件。原Phrog约2.5秒非零死亡、public等待及beta隐藏/揭示链保持；下排四个marker X为915/1200/1485/1770，第五X1485、Y相对第一槽上移270。原Phrog marker、四下排Y、原生死亡/行动/生成模型均未改，不扩到其他遭遇或非受罚来源。
+
+beta首真实几何red为六对显示/目标相交，含HP互压63.65logical宽、下排意图与第五血条互压；`first-native2-beta-host.log`保存原证据。扩展完整HP标签/描边oracle后，public又在真实导航后捕获第三虫意图与第五虫HP交叠72×5.77logical（`complete-hp2-public-host.log`）；第五槽再上移30，按该观测留约24logical间距，不放宽断言。`upper-row-public-host.log`实际1 PASS、四诊断0覆盖修复后的1/4角色两宽。
+
+正式矩阵检查1280×720和1680×720真实viewport/画布变换；HP为实际current/max、完整文字/最小内容及描边包络，意图为自然首个非stun招式的实际sprite、数值内容/溢出/outline。每只敌显示彼此及与其他敌人/所有玩家hitbox分离；真实鼠标motion/press/release必须返回同一虫实例，左右`InputEventAction`走包括全部玩家的完整原生焦点环，导航后再量显示重叠。前后原生玩家序列化、跑局/怪物RNG、history、HP/招式/能力不变；不据此声称所有玩家显示包络或所有后续意图均已穷举。
+
+新增输入scope补真实挂树NGame、原Target/Controller/arrow、screen tracker、TopBar焦点代理与真实energy factory；保原Activate/Enable/导航/输入，隔离游戏启动/音频生命周期。public热键读取真实隐藏DevConsole可见性依赖，保存并恢复原引用；不是patch热键消音。旧`input-tree2`虽1 PASS但Engine860、旧`final-phrog-public`虽7 PASS但Engine128均保留为失败夹具证据，不当最终green。新增scope的异常退出按源码审查核原引用/TestMode/InputMap/Harmony清理；旧NodeHost.Cleanup不冒称单独覆盖了新scope所有异常路径。
+
+独立Standards初审/增量无硬标准阻塞；Spec发现HP文字包络漏检及public输入缺console，均返修实读关闭，随后新几何red也按生产一行改动复审。正常hooks退出0，提交451+/27−与已审patch逐字一致；实施树`.local/executor-phrog-layout/upper-row-related-{beta,public}-host.log`双版各7 PASS，Build/Host/Engine/Metadata全0，涵盖真实死亡、原行动、backend warmup、旧room隔离、响应式地图前置及清理。集成`22a2cc3`再执行同组，集成树`.local/integration-slices/phrog-layout-integrated-{beta,public}-host.log`双版各7 PASS，四诊断全0。本片不代签暂停的#87 Boss原组六项故障、完整fresh、真实设备/游戏多端或#84整票。
