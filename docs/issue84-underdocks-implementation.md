@@ -92,3 +92,13 @@ Standards与Spec两轴独立读取最终230+/1−两文件及实际双版日志�
 实施和集成专项双版各5 PASS，Build/Host/Engine/Metadata全0。实施树`.local/executor-seapunk/final-suite-{beta,public}-host.log`；集成树`.local/integration-slices/seapunk-integrated-{beta,public}-host.log`。共享接缝相邻回归Forest入口1、Mystic入口1、Glory Axebots正式scene1及Underdocks7双版通过；日志实施树`regression-{forest,mystic-entry,glory-scene}-*-host.log`和`regression-underdocks-fixed-*-host.log`。Underdocks旧event断言总数1实际2失效，严格改为原Boss+恰一非Minion Seapunk，仍排除族母Lagavulin/Minion；原red日志保留。
 
 独立Standards与Spec及旧oracle增量复审无阻塞；正常hooks成功，提交patch与已审暂存patch完全一致。14场正式HP/意图/鼠标/焦点布局及完整fresh恢复另片，不以三scene生成锚点代签正式输入；真实端及#84整票未完成。
+
+## SoulFysh 完整 fresh 与最终 Boss 边界（2026-11-14）
+
+测试源码`84124b9`经`8643b20`集成，后续`3e83ea5`经`44ce260`协调Seapunk出现后的旧边界oracle。三条独立case为单Boss、双Boss第一场、SecondBoss；真实session.Enter后采集独立完整开场，执行原生动作至Fade并停在Scream待行动，形成隐身/Intangible2、杀左随从并扰动HP/金币/牌堆/RNG，再实际SaveRun→全新LoadRunLobby。新run/session/room/三怪均为新身份，完整五堆顺序、能量/Block/powers、run/owner/monster RNG、原首招和IsInvisible复原，两随从各一次Minion1。合法SecondBoss使用双版已核公开RoomSet链，原生计数1→2→2，不拿同名Boss伪造第二场。
+
+自然致死Boss触发原生随从清理及胜利保存，再第二新大厅验证非空奖励点。预载原生仍会GenerateMonstersWithSlots，断言的是敌人0且opening/coordinator不增加，不把资源预载误当重开。双Boss第一场在胜利存档及奖励fresh保追猎/面具1，single/SecondBoss在奖励保存前清0。金币和卡牌实际领取、重复拒绝并完整状态不变、原Proceed完成；本seed未roll药水。Profile JSON往返克隆隔离，finally还原原引用并核全内容；临时Harmony、NetId、viewport、selector与保存回调均清理。
+
+实施树`.local/executor-soulfysh-fresh/three-case-{beta,public}-host.log`各3 PASS，`final-suite-{beta,public}-host.log`各17 PASS（原10+2/3角色四开场+三fresh），四诊断0。合入Seapunk后集成beta在旧event总数1断言报actual2；独立树严格修为event/ordinary-root的原Boss+恰一primary非Minion Seapunk，原SoulFysh随从Minion数量与其他scope不变。修后`with-seapunk-{beta,public}-host.log`各17 PASS四诊断0；原集成red保留在`.local/integration-slices/soulfysh-fresh-integrated-beta-host.log`，未归档未执行public为新证据。
+
+Standards与Spec独立源码审查及边界oracle增量复审通过；非阻塞重复奖励断言建议保留未扩大本片重构。正常hooks退出0且两次提交patch与已审内容一致；Hello注册冲突仅保留Seapunk及SoulFyshRecovery两条。集成`44ce260`实际双版各17 PASS，Build/Host/Engine/Metadata全0，日志`.local/integration-slices/soulfysh-fresh-fixed-{beta,public}-host.log`。同进程单owner新大厅，不代签真实多端/新进程、正式奖励按钮或换幕UI；本片未关闭#84。
