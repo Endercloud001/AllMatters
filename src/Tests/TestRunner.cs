@@ -67,7 +67,9 @@ public partial class TestRunner : Node
             int result = await HelloWorldTests.Run(OS.GetCmdlineUserArgs(), name =>
                 // Activation starts two isolated hosts; completed Holes starts three
                 // sequential rounds of three endpoints. Each round is bounded to 50 seconds.
+                // Knowledge completes twelve real enemy turns, including their native animations.
                 watchdog.Renew(name, name == "Jigsaw recovery native load lobby event-holes-completed all" ? 180 :
+                    name == "Jigsaw Knowledge two native owners naturally stagger all three curse rounds" ? 180 :
                     name == JigsawActivationTests.Name ? 120 : 60));
             GetTree().Quit(result);
         }
