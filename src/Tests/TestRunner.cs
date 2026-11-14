@@ -68,8 +68,10 @@ public partial class TestRunner : Node
                 // Activation starts two isolated hosts; completed Holes starts three
                 // sequential rounds of three endpoints. Each round is bounded to 50 seconds.
                 // Knowledge completes twelve real enemy turns, including their native animations.
+                // TestSubject observes two rooms, three native phases and both complete focus rings at two widths.
                 watchdog.Renew(name, name == "Jigsaw recovery native load lobby event-holes-completed all" ? 180 :
                     name == "Jigsaw Knowledge two native owners naturally stagger all three curse rounds" ? 180 :
+                    name is "Jigsaw TestSubject native layout roles=1" or "Jigsaw TestSubject native layout roles=4" ? 180 :
                     name == JigsawActivationTests.Name ? 120 : 60));
             GetTree().Quit(result);
         }
