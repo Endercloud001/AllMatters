@@ -90,3 +90,14 @@ beta首真实几何red为六对显示/目标相交，含HP互压63.65logical宽�
 旧 `full-related-{beta,public}-host.log` 虽各12 PASS但Engine各16，均来自SecondBoss原Act未选择Boss而绘图报错，不作为最终绿。测试改为GenerateRooms后通过原Act公开API设第一/第二Boss、原MarkRoomVisited并核PullNextEncounter/HasSecondBoss/访问计数；`secondboss-fixture-beta-host.log` 最小1 PASS四诊断0。Standards发现默认序列化丢RNG字段，Spec发现晚快照/玩家pair漏检，均补齐后独立实读index增量关闭；初始生产及真实API范围继承已审结果，未用reviewer摘要代替源码。
 
 正常hooks退出0，提交patch与已审三文件逐字一致；实施树 `.local/executor-vantom-layout/final-rng-{beta,public}-host.log` 双版各12 PASS，Build/Host/Engine/Metadata全0。集成源码 `307e829` 执行相同双版相关组，集成树 `.local/integration-slices/vantom-layout-integrated-{public-beta,public}-host.log` 双版各12 PASS，四诊断全0。完整fresh、全部后续招式、真实游戏多端及实体设备仍归#84后续，不签整票或暂停#87原组六项诊断。
+## Vantom 普通墨宝与非空奖励完整 fresh（2026-11-14）
+
+源码 `d390f50` 经 `44413ea` 合入，仅新 `JigsawHuntingVantomRecoveryTests.cs` 700行和Hello一注册，生产/checkpoint/layout未改。合法原生三Act `[Overgrowth,Hive,Glory]` act0单Boss源通过真实session.Enter；在原保存回调序列化前独立采before-roll Boundary，首玩家回合抽牌完成再采完整Opening。原三敌为两普通非Minion墨宝夹原Vantom，HP/Slippery原生缩放保留；不与safe不同名单作HP/RNG精确全等，原插入顺序自然改变抽样及CombatId。
+
+源战真实执行Vantom四招，原生45伤害、discard三Wound、Strength2、StateLog五条；即使下一意图绕回原首招，快照也能抓到旧战。另一墨宝真Jab/RollMove，核合法后继及正确共享run.Rng.MonsterAi变化，不用monster.Rng冒称随机分支流；原生命令杀死第三个普通墨宝，旧名单确实缺一。再扰动玩家资源/HP、五堆和各RNG，断言完整Opening确已不同后活动保存；第一新LoadRunLobby重建新run/session/room和三敌身份，旧死墨宝恢复为活的默认Jab，旧Wound/Strength/StateLog回到原开场，同target重复Enter不二扣。
+
+Boundary/SetupActFloor0/完整Opening严格按原生阶段对照，覆盖完整SerializablePlayer/RunExtraFields、Acts与消费计数/map/history/根房、五堆有序Card.ToSerializable/Energy、双方Block/powers含DisplayAmount、Round/Side/CheckpointAct、敌人order/slot/HP/NextMove/StateLog/MiddleInklet及run/player/monster RNG；profile完整JSON往返隔离，finally恢复原引用与全内容。复建后再执行一次真实首招验证状态机可继续，而不是仅字段相等的残壳。
+
+fresh真杀Boss后原CheckWinCondition=false、两墨宝仍活且不清场，再杀一墨宝仍拒胜；最后一只普通墨宝死亡才走原coordinator清理及胜利自动保存。胜利序列化前Boundary、奖励生成后Boundary/RewardContents分别独立取样；第二新大厅恢复非空金币/卡奖励、精确原同步领取/重复拒绝/原Proceed，不新增开场、敌人或二扣。药水只按本次实际roll处理，不造ExtraRewards；单Boss一链不机械复制SoulFysh已证的三root矩阵。
+
+独立Standards/Spec实读完整700行、原生RollMove/胜利/奖励消费者均无阻塞，正常hooks退出0、提交patch与已审内容逐字一致。实施树 `.local/executor-vantom-fresh/entry1-{beta,public}-host.log` 双版各1 PASS，Build/Host/Engine/Metadata0；双版编译无新增文件警告。集成源码 `44413ea` 执行全Vantom组（原开场4+布局8+fresh1），集成树 `.local/integration-slices/vantom-fresh-integrated-{public-beta,public}-host.log` 双版各13 PASS，Build/Host/Engine/Metadata全0。单owner同进程两次新大厅，不签真实多端/新进程、正式奖励输入/设备或#84整票。

@@ -49,3 +49,17 @@ Godot UI 宿主注册原生 ScriptPath 一次，挂载真正 NRestSiteButton / M
 4. 追猎休息检查 Heal/Mend 原本禁用条件、遗物新增项灰暗不能执行、治疗加成/奖励及额外操作仍生效；单人不增加 Mend。键鼠返回与手柄取消都应可继续。
 5. 耗尽事件根房及内部战斗安全至全队完成；普通事件购物/治疗放行。追猎中具名事件Boss不能清面具；双Boss首场不解除；末地图Boss胜利奖励前解除、读奖励点不返还；新幕清旧状态。
 6. 在根房未全员完成、全员完成后、末Boss奖励点分别保存恢复，核对额度/根房快照/追猎/面具同点一致。使用副本检查旧v1未耗尽迁移和边界拒绝，不替换真实用户存档。
+
+## 真实休息遗物与双 run 原生离开（2026-11-14）
+
+源码 `09fa14f` 经 `76e49d2` 集成，仅新 `JigsawHuntingRestRelicTests.cs` 839行和Hello一注册，生产服务限制未改。目标public0.107.1/beta0.113.0、RitsuLib0.6.11及匹配资源；真实ENet host/child两个进程各有独立两角色run，原NetHost/NetClient握手后才SetUpTest。原生生成MiniatureTent/Shovel及Heal/Smith/Mend/Dig，不手注入选项或替换遗物Hook；source根已被接受，测试通过原EnterMapCoord生成真实Rest房间，后续离开沿生产完成/投票/fade/native-ready自然进入下一根，不伪造ready或绕过guard。
+
+受罚场：真实sender/receiver拒Smith和原Shovel附加Dig，完整玩家/牌组/个人及共享袋/RNG/history/根房/chosen-hovered-options均不变。正式宿主真实Heal按钮仅治疗owner且写一次HEAL，Tent只移除用过的Heal、保原Mend/Smith/Dig；另一真实端原Heal治疗其本地角色，无Tent便清剩余选项。原Mend按钮进入本地选人，Godot真实motion/press/release命中另一角色，双方分别订阅原PlayerChoiceReceived、取原choice-id，断言唯一精确owner/id/target，owner HP不变、target获得独立采样的原治疗量，双方同阶段实际效果一致。剩余禁项仍不能执行，owner原Proceed先只完成本端，随后child自己的sender完成；两张原投票齐后才自然离开Rest进入所选下一根并保存。beta原AfterAllRestSitesCompleted通过原退出清禁项结束，public按其实际退出API核对，不伪造beta等待。
+
+Safe场：两端各自从前态深克隆PlayerRngSet、个人与共享RelicGrabBag，沿原RollRarity及PullFromFront预测精确奖品/袋结果/Rewards状态，预测前后完整Effects不变证明未消耗真实状态。实际原Dig只给owner一件精确可变遗物，个人/共享袋和完整Rewards状态符合预测，只写一次DIG、Tent保其他原选项，另一角色完整SerializablePlayer及地图/追猎状态不变。双方各自独立核效果后交换原始before/after实际快照，不只比遗物总数。
+
+实际跨端全玩家快照曾在 `exact-effects-beta-host.log` 失败：结构diff仅 `Players[0/1].discovered_relics`，HP/选择/牌组/袋/RNG相同。原生RelicCmd.Obtain→ProgressSaveManager.MarkRelicAsSeen仅LocalContext本地owner写本端profile及player发现记录；因此跨端仅在DeepClone比较投影分离该精确键，完整原始JSON原样留档。同端完整Effects/otherBefore仍保字段，另以原profile未见、实际新owned IDs和本端owner独立预测player/profile发现增量，远端列表必须不变；profile完整JSON往返隔离且finally恢复原引用和完整原内容，未吞掉本地发现错误。
+
+夹具真实返修：原镜像Control用GetGlobalRect中心会点到前景，改用完整GetGlobalTransform×局部中心并逆变换核点在内，原HoveredNode必须同目标；TestMode使同步thought-bubble工厂返回null，仅该已核工厂调用期间临时false并finalizer还原，不替换选择/Refresh。源Rest硬编码row1与下一投影重复，原ready正确拒绝；按生产history count-1改源row0并断言未访问后自然进房通过。旧 `projection-row-beta-host.log` 虽1 PASS但退出Engine2：child先硬清理后host仍发quality；改原生graceful Disconnect，host通过真实Update收到断连、移除peer后才放child进finally，send/quality没有patch或静音。旧失败日志保留，未作为最终绿。
+
+独立Standards/Spec完整839行及增量实读闭环，精确Mend归属和Dig原袋身份两P2已修；正常hooks退出0，提交patch与已审patch逐字一致。实施树 `.local/executor-rest-native/profile-local-beta-host.log` 受罚1 PASS、`exact-dig-beta-host.log` safe1 PASS，`exact-final-public-host.log` 两例PASS，父Build/Host/Engine/Metadata均0；四个实际child各1 PASS、无诊断且stderr0。集成树 `.local/integration-slices/rest-{relics,native-rest}-integrated-{public-beta,public}-host.log` 双版遗物各2、原native rest各2 PASS，四诊断全0；主控另核集成四个child原始日志/错误流。本片为本机ENet独立端宿主、正式Rest输入在host，child通过原生sender；不签双方正式游戏UI、真实玩家机器/设备或#82整票，最终当前源码完整Check/统一包仍归#88。

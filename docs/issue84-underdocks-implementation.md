@@ -118,3 +118,15 @@ Standards与Spec独立源码审查及边界oracle增量复审通过；非阻塞�
 首beta05先捕获重复SetUpForCombat夹具错误，去重复后取得真实GremlinMerc血条交叠13logical；scene修复后同例绿。全矩阵首beta01又取得CorpseSlugs原生压缩后hitbox/HP真实交叠，无scene分支修复后同例绿。最终实施树`.local/executor-seapunk-layout/full-matrix-second-{beta,public}-host.log`双版各14 PASS，Glory Axebots scene及SoulFysh compact相邻回归双版各1+1 PASS，四诊断均0；首失败未执行public，不归档旧public日志。
 
 独立Standards/Spec初始及无scene增量源码审查均无阻塞；正常hooks仅展开四处return换行，最终835+/0提交patch已核。重叠oracle对敌相关原生旧重叠仅豁免相同safe实体对且面积不增加，新增Seapunk没有旧基线豁免；玩家display/display及display/hitbox对跳过，玩家hitbox对按safe比较，不能声称所有玩家显示也已检查。原Rat4 hitbox/Rat5 HP旧交叠保留。集成树`.local/integration-slices/seapunk-layout-integrated-{beta,public}-host.log`双版各14 PASS，Build/Host/Engine/Metadata均0。正式多游戏端/实体设备及#84整票不由此签完。
+
+## Matriarch 醒态与睡眠随从完整 fresh（2026-11-14）
+
+源码 `050314d` 经 `9364122` 集成，仅新 `JigsawHuntingMatriarchRecoveryTests.cs` 636行和Hello一注册。真实受罚族母 `session.Enter`、单Act `[Underdocks]` act0，原保存回调序列化前独立采完整Boundary，原首玩家回合抽牌完成后独立采完整Opening；不是手工组装CombatState或从恢复结果反填expected。既有Underdocks7的A0/A7/A8×1–4角色缩放/半血、睡眠/Minion1和自然清理证据复用，本片单owner同进程新run不冒称四真实端。
+
+真实敌方回合使本Mod Lagavulin的SleepTurnCount从0到1，再真实Damage穿过族母半血阈值，原AsleepPower唤醒body、移除原睡眠/Plating且IsShellAwake为true；后续原回合使随从SleepTurnCount=2。再改变玩家/敌人Block与powers、五堆顺序、玩家资源及run/player/monster RNG，先断言确实偏离原开场后实际Save。第一新LoadRunLobby走原SetupSavedMultiplayer/GenerateMap/LoadIntoLatestMapCoord，新run/session/room/双怪对象全部不同；完整复原原开场两者睡眠、body/shell均false、原生缩放后半值满HP/Minion1一次、SleepTurnCount和DebuffTurnCount均回0，同target重复Enter不二扣。
+
+快照包含完整SerializablePlayer和RunExtraFields、Acts/floor/visited/history、完整根房/消耗计数、五堆有序Card.ToSerializable、Energy、双方Block/powers的Amount及DisplayAmount、Round/CurrentSide/CheckpointAct、敌人order/slot/HP/NextMove/各RNG；另显式包含族母IsAwake/IsShellAwake、随从StartsAwake/IsAwake/SleepTurnCount/DebuffTurnCount。Setup原生ActFloor=0仅在setup阶段预测；入房完整Opening与胜利保存、奖励生成后Boundary分开对照。
+
+族母真致死后原生清除仍睡眠的Minion，原AfterCombatEnd清理及BurningBlood回血6、面具释放、胜利自动保存均独立核增量；第二新大厅不再增加startup/opening且敌数0。单Act最终Boss沿原RewardsSet产生空集合并completed，不造ExtraRewards，不把空终局写成非空领取或Proceed已验证。原profile完整JSON往返隔离，finally恢复原引用并核完整原内容。
+
+独立Standards/Spec实读636行、原生双版唤醒/奖励消费者及完整快照均无阻塞；正常hooks退出0，提交patch与已审patch逐字一致。实施树 `.local/executor-matriarch-fresh/entry1-{beta,public}-host.log` 双版各1 PASS，Build/Host/Engine/Metadata0；集成树 `.local/integration-slices/matriarch-{fresh,related}-integrated-{public-beta,public}-host.log` 双版fresh各1、相关Underdocks各7 PASS，四诊断全0。新增文件双版编译无警告，项目既有其他测试nullable警告仍保留。不签正式布局、真实多游戏端/新进程/实体设备或#84整票。

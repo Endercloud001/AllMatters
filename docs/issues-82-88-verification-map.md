@@ -1,6 +1,8 @@
 # #82–#88 验证覆盖地图：V14 / S6 / H13 / U8
 
-2026-11-14 Vantom正式布局：`d9e72b2`→`307e829`，八个Boss/SecondBoss×1/4角色×两宽case及原四例，实施双版各12 PASS、Build/Host/Engine/Metadata0；独立双轴返修闭环、正常hooks patch一致。集成同组双版各12 PASS四诊断0（`.local/integration-slices/vantom-layout-integrated-{public-beta,public}-host.log`）；显示/原生鼠标/完整焦点环与resize/input前后状态已证，初始layout hook模型不变来自生产源码审查。完整fresh及正常墨宝胜利边界另备后续片，真实游戏多端/设备仍待；详[布局记录](issue84-overgrowth-implementation.md#vantom-与墨宝完整显示及原生输入2026-11-14)。
+2026-11-14 Matriarch完整fresh：`050314d`→`9364122`，实施/集成双版fresh各1、集成Underdocks各7 PASS、四诊断0；真实醒body/shell和随从睡眠计数2后完整重建，胜利第二新大厅空终局不重开。单owner同进程、两次新大厅，不签正式布局/真实端/非空奖，详[族母记录](issue84-underdocks-implementation.md#matriarch-醒态与睡眠随从完整-fresh2026-11-14)。
+
+2026-11-14 Vantom正式布局：`d9e72b2`→`307e829`，八个Boss/SecondBoss×1/4角色×两宽case及原四例，实施双版各12 PASS、Build/Host/Engine/Metadata0；独立双轴返修闭环、正常hooks patch一致。集成同组双版各12 PASS四诊断0（`.local/integration-slices/vantom-layout-integrated-{public-beta,public}-host.log`）；显示/原生鼠标/完整焦点环与resize/input前后状态已证，初始layout hook模型不变来自生产源码审查。完整fresh及正常墨宝胜利边界已由d390f50→44413ea补证（实施双版各1、集成Vantom双版各13四诊断0），真实游戏多端/设备仍待；详[布局记录](issue84-overgrowth-implementation.md#vantom-与墨宝完整显示及原生输入2026-11-14)。
 
 首轮2026-11-13，2026-11-14补充当前缺口再核。下表保留首轮审计时的证据及缺口；当前实施提交以[实施索引](issues-82-88-implementation.md)和下述最新增量为准，历史W锚点不是当前分支状态。首轮审计仅只读调查，后续逐片实施；均未启动游戏、安装或改真实存档。编号沿来源；S1–S6、H1–H13、U1–U8在本文表示**六/十三/八个场景行**，不要与交接文档中 S1模型、S2注册、S3保存等证据级别混淆。D=领域行为，N=真实原生DLL/命令/保存，G=真实Godot树/输入，M=正式游戏真实端。ENet本机独立进程单列，不能自动代签M。
 
@@ -12,15 +14,15 @@
 
 |责任票|已落实且不重复开发|当前仍需核实/实施或集中验收|
 |---|---|---|
-|#82|原生服务限制/库存、真实休息及HUD输入、完整点/ENet、控制台已有实现与审查|真实原生禁项/附加选项及额外次数来源要准确；无合法选项现为故障模拟，未发现合法原生来源，不虚构CoffeeDripper。当前目标相关最终回归、正式双端与人工归属留原票。|
+|#82|原生服务限制/库存、真实休息及HUD输入、完整点/ENet、控制台已有实现与审查|原MiniatureTent额外操作与Shovel附加Dig已由09fa14f→76e49d2真实ENet双run/精确owner效果补证，集成双版遗物2+原native rest2四诊断0；无合法选项现为故障模拟，未发现合法原生来源，不虚构CoffeeDripper。当前目标相关最终回归、正式双端与人工归属留原票。|
 |#83|双版匹配资源正式整房鼠标开箱/Proceed、Tween与Face/Spoils、自然保存fresh已补；旧表“public整房未测”已过时|真实游戏双端/实体设备及支持来源准确清单保留，不能把未知第三方支付视为支持。无需为本票再造一遍正式开箱。|
-|#84|Forest首普通、SoulFysh三种Boss、Seapunk已有同类/scene完整fresh均已集成；Seapunk开场及SoulFysh四组合正式布局见看板|Seapunk14场正式布局已集成且双版各14四诊断0；Phrog五虫正式完整场地已由3961924→22a2cc3补证（实施/集成双版各7四诊断0）；墨宝等正式完整场地、Matriarch/Waterfall等特殊状态适用fresh/布局须按实际来源补；事件/多端责任不转#88。不能从SoulFysh单owner推全票恢复。|
+|#84|Forest首普通、SoulFysh三种Boss、Seapunk已有同类/scene完整fresh均已集成；Seapunk开场及SoulFysh四组合正式布局见看板|Seapunk14场正式布局已集成且双版各14四诊断0；Phrog五虫正式完整场地已由3961924→22a2cc3补证（实施/集成双版各7四诊断0）；Vantom正式布局已由d9e72b2→307e829双版各12补证；Matriarch完整fresh已由050314d→9364122补证。Waterfall等其他特殊状态适用fresh/布局须按实际来源补；事件/多端责任不转#88。不能从SoulFysh单owner推全票恢复。|
 |#85|Knowledge完整选择计数fresh、单owner Tender真实屏；Holes战前/奖励/完成点三轮ENet三端；蟹固定Artifact3已集成|普通Hive首真实受罚遭遇完整fresh已由c2cb995→2cf965c补证，实施/集成双版各1四诊断0；旧ActTwo.HiveNormalOpening仍是构造/直接Hook，只作开场单元证据；连续独立事件、其他特殊Boss恢复、正式选择多owner/焦点与布局另按实际缺口准备。|
 |#86|Mystic首普通完整fresh与原生三招、Glory12普通+3精英正式布局及原生输入已集成|旧表“Mystic未生产/未布局”作废；保其他适用特殊状态恢复和真实设备/多游戏端归属，不无依据把15场再跑一次。|
 |#87|Queen一次重燃/火炬、完整fresh、四组合正式布局，MultiClaw/Wither源行为已集成|Aeonglass个人计数完整fresh已由fff3232→8481af1补证，实施及集成双版各1四诊断0；TestSubject第三阶段完整fresh已由d0ca778→cc0bc71补证（实施/集成双版各1四诊断0）；适用正式布局尚缺；Boss原组间歇故障仍暂停未修，只有可区分新假说才恢复实验，不用probe绿签修。|
 |#88|匹配public资源、两遗物/Flight/控制台/每日字段已实现，用户#93/#94既有人工结果保留|V01–14/S6/H13/U8旧表是历史审计；当前未齐整票证据继续由原票承担。最终同提交完整Check、双版包/许可及集中人工矩阵仍待；真实手柄责任明确列出，不要求当前用户补设备。|
 
-本轮已完成 #85 **首普通Hive完整fresh**（c2cb995→2cf965c）；本片范围为：从已核两版`Hive.GenerateAllEncounters`及现有`SpinyToadNormal`入口入手，只在准备期选择合法原生队列，实际session.Enter→战中保存→新大厅完整开场/三种初始负面一次→自然胜利保存→第二新大厅非空领取/原Proceed。复用已有Forest/Seapunk恢复宿主，不改Hive生产、不重复已证开场1–4角色矩阵。Aeonglass个人旧计数重置及终局保存已集成补证；TestSubject完整fresh亦已集成补证；当前Matriarch完整fresh与#82真实双run休息遗物在制，当前动作见唯一看板；不依赖暂停的Phrog原组六项诊断。其他远期缺口不在此次盘点时细化全部文件级计划。
+本轮已完成 #85 **首普通Hive完整fresh**（c2cb995→2cf965c）；本片范围为：从已核两版`Hive.GenerateAllEncounters`及现有`SpinyToadNormal`入口入手，只在准备期选择合法原生队列，实际session.Enter→战中保存→新大厅完整开场/三种初始负面一次→自然胜利保存→第二新大厅非空领取/原Proceed。复用已有Forest/Seapunk恢复宿主，不改Hive生产、不重复已证开场1–4角色矩阵。Aeonglass个人旧计数重置及终局保存已集成补证；TestSubject完整fresh亦已集成补证；当前Phrog完整fresh与帝皇蟹正式布局在制，#82真实双run休息遗物已集成，当前动作见唯一看板；不依赖暂停的Phrog原组六项诊断。其他远期缺口不在此次盘点时细化全部文件级计划。
 
 以下为2026-11-13历史增量（当时源码`1956c17`）；当前状态以前段再核和实施索引为准。目标public0.107.1/beta0.113.0/RitsuLib0.6.11，匹配public资源及辅助依赖已齐。商店场景、Phrog右侧布局、Hive精英Weak2、MultiClaw9/10及原生3+N、public启动Task观察修复、Waterfall清负面与Artifact1、Hive事件普通三项各1、Holes单owner战前/奖励恢复、Wither强化链及Holes三端战前/胜利奖励恢复均已独立双轴审查并正常集成；准确提交、专项数量和边界见[实施索引](issues-82-88-implementation.md#当前接续状态2026-11-13)。
 
