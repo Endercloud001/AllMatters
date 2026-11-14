@@ -59,7 +59,7 @@ H来源为追猎原型原13组；这里只列正式集成及剩余责任，原�
 |H1 全场景追加/布局→V10|Phrog/Vantom/SoulFysh/Seapunk14场/Glory15场/Queen等正式完整HP意图/鼠标/焦点；蟹原场景保持|#84 Matriarch睡/醒布局双版各5已集成；其他适用场景与真实端逐票补。只有真实加怪/遮挡red才改布局，效果片保持原场景|
 |H2 真菌兽/术士→V10|#84真菌生长/孢子/自然Ending、#86Mystic56HP/六随机/HEAL12/BUFF2/资源/fresh|其他适用人数/独立owner/正式端；不照搬上游AI，不以素材存在当行为通过|
 |H3 第一二幕逐敌→V10|#84密林暗港多敌规则/固定值/自然死亡/fresh；#85Hive普通/精英/事件及蟹Artifact3|帝皇蟹完整战前/非空奖励fresh已集成；其他完整恢复/事件/布局与来源边界仍归#84/#85，不能以代表怪签整表|
-|H4 无厌/知识恶魔→V10|#85三轮单owner选择/效果/展示不入堆、Tender真实屏和Knowledge fresh|双owner首轮已集成（真实ENet/输入/效果归属/屏释放）；首轮自然coordinator调度已集成；死亡/缺席/断线/其他轮多人、正式端与剩余输入|
+|H4 无厌/知识恶魔→V10|#85三轮单owner选择/效果/展示不入堆、Tender真实屏和Knowledge fresh|双owner首轮已集成（真实ENet/输入/效果归属/屏释放）；自然三轮双owner已673ce47集成；死亡/缺席/断线、正式端与剩余输入|
 |H5 第三幕/实验体→V10|#86Mecha/SoulNexus/Flail原生动作；#87TestSubject复生完成后计时/3、6、9/Skittish10/Suck3/MultiClaw/fresh|原调度及适用多人/布局/真实端；public/beta动作差异保留，不能改一版对齐另一版|
 |H6 女王→V10|真实死亡一次重燃、六意图/TorchHead50HP/10伤/Minion、出生不攻/次轮攻击/存活+2、fresh/布局|真实端/其他适用意图和设备；来源阻止死亡不得触发，已死火炬不复补|
 |H7 沙漏→V10|初值/触发/reset12、每owner、五状态与溢出/Wither升级、完整fresh|#87原NPower图标/真实hover/个人计数UI双版eng/zhs各2已集成；适用多人/正式端，模型Amount6不等于个人显示12|

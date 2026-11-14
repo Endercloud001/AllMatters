@@ -238,3 +238,11 @@ Tender 图为用户提供的1,529,010字节原件 `tender.png`，按 #63 设计�
 实施树crab-fresh-20261114/.local/tests/archives的crab-fresh-beta3-20261114-224250831-867305aa91464e8bbcb0b42a03f9cabc、crab-fresh-public1-20261114-224340584-806cdd7ef46d46d88d10b2b3ca52de85各1 PASS；crab-regression-20261114-224406263-c1431efe10c7463483c3f35b43c32fb1双版开场各5、crab-layout-regression-20261114-224515170-d1a58d39987540bf8e8c370d83fb7c6a双版布局各4。全部strict四诊断0，准备路径/canonical未生成怪物资源失败单独保留。Standards硬规范0/smell0，Spec0发现；正常hooks，已审/提交patch逐字节一致，.import保留未提交。
 
 集成f2906d4双版fresh各1 strict通过，原日志和summary位于.local/tests/archives/crab-fresh-integrated-20261114-230726065-7f3a488b905f4a368658fffe5620bb02。仅单owner同进程两个新大厅，不签真实多端/新进程/正式奖励按钮与完整#85。
+
+## Knowledge 双owner自然三轮贯穿（2026-11-15）
+
+22dd5cc经673ce47合入，两文件143+/10-；复用原ENet runner保留旧manual/native首轮两例，新增一条完整三轮case。原生结束回合自然走至Curse round1/5/9，每轮host先选/child仍持屏等待，三对MindRot/Calamity、Sloth/Tender、WasteAway/Disintegration21及独立能力/History增量、owner归属和展示牌不入堆均核。第三轮后继续至round13：原moves12/choices6/每端屏释放3、下一Slap且无第四选择屏，不写私有计数或手工PerformMove/RollMove补推进。
+
+只有精确新例预算180秒，保留每阶段20秒及旧例预算；实际原60秒watchdog中断于第三轮前的原生动画链。真实Slap缺相机Strong preset按现Matriarch纯相机隔离接缝处理，保留Damage/动画/回合消费者，finally卸patch。两次宿主/预算准备失败留原归档，不冒称玩法red。
+
+实施树knowledge-three-rounds-20261114/.local/tests/archives的knowledge-three-beta-budget-20261114-233926415-911936f94a404b499113128fa1394c93及knowledge-three-public-20261114-234208249-950d1913b8ef4ec3a66fac59eafa8b3c双版新各1；旧manual/native各双版1，归档knowledge-three-regression-manual-20261114-234443718-f5dd8cfd892b427ab210c0a9214916f5及knowledge-three-regression-native-20261114-234532354-f12c7be8c8fc4111b390aa9ddd2914ca，全部strict四诊断0。独立双轴0发现，正常hooks，已审/提交patch逐字一致，原.import保留。集成673ce47双版新贯穿各1 strict通过，原日志/summary在.local/tests/archives/knowledge-three-integrated-20261114-235238176-09aab019d90249f5ba95365b387313ec。死亡/缺席、等待中断线及完整#85仍未签。
