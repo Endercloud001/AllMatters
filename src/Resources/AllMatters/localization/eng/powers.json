@@ -38,5 +38,6 @@
   "ALL_MATTERS_WEIGHTED.description": "Lose 1 Energy when this card is played.",
   "ALL_MATTERS_POWER_SCRUTINY_POWER.title": "Scrutiny",
   "ALL_MATTERS_POWER_SCRUTINY_POWER.description": "During this player turn, players cannot draw extra cards. Opening hand draws and cards added directly to hand are unaffected.",
-  "ALL_MATTERS_POWER_SCRUTINY_POWER.smartDescription": "During this player turn, players cannot draw extra cards. Opening hand draws and cards added directly to hand are unaffected."
+  "ALL_MATTERS_POWER_SCRUTINY_POWER.smartDescription": "During this player turn, players cannot draw extra cards. Opening hand draws and cards added directly to hand are unaffected.",
+  "AM_HUNTED_AEONGLASS.description": "Every [blue]12[/blue] cards you play, add a [gold]{Wound}[/gold], [gold]{Burn}[/gold], [gold]{Void}[/gold], [gold]{Dazed}[/gold], and [gold]{Wither}[/gold] to your [gold]Hand[/gold]. Cards remaining: [blue]{CardsLeft}[/blue]."
 }
