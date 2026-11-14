@@ -155,7 +155,11 @@ internal static class JigsawHuntingSoulFyshTests
             using var battle = new SoulBattle(4, scope);
             await battle.Initialize();
             bool hunted = scope == "hunted";
-            Check(battle.Combat.Enemies.Count == (hunted ? 3 : 1) &&
+            bool ordinaryEnhancement = scope is "event" or "ordinary-root";
+            Check(battle.Combat.Enemies.Count == (hunted ? 3 : ordinaryEnhancement ? 2 : 1) &&
+                battle.Combat.Enemies.Count(enemy => enemy.Monster is Seapunk) == (ordinaryEnhancement ? 1 : 0) &&
+                battle.Combat.Enemies.Where(enemy => enemy.Monster is Seapunk).All(enemy =>
+                    enemy.IsPrimaryEnemy && !enemy.HasPower<MinionPower>()) &&
                 battle.Combat.Enemies.Count(enemy => enemy.Monster is SoulFysh) == 1 &&
                 battle.Combat.Enemies.Count(enemy => enemy.HasPower<MinionPower>()) == (hunted ? 2 : 0),
                 $"scope={scope}: only the actually hunted top-level Underdocks Boss gets its pair; actual={battle.Combat.Enemies.Count}.");
