@@ -4,6 +4,9 @@ using HarmonyLib;
 using MegaCrit.Sts2.Core.Assets;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Combat;
+using MegaCrit.Sts2.Core.ControllerInput;
+using MegaCrit.Sts2.Core.Debug;
+using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Models.Monsters;
 using MegaCrit.Sts2.Core.Models;
@@ -13,20 +16,31 @@ using MegaCrit.Sts2.Core.Models.Encounters;
 using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Map;
 using MegaCrit.Sts2.Core.Multiplayer;
+using MegaCrit.Sts2.Core.Multiplayer.Game.PeerInput;
 using MegaCrit.Sts2.Core.Unlocks;
 using MegaCrit.Sts2.Core.Nodes;
 using MegaCrit.Sts2.Core.Nodes.Combat;
 using MegaCrit.Sts2.Core.Nodes.CommonUi;
+using MegaCrit.Sts2.Core.Nodes.Debug;
+using MegaCrit.Sts2.Core.Nodes.Multiplayer;
+using MegaCrit.Sts2.Core.Nodes.Relics;
 using MegaCrit.Sts2.Core.Nodes.Rooms;
+using MegaCrit.Sts2.Core.Nodes.Screens;
+using MegaCrit.Sts2.Core.Nodes.Screens.Capstones;
+using MegaCrit.Sts2.Core.Nodes.Screens.Map;
+using MegaCrit.Sts2.Core.Nodes.Screens.Overlays;
+using MegaCrit.Sts2.Core.Nodes.Screens.ScreenContext;
 using MegaCrit.Sts2.Core.Rooms;
 using MegaCrit.Sts2.Core.Runs;
 using MegaCrit.Sts2.Core.TestSupport;
+using MegaCrit.Sts2.addons.mega_text;
 
 // The native test runner omits NRun's room scene. Supply that scene ownership,
 // while retaining the actual combat room, creature factories and death animation.
 internal static class JigsawHuntingPhrogNodeTests
 {
     private static NodeHost? current;
+    private static bool SkipLifecycle() => false;
 
     internal static Task NonzeroDeath(Creature phrog) => Exercise(phrog, false);
     internal static Task OldReveal(Creature phrog) => Exercise(phrog, true);
@@ -196,7 +210,12 @@ internal static class JigsawHuntingPhrogNodeTests
             Check(worms.Select(creature => creature.SlotName).SequenceEqual(
                     new[] { "wriggler1", "wriggler2", "wriggler3", "wriggler4", "wriggler5" }),
                 "The actual AddCreature path resolves all five named encounter slots.");
-            if (geometry) await CheckGeometry(nodes.Room, worms);
+            if (geometry)
+            {
+                using var input = new NativeInputScope(native);
+                await input.Mount(nodes.Room, combat.CombatState);
+                await CheckGeometry(nodes.Room, worms, input);
+            }
         }
         finally
         {
@@ -222,58 +241,279 @@ internal static class JigsawHuntingPhrogNodeTests
 
     private static void Check(bool condition, string message) => NativeEventTests.Check(condition, message);
 
-    private static async Task CheckGeometry(NCombatRoom room, Creature[] worms)
+    private static async Task CheckGeometry(NCombatRoom room, Creature[] worms, NativeInputScope input)
     {
         var tree = (SceneTree)Engine.GetMainLoop();
         var viewport = tree.Root;
         Vector2I previousSize = viewport.Size;
         try
         {
+            // The real first post-stun move is rolled once; resizing and input
+            // must not roll another move or consume monster RNG.
+            foreach (var worm in worms)
+            {
+                var monster = worm.Monster!;
+                monster.MoveStateMachine.OnMovePerformed(monster.NextMove);
+                monster.RollMove(monster.CombatState.PlayerCreatures);
+            }
+            string opening = NativeState((RunState)worms[0].CombatState!.RunState);
+            string moves = WormMoves(worms);
             foreach (var size in new[] { new Vector2I(1280, 720), new Vector2I(1680, 720) })
             {
                 viewport.Size = size;
                 room.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
                 foreach (var worm in worms)
-                {
-                    var monster = worm.Monster!;
-                    monster.MoveStateMachine.OnMovePerformed(monster.NextMove);
-                    monster.RollMove(monster.CombatState.PlayerCreatures);
                     await room.GetCreatureNode(worm)!.RefreshIntents();
-                }
                 await FramesUntil(() => worms.All(creature => room.GetCreatureNode(creature)!.IntentContainer.Modulate.A > 0.95f),
                     "actual native intent fade");
+                await FramesUntil(() => worms.All(creature => room.GetCreatureNode(creature)!.GetNode<Control>("%HealthBar").Modulate.A > 0.95f),
+                    "actual native HP fade");
+                await Frames(4);
                 var bounds = viewport.GetVisibleRect();
                 var stretch = viewport.GetStretchTransform();
                 var physical = stretch * bounds;
+                var physicalBounds = new Rect2(Vector2.Zero, size);
                 Check(physical.Position.IsEqualApprox(Vector2.Zero) && physical.Size.IsEqualApprox(size),
                     "The native canvas visible bounds map to the entire requested physical window.");
                 var creatures = worms.Select(creature => room.GetCreatureNode(creature)!).ToArray();
                 var hitboxes = creatures.Select(node => node.Hitbox.GetGlobalRect()).ToArray();
                 Console.WriteLine($"PHROG_GEOMETRY players={worms[0].CombatState!.Players.Count} size={size} " +
-                    string.Join("; ", creatures.Select(node => $"{node.Entity.SlotName}:hit={node.Hitbox.GetGlobalRect()},hp={node.GetNode<Control>("%HealthBar").GetNode<Control>("%HpBarHitbox").GetGlobalRect()},intent={IntentBounds(node).FirstOrDefault()}")));
+                    string.Join("; ", creatures.Select(node => $"{node.Entity.SlotName}:hit={node.Hitbox.GetGlobalRect()},hp={HealthBounds(node)},intent=[{string.Join(",", IntentBounds(node))}]")));
                 Check(creatures.All(node => node.IsVisibleInTree() && node.Hitbox.Size.X > 0 && node.Hitbox.Size.Y > 0) &&
-                    hitboxes.All(bounds.Encloses) && hitboxes.All(rect => new Rect2(Vector2.Zero, size).Encloses(stretch * rect)), "All five real native hitboxes are positive and inside the actual viewport.");
+                    hitboxes.All(bounds.Encloses) && hitboxes.All(rect => physicalBounds.Encloses(stretch * rect)),
+                    "All five real native hitboxes are positive and inside the actual viewport.");
                 for (int first = 0; first < hitboxes.Length; first++)
                     for (int second = first + 1; second < hitboxes.Length; second++)
                         Check(!hitboxes[first].Intersects(hitboxes[second]), "Every pair of native worm hitboxes remains separate.");
                 var players = room.CreatureNodes.Where(node => node.Entity.IsPlayer).ToArray();
                 Console.WriteLine("PHROG_GEOMETRY players hitboxes=" + string.Join("; ", players.Select(player => player.Hitbox.GetGlobalRect())));
+                Check(players.Length == worms[0].CombatState!.Players.Count,
+                    "The actual room retains every native player role beside the five worms.");
                 Check(players.All(player => hitboxes.All(hitbox => !hitbox.Intersects(player.Hitbox.GetGlobalRect()))),
                     "The five enemy hitboxes remain separate from all actual player hitboxes.");
-                Check(creatures.All(node => node.IntentContainer.IsVisibleInTree() && node.IntentContainer.GetChildCount() > 0 &&
-                    IntentBounds(node).All(bounds.Encloses) &&
-                    node.GetNode<Control>("%HealthBar").IsVisibleInTree() &&
-                    bounds.Encloses(node.GetNode<Control>("%HealthBar").GetNode<Control>("%HpBarHitbox").GetGlobalRect())),
-                    "Every real worm intent and health display remains visible inside the viewport.");
+                var displays = new List<(NCreature Owner, string Element, Rect2 Bounds)>();
+                foreach (var creature in creatures)
+                {
+                    var hp = HealthBounds(creature);
+                    var label = HpLabel(creature);
+                    Check(label.IsVisibleInTree() && label.Modulate.A > 0.95f &&
+                        label.Text == $"{creature.Entity.CurrentHp}/{creature.Entity.MaxHp}" &&
+                        label.Size.X >= label.GetCombinedMinimumSize().X && label.Size.Y >= label.GetCombinedMinimumSize().Y &&
+                        PhysicalTextSize(label, stretch).Y > 0,
+                        $"{creature.Entity.SlotName} shows its complete actual HP numbers after native death and reveal.");
+                    Check(creature.GetNode<Control>("%HealthBar").IsVisibleInTree() && bounds.Encloses(hp) && physicalBounds.Encloses(stretch * hp),
+                        $"{creature.Entity.SlotName} complete native HP display fits the requested viewport.");
+                    displays.Add((creature, "hp", hp));
+                    var values = IntentValues(creature).Where(value => value.IsVisibleInTree() && !string.IsNullOrWhiteSpace(value.GetParsedText())).ToArray();
+                    Check(values.Any(value => value.GetParsedText().Any(char.IsDigit)),
+                        $"{creature.Entity.SlotName} naturally rolls a visible numeric native post-stun intent.");
+                    foreach (var value in values)
+                    {
+                        var content = PhysicalIntentTextSize(value, stretch);
+                        Console.WriteLine($"PHROG_INTENT_VALUE players={players.Length} size={size} slot={creature.Entity.SlotName} text={value.GetParsedText()} content={content} envelope={IntentValueBounds(value)}");
+                        Check(value.GetContentWidth() > 0 && value.GetContentHeight() > 0 &&
+                            (!value.GetParsedText().Any(char.IsDigit) || content.Y >= PhysicalTextSize(label, stretch).Y * 0.75f),
+                            $"{creature.Entity.SlotName} numeric intent retains native laid-out text size.");
+                    }
+                    var intents = IntentBounds(creature).ToArray();
+                    Check(creature.IntentContainer.IsVisibleInTree() && intents.Length > 0 &&
+                        intents.All(rect => bounds.Encloses(rect) && physicalBounds.Encloses(stretch * rect)),
+                        $"{creature.Entity.SlotName} complete native intent sprite, value and outline fit the requested viewport.");
+                    for (int index = 0; index < intents.Length; index++) displays.Add((creature, "intent" + index, intents[index]));
+                }
+                CheckDisplayOverlaps(displays, creatures.Concat(players).ToArray(), stretch);
+                await CheckMouse(input.Target, creatures);
+                await CheckController(input.Controller, room, creatures);
+                var focusedDisplays = new List<(NCreature Owner, string Element, Rect2 Bounds)>();
+                foreach (var creature in creatures)
+                {
+                    focusedDisplays.Add((creature, "hp", HealthBounds(creature)));
+                    int index = 0;
+                    foreach (var intent in IntentBounds(creature)) focusedDisplays.Add((creature, "intent" + index++, intent));
+                }
+                CheckDisplayOverlaps(focusedDisplays, creatures.Concat(players).ToArray(), stretch);
+                Check(NativeState((RunState)worms[0].CombatState!.RunState) == opening && WormMoves(worms) == moves,
+                    "Resizing, native hover/target selection and direction input preserve five worm models, HP, moves and RNG.");
             }
         }
         finally { viewport.Size = previousSize; }
     }
 
-    private static IEnumerable<Rect2> IntentBounds(NCreature creature) => creature.IntentContainer.GetChildren()
-        .OfType<NIntent>().Select(intent => intent.GetNode<Sprite2D>("%Intent")).Select(sprite =>
-            new Rect2(sprite.GlobalPosition + sprite.GetRect().Position * sprite.GlobalScale,
-                sprite.GetRect().Size * sprite.GlobalScale));
+    private static void CheckDisplayOverlaps(List<(NCreature Owner, string Element, Rect2 Bounds)> displays,
+        NCreature[] targets, Transform2D stretch)
+    {
+        var overlaps = new List<string>();
+        for (int first = 0; first < displays.Count; first++)
+            for (int second = first + 1; second < displays.Count; second++)
+                if (!ReferenceEquals(displays[first].Owner, displays[second].Owner))
+                    RecordOverlap(displays[first].Bounds, displays[first].Owner.Entity.SlotName + "/" + displays[first].Element,
+                        displays[second].Bounds, displays[second].Owner.Entity.SlotName + "/" + displays[second].Element, stretch, overlaps);
+        foreach (var display in displays)
+            foreach (var target in targets.Where(node => !ReferenceEquals(node, display.Owner)))
+                RecordOverlap(display.Bounds, display.Owner.Entity.SlotName + "/" + display.Element,
+                    target.Hitbox.GetGlobalRect(), target.Entity.SlotName + "/hitbox", stretch, overlaps);
+        foreach (string overlap in overlaps) Console.WriteLine("PHROG_DISPLAY_OVERLAP " + overlap);
+        Check(overlaps.Count == 0, "Every worm HP and intent display remains clear of another display or target hitbox. " + string.Join("; ", overlaps));
+    }
+
+    private static void RecordOverlap(Rect2 first, string firstName, Rect2 second, string secondName,
+        Transform2D stretch, List<string> overlaps)
+    {
+        if (!first.Intersects(second)) return;
+        Vector2 start = new(Mathf.Max(first.Position.X, second.Position.X), Mathf.Max(first.Position.Y, second.Position.Y));
+        Vector2 end = new(Mathf.Min(first.End.X, second.End.X), Mathf.Min(first.End.Y, second.End.Y));
+        var intersection = new Rect2(start, end - start);
+        overlaps.Add($"{firstName}={first} intersects {secondName}={second}, logical={intersection}, physical={stretch * intersection}");
+    }
+
+    private static Rect2 HealthBounds(NCreature node)
+    {
+        var display = node.GetNode<Control>("%HealthBar");
+        return display.GetNode<Control>("%HpBarHitbox").GetGlobalRect()
+            .Merge(display.GetNode<NHealthBar>("%HealthBar").HpBarContainer.GetGlobalRect())
+            .Merge(HpLabelBounds(HpLabel(node)));
+    }
+
+    private static MegaLabel HpLabel(NCreature node) =>
+        node.GetNode<Control>("%HealthBar").GetNode<NHealthBar>("%HealthBar").GetNode<MegaLabel>("%HpLabel");
+
+    private static Rect2 HpLabelBounds(MegaLabel label)
+    {
+        var frame = label.GetGlobalRect();
+        var transform = label.GetGlobalTransform();
+        var scale = new Vector2(transform.X.Length(), transform.Y.Length());
+        var content = label.GetCombinedMinimumSize() * scale;
+        float horizontal = Mathf.Max(0, content.X - frame.Size.X);
+        float vertical = Mathf.Max(0, content.Y - frame.Size.Y);
+        float outline = label.GetThemeConstant("outline_size");
+        return frame.GrowIndividual(horizontal + outline * scale.X, vertical + outline * scale.Y,
+            horizontal + outline * scale.X, vertical + outline * scale.Y);
+    }
+
+    private static Vector2 PhysicalTextSize(MegaLabel label, Transform2D stretch)
+    {
+        var transform = label.GetGlobalTransform();
+        var minimum = label.GetCombinedMinimumSize();
+        return (stretch * new Rect2(Vector2.Zero,
+            new Vector2(minimum.X * transform.X.Length(), minimum.Y * transform.Y.Length()))).Size;
+    }
+
+    private static IEnumerable<MegaRichTextLabel> IntentValues(NCreature node) => node.IntentContainer.GetChildren().OfType<NIntent>()
+        .Select(intent => intent.GetNode<MegaRichTextLabel>("%Value"));
+
+    private static IEnumerable<Rect2> IntentBounds(NCreature node)
+    {
+        foreach (var intent in node.IntentContainer.GetChildren().OfType<NIntent>())
+        {
+            var sprite = intent.GetNode<Sprite2D>("%Intent");
+            yield return new Rect2(sprite.GlobalPosition + sprite.GetRect().Position * sprite.GlobalScale,
+                sprite.GetRect().Size * sprite.GlobalScale);
+            var value = intent.GetNode<MegaRichTextLabel>("%Value");
+            if (value.IsVisibleInTree() && !string.IsNullOrWhiteSpace(value.GetParsedText())) yield return IntentValueBounds(value);
+        }
+    }
+
+    private static Rect2 IntentValueBounds(MegaRichTextLabel value)
+    {
+        var frame = value.GetGlobalRect();
+        var transform = value.GetGlobalTransform();
+        var scale = new Vector2(transform.X.Length(), transform.Y.Length());
+        var content = new Vector2(value.GetContentWidth(), value.GetContentHeight()) * scale;
+        float horizontal = Mathf.Max(0, content.X - frame.Size.X);
+        float vertical = Mathf.Max(0, content.Y - frame.Size.Y);
+        float outline = value.GetThemeConstant("outline_size");
+        return frame.GrowIndividual(horizontal + outline * scale.X, vertical + outline * scale.Y,
+            horizontal + outline * scale.X, vertical + outline * scale.Y);
+    }
+
+    private static Vector2 PhysicalIntentTextSize(MegaRichTextLabel value, Transform2D stretch)
+    {
+        var transform = value.GetGlobalTransform();
+        return (stretch * new Rect2(Vector2.Zero,
+            new Vector2(value.GetContentWidth() * transform.X.Length(), value.GetContentHeight() * transform.Y.Length()))).Size;
+    }
+
+    private static async Task CheckMouse(NTargetManager target, NCreature[] worms)
+    {
+        var viewport = ((SceneTree)Engine.GetMainLoop()).Root;
+        viewport.PushInput(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true,
+            Position = Vector2.Zero, GlobalPosition = Vector2.Zero }, true);
+        await Frames(1);
+        viewport.PushInput(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false,
+            Position = Vector2.Zero, GlobalPosition = Vector2.Zero }, true);
+        await Frames(2);
+        foreach (var worm in worms)
+        {
+            await Motion(Vector2.Zero);
+            Vector2 point = worm.Hitbox.GetGlobalRect().GetCenter();
+            await Motion(point);
+            Check(worm.IsFocused && ReferenceEquals(viewport.GuiGetHoveredControl(), worm.Hitbox),
+                $"MouseMotion enters the exact {worm.Entity.SlotName} native hitbox and focus handler.");
+            await Motion(Vector2.Zero);
+            target.StartTargeting(TargetType.AnyEnemy, Vector2.Zero, TargetMode.ClickMouseToTarget, null, null);
+            var selected = target.SelectionFinished();
+            await Motion(point);
+            viewport.PushInput(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true,
+                Position = point, GlobalPosition = point }, true);
+            await Frames(1);
+            viewport.PushInput(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false,
+                Position = point, GlobalPosition = point }, true);
+            await FramesUntil(() => selected.IsCompleted, "real Phrog worm targeting completion");
+            Check(ReferenceEquals(await selected, worm) && !target.IsInSelection,
+                $"Native press/release selects exactly {worm.Entity.SlotName} and closes targeting.");
+        }
+        await Motion(Vector2.Zero);
+    }
+
+    private static async Task CheckController(NControllerManager controller, NCombatRoom room, NCreature[] worms)
+    {
+        var viewport = ((SceneTree)Engine.GetMainLoop()).Root;
+        await Action(Controller.faceButtonNorth);
+#if STS2_PUBLIC
+        Check(controller.IsUsingController, "Native controller detection enters controller mode through viewport input.");
+#else
+        Check(controller.IsUsingDirectionalNavigation, "Native controller detection enters directional mode through viewport input.");
+#endif
+        var ring = room.CreatureNodes.Where(node => node.IsInteractable).OrderBy(node => node.GlobalPosition.X).ToArray();
+        Check(ring.Length == worms.Length + room.CreatureNodes.Count(node => node.Entity.IsPlayer) &&
+            worms.All(ring.Contains), "The native navigation ring contains every player and all five living worms.");
+        for (int index = 0; index < ring.Length; index++)
+            Check(ring[index].Hitbox.GetNode<Control>(ring[index].Hitbox.FocusNeighborRight) == ring[(index + 1) % ring.Length].Hitbox &&
+                ring[index].Hitbox.GetNode<Control>(ring[index].Hitbox.FocusNeighborLeft) == ring[(index + ring.Length - 1) % ring.Length].Hitbox,
+                "Native summon navigation links the complete left/right ring in whole-room X order.");
+        ring[0].Hitbox.GrabFocus();
+        await Frames(2);
+        Check(ReferenceEquals(viewport.GuiGetFocusOwner(), ring[0].Hitbox), "The native ring accepts one initial focus entry.");
+        foreach (var direction in new[] { MegaInput.right, MegaInput.left })
+            for (int step = 1; step <= ring.Length; step++)
+            {
+                await Action(direction);
+                int expected = direction == MegaInput.right ? step % ring.Length : (ring.Length - step % ring.Length) % ring.Length;
+                Check(ReferenceEquals(viewport.GuiGetFocusOwner(), ring[expected].Hitbox) && ring[expected].IsFocused,
+                    $"Native {direction} step {step} reaches the exact player/worm ring entity {ring[expected].Entity.SlotName}.");
+            }
+    }
+
+    private static async Task Action(StringName action)
+    {
+        var viewport = ((SceneTree)Engine.GetMainLoop()).Root;
+        viewport.PushInput(new InputEventAction { Action = action, Pressed = true, Strength = 1 }, true);
+        await Frames(1);
+        viewport.PushInput(new InputEventAction { Action = action, Pressed = false, Strength = 0 }, true);
+        await Frames(2);
+    }
+
+    private static async Task Motion(Vector2 point)
+    {
+        ((SceneTree)Engine.GetMainLoop()).Root.PushInput(new InputEventMouseMotion { Position = point, GlobalPosition = point }, true);
+        await Frames(2);
+    }
+
+    private static async Task Frames(int count)
+    {
+        var tree = (SceneTree)Engine.GetMainLoop();
+        for (int frame = 0; frame < count; frame++) await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
+    }
 
     private static string NativeState(RunState run) => System.Text.Json.JsonSerializer.Serialize(new
     {
@@ -286,6 +526,13 @@ internal static class JigsawHuntingPhrogNodeTests
             Random = HeadlessTestSetup.RngPosition(creature.Monster.Rng)
         }).ToArray()
     });
+
+    private static string WormMoves(Creature[] worms) => System.Text.Json.JsonSerializer.Serialize(worms.Select(worm => new
+    {
+        worm.SlotName,
+        Move = worm.Monster!.NextMove.Id,
+        Powers = worm.Powers.Select(power => new { power.Id, power.Amount }).ToArray()
+    }));
 
     private sealed class NativeDisplayScope : IDisposable
     {
@@ -309,6 +556,183 @@ internal static class JigsawHuntingPhrogNodeTests
         {
             window.ContentScaleSize = content; window.ContentScaleMode = mode;
             window.ContentScaleAspect = aspect; window.Size = size;
+        }
+    }
+
+    private sealed class NativeInputScope : IDisposable
+    {
+        private readonly Harmony patches = new("AllMatters.Tests.PhrogNativeInput");
+        private readonly RunState native;
+        private readonly NGame game = NGame.Instance!;
+        private readonly NRun run = NRun.Instance!;
+        private readonly List<Node> owned = [];
+        private readonly List<StringName> addedActions = [];
+        private readonly object? previousController;
+        private readonly object? previousCursor;
+        private readonly object? previousTarget;
+        private readonly object? previousPlayers;
+        private readonly object? previousRelics;
+        private readonly object? previousTips;
+        private readonly object? previousTopBar;
+        private readonly object? previousMap;
+        private readonly object? previousCapstone;
+        private readonly object? previousOverlays;
+        private readonly object? previousScreenTracker;
+        private readonly object? previousConsole;
+        private readonly Control.MouseFilterEnum previousGlobalFilter;
+        private readonly Control.MouseFilterEnum previousGameFilter;
+        private readonly Input.MouseModeEnum previousMouseMode = Input.MouseMode;
+        private readonly bool previousTestMode = TestMode.IsOn;
+        private readonly bool gameWasMounted = NGame.Instance!.IsInsideTree();
+        private Node? tips;
+        internal NTargetManager Target = null!;
+        internal NControllerManager Controller = null!;
+
+        internal NativeInputScope(RunState native)
+        {
+            this.native = native;
+            previousController = AccessTools.Property(typeof(NInputManager), "ControllerManager").GetValue(game.InputManager);
+            previousCursor = AccessTools.Property(typeof(NGame), nameof(NGame.CursorManager)).GetValue(game);
+            previousTarget = AccessTools.Property(typeof(NGlobalUi), nameof(NGlobalUi.TargetManager)).GetValue(run.GlobalUi);
+            previousPlayers = AccessTools.Property(typeof(NGlobalUi), nameof(NGlobalUi.MultiplayerPlayerContainer)).GetValue(run.GlobalUi);
+            previousRelics = AccessTools.Property(typeof(NGlobalUi), nameof(NGlobalUi.RelicInventory)).GetValue(run.GlobalUi);
+            previousTips = AccessTools.Property(typeof(NGame), nameof(NGame.HoverTipsContainer)).GetValue(game);
+            previousTopBar = AccessTools.Property(typeof(NGlobalUi), nameof(NGlobalUi.TopBar)).GetValue(run.GlobalUi);
+            previousMap = AccessTools.Property(typeof(NGlobalUi), nameof(NGlobalUi.MapScreen)).GetValue(run.GlobalUi);
+            previousCapstone = AccessTools.Property(typeof(NGlobalUi), nameof(NGlobalUi.CapstoneContainer)).GetValue(run.GlobalUi);
+            previousOverlays = AccessTools.Property(typeof(NGlobalUi), nameof(NGlobalUi.Overlays)).GetValue(run.GlobalUi);
+            previousScreenTracker = AccessTools.Property(typeof(NRun), nameof(NRun.ScreenStateTracker)).GetValue(run);
+            previousConsole = AccessTools.Field(typeof(NDevConsole), "_instance").GetValue(null);
+            previousGlobalFilter = run.GlobalUi.MouseFilter;
+            previousGameFilter = game.MouseFilter;
+        }
+
+        private T Own<T>(T node) where T : Node { owned.Add(node); return node; }
+
+        internal async Task Mount(NCombatRoom room, CombatState combat)
+        {
+            foreach (string name in MegaInput.AllInputs
+                .Concat(MegaCrit.Sts2.Core.ControllerInput.Controller.AllControllerInputs.Select(action => action.ToString()))
+                .Concat(new[] { "debug_hide_intents", "debug_hide_combat_ui", "debug_hide_play_container", "debug_hide_hand",
+                    "debug_hide_hp_bars", "debug_hide_text_vfx", "debug_hide_targeting_ui", "debug_slow_rewards",
+                    "debug_hide_mp_targeting", "debug_hide_mp_intents", "debug_hide_mp_health_bars",
+                    "debug_hide_top_bar" })
+                .Concat(Enumerable.Range(1, 10).Select(index => "mega_select_card_" + index))
+                .Concat(new[] { DebugHotkey.speedUp.ToString(), DebugHotkey.speedDown.ToString(),
+                    DebugHotkey.hideProceedButton.ToString(), DebugHotkey.hideHoverTips.ToString() }))
+            {
+                StringName action = name;
+                if (!InputMap.HasAction(action)) { InputMap.AddAction(action); addedActions.Add(action); }
+            }
+            run.GlobalUi.MouseFilter = Control.MouseFilterEnum.Ignore;
+            foreach (string method in new[] { "_EnterTree", "_Ready", "_ExitTree" })
+                patches.Patch(AccessTools.Method(typeof(NGame), method),
+                    prefix: new HarmonyMethod(typeof(JigsawHuntingPhrogNodeTests), nameof(SkipLifecycle)));
+            foreach (string method in new[] { "_Ready", "_Process" })
+                patches.Patch(AccessTools.Method(typeof(NMapScreen), method),
+                    prefix: new HarmonyMethod(typeof(JigsawHuntingPhrogNodeTests), nameof(SkipLifecycle)));
+            game.MouseFilter = Control.MouseFilterEnum.Ignore;
+            tips = Own(new Node { Name = "HoverTipsContainer" });
+            game.AddChild(tips);
+            AccessTools.Property(typeof(NGame), nameof(NGame.HoverTipsContainer)).SetValue(game, tips);
+            var map = Own(new NMapScreen());
+            var capstone = Own(new NCapstoneContainer());
+            var overlays = Own(new NOverlayStack { ProcessMode = Node.ProcessModeEnum.Always,
+                MouseFilter = Control.MouseFilterEnum.Ignore });
+            var backstop = new Control { Name = "OverlayBackstop" };
+            overlays.AddChild(backstop);
+            AccessTools.Property(typeof(NGlobalUi), nameof(NGlobalUi.MapScreen)).SetValue(run.GlobalUi, map);
+            AccessTools.Property(typeof(NGlobalUi), nameof(NGlobalUi.CapstoneContainer)).SetValue(run.GlobalUi, capstone);
+            AccessTools.Property(typeof(NGlobalUi), nameof(NGlobalUi.Overlays)).SetValue(run.GlobalUi, overlays);
+            AccessTools.Property(typeof(NRun), nameof(NRun.ScreenStateTracker)).SetValue(run,
+                new ScreenStateTracker(map, capstone, overlays));
+            run.GlobalUi.AddChild(map); map.Hide(); map.SetProcess(false);
+            run.GlobalUi.AddChild(overlays);
+            overlays.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+            backstop.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+            Controller = Own(new NControllerManager { ProcessMode = Node.ProcessModeEnum.Always });
+            var label = new MegaLabel { Name = "Label", AutoSizeEnabled = false, Modulate = Colors.Transparent,
+                AnchorLeft = 1, AnchorTop = 1, AnchorRight = 1, AnchorBottom = 1,
+                OffsetLeft = -133, OffsetTop = -74, OffsetRight = -41, OffsetBottom = -28,
+                GrowHorizontal = Control.GrowDirection.Begin, GrowVertical = Control.GrowDirection.Begin };
+            label.AddThemeColorOverride("font_color", new Color(0.34902f, 1, 1, 1));
+            label.AddThemeColorOverride("font_outline_color", Colors.Black);
+            label.AddThemeConstantOverride("outline_size", 10);
+            label.AddThemeFontOverride("font", PreloadManager.Cache.GetAsset<Font>("res://themes/kreon_bold_glyph_space_one.tres"));
+            label.AddThemeFontSizeOverride("font_size", 36);
+            Controller.AddChild(label);
+            AccessTools.Field(typeof(NControllerManager), "_label").SetValue(Controller, label);
+            AccessTools.Property(typeof(NInputManager), "ControllerManager").SetValue(game.InputManager, Controller);
+            AccessTools.Property(typeof(NGame), nameof(NGame.CursorManager)).SetValue(game, Own(new NCursorManager()));
+            Target = Own(new NTargetManager { ProcessMode = Node.ProcessModeEnum.Always });
+            foreach (string path in NTargetingArrow.AssetPaths) PreloadManager.Cache.GetTexture2D(path);
+            var arrow = PreloadManager.Cache.GetScene("res://scenes/combat/targeting_arrow.tscn").Instantiate<NTargetingArrow>();
+            arrow.Name = "TargetingArrow"; Target.AddChild(arrow);
+            var relics = Own(new NRelicInventory { Name = "RelicInventory", MouseFilter = Control.MouseFilterEnum.Ignore });
+            run.GlobalUi.AddChild(relics);
+            AccessTools.Property(typeof(NGlobalUi), nameof(NGlobalUi.RelicInventory)).SetValue(run.GlobalUi, relics);
+            var topBar = Own(new NTopBar());
+            var activeScreenProxy = Own(new Control { Name = "ActiveScreenProxy", FocusMode = Control.FocusModeEnum.All });
+            run.GlobalUi.AddChild(activeScreenProxy);
+            AccessTools.Property(typeof(NTopBar), nameof(NTopBar.ActiveScreenProxy)).SetValue(topBar, activeScreenProxy);
+            AccessTools.Property(typeof(NGlobalUi), nameof(NGlobalUi.TopBar)).SetValue(run.GlobalUi, topBar);
+            var players = Own(new NMultiplayerPlayerStateContainer());
+            AccessTools.Property(typeof(NGlobalUi), nameof(NGlobalUi.TargetManager)).SetValue(run.GlobalUi, Target);
+            AccessTools.Property(typeof(NGlobalUi), nameof(NGlobalUi.MultiplayerPlayerContainer)).SetValue(run.GlobalUi, players);
+            run.GlobalUi.AddChild(players);
+            Check(players.IsInsideTree() && relics.IsInsideTree() && activeScreenProxy.IsInsideTree(),
+                "Native multiplayer, relic and top-bar focus owners are mounted before player-state initialization.");
+            players.Initialize(native);
+            run.GlobalUi.AddChild(Target);
+            AccessTools.Field(typeof(NDevConsole), "_instance").SetValue(null,
+                Own(new NDevConsole { Visible = false }));
+            if (!gameWasMounted) await HeadlessUiHost.Mount(game);
+            await HeadlessUiHost.Mount(Controller);
+            Check(game.IsInsideTree() && tips.IsInsideTree() && run.GlobalUi.IsInsideTree(),
+                "The native game, hover tips and global UI are mounted for actual input dispatch.");
+            game.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+            // This room entered after CombatSetUp. Restore its native setup
+            // callback before screen changes can enable the combat UI.
+            TestMode.IsOn = false;
+            room.Ui.Activate(combat);
+            var energy = (Node?)AccessTools.Field(typeof(NCombatUi), "_energyCounter").GetValue(room.Ui);
+            Check(energy != null, "Native combat UI created its real energy counter outside test mode.");
+            await FramesUntil(() => energy!.IsNodeReady(), "native energy counter readiness");
+            ActiveScreenContext.Instance.Update();
+            await Frames(2);
+        }
+
+        public void Dispose()
+        {
+            try
+            {
+                if (GodotObject.IsInstanceValid(Target)) Target.CancelTargeting();
+                ((SceneTree)Engine.GetMainLoop()).Root.GuiReleaseFocus();
+                AccessTools.Property(typeof(NGlobalUi), nameof(NGlobalUi.TargetManager)).SetValue(run.GlobalUi, previousTarget);
+                AccessTools.Property(typeof(NGlobalUi), nameof(NGlobalUi.MultiplayerPlayerContainer)).SetValue(run.GlobalUi, previousPlayers);
+                AccessTools.Property(typeof(NGlobalUi), nameof(NGlobalUi.RelicInventory)).SetValue(run.GlobalUi, previousRelics);
+                AccessTools.Property(typeof(NInputManager), "ControllerManager").SetValue(game.InputManager, previousController);
+                AccessTools.Property(typeof(NGame), nameof(NGame.CursorManager)).SetValue(game, previousCursor);
+                AccessTools.Property(typeof(NGame), nameof(NGame.HoverTipsContainer)).SetValue(game, previousTips);
+                AccessTools.Property(typeof(NGlobalUi), nameof(NGlobalUi.TopBar)).SetValue(run.GlobalUi, previousTopBar);
+                AccessTools.Property(typeof(NGlobalUi), nameof(NGlobalUi.MapScreen)).SetValue(run.GlobalUi, previousMap);
+                AccessTools.Property(typeof(NGlobalUi), nameof(NGlobalUi.CapstoneContainer)).SetValue(run.GlobalUi, previousCapstone);
+                AccessTools.Property(typeof(NGlobalUi), nameof(NGlobalUi.Overlays)).SetValue(run.GlobalUi, previousOverlays);
+                AccessTools.Property(typeof(NRun), nameof(NRun.ScreenStateTracker)).SetValue(run, previousScreenTracker);
+                AccessTools.Field(typeof(NDevConsole), "_instance").SetValue(null, previousConsole);
+                run.GlobalUi.MouseFilter = previousGlobalFilter;
+                game.MouseFilter = previousGameFilter;
+                for (int index = owned.Count - 1; index >= 0; index--)
+                    if (GodotObject.IsInstanceValid(owned[index])) owned[index].Free();
+                if (!gameWasMounted) game.GetParent()?.RemoveChild(game);
+            }
+            finally
+            {
+                patches.UnpatchAll(patches.Id);
+                foreach (var action in addedActions) InputMap.EraseAction(action);
+                Input.MouseMode = previousMouseMode;
+                TestMode.IsOn = previousTestMode;
+            }
         }
     }
 

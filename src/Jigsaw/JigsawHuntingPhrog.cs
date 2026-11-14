@@ -15,11 +15,8 @@ using MegaCrit.Sts2.Core.Helpers;
 
 namespace AllMatters.Jigsaw;
 
-// The authored encounter has only four worm markers. A second row leaves
-// room for the fifth creature's hitbox, health bar and intent without extending
-// into the players' target area. Small first-row offsets keep actual hitboxes
-// clear of four players. The rightmost inset keeps the native health bar
-// inside both target versions' actual viewport.
+// The authored encounter has only four worm markers. Keep complete native HP
+// bars and intent values apart across the lower row and the added upper slot.
 [HarmonyPatch(typeof(EncounterModel), nameof(EncounterModel.CreateScene))]
 internal static class JigsawHuntingPhrogLayout
 {
@@ -30,10 +27,13 @@ internal static class JigsawHuntingPhrogLayout
             return;
         var first = __result.GetNode<Marker2D>(PhrogParasiteElite.GetWrigglerSlotName(0));
         var second = __result.GetNode<Marker2D>(PhrogParasiteElite.GetWrigglerSlotName(1));
-        var fifthPosition = new Vector2((first.Position.X + second.Position.X) / 2, first.Position.Y - 240);
-        first.Position += new Vector2(45, 0);
-        second.Position += new Vector2(15, 0);
-        __result.GetNode<Marker2D>(PhrogParasiteElite.GetWrigglerSlotName(3)).Position -= new Vector2(24, 0);
+        var third = __result.GetNode<Marker2D>(PhrogParasiteElite.GetWrigglerSlotName(2));
+        var fourth = __result.GetNode<Marker2D>(PhrogParasiteElite.GetWrigglerSlotName(3));
+        var fifthPosition = new Vector2(1485f, first.Position.Y - 270f);
+        first.Position = new Vector2(915f, first.Position.Y);
+        second.Position = new Vector2(1200f, second.Position.Y);
+        third.Position = new Vector2(1485f, third.Position.Y);
+        fourth.Position = new Vector2(1770f, fourth.Position.Y);
         __result.AddChild(new Marker2D
         {
             Name = PhrogParasiteElite.GetWrigglerSlotName(4),
