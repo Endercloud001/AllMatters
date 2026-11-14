@@ -88,6 +88,7 @@ internal static class HelloWorldTests
                 .Concat(JigsawKnowledgeUiTests.Cases)
                 .Concat(JigsawKnowledgeMultiOwnerTests.Cases)
                 .Concat(JigsawHuntingCrabTests.Cases)
+                .Concat(JigsawHuntingCrabRecoveryTests.Cases)
                 .Concat(JigsawHuntingCrabLayoutTests.Cases)
                 .Concat(JigsawMysticTests.Cases)
                 .Concat(JigsawHuntingMysticRecoveryTests.Cases)
