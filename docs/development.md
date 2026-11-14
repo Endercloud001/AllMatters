@@ -50,6 +50,7 @@ pwsh -NoProfile -File ./tools/Test.ps1               # 默认 public-beta，无�
 pwsh -NoProfile -File ./tools/Test.ps1 -Branch All   # 顺序运行 public-beta 与 public
 pwsh -NoProfile -File ./tools/Test.ps1 -Filter 'highlights only'
 pwsh -NoProfile -File ./tools/Test.ps1 -Filter 'Trash heap' -SkipResourceExport # 仅 C# 改动，显式复用上次资源包
+pwsh -NoProfile -File ./tools/Test.ps1 -Branch All -Filter 'highlights only' -SkipResourceExport -ArchiveName host-smoke -ArchivePath .local/tests/host-review -StrictDiagnostics
 ```
 
 `Test.ps1` 与 `Check.ps1` 要求 PowerShell 7，版本不足时脚本宿主拒绝执行。5.1 会把 Godot 写到 stderr 的行当作终止错误，从而把提示误判为失败。
@@ -57,6 +58,10 @@ pwsh -NoProfile -File ./tools/Test.ps1 -Filter 'Trash heap' -SkipResourceExport 
 测试脚本恢复调用前的 DOTNET_ROOT，不修改系统配置；两个分支不能并行使用同一测试输出目录。CLI 仍可传 `-GodotPath`、`-DotNetRoot` 临时覆盖配置。
 
 独立 `Test.ps1` 先编译，再导出一次资源并顺序执行目标；编译失败不启动资源导入。`-SkipResourceExport` 仅用于已成功导出且 `src/Resources/`、`src/Tooling/PackResources.gd` 未变的迭代，资源包缺失会报错；资源改动后使用默认命令重新导出。`Build.ps1` 支持相同选项。完整 `Check.ps1` 每次重新导出一次资源，供双目标测试和打包共用，不依赖资源缓存判定。
+
+`-ArchiveName` 是归档标签（1–80 个字母、数字、点、下划线或连字符，以字母/数字开头且不能以点结尾）；`-ArchivePath` 是归档父目录，相对路径按仓库根目录解析。每次创建带时间和随机后缀的独立目录，同名重跑不覆盖旧证据。默认父目录为 `.local/tests/archives`，标签为 `run`。`All` 在首个失败目标处停止；摘要仅包含本轮已尝试目标，不复制未执行目标的旧 `last.log`。
+
+默认模式保留故障注入测试的引擎诊断输出，仍要求有 Passed 行、编译/宿主没有非零退出或调用异常，且 Metadata 提示不超过 1 条。新宿主专项使用 `-StrictDiagnostics`：额外要求 Build/Host 均明确为 0、Passed 大于 0、EngineErrors/ModMetadataErrors 均为 0；不满足时 Test 入口返回非零。单独解析旧日志也可用 `ReadTestLog.ps1 -Path <日志> -StrictDiagnostics`。默认解析继续兼容未记录 Build/Host 退出码的历史日志。
 
 新增原生 API 调用后先用真实 DLL 编译两个目标，再运行专项行为测试：
 
@@ -77,7 +82,7 @@ pwsh -NoProfile -File ./tools/ReadTestLog.ps1 -Path .local/tests/public-beta-las
 pwsh -NoProfile -File ./tools/ReadTestLog.ps1 -Path .local/tests/public-last.log
 ```
 
-`ReadTestLog.ps1` 本身就是冒烟门：日志的通过数为空，或「未关联 mod」提示（`ModMetadataErrors`）超过 1 条时，它以退出码 1 结束；通过数非空且提示不超过 1 条时以退出码 0 结束。两条命令都以退出码 0 结束，批次才能开工。
+`ReadTestLog.ps1` 本身就是冒烟门：通过数为空、编译/宿主非零退出、准备/调用异常，或「未关联 mod」提示（`ModMetadataErrors`）超过 1 条时退出码为 1；其余情况为 0。两条命令都以退出码 0 结束，批次才能开工；新宿主专项同时传入 `-StrictDiagnostics`，不能拿旧 `last.log` 代签本轮未执行目标。
 
 宿主 red（`ReadTestLog.ps1` 退出码非零）时：
 1. 立即修复宿主问题，不开始批次实施工单
@@ -258,7 +263,9 @@ Agent 完成适当的自动化测试和两目标构建后，向用户提供 `dis
 
 日志目录读取 `Paths.local.props` 的 `GameLogDir`，未填写时使用 `%APPDATA%/SlayTheSpire2/logs`；可用 `-LogDir` 临时覆盖，`-ModId` 指定其他模组。脚本只读，按文件修改时间选择最新 `.log`，输出来源和原始行号；无匹配不代表加载失败。需要排查更早的启动过程时，直接读取输出中的来源文件。分享日志前检查其中的本机路径和个人信息。
 
-`Test.ps1` 将本次每个目标的编译与宿主原始输出留在 `.local/tests/<目标>-last.log`，再次运行该目标会覆盖，需留证时复制到本票目录。使用 `./tools/ReadTestLog.ps1 -Path .local/tests/public-beta-last.log` 获取版本、编译/宿主退出码、完整通过数、首个异常位置及诊断数量；未执行的宿主结果为空，编译或资源准备失败不算行为 red。缺少 Mod 关联的既有提示单独计数，其余引擎错误仍报告。摘要以退出码表达冒烟结论：通过数为空或未关联 mod 提示超过 1 条时退出码为 1，否则为 0，见[开工前冒烟检查](#开工前冒烟检查)。摘要不替代原始日志。进一步读取具体位置使用 `ReadTextSlice.ps1 -Path <日志> -StartLine <行号> -Count 12`，长行可用 `-Pattern` 定位，不重复打印整份日志。
+`Test.ps1` 直接把原始输出写入本轮归档目录的 `<目标>.log`，并保留 `.local/tests/<目标>-last.log` 兼容副本。目录中的 `summary.json` 统一记录实际入口命令、请求目标、严格模式、成功/失败及原因；每目标记录实际命令、版本、Build/Host/Passed、Engine/Metadata、HostStarted 和原始日志路径。缺失可执行文件、缺少复用包、编译、导出或宿主异常也归档；宿主未启动时 HostExit 为空，不能当作行为 red。归档路径无效或不可写会直接报错，无法在该位置生成证据。
+
+使用 `./tools/ReadTestLog.ps1 -Path <归档目录>/<目标>.log` 获取首个异常位置及诊断数量；已知 Mod 关联提示单独计数，其余引擎错误仍报告。`-NoExit` 供 runner 共享解析，只设置 LASTEXITCODE 并返回对象，避免解析器退出当前调用链；runner 自己保留原始失败并返回非零。摘要不替代原始日志。进一步读取具体位置使用 `ReadTextSlice.ps1 -Path <日志> -StartLine <行号> -Count 12`，长行可用 `-Pattern` 定位，不重复打印整份日志。
 
 脚本读取 props 中的字面值，不展开 MSBuild 表达式；工具路径可相对仓库根目录填写，游戏程序集目录建议使用绝对路径。配置仅保存在本机忽略文件。
 

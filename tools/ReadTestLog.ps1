@@ -1,11 +1,12 @@
-param([Parameter(Mandatory)][string]$Path)
+param([Parameter(Mandatory)][string]$Path, [switch]$StrictDiagnostics, [switch]$NoExit)
 $ErrorActionPreference = 'Stop'
 $file = Get-Item -LiteralPath $Path
 $summary = [ordered]@{
     Source = $file.FullName; Target = $null; Version = $null
     BuildExit = $null; HostExit = $null; Passed = $null
     FirstException = $null; FirstDiagnostic = $null; PreparationFailure = $null
-    EngineErrors = 0; ModMetadataErrors = 0
+    EngineErrors = 0; ModMetadataErrors = 0; Command = $null; HostStarted = $false
+    RunnerFailure = $null; Success = $false; BuildCommand = $null; HostCommand = $null
 }
 $reader = [IO.StreamReader]::new($file.FullName)
 try {
@@ -16,6 +17,11 @@ try {
         if ($line -match '^Test build exit: (-?\d+)$') { $summary.BuildExit = [int]$Matches[1] }
         if ($line -match '^Host exit: (-?\d+)$') { $summary.HostExit = [int]$Matches[1] }
         if ($line -match '^Passed (\d+) tests against ') { $summary.Passed = [int]$Matches[1] }
+        if ($line -match '^Test command: (.*)$') { $summary.Command = $Matches[1] }
+        if ($line -match '^Build command: (.*)$') { $summary.BuildCommand = $Matches[1] }
+        if ($line -match '^Host command: (.*)$') { $summary.HostCommand = $Matches[1] }
+        if ($line -eq 'Host started: True') { $summary.HostStarted = $true }
+        if ($line -match '^(Preparation failed|Host invocation failed): (.*)$') { $summary.RunnerFailure = $Matches[2] }
         $location = [pscustomobject]@{ Line = $number; Text = $line.Substring(0, [Math]::Min(400, $line.Length)) }
         if (!$summary.FirstException -and $line -match '^System\.\S*Exception:') { $summary.FirstException = $location }
         if (!$summary.PreparationFailure -and $line -match '^Preparation failed:') { $summary.PreparationFailure = $location }
@@ -27,7 +33,12 @@ try {
         }
     }
 } finally { $reader.Dispose() }
+$summary.Success = $null -ne $summary.Passed -and $summary.ModMetadataErrors -le 1 -and !$summary.RunnerFailure -and
+    ($null -eq $summary.BuildExit -or $summary.BuildExit -eq 0) -and ($null -eq $summary.HostExit -or $summary.HostExit -eq 0)
+if ($StrictDiagnostics) {
+    $summary.Success = $summary.Success -and $summary.Passed -gt 0 -and $summary.BuildExit -eq 0 -and $summary.HostExit -eq 0 -and
+        $summary.EngineErrors -eq 0 -and $summary.ModMetadataErrors -eq 0
+}
 [pscustomobject]$summary
-# Smoke gate: a usable run shows a pass count and at most one unassociated-mod hint.
-if ($null -eq $summary.Passed -or $summary.ModMetadataErrors -gt 1) { exit 1 }
-exit 0
+$global:LASTEXITCODE = if ($summary.Success) { 0 } else { 1 }
+if (!$NoExit) { exit $LASTEXITCODE }
