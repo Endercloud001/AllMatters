@@ -1,10 +1,26 @@
 # #82–#88 验证覆盖地图：V14 / S6 / H13 / U8
 
-2026-11-13 更新。下表保留首轮审计时的证据及缺口；当前实施提交以[实施索引](issues-82-88-implementation.md)和下述最新增量为准，历史W锚点不是当前分支状态。首轮审计仅只读调查，后续逐片实施；均未启动游戏、安装或改真实存档。编号沿来源；S1–S6、H1–H13、U1–U8在本文表示**六/十三/八个场景行**，不要与交接文档中 S1模型、S2注册、S3保存等证据级别混淆。D=领域行为，N=真实原生DLL/命令/保存，G=真实Godot树/输入，M=正式游戏真实端。ENet本机独立进程单列，不能自动代签M。
+首轮2026-11-13，2026-11-14补充当前缺口再核。下表保留首轮审计时的证据及缺口；当前实施提交以[实施索引](issues-82-88-implementation.md)和下述最新增量为准，历史W锚点不是当前分支状态。首轮审计仅只读调查，后续逐片实施；均未启动游戏、安装或改真实存档。编号沿来源；S1–S6、H1–H13、U1–U8在本文表示**六/十三/八个场景行**，不要与交接文档中 S1模型、S2注册、S3保存等证据级别混淆。D=领域行为，N=真实原生DLL/命令/保存，G=真实Godot树/输入，M=正式游戏真实端。ENet本机独立进程单列，不能自动代签M。
 
 ## 后续实施增量（均未作为整票交付）
 
-最新源码集成 `1956c17`，目标public0.107.1/beta0.113.0/RitsuLib0.6.11，匹配public资源及辅助依赖已齐。商店场景、Phrog右侧布局、Hive精英Weak2、MultiClaw9/10及原生3+N、public启动Task观察修复、Waterfall清负面与Artifact1、Hive事件普通三项各1、Holes单owner战前/奖励恢复、Wither强化链及Holes三端战前/胜利奖励恢复均已独立双轴审查并正常集成；准确提交、专项数量和边界见[实施索引](issues-82-88-implementation.md#当前接续状态2026-11-13)。
+### 2026-11-14 批次缺口再核（覆盖旧表的当前状态）
+
+本次重新读取GitHub #82–#88正文（均OPEN；本机原文`.local/batch-scope-audit/issue-{82..88}.json`）与最新实施增量、当前测试入口，首次盘点时源码`d7fec1c`。目标仍为用户已确认的public0.107.1/beta0.113.0/RitsuLib0.6.11；工单旧beta0.111.0不覆盖当前目标。以下用于选择下一有价值切片，不给未逐项重跑的旧行补签，也不把历史Check视为当前完整Check。
+
+|责任票|已落实且不重复开发|当前仍需核实/实施或集中验收|
+|---|---|---|
+|#82|原生服务限制/库存、真实休息及HUD输入、完整点/ENet、控制台已有实现与审查|真实原生禁项/附加选项及额外次数来源要准确；无合法选项现为故障模拟，未发现合法原生来源，不虚构CoffeeDripper。当前目标相关最终回归、正式双端与人工归属留原票。|
+|#83|双版匹配资源正式整房鼠标开箱/Proceed、Tween与Face/Spoils、自然保存fresh已补；旧表“public整房未测”已过时|真实游戏双端/实体设备及支持来源准确清单保留，不能把未知第三方支付视为支持。无需为本票再造一遍正式开箱。|
+|#84|Forest首普通、SoulFysh三种Boss、Seapunk已有同类/scene完整fresh均已集成；Seapunk开场及SoulFysh四组合正式布局见看板|Seapunk14场正式布局已集成且双版各14四诊断0；Forest五虫/墨宝等正式完整场地、Matriarch/Waterfall等特殊状态适用fresh/布局须按实际来源补；事件/多端责任不转#88。不能从SoulFysh单owner推全票恢复。|
+|#85|Knowledge完整选择计数fresh、单owner Tender真实屏；Holes战前/奖励/完成点三轮ENet三端；蟹固定Artifact3已集成|普通Hive首真实受罚遭遇完整fresh已由c2cb995→2cf965c补证，实施/集成双版各1四诊断0；旧ActTwo.HiveNormalOpening仍是构造/直接Hook，只作开场单元证据；连续独立事件、其他特殊Boss恢复、正式选择多owner/焦点与布局另按实际缺口准备。|
+|#86|Mystic首普通完整fresh与原生三招、Glory12普通+3精英正式布局及原生输入已集成|旧表“Mystic未生产/未布局”作废；保其他适用特殊状态恢复和真实设备/多游戏端归属，不无依据把15场再跑一次。|
+|#87|Queen一次重燃/火炬、完整fresh、四组合正式布局，MultiClaw/Wither源行为已集成|Aeonglass个人计数完整fresh已由fff3232→8481af1补证，实施及集成双版各1四诊断0；TestSubject多阶段完整fresh/适用正式布局尚缺；Boss原组间歇故障仍暂停未修，只有可区分新假说才恢复实验，不用probe绿签修。|
+|#88|匹配public资源、两遗物/Flight/控制台/每日字段已实现，用户#93/#94既有人工结果保留|V01–14/S6/H13/U8旧表是历史审计；当前未齐整票证据继续由原票承担。最终同提交完整Check、双版包/许可及集中人工矩阵仍待；真实手柄责任明确列出，不要求当前用户补设备。|
+
+本轮已完成 #85 **首普通Hive完整fresh**（c2cb995→2cf965c）；本片范围为：从已核两版`Hive.GenerateAllEncounters`及现有`SpinyToadNormal`入口入手，只在准备期选择合法原生队列，实际session.Enter→战中保存→新大厅完整开场/三种初始负面一次→自然胜利保存→第二新大厅非空领取/原Proceed。复用已有Forest/Seapunk恢复宿主，不改Hive生产、不重复已证开场1–4角色矩阵。Aeonglass个人旧计数重置及终局保存已集成补证；下一拉取Phrog正式布局与TestSubject完整fresh，当前动作见唯一看板；不依赖暂停的Phrog原组六项诊断。其他远期缺口不在此次盘点时细化全部文件级计划。
+
+以下为2026-11-13历史增量（当时源码`1956c17`）；当前状态以前段再核和实施索引为准。目标public0.107.1/beta0.113.0/RitsuLib0.6.11，匹配public资源及辅助依赖已齐。商店场景、Phrog右侧布局、Hive精英Weak2、MultiClaw9/10及原生3+N、public启动Task观察修复、Waterfall清负面与Artifact1、Hive事件普通三项各1、Holes单owner战前/奖励恢复、Wither强化链及Holes三端战前/胜利奖励恢复均已独立双轴审查并正常集成；准确提交、专项数量和边界见[实施索引](issues-82-88-implementation.md#当前接续状态2026-11-13)。
 
 Holes完成片 `1956c17` 补全已领／Proceed后全员真实 `NMapScreen.Open(false)` 认证→原生host SaveRun→第三轮全新三端 LoadRunLobby 自然 MapRoom。父事件完成与根完成保存分开：无退出／仅两端退出不提升，全员完成才投影保存副本，重复保存根只计一次且live投票根保留。expected按阶段及端点/profile归属核对完整Players／RNG／history／Page／Point／Map；固定host名单 `[1,3,2]` 覆盖保存副本顺序。实施树双版event-各4 PASS、宝箱共用恢复各1 PASS，四诊断均0，日志 Holes 树 `.local/executor-holes-completed/ordered-event-final-{public,public-beta}-host.log`、`treasure-final-{public,public-beta}-host.log`。独立双轴无阻塞，正常hooks差异无漂移。裸地图节点调用真实入口、显式native保存并隔离IO；正式输入／自动UI保存／部分领取恢复未证，详见[Holes完成片](issue85-hunting-implementation.md#holes-全员退出后的完成点保存2026-11-13)。
 

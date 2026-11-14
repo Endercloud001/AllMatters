@@ -60,3 +60,11 @@
 双轴独立初审及数字37+/4−增量均无硬问题；最终实施树`queen-native-layout-20261114/.local/executor-layout/value2-final-{public,public-beta}-host.log`双版各1 PASS四诊断0无RID。正常hook成功，提交patch与已审patch完全一致。集成`f55305f`默认重新导出资源后执行`Test.ps1 -Branch All -Filter 'Jigsaw Queen'`，双版各9（旧7+fresh1+布局1）PASS、Build/Host/Engine/Metadata全0，无RID/ObjectDB；日志集成树`.local/executor-20261114/queen-layout-integrated-{public,public-beta}-host.log`。
 
 本片是单run owner下1/4 combat角色、模拟鼠标/控制器action证据；不代签所有Queen意图状态、实际设备、新进程/真实远端或整票。Boss原组六项间歇故障仍暂停未修复；三次probe绿仍不是修复。空槽转#86全部12普通/3精英正式场景四组合布局，避免只继续堆Queen局部用例。
+
+## Aeonglass 个人计数与终局完整 fresh（2026-11-14）
+
+测试源码`fff3232`经`8481af1`集成，生产未改。真实acts=[Overgrowth,Hive,Glory]、CurrentActIndex/Checkpoint.Act=2，准备期一次原生SetBossEncounter(AeonglassBoss)后实际session.Enter；开场唯一512基础HP原Aeonglass、无Artifact、每owner一个Target明确的WitheringPresence，Amount保原6而Display/CardsLeft均12，History独立核仅一次。实际13次生成Defend至Discard再AutoPlay，旧counter11与五状态并存；真Ebb留下Block33/EyeLasers，再伤血/金币/Hand→Exhaust与run/owner/monster RNG扰动后实际SaveRun。
+
+新LoadRunLobby生成新run/session/room/怪与presence身份，完整原开场五堆顺序/Energy/Block/powers、敌HP/意图/WitherUpgradeCount、个人counter/display、原生玩家/RNG/acts/map/history/根房一致，重复Enter不再增强或扣步。真实致死→原生CheckWinCondition、BurningBlood回血6及胜利保存，第二新大厅敌人0且startup/opening不增加，最终Glory原生空奖励completed且精确内容保持；不造ExtraRewards，不声称非空领奖。Profile深克隆及原引用/全内容恢复与全局清理保留。
+
+独立Standards/Spec实读595+/0两文件及相关双版消费者均无阻塞；beta缺失AeonglassBoss/CardCmd已实际导出窄核。双版编译0错误，默认资源导出后实施`.local/executor-aeonglass-fresh/first-{beta,public}-host.log`各1 PASS；正常hooks成功，提交patch与已审暂存完全一致。集成树`.local/integration-slices/aeonglass-fresh-integrated-{beta,public}-host.log`双版各1 PASS，Build/Host/Engine/Metadata均0。单owner同进程两次新大厅，不代签真实多端/新进程、正式设备输入或#87整票；暂停Boss原组六项诊断未被本片重跑或签修。

@@ -185,3 +185,11 @@ Tender 图为用户提供的1,529,010字节原件 `tender.png`，按 #63 设计�
 真实击杀唯一Boss→原CheckWinCondition、战后清理及BurningBlood回血6→自然prefinished保存；原非终局Hive Boss生成非空奖励，保存前boundary与奖励生成后内容/玩家/RNG分阶段取expected。源skip不付库存，第二新大厅不重开战斗，真实同步领取、重复拒绝、原Proceed完成根一次，不手调Complete或末尾补Save。两版实际均为金币100及卡牌两项，没有roll出药水；代码保留原药水可选分支和独立profile发现预测，不把未出现的药水领取写成已执行。profile完整JSON克隆隔离，finally恢复原引用及完整原内容。
 
 独立Standards/Spec实读完整652+及双版原生消费者均0发现；正常hook成功，提交patch与已审patch完全一致。实施树`knowledge-fresh-20261114/.local/executor-knowledge-fresh/entry1-beta-host.log`和`final-public-host.log`各1 PASS，`related-final-{public,public-beta}-host.log`各8 PASS，均Build/Host/Engine/Metadata0、无RID/ObjectDB。集成`2e61481`专项双版各1及相关ActTwo各8 PASS、四诊断0无RID，日志集成树`.local/executor-20261114/knowledge-fresh-integrated-{public,public-beta}-host.log`与`knowledge-acttwo-integrated-*`。单owner同进程两次新大厅，不代签正式选择UI、未完成的多owner选择、真实远端/新进程或Hive首普通完整恢复。
+
+## Hive 首普通完整 fresh（2026-11-14）
+
+测试源码`c2cb995`经`2cf965c`集成，生产未改。真实原生acts=[Overgrowth,Hive,Glory]、CurrentActIndex=1与JigsawCheckpoint.Act=1，准备期仅一次原生RoomSet选SpinyToadNormal，之后走实际session.Enter。初始Weak/Frail/Vulnerable各1且仅一次由原生PowerReceivedEntry独立核定；完整当前powers取同阶段原生首回合快照，保留public/beta自然tick差别，不用强设层数统一版本。
+
+真Spikes使IsSpiny=true/Thorns5并进入Explosion待行动，再额外Weak4、伤血、移牌及扰动run/owner/monster RNG后实际SaveRun。新LoadRunLobby新run/session/room/怪物完整回原开场，核五堆顺序/Energy/Block/powers、敌HP/动作/RNG、Act/map/history/根房同点，普通遭遇计数不再消费；重复Enter不重施三负面、不二扣。自然致死核原BurningBlood回血6、胜利点保存先于奖励，第二新大厅不重开战斗并重现非空金币/卡，真实领取、重复拒绝/完整状态不变及原Proceed一次；本seed未roll药水。
+
+实施树`.local/executor-hive-fresh/first-{beta,public}-host.log`双版各1 PASS；集成树`.local/integration-slices/hive-fresh-integrated-{beta,public}-host.log`双版各1 PASS，Build/Host/Engine/Metadata均0。Standards/Spec独立读取644+/0两文件及适用API/规格，源码无阻塞；正常hooks成功，提交patch与已审暂存完全一致。Profile独立JSON克隆及完整原引用还原/全局清理保留。单owner同进程新大厅，不代签真实多端、所有Hive场地、Knowledge多人屏或正式奖励按钮；#85仍部分完成。

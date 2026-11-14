@@ -102,3 +102,19 @@ Standards与Spec两轴独立读取最终230+/1−两文件及实际双版日志�
 实施树`.local/executor-soulfysh-fresh/three-case-{beta,public}-host.log`各3 PASS，`final-suite-{beta,public}-host.log`各17 PASS（原10+2/3角色四开场+三fresh），四诊断0。合入Seapunk后集成beta在旧event总数1断言报actual2；独立树严格修为event/ordinary-root的原Boss+恰一primary非Minion Seapunk，原SoulFysh随从Minion数量与其他scope不变。修后`with-seapunk-{beta,public}-host.log`各17 PASS四诊断0；原集成red保留在`.local/integration-slices/soulfysh-fresh-integrated-beta-host.log`，未归档未执行public为新证据。
 
 Standards与Spec独立源码审查及边界oracle增量复审通过；非阻塞重复奖励断言建议保留未扩大本片重构。正常hooks退出0且两次提交patch与已审内容一致；Hello注册冲突仅保留Seapunk及SoulFyshRecovery两条。集成`44ce260`实际双版各17 PASS，Build/Host/Engine/Metadata全0，日志`.local/integration-slices/soulfysh-fresh-fixed-{beta,public}-host.log`。同进程单owner新大厅，不代签真实多端/新进程、正式奖励按钮或换幕UI；本片未关闭#84。
+
+## Seapunk 已有同类与 scene 完整 fresh（2026-11-14）
+
+测试源码`97cf05a`经`d7fec1c`集成，生产未改。两独立case通过准备期一次原生RoomSet队列选择，实际session.Enter进入SeapunkNormal（原CalcifiedCultist+Seapunk再追加一只）及GremlinMercNormal（原merc再追加一只）。完整独立开场采样后实际执行原生动作并扰动玩家HP/金币/五堆、敌人/Block/powers和各RNG，SaveRun后新LoadRunLobby重建原名单相对+1，各实例均新且normalEncountersVisited保持0→1→1。Gremlin原始marker来自未注册hunting layout的独立原生模型，源战斗封存实际merc/addition槽位，fresh比较同份封存快照。
+
+实际原生命令清除原怪及Gremlin死亡后续召唤，新增正常primary非Minion Seapunk独活时仍阻止胜利，最后只杀新增者才自然胜利保存。第二新大厅不重开战斗，原非空金币/卡奖励内容与完整边界再现，实际同步领取、重复拒绝/完整状态不变及原Proceed完成一次；本seed未roll药水。Profile JSON深克隆与原引用/完整内容恢复，临时patch及全局回调在finally清理。
+
+实施树`.local/executor-seapunk-fresh/two-case-{beta,public}-host.log`双版各2 PASS，集成树`.local/integration-slices/seapunk-fresh-integrated-{beta,public}-host.log`双版各7 PASS（原开场5+新恢复2），Build/Host/Engine/Metadata均0。Standards/Spec独立读取690+/0两文件及双版日志均无阻塞；正常hooks退出0，提交patch与已审暂存内容一致。14场正式UI布局见下节，单owner同进程新大厅不代签真实多端/新进程、正式奖励按钮或#84整票。
+
+## Seapunk 正式布局与原生输入（2026-11-14）
+
+源码`02b5f60`经`10797aa`集成：14原生普通遭遇（10regular/4weak）逐场safe/hunted、1/4角色与1280/1680×720，真实当前/最大HP文本及物理尺寸、意图数值与描边包络、viewport鼠标精确目标、含players的完整左右导航环。原模型/顺序/slot/HP/起手/powers/monster RNG与原scene markers保持；有scene仅在间距不足时左移追加Seapunk节点及marker，无scene按玩家/pet右缘与敌人完整包络重排敌子树，保24logical间隔，必要时统一缩放，并适配原生后续aspect调整。
+
+首beta05先捕获重复SetUpForCombat夹具错误，去重复后取得真实GremlinMerc血条交叠13logical；scene修复后同例绿。全矩阵首beta01又取得CorpseSlugs原生压缩后hitbox/HP真实交叠，无scene分支修复后同例绿。最终实施树`.local/executor-seapunk-layout/full-matrix-second-{beta,public}-host.log`双版各14 PASS，Glory Axebots scene及SoulFysh compact相邻回归双版各1+1 PASS，四诊断均0；首失败未执行public，不归档旧public日志。
+
+独立Standards/Spec初始及无scene增量源码审查均无阻塞；正常hooks仅展开四处return换行，最终835+/0提交patch已核。重叠oracle对敌相关原生旧重叠仅豁免相同safe实体对且面积不增加，新增Seapunk没有旧基线豁免；玩家display/display及display/hitbox对跳过，玩家hitbox对按safe比较，不能声称所有玩家显示也已检查。原Rat4 hitbox/Rat5 HP旧交叠保留。集成树`.local/integration-slices/seapunk-layout-integrated-{beta,public}-host.log`双版各14 PASS，Build/Host/Engine/Metadata均0。正式多游戏端/实体设备及#84整票不由此签完。
