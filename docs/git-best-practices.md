@@ -116,7 +116,7 @@ git log --oneline --graph > <backup-path>/commits.txt
 
 ## PR 合并后同步
 
-参见 `docs/development.md` 的「PR 合并后清理」。
+本节维护唯一同步步骤。先核实目标分支的未提交内容与本地独有提交；涉及重置或删除时，按目标树 `AGENTS.md` 完成备份、报告与授权要求，再执行相应命令。
 
 标准序列（PR 已在 GitHub 上 squash-merge）：
 

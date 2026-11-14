@@ -4,7 +4,7 @@
 
 多 issue 主控接续、拆片或派发前读 `docs/agents/batch-flow.md`；#82–#88 当前调度看板为 `docs/issues-82-88-board.md`，仅集成主控更新，其他 worktree 读取集成树原件。每片集成后继续拉取就绪项，不要求用户跨对话搬运。默认最多两个活跃在制片、一个 native/API导出/build/formatter/hooks 执行者（可由主控兼任）；角色按实施/审查阶段换位。派发必须给可验证行为、已核文件/符号、所有权、依赖与最小测试。测试按变化和风险选择，保留既有 hooks/集成/交付要求；旧日志、跨端一致或局部通过不能代签新执行、独立正确性或整票完成。
 
-开发前读取目标工单、父规格和阻塞项；涉及既有玩法时查阅对应版本范围（`docs/v0.1-scope.md`、`docs/v0.1.1-scope.md`）。构建、版本验证和本机路径见 `docs/development.md`；移植时查阅 `docs/references.md`。
+开发前读取目标工单、父规格和阻塞项；涉及既有玩法时查阅目标工单及适用的 `docs/v0.1-scope.md`。构建、版本验证和本机路径见 `docs/development.md`；移植时查阅 `docs/references.md`。
 
 涉及卡牌、能力、牌池、展示或事件流程时，先从 `docs/game-mechanics.md` 定位目标分支源码；API 查询、测试和日志命令见 `docs/development.md`。开始工单或准备 PR 时运行 `tools/ReviewScope.ps1`；审查时读取 `docs/agents/review.md`。
 

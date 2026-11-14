@@ -142,3 +142,17 @@ Standards与Spec独立源码审查及边界oracle增量复审通过；非阻塞�
 第二新大厅从真正非空 Boss 胜利点恢复，不启动新战斗、不重建活敌；原生生成的金币/卡/药水内容及匹配阶段完整 Boundary 一致。实际同步领取、重复领取拒绝且完整状态不变、原 Proceed 均验证；药水只按该 seed 实际 roll 处理。profile 完整 JSON 克隆隔离，finally 恢复原引用及全部原内容；原 opening/startup/offer 等任务先 settle 再解除临时观察。真实 caller 保留原调用与原 Task，public 仅允许成功的 `Task.CompletedTask` 缓存共享，beta 长循环必须新引用，不以补调启动取得计数。
 
 独立 Standards/Spec 已完整读取851行初稿，Spec 发现保存源能力未再次核验的 P2 后仅增8行，两轴均实读增量关闭。实施树 `.local/executor-waterfall-fresh/related1-{public,public-beta}-host.log` 双版原7＋fresh1各8 PASS；返修后 `source-powers-final-{public,public-beta}-host.log` 双版 fresh各1 PASS，Build/Host/Engine/Metadata全0。旧七例及生产未改，复用相关组证据而不重复执行。正常 hooks 退出0，reviewed-final.patch 与 committed-final.patch 全文相等；集成同源码双版 `Waterfall` 各8 PASS，Build/Host/Engine/Metadata全0，日志 `.local/integration-slices/waterfall-fresh-integrated-{public,public-beta}-host.log`。同进程单owner两次新大厅不签真实多端、新进程、正式奖励按钮/设备或 #84 整票。
+
+## Matriarch 正式睡醒布局在制交接（2026-11-14）
+
+本片未提交、未合入，停止点为2026-11-14 15:49。实施树`matriarch-layout-20261114`，分支`test/issue84-matriarch-layout-20261114`，HEAD=`eb4837c9a59452365cfbfd43a222d9107e39a0eb`。暂存新`src/Tests/JigsawHuntingMatriarchLayoutTests.cs`948行＋Hello注册1行；该测试另有**未暂存4+/2-**，新增精确Plating期望`12*(2*combat角色数-1)`及实际值失败消息，尚未重新编译/运行。新`src/Jigsaw/JigsawHuntingMatriarchLayout.cs`仍**未跟踪/未暂存85行**（不是早前估计94行），必须保留并在最终三文件审查中纳入；.import导出脏项保持未暂存。owner原为`matriarch_fresh_prepare`，已要求冻结，按磁盘实际差异接续。
+
+Matriarch真实追加睡眠Lagavulin，区别于帝皇蟹仅加效果的原场景保持。entry1-beta取得新增minion hitbox与Boss约11.08×97.52逻辑交叠以及完整HP新增交叠的真实red。生产新文件仅patch已核两版`NCombatRoom.CreateEnemyNodes`：精确当前hunted Underdocks顶层Matriarch Boss/SecondBoss、顺序两敌且slots空、追加实例尚持原生成mark时，按实际Hitbox/完整HP/字框横向包络平移完整敌人子树，再调用原UpdateCreatureNavigation；保留原Y、Scale、玩家、背景与资源。最终仍需独立双轴审查及回归，不能从最小绿推定全部来源谓词正确。
+
+测试每例safe→hunted，睡态正式HP/意图、原hitbox中心真实hover与精确目标、含玩家完整左右焦点环；真实Unblockable Damage1→原Wake/stun/Minion1后重测醒态Bounds/HP/意图/输入，保完整模型/五堆/RNG及比例身份。已有原生player/player交叠只按safe精确矩形比较，追加怪物不豁免。正常/异常都异步drain延迟HP回调后Free；宿主仅精确隔离已核签名的纯音频PlayDamage和相机ScreenShake，不跳Damage/Wake或缩放几何阈值。
+
+实施树`.local/executor-matriarch-layout/awake3-beta-host.log`为完整睡/醒最小1 PASS、Build/Host/Engine/Metadata全0。随后`layout-final-public-beta-host.log`先后实际PASS roles1/1280×720、roles1/1680×720，第三roles4/1280×720在safe CheckOpening固定Plating12断言失败；Build0/Host1、最终Passed汇总为空、Engine/Metadata0。不能写成完整五例通过，public没有启动。现Plating局部公式修改尚未测试；同时已发现新增Mod MetallicizePower.ShouldScaleInMultiplayer=true，当前oracle仍写死8，**尚未修正**，接手先沿PowerCmd实际缩放及舍入链计算精确独立期望，不改生产来迎合8。
+
+主控已实际补齐API（导出exit0，文件都在集成树`.local/api/queries/`）：beta113 `MegaCrit.Sts2.Core.Models.Powers.PlatingPower.decompiled.cs`确认`12*(2*n-1)`；public107 `MegaCrit.Sts2.Core.Models.Singleton.MultiplayerScalingModel.decompiled.cs`及beta113 `MegaCrit.Sts2.Core.Models.MultiplayerScalingModel.decompiled.cs`均确认act0=1.1、act1=1.2、act2 Boss=1.3/其他1.2。原PowerModel通用多人公式为amount×combat人数×该系数，具体何时启用/取整须结合两版PowerCmd及当前遭遇独立核对；API导出不能充当返修行为通过。
+
+接手先修未完成Metallicize oracle并核对现有Plating未暂存差异，再在该树最小运行`./tools/Test.ps1 -Branch public-beta -Filter 'Jigsaw Matriarch native layout sleep and damage-awake roles=4 physical=1280x720' -SkipResourceExport`。稳定后双版prefix`Jigsaw Matriarch native layout`完整5例（四组合＋合法SecondBoss代表），再受影响Underdocks7与Matriarch fresh1；只归档实际启动目标。最终将新生产/新测试/Hello三文件精确stage、独立双轴、正常hooks、串行集成与集成验证。完整#84、真实游戏/设备验收仍未完成；唯一调度见[看板](issues-82-88-board.md)。

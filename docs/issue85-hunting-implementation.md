@@ -203,3 +203,15 @@ Tender 图为用户提供的1,529,010字节原件 `tender.png`，按 #63 设计�
 真Spikes使IsSpiny=true/Thorns5并进入Explosion待行动，再额外Weak4、伤血、移牌及扰动run/owner/monster RNG后实际SaveRun。新LoadRunLobby新run/session/room/怪物完整回原开场，核五堆顺序/Energy/Block/powers、敌HP/动作/RNG、Act/map/history/根房同点，普通遭遇计数不再消费；重复Enter不重施三负面、不二扣。自然致死核原BurningBlood回血6、胜利点保存先于奖励，第二新大厅不重开战斗并重现非空金币/卡，真实领取、重复拒绝/完整状态不变及原Proceed一次；本seed未roll药水。
 
 实施树`.local/executor-hive-fresh/first-{beta,public}-host.log`双版各1 PASS；集成树`.local/integration-slices/hive-fresh-integrated-{beta,public}-host.log`双版各1 PASS，Build/Host/Engine/Metadata均0。Standards/Spec独立读取644+/0两文件及适用API/规格，源码无阻塞；正常hooks成功，提交patch与已审暂存完全一致。Profile独立JSON克隆及完整原引用还原/全局清理保留。单owner同进程新大厅，不代签真实多端、所有Hive场地、Knowledge多人屏或正式奖励按钮；#85仍部分完成。
+
+## Knowledge 双 owner 错峰选择在制交接（2026-11-14）
+
+本片未提交、未合入，停止点为2026-11-14 15:49。实施树`knowledge-owner-20261114`，分支`test/issue85-knowledge-owner-20261114`，HEAD=`f1eb1ddd2c5f9ce4edc62261dafec9f23513d6e4`。仅暂存新增`src/Tests/JigsawKnowledgeMultiOwnerTests.cs`671行及Hello注册1行，生产零改，无源码未暂存差异；资源导出.import未暂存。owner原为`glory_layout`，跨对话按实际Git接手，不依赖旧agent继续运行。
+
+两真实ENet进程分别拥有NetId1/2，经真实RunLobby和PlayerChoiceSynchronizer，各显示原MindRot/Calamity屏；host真实鼠标选Calamity后自身屏释放/焦点回战斗，child仍待选、原PerformMove仍未完成，child再真实选MindRot。两端各能力1、实际PowerReceived两条正确归属、屏各移除/释放一次、完整五堆/卡牌身份/其他状态与run/owner/monster RNG独立前后不变；手工原RollMove到Slap。夹具手工创建CombatState/SetUpTest及合法Boss map后Restore，不是原地图进入/coordinator自然调度；不得把手工下一招写成自然调度已证。
+
+此前entry5行为PASS仍有执行器取消和child菜单NRE；entry7因child `CleanUp(false)`实际立即断网，使host peer不移除/质量tracker向断开peer发包100条，不能签绿。成功路径改`CleanUp(true)`并先释放RunLobby后，entry8行为1PASS但Engine3：host退出期仍订阅JigsawNativeSession.OnPlayerDisconnected，收到child正常离线后沿Disconnect→CompleteRoom→SynchronizeMasks→RelicCmd.Obtain触发缺遗物UI的NRE。**不是预存CompleteRoom队列**。最终在双方全部效果/五堆/RNG/Slap断言、原执行器settle及done屏障结束后，host先`session.Close()`卸订阅，再发finish；child正常优雅退出，host仍等peer移除与child退出码0，不丢队列、不屏蔽错误，也不声称验证选择等待期间断线。
+
+当前有效证据仅实施树`.local/executor-knowledge-owner/entry9-beta-host.log`：public-beta0.113.0，Build0/Host0/1 PASS/Engine0/Metadata0；console同前缀。子进程`.local/knowledge-multi-owner/75edea27a8a44bdfa0eda5b0cab5dda1/2.log`1 PASS，`2.err`实际0字节，测试已断言子进程退出码0。public行为尚未运行，尚无本片正式双轴审查、hooks提交或集成；不要把entry9用于其他目标或新源码签字。
+
+接手下一命令（该实施树，资源未变且PCK已有效导出）：`./tools/Test.ps1 -Branch public -Filter 'Jigsaw Knowledge two native owners stagger first-round screens' -SkipResourceExport`；再双版`Jigsaw hunting act two`8例和`Jigsaw Knowledge native Tender`1例，按实际结果留原始日志。随后独立Standards/Spec读取同一`git diff --cached f1eb1dd -- src/Tests/JigsawKnowledgeMultiOwnerTests.cs src/Tests/HelloWorldTests.cs`，正常hooks提交、串行合并及集成验证。死者/缺席/等待中死亡断线、第二三轮多owner、真实游戏端和完整#85仍未验。唯一调度见[看板](issues-82-88-board.md)。

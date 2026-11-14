@@ -67,20 +67,6 @@ dotnet build src/Tests/AllMatters.Tests.csproj -p:GameBranch=public --nologo
 
 测试准备复用 `src/Tests/HeadlessCombatHost.cs` 中的 `HeadlessTestSetup`：`PlayerWithRun` 返回已绑定测试局的玩家，`Run` 创建指定角色的多人测试局，`Combat` 为局内玩家准备真实战斗状态；已有 `NativeEventTests.Player/Combat` 继续代理该入口。原生资源测试用 `using var atlases = HeadlessTestSetup.LoadAtlases("card_atlas", "relic_atlas")` 加载并自动撤销资源加载器；需要遗物袋时调用原生 `player.RelicGrabBag.Populate(player, player.RunState.Rng.UpFront)`。比较单目标前后 RNG 是否变化时复用 `RngPosition`，其数值不用于跨版本比较。事件原生文案的变量绑定沿实际 UI 使用事件 DynamicVars；既有框架初始化和生命周期替代顺序保持不变。
 
-### PR 合并后清理
-
-PR 合并到 main 后，本地 main 与远程不再同步。标准清理操作序列：
-
-```powershell
-rtk git fetch origin
-rtk git checkout main
-rtk git reset --hard origin/main
-rtk git branch -d integration/batch-N
-rtk git branch -d <feature-branch>  # 如有特性分支
-```
-
-参见 [Git 最佳实践](git-best-practices.md#pr-合并后同步)。
-
 ### 开工前冒烟检查
 
 每个批次开始前，运行一次测试宿主健康检查以确保 TDD 信号完整：
@@ -164,16 +150,7 @@ CLI 遇到连接问题时按 [GitHub 操作约定](agents/issue-tracker.md) 处�
 
 ### worktree 清理
 
-完成工作后清理 worktree：
-
-1. 归档相关子代理会话：`mcp__ccd_session_mgmt__archive_session` 对应的 session_id
-2. 等待约 5 秒确保进程退出（Windows 文件句柄释放）
-3. 执行删除：
-   ```powershell
-   git worktree remove --force <path>
-   ```
-   
-如若删除失败，检查目录是否仍被子代理持有文件句柄；必要时用资源管理器或 Handle 工具查看占用情况。参见 [Git 最佳实践](git-best-practices.md#worktree-清理)。
+按 [Git 最佳实践](git-best-practices.md#worktree-清理安全规范强制执行) 先检查、备份并报告，再按仓库授权要求处理。遇到Windows文件句柄占用时，结束持有该树的进程后重试；以当前客户端可用工具为准，不使用旧会话管理工具名。
 
 ## 实机验收交付
 
@@ -289,28 +266,9 @@ Agent 完成适当的自动化测试和两目标构建后，向用户提供 `dis
 
 工作区父目录可能不是 Git 仓库，先定位含 `AGENTS.md`、项目文件和 `.git` 的仓库根目录，再执行 Git/工具命令。文件查找先 `rg --files <目录> -g '<模式>'`，确认文件后按章节或成员读取；PowerShell 下使用 `rg '<内容>' src/Tests -g '*.cs'`，不将 `src/Tests/*.cs` 当成已展开路径。长日志保留本地，只返回退出码、通过数、首个相关错误及来源行；遇到输出截断时缩小范围。
 
-## PR 合并后清理
+## Git 清理
 
-PR 合并到 main 后（特别是 squash-merge），本地 main 会与远程分叉。标准清理流程：
-
-```powershell
-rtk git fetch origin
-rtk git checkout main
-rtk git reset --hard origin/main   # 先确认本地 main 没有未推送的独有提交
-rtk git branch -D <feature-branch>  # 如 integration/batch-1；squash 后需 -D
-```
-
-### Worktree 清理
-
-Windows 上子代理会话仍持有 worktree 文件句柄时，`git worktree remove` 会返回 Permission denied / Device or resource busy。顺序：
-
-1. 用 `mcp__ccd_session_mgmt__archive_session` 归档对应子代理会话
-2. 等约 5 秒让进程退出
-3. `git worktree remove --force <path>`，然后 `git worktree prune`
-
-### Stash 操作
-
-`git stash drop` 前先 `git stash list` 并用 `git stash show -p stash@{N}` 确认目标内容，再按显式编号删除；新 stash 会把旧编号整体后移。
+PR合并后的分支同步、worktree清理及stash操作统一见 [Git 最佳实践](git-best-practices.md)。执行前保留目标树的未提交内容，并遵守目标树AGENTS.md的安全要求。
 
 ## 文档与参考目录
 

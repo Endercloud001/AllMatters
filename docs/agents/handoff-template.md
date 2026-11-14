@@ -20,7 +20,7 @@ This template ensures that incoming agents have unambiguous context to continue 
 
 **Issue**: [Link to GitHub issue, e.g., `#80`]
 
-**Parent Spec** (if applicable): [Link to parent issue or spec document, e.g., `#73`, `docs/v0.1.1-scope.md`]
+**Parent Spec** (if applicable): [Link to parent issue or spec document, e.g., `#73`, `docs/v0.1-scope.md`]
 
 **Specifications** (do not duplicate; link only):
 - [Linked document or issue describing what must be implemented]
