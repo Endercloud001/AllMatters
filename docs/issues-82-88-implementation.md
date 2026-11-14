@@ -1,5 +1,7 @@
 # #82–#88 实施索引
 
+2026-11-14 帝皇蟹原场景保持：仅测试/注册909行，`4e4bf4c`→`f1eb1dd`；实施和集成双版crab各9 PASS，Build/Host/Engine/Metadata全0，独立双轴无阻塞、正常hooks patch一致。原Crusher移动方案未提交且已撤回归档，玩家移动候选取消；原背景美术/目标/HP/scale与共有交叠原样保留，唯一效果变化为双臂Artifact3。[范围与证据](issue85-hunting-implementation.md#帝皇蟹仅效果强化与原场景保持2026-11-14)。Waterfall完整fresh与Knowledge双owner错峰选择仍在制，#85未关闭。
+
 日期：2026-11-12。本对话主控集成，开发起点 `f7e915c`，集成分支 `integration/issues-82-88-20261112`。
 
 ## 当前接续状态（2026-11-14）

@@ -166,6 +166,16 @@ Tender 图为用户提供的1,529,010字节原件 `tender.png`，按 #63 设计�
 
 独立 Standards、Spec 对 fixed `776e2ef` 的三文件 staged diff 均0发现；正常 commit hooks 成功，提交差异与已审差异完全相同。集成 `dd46174` 后串行蟹各5及包含新自然致死的 Waterfall各7 PASS，四诊断全0；集成日志 `.local/executor-20261114/crab-integrated-{crab,Waterfall}-{public,public-beta}-host.log`。完整正式布局/输入、蟹战前与奖励fresh恢复、真实远端及整批Check/同提交包仍属后续，#85未被局部测试关闭。
 
+## 帝皇蟹仅效果强化与原场景保持（2026-11-14）
+
+用户明确本方案只增加效果、没有新增怪物；本片据此收口为 tests-only，所有生产布局、贴图和场景资源保持不变。旧移动 Crusher 的未提交方案曾在自身断言下双版各9通过，但 Spec 查明双臂美术在独立 Kaiser 背景，移动目标节点会使美术与目标错位。该方案已完整归档到蟹实施树 `.local/executor-crab-layout/withdrawn-layout/` 并从 src/index 撤出，未提交；整体移动玩家的候选也取消。旧方案的通过不作为当前方案证据。
+
+最终源码 `4e4bf4c` 经 `f1eb1dd` 合入，仅新增 `JigsawHuntingCrabLayoutTests.cs` 908行与 Hello 注册1行。四例分别覆盖1/4角色、1280/1680×720，每例先 safe 再 hunted；双臂原 marker/scale、玩家、目标代理、body、意图静态容器、实际可见完整 HP、背景及实际 Spine 根 transform 均同相位精确对照，唯一开场差异为双臂各 Artifact3。每相位实际可见 HP 键集合也须相等，整条消失不能跳过矩形检查而通过。
+
+鼠标从 safe 原始目标中心真实派发，必须返回原双臂实例；左右方向遍历含玩家的完整焦点环，输入前后敌人/怪物/招式身份、完整玩家与五堆、各 RNG 保持。safe 原场景共有的交叠按同相位保存两个完整矩形及 intersection，hunted 要求精确一致且键集合相同。实际4角色原生 Crusher/玩家4 hitbox交叠约4.29逻辑像素、聚焦玩家4时 HP/Crusher目标交叠约16.29；这两项是原生共有事实，本 Mod 不据此重排原场景，也未宣称消除它们。
+
+实施树 `crab-layout-20261114/.local/executor-crab-layout/unchanged-final-{public,public-beta}-host.log` 是最终909行源码的实际相关验证：双版各9 PASS（原开场5＋新4），Build/Host/Engine/Metadata均0；此前 `unchanged1-beta` 最小1例亦四诊断0。独立 Standards/Spec 已实读最终差异，可见 HP 键集合增量分别复审关闭；正常 hooks 提交后 reviewed-final.patch 与 committed-final.patch 全文一致。集成同源码双版 `crab` 各9 PASS、四诊断0，日志 `.local/integration-slices/crab-native-integrated-{public,public-beta}-host.log`；蟹完整战前/奖励 fresh、正式游戏端仍属 #85，局部通过不关闭整票。
+
 ## Knowledge Tender 真实 owner 选择屏（2026-11-14）
 
 源码`1570ab2`经`35bb69d`集成，目标public0.107.1/beta0.113.0、RitsuLib0.6.11，匹配PCK。仅新测试与Hello注册两文件417+，生产零改。单owner受罚Hive顶层KnowledgeBoss原五步循环第二轮关闭TestMode/AutoSlayer、清空selector；真实PerformMove打开原Sloth/Tender屏、正式卡图与格式化文本，原350ms等待后viewport鼠标点Tender hitbox。原生PowerReceivedEntry只一次、Tender1/Sloth0，展示牌不入牌组/堆；原CardsSelected→Overlay.Remove→QueueFree释放一次，重复release不重加，next原招Slap。真实怪物Hitbox.GuiInput在屏前/屏中/退出后作输入对照。
