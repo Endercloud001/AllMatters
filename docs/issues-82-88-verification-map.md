@@ -1,5 +1,7 @@
 # #82–#88 验证覆盖地图：V14 / S6 / H13 / U8
 
+2026-11-14 Waterfall完整fresh：`2fb2b0a`→`eb4837c`，仅859行测试/注册；原无限HP/爆炸捕获15/pressure6及旧Regen/隐藏能力保存后，新大厅完整回有限HP/PRESSURIZE，再次真实复生恰Artifact1/实际挡Weak，原Explode胜利及第二新大厅非空领奖/重复拒绝/Proceed。两轴P2源能力断言返修已关闭，正常hooks patch相等；实施相关双版各8、返修fresh各1及集成双版各8 PASS四诊断0。[记录](issue84-underdocks-implementation.md#waterfall-复生爆炸态与非空奖励完整-fresh2026-11-14)。单owner同进程，不签真实端或整票；当前在制为Knowledge双owner、Matriarch正式布局。
+
 2026-11-14 帝皇蟹原场景保持：`4e4bf4c`→`f1eb1dd`，生产/资源零改；1/4角色×两宽safe/hunted精确同相位对照，原中心鼠标与全环焦点保持。实施及集成双版各9 PASS四诊断0，独立双轴/正常hooks完成；共有原生交叠不重排，不签蟹fresh或正式端。[记录](issue85-hunting-implementation.md#帝皇蟹仅效果强化与原场景保持2026-11-14)。
 
 2026-11-14 Phrog完整fresh：`9236f53`→`9c17a70`，实施/集成原Phrog组双版各8 PASS四诊断0；残虫活动保存后新大厅回活Phrog零虫，再生五新普通虫、末虫才胜利并自动保存，第二大厅原非空Elite奖励实际领取/重复拒绝/Proceed。独立expected及真实caller/原Task观察、profile清理均双轴通过，详[记录](issue84-overgrowth-implementation.md#phrog-死亡生成与残虫完整-fresh2026-11-14)。单owner同进程，不签暂停P87修复/正式多端；帝皇蟹只加效果、不改原生布局，撤销未提交移动方案。
@@ -20,13 +22,13 @@
 |---|---|---|
 |#82|原生服务限制/库存、真实休息及HUD输入、完整点/ENet、控制台已有实现与审查|原MiniatureTent额外操作与Shovel附加Dig已由09fa14f→76e49d2真实ENet双run/精确owner效果补证，集成双版遗物2+原native rest2四诊断0；无合法选项现为故障模拟，未发现合法原生来源，不虚构CoffeeDripper。当前目标相关最终回归、正式双端与人工归属留原票。|
 |#83|双版匹配资源正式整房鼠标开箱/Proceed、Tween与Face/Spoils、自然保存fresh已补；旧表“public整房未测”已过时|真实游戏双端/实体设备及支持来源准确清单保留，不能把未知第三方支付视为支持。无需为本票再造一遍正式开箱。|
-|#84|Forest首普通、SoulFysh三种Boss、Seapunk已有同类/scene完整fresh均已集成；Seapunk开场及SoulFysh四组合正式布局见看板|Seapunk14场正式布局已集成且双版各14四诊断0；Phrog五虫正式完整场地已由3961924→22a2cc3补证（实施/集成双版各7四诊断0）；Vantom正式布局已由d9e72b2→307e829双版各12补证；Matriarch完整fresh已由050314d→9364122补证。Waterfall等其他特殊状态适用fresh/布局须按实际来源补；事件/多端责任不转#88。不能从SoulFysh单owner推全票恢复。|
+|#84|Forest首普通、SoulFysh三种Boss、Seapunk已有同类/scene完整fresh均已集成；Seapunk开场及SoulFysh四组合正式布局见看板|Seapunk14场正式布局已集成且双版各14四诊断0；Phrog五虫正式完整场地已由3961924→22a2cc3补证（实施/集成双版各7四诊断0）；Vantom正式布局已由d9e72b2→307e829双版各12补证；Matriarch完整fresh已由050314d→9364122补证。Waterfall特殊复生fresh已由2fb2b0a→eb4837c补证（集成双版各8四诊断0）；Matriarch正式布局及其他特殊状态适用fresh/布局须按实际来源补；事件/多端责任不转#88。不能从SoulFysh单owner推全票恢复。|
 |#85|Knowledge完整选择计数fresh、单owner Tender真实屏；Holes战前/奖励/完成点三轮ENet三端；蟹固定Artifact3已集成|普通Hive首真实受罚遭遇完整fresh已由c2cb995→2cf965c补证，实施/集成双版各1四诊断0；旧ActTwo.HiveNormalOpening仍是构造/直接Hook，只作开场单元证据；连续独立事件、其他特殊Boss恢复、正式选择多owner/焦点与布局另按实际缺口准备。|
 |#86|Mystic首普通完整fresh与原生三招、Glory12普通+3精英正式布局及原生输入已集成|旧表“Mystic未生产/未布局”作废；保其他适用特殊状态恢复和真实设备/多游戏端归属，不无依据把15场再跑一次。|
 |#87|Queen一次重燃/火炬、完整fresh、四组合正式布局，MultiClaw/Wither源行为已集成|Aeonglass个人计数完整fresh已由fff3232→8481af1补证，实施及集成双版各1四诊断0；TestSubject第三阶段完整fresh已由d0ca778→cc0bc71补证（实施/集成双版各1四诊断0）；适用正式布局尚缺；Boss原组间歇故障仍暂停未修，只有可区分新假说才恢复实验，不用probe绿签修。|
 |#88|匹配public资源、两遗物/Flight/控制台/每日字段已实现，用户#93/#94既有人工结果保留|V01–14/S6/H13/U8旧表是历史审计；当前未齐整票证据继续由原票承担。最终同提交完整Check、双版包/许可及集中人工矩阵仍待；真实手柄责任明确列出，不要求当前用户补设备。|
 
-本轮已完成 #85 **首普通Hive完整fresh**（c2cb995→2cf965c）；本片范围为：从已核两版`Hive.GenerateAllEncounters`及现有`SpinyToadNormal`入口入手，只在准备期选择合法原生队列，实际session.Enter→战中保存→新大厅完整开场/三种初始负面一次→自然胜利保存→第二新大厅非空领取/原Proceed。复用已有Forest/Seapunk恢复宿主，不改Hive生产、不重复已证开场1–4角色矩阵。Aeonglass个人旧计数重置及终局保存已集成补证；TestSubject完整fresh亦已集成补证；Phrog完整fresh已集成，帝皇蟹原场景保持对照已集成，当前Waterfall完整fresh与Knowledge双owner错峰选择在制，#82真实双run休息遗物已集成，当前动作见唯一看板；不依赖暂停的Phrog原组六项诊断。其他远期缺口不在此次盘点时细化全部文件级计划。
+本轮已完成 #85 **首普通Hive完整fresh**（c2cb995→2cf965c）；本片范围为：从已核两版`Hive.GenerateAllEncounters`及现有`SpinyToadNormal`入口入手，只在准备期选择合法原生队列，实际session.Enter→战中保存→新大厅完整开场/三种初始负面一次→自然胜利保存→第二新大厅非空领取/原Proceed。复用已有Forest/Seapunk恢复宿主，不改Hive生产、不重复已证开场1–4角色矩阵。Aeonglass个人旧计数重置及终局保存已集成补证；TestSubject完整fresh亦已集成补证；Phrog完整fresh已集成，帝皇蟹原场景保持对照已集成，当前Knowledge双owner错峰选择与Matriarch正式布局在制，#82真实双run休息遗物已集成，当前动作见唯一看板；不依赖暂停的Phrog原组六项诊断。其他远期缺口不在此次盘点时细化全部文件级计划。
 
 以下为2026-11-13历史增量（当时源码`1956c17`）；当前状态以前段再核和实施索引为准。目标public0.107.1/beta0.113.0/RitsuLib0.6.11，匹配public资源及辅助依赖已齐。商店场景、Phrog右侧布局、Hive精英Weak2、MultiClaw9/10及原生3+N、public启动Task观察修复、Waterfall清负面与Artifact1、Hive事件普通三项各1、Holes单owner战前/奖励恢复、Wither强化链及Holes三端战前/胜利奖励恢复均已独立双轴审查并正常集成；准确提交、专项数量和边界见[实施索引](issues-82-88-implementation.md#当前接续状态2026-11-13)。
 

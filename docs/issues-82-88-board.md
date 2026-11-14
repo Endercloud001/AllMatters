@@ -1,14 +1,14 @@
 # #82–#88 当前调度看板
 
-更新：2026-11-14。唯一维护者：集成主控。集成树：`AllMatters/.claude/worktrees/hunting-20261112`，分支`integration/issues-82-88-20261112`。当前源码HEAD=`f1eb1dd`（帝皇蟹原场景保持tests-only已合入，实施/集成双版各9 PASS四诊断0）；交接审查起点为`1464953`，流程入口`776e2ef`、Holes源码`1956c17`保留。
+更新：2026-11-14。唯一维护者：集成主控。集成树：`AllMatters/.claude/worktrees/hunting-20261112`，分支`integration/issues-82-88-20261112`。当前源码HEAD=`eb4837c`（Waterfall完整fresh已合入，集成双版各8 PASS四诊断0；蟹原场景保持双版各9）；交接审查起点为`1464953`，流程入口`776e2ef`、Holes源码`1956c17`保留。
 
 目标：public v0.107.1 / beta v0.113.0 / RitsuLib 0.6.11。本轮已实际查询GitHub，#82–#88均OPEN；当前本地切片不自动关闭issue。后续主控更新此文首和卡片，不再另建当前状态表。
 
-**当前在制2/2：Waterfall完整fresh、Knowledge首轮双owner错峰选择；技术诊断暂停1；Ready 0。** Glory和SoulFysh开场均已独立双轴审查、正常hooks提交并集成；SoulFysh完整专项集成双版各17及此前Underdocks各7 PASS，四诊断0。下节旧交接记录仅保留当时失败签名，当前动作以活跃卡为准。
+**当前在制2/2：Knowledge首轮双owner错峰选择、Matriarch正式布局/输入；技术诊断暂停1；Ready 0。** Glory和SoulFysh开场均已独立双轴审查、正常hooks提交并集成；SoulFysh完整专项集成双版各17及此前Underdocks各7 PASS，四诊断0。下节旧交接记录仅保留当时失败签名，当前动作以活跃卡为准。
 
 ## 拉取入口
 
-Seapunk开场及完整fresh已集成，正式14场布局已修真实scene/自动行遮挡并完成实施双版各14，集成双版各14 PASS四诊断0；生成锚点有效不等于HP和目标输入可用。Aeonglass完整fresh已集成8481af1，实施及集成双版各1 PASS四诊断0、独立双轴无阻塞、正常hooks patch一致；TestSubject完整fresh已集成cc0bc71，实施/集成双版各1四诊断0；Phrog完整显示/输入已由3961924→22a2cc3集成、实施及集成双版各7四诊断0；Vantom实施及集成双版各12四诊断0；Matriarch完整fresh已集成；Vantom完整fresh已集成双版各13四诊断0，Phrog死亡前后名单重建已集成；帝皇蟹仅加效果/原场景保持对照已集成，Waterfall特殊复生fresh在制，原生休息遗物已集成双版遗物2+原native rest2四诊断0；主控继续唯一执行native/API/build/hooks。
+Seapunk开场及完整fresh已集成，正式14场布局已修真实scene/自动行遮挡并完成实施双版各14，集成双版各14 PASS四诊断0；生成锚点有效不等于HP和目标输入可用。Aeonglass完整fresh已集成8481af1，实施及集成双版各1 PASS四诊断0、独立双轴无阻塞、正常hooks patch一致；TestSubject完整fresh已集成cc0bc71，实施/集成双版各1四诊断0；Phrog完整显示/输入已由3961924→22a2cc3集成、实施及集成双版各7四诊断0；Vantom实施及集成双版各12四诊断0；Matriarch完整fresh已集成；Vantom完整fresh已集成双版各13四诊断0，Phrog死亡前后名单重建已集成；帝皇蟹仅加效果/原场景保持对照已集成，Waterfall特殊复生fresh已集成，Knowledge双owner在制，原生休息遗物已集成双版遗物2+原native rest2四诊断0；主控继续唯一执行native/API/build/hooks。
 
 ### 2026-11-14 对话交接
 
@@ -23,8 +23,8 @@ Seapunk开场及完整fresh已集成，正式14场布局已修真实scene/自动
 
 |卡片/issue|行为|状态|owner / worktree|依赖与热点|下一动作/证据|开始时间|
 |---|---|---|---|---|---|---|
-|C84-waterfall-fresh / #84|首次自然致死后无限HP/隐藏数值、已捕获爆炸伤害→fresh回有限原HP/PRESSURIZE；再次复生与胜利奖励恢复|Verify/最小beta已通过|`matriarch_fresh_prepare` / `waterfall-fresh-20261114`，基`9c17a70`|新WaterfallRecoveryTests/Hello；tests-only，生产/checkpoint只读|Phrog完整fresh已流出，选择独特复生/隐藏HP/捕获伤害回滚缺口；brief `.local/batch-scope-audit/waterfall-fresh-next-slice.md`；新树默认资源+原首次自然致死beta基线已1 PASS四诊断0，两文件首稿已冻结未提交，双版真实编译0错误，最小beta fresh1 PASS四诊断0；下一双版Waterfall各8及双轴；后新各1/相关各8，复用隐藏过滤与自然致死证据；API额外缺口报主控|2026-11-14 拉取|
-|C85-knowledge-owner / #85|两真实owner首轮错峰选择，先选端释放屏幕，另一端继续等待，最后各自效果且仅推进一次|Doing/独立树实施|`glory_layout` / `knowledge-owner-20261114`，基`f1eb1dd`|新KnowledgeMultiOwnerTests/Hello；生产和公共宿主只读|brief `.local/batch-scope-audit/knowledge-owner-next-slice.md`；蟹已流出，选择原生双端等待/owner归属独有缺口，新树干净/ignore检查及ReviewScope已做，owner已派发；复用单owner旧证据，后按实际新链最小双版验证|2026-11-14 拉取|
+|C85-knowledge-owner / #85|两真实owner首轮错峰选择，先选端释放屏幕，另一端继续等待，最后各自效果且仅推进一次|Doing/合法双owner准备返修|`glory_layout` / `knowledge-owner-20261114`，基`f1eb1dd`|新KnowledgeMultiOwnerTests/Hello；生产和公共宿主只读|brief `.local/batch-scope-audit/knowledge-owner-next-slice.md`；蟹已流出，选择原生双端等待/owner归属独有缺口，新树干净/ignore检查及ReviewScope已做，owner已派发；资源已默认导出；首beta编译12个准备错误已修，compile2双版0错；新独立完整五堆/RNG oracle已补；entry1-beta在真ENet握手后地图AncientIncomplete夹具失败，Build0/Host1/无PASS/EngineMetadata0，owner核全员完成顺序，尚未到屏幕/public未跑；手工动作链不签原coordinator调度，复用单owner旧证据|2026-11-14 拉取|
+|C84-matriarch-layout / #84|真实新增睡眠Lagavulin的睡/醒态完整显示、原中心鼠标及含玩家焦点环|Doing/独立树实施|`matriarch_fresh_prepare` / `matriarch-layout-20261114`，基`eb4837c`|新MatriarchLayoutTests/Hello；默认tests-only，实证red才报生产范围|brief `.local/batch-scope-audit/matriarch-layout-next-slice.md`；已核无scene/slot、真实醒态Bounds变化，先safe/hunted紧凑实测，后四组合双版；新树干净/ignore检查和ReviewScope已做，owner已派发，复用Underdocks7/fresh1|2026-11-14 拉取|
 
 ## 候选池：尚不能派发实施
 
@@ -44,6 +44,7 @@ Seapunk开场及完整fresh已集成，正式14场布局已修真实scene/自动
 
 |issue/切片|源码提交|已证范围|剩余边界/证据|
 |---|---|---|---|
+|#84 Waterfall复生/爆炸态完整fresh|`2fb2b0a`，合入`eb4837c`|真实复生/原About捕获15及pressure6后保存，新大厅回有限原HP/PRESSURIZE/零旧能力；再复生恰Artifact1/挡Weak，原爆炸胜利及第二大厅非空领奖/Proceed|独立双轴P2闭环、正常hooks patch一致；实施related双版各8、8行返修fresh各1及集成双版各8四诊断0；[记录](issue84-underdocks-implementation.md#waterfall-复生爆炸态与非空奖励完整-fresh2026-11-14)。单owner同进程，不签正式端|
 |#85 帝皇蟹原场景保持|`4e4bf4c`，合入`f1eb1dd`|仅双臂Artifact3，safe/hunted同相位原生场景/可见HP集合/原中心鼠标及全环焦点相同，保留共同原生交叠|独立双轴无阻塞、正常hooks patch一致；实施及集成双版crab各9四诊断0；[记录](issue85-hunting-implementation.md#帝皇蟹仅效果强化与原场景保持2026-11-14)。生产/资源零改，fresh及真实端待|
 |#84 Vantom普通墨宝完整fresh|`d390f50`，合入`44413ea`|真实四招/三Wound/Strength/StateLog与墨宝部分死后完整三敌开场fresh；Boss死仍须杀完普通墨宝，第二大厅非空奖励领取/Proceed|双轴无阻塞、正常hooks patch一致；实施双版各1及集成Vantom双版各13四诊断0；[记录](issue84-overgrowth-implementation.md#vantom-普通墨宝与非空奖励完整-fresh2026-11-14)。单owner同进程，不签真实端/进程/正式奖励输入|
 |#82 真实休息遗物/双run自然离开|`09fa14f`，合入`76e49d2`|原Tent Heal→精确Mend/禁Smith+Dig；safe原袋精确Dig；真ENet两run各完成/投票/原ready自然下一根|双轴两P2闭环、正常hooks patch一致；实施beta1+1/public2及集成遗物2+原native rest2双版四诊断0、child无诊断/stderr0；[记录](issue82-hunting-implementation.md#真实休息遗物与双-run-原生离开2026-11-14)。正式UI仅host，真实游戏双UI/设备待|

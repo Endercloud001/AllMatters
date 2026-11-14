@@ -130,3 +130,15 @@ Standards与Spec独立源码审查及边界oracle增量复审通过；非阻塞�
 族母真致死后原生清除仍睡眠的Minion，原AfterCombatEnd清理及BurningBlood回血6、面具释放、胜利自动保存均独立核增量；第二新大厅不再增加startup/opening且敌数0。单Act最终Boss沿原RewardsSet产生空集合并completed，不造ExtraRewards，不把空终局写成非空领取或Proceed已验证。原profile完整JSON往返隔离，finally恢复原引用并核完整原内容。
 
 独立Standards/Spec实读636行、原生双版唤醒/奖励消费者及完整快照均无阻塞；正常hooks退出0，提交patch与已审patch逐字一致。实施树 `.local/executor-matriarch-fresh/entry1-{beta,public}-host.log` 双版各1 PASS，Build/Host/Engine/Metadata0；集成树 `.local/integration-slices/matriarch-{fresh,related}-integrated-{public-beta,public}-host.log` 双版fresh各1、相关Underdocks各7 PASS，四诊断全0。新增文件双版编译无警告，项目既有其他测试nullable警告仍保留。不签正式布局、真实多游戏端/新进程/实体设备或#84整票。
+
+## Waterfall 复生爆炸态与非空奖励完整 fresh（2026-11-14）
+
+测试源码 `2fb2b0a` 经 `eb4837c` 合入，仅新增 `JigsawHuntingWaterfallRecoveryTests.cs` 858行与 Hello 注册1行，生产、公共保存点及旧七例不变。合法三幕原生跑局在 act0 选择单 Waterfall Boss，通过真正 `session.Enter` 消费原 Boss 队列一次。保存回调序列化前独立采 before-roll Boundary，原首回合抽牌完成后再采完整 Opening；包括完整玩家、五堆顺序/Energy/Block/powers、各 RNG、Acts/消耗、地图/history/根房、巨人有限/无限 HP 显示与四个私有阶段字段。
+
+源战真 Pressurize→Steam15，添加可见 Weak、原生正面 Regen 和隐藏负面反例，再真实 Damage/Kill/复生及死亡清理完整返回；原正面/隐藏实例与数量保留、可见负面清除、Artifact 恰一层。真正 AboutToBlow 捕获爆炸伤害15、移除 Steam、pressure index6，再 Roll 到 EXPLODE，尚未执行爆炸。玩家 HP/金币/五堆与 run/owner/monster RNG 被实际改变，保存前最后核原 Regen/隐藏实例和数量仍在及 Artifact1，避免旧能力已消失却把 fresh 通过当作不混拼证据。
+
+第一全新 LoadRunLobby 恢复原有限 HP、原 HpDisplay、PRESSURIZE、零旧爆炸标记/捕获量/压力及零旧能力；完整玩家、五堆、RNG、原根房和消费计数与独立原开场一致。重复 Enter 不二扣。fresh 再次真实自然复生后只有新 Artifact1，实际施 Weak 被挡且消费；真正 About/Explode 对玩家造成独立采样的15伤，并由原 Kill 最终死亡清除巨人与能力，原生胜利保存及 BurningBlood 回血6自然完成。
+
+第二新大厅从真正非空 Boss 胜利点恢复，不启动新战斗、不重建活敌；原生生成的金币/卡/药水内容及匹配阶段完整 Boundary 一致。实际同步领取、重复领取拒绝且完整状态不变、原 Proceed 均验证；药水只按该 seed 实际 roll 处理。profile 完整 JSON 克隆隔离，finally 恢复原引用及全部原内容；原 opening/startup/offer 等任务先 settle 再解除临时观察。真实 caller 保留原调用与原 Task，public 仅允许成功的 `Task.CompletedTask` 缓存共享，beta 长循环必须新引用，不以补调启动取得计数。
+
+独立 Standards/Spec 已完整读取851行初稿，Spec 发现保存源能力未再次核验的 P2 后仅增8行，两轴均实读增量关闭。实施树 `.local/executor-waterfall-fresh/related1-{public,public-beta}-host.log` 双版原7＋fresh1各8 PASS；返修后 `source-powers-final-{public,public-beta}-host.log` 双版 fresh各1 PASS，Build/Host/Engine/Metadata全0。旧七例及生产未改，复用相关组证据而不重复执行。正常 hooks 退出0，reviewed-final.patch 与 committed-final.patch 全文相等；集成同源码双版 `Waterfall` 各8 PASS，Build/Host/Engine/Metadata全0，日志 `.local/integration-slices/waterfall-fresh-integrated-{public,public-beta}-host.log`。同进程单owner两次新大厅不签真实多端、新进程、正式奖励按钮/设备或 #84 整票。
