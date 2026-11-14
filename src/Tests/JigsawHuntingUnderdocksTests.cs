@@ -175,7 +175,11 @@ internal static class JigsawHuntingUnderdocksTests
                 }
                 var room = (CombatRoom)native.CurrentRoom!;
                 bool huntedBoss = scope == "independent";
-                Check(room.CombatState.Enemies.Count == (huntedBoss ? 2 : 1) &&
+                bool huntedEvent = scope == "event";
+                Check(room.CombatState.Enemies.Count == (huntedBoss || huntedEvent ? 2 : 1) &&
+                    room.CombatState.Enemies.Count(creature => creature.Monster is Seapunk) == (huntedEvent ? 1 : 0) &&
+                    room.CombatState.Enemies.Where(creature => creature.Monster is Seapunk).All(creature =>
+                        creature.IsPrimaryEnemy && !creature.HasPower<MinionPower>()) &&
                     room.CombatState.Enemies.Count(creature => creature.Monster is AllMatters.Monsters.Lagavulin) == (huntedBoss ? 1 : 0),
                     $"scope={scope}: only the hunted top-level Jigsaw Boss receives one Lagavulin; actual enemies={room.CombatState.Enemies.Count}.");
                 Check(scope != "event" || native.CurrentRoomCount == 2 && room.ParentEventId != null && JigsawHuntingNative.RootIsHunted(player),
