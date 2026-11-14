@@ -2,7 +2,24 @@
 
 更新：2026-11-14。唯一维护者：集成主控；集成树`AllMatters/.claude/worktrees/hunting-20261112`，分支`integration/issues-82-88-20261112`，源码基点=`5d127b0`。目标为public0.107.1 / beta0.113.0 / RitsuLib0.6.11。源码切片集成不代表整票关闭；本板不推断GitHub实时状态。
 
-**在制2/2、Ready1、技术诊断暂停1。** 用户已要求停止实施并由另一对话接手；当前只做文档清理，没有重启测试或推进两片源码。本轮清理只改文档，两片源码与暂存区按下列记录保留。
+**玩法在制2/2（交接冻结）、Ready1、技术诊断暂停1。** 用户另行授权依次实施复盘的六项开发加速改进；不恢复下列玩法片，两片源码与暂存区按原记录保留。
+
+## 复盘改进实施（2026-11-14）
+
+六项已按依赖顺序由六名实施者完成，独立树、双轴审查、正常 hooks、串行快进集成；当前无改进片在制，收口执行者为主控。这组环境改进不签收 #82–#88。
+
+|顺序|改进与结束条件|状态/证据|
+|---|---|---|
+|1|共享原生宿主生命周期，Vantom/Crab 两个真实消费者保留原 oracle 并通过相关双版验证|Integrated：`ce9f61d`；实施树 `retro-host-20261114/.local/retro-host/summary.txt`，双版各冒烟1/Vantom8/Crab4，Build/Host/Engine/Metadata全0；独立双轴0发现，正常 hooks，审查patch与提交一致|
+|2|固定串行执行角色，一次委托包含故障分类、归档和可继续验证范围|Integrated：`205b8ac`；独立双轴通过（去重P3已复核），正常 hooks；实施树 `retro-executor-20261114/.local/retro-executor-review/` 保存补丁/检查|
+|3|扩展现有 Test 自动归档、结构化摘要、可选严格诊断，并验证失败传播|Integrated：`b837a61`；实施树 `retro-test-tools-20261114/.local/workflow-last-copy-fix.log`，fixture整套通过，真实严格冒烟双版各1且四诊断0；双轴通过、P2修复已复核、正常 hooks；新接口见开发入口|
+|4|派发明确未验条目、复用证据及效果/布局边界|Integrated：`68cdf15`；独立双轴0发现，正常 hooks，实施树 `retro-value-20261114/.local/reviews/retro-value-20261114/` 留证|
+|5|新任务精简上下文与身份，首屏位置/角色/改动/下一步/权限|Integrated：`fafbbb5`；两文档净减133行，独立双轴通过（字段去重已复核），正常 hooks；实施树 `retro-context-20261114/.local/retro-context/` 留证|
+|6|导航、文档、输出去重；核实 docs-only formatter 原因后做最小修复|Integrated：`7b00eb5`；实施树 `retro-economy-20261114/.local/workflow-economy.log` 整套38 PASS，真实默认 hooks 文档/工具双跳过、C#仍执行并回暂存；独立双轴0发现，正常提交，审查patch与提交一致|
+
+第6项同时修正本机激活：Husky从`core.hooksPath`读取配置；仅集成树与`retro-economy-20261114`使用worktree级`.husky`，common原绝对路径及13棵缺hook旧树均未改，`extensions.worktreeConfig`原已开启。恢复记录在实施树`.local/hooks-config-before.json`；新树准备见[开发入口](development.md#并行实施与-worktree)。持久C#日志证明执行/回暂存；实际格式化前后文本仅在当时工具断言，不补造采样日志。
+
+收口复核：原Knowledge源码仍暂存672+、无源码未暂存差异；Matriarch仍暂存949+、测试另4+/2−、生产文件未跟踪，HEAD各为`f1eb1dd`/`eb4837c`。本轮未重跑原玩法片或最终交付Check；宿主相关双版证据复用第1项，工具最终fixture复用第6项，不把开发环境改进冒称玩法/人工验收完成。
 
 ## 活跃与就绪
 
