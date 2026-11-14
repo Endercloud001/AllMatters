@@ -49,8 +49,12 @@ internal static class JigsawHuntingSoulFyshTests
 {
     internal static readonly (string Name, Func<Task> Test)[] Cases =
     [("Jigsaw SoulFysh hunted Boss opening one role and natural minion cleanup", () => Opening(1, JigsawRoom.Boss)),
+     ("Jigsaw SoulFysh hunted Boss opening two roles and natural minion cleanup", () => Opening(2, JigsawRoom.Boss)),
+     ("Jigsaw SoulFysh hunted Boss opening three roles and natural minion cleanup", () => Opening(3, JigsawRoom.Boss)),
      ("Jigsaw SoulFysh hunted Boss opening four roles and natural minion cleanup", () => Opening(4, JigsawRoom.Boss)),
      ("Jigsaw SoulFysh hunted second Boss opening one role and natural minion cleanup", () => Opening(1, JigsawRoom.SecondBoss)),
+     ("Jigsaw SoulFysh hunted second Boss opening two roles and natural minion cleanup", () => Opening(2, JigsawRoom.SecondBoss)),
+     ("Jigsaw SoulFysh hunted second Boss opening three roles and natural minion cleanup", () => Opening(3, JigsawRoom.SecondBoss)),
      ("Jigsaw SoulFysh hunted second Boss opening four roles and natural minion cleanup", () => Opening(4, JigsawRoom.SecondBoss)),
      ("Jigsaw SoulFysh excludes safe event unrelated roots and independently added native monsters", Boundaries),
      ("Jigsaw SoulFysh original initializer await rejects stale identities and preserves dependency failures", AwaitedOpening),
