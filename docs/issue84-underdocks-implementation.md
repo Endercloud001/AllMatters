@@ -82,3 +82,13 @@ Standards与Spec两轴独立读取最终230+/1−两文件及实际双版日志�
 正式原生布局在1/4角色×1280/1680宽720核HP/意图包络、画布边界、鼠标目标与方向导航；单人紧凑真red发现Boss血条分别压左右随从约7logical，限定当前受罚三怪行的PositionEnemies补丁窄调X后同例green。四人夹具曾误把玩家原生重叠和两次挂载绝对坐标差当新增故障，改用同场safe玩家身份对的既有重叠对照，敌人相关几何仍严格；这些夹具失败不冒称产品red。原生too wide警告保留，实测几何及输入通过，不写零warning。
 
 实施和集成双版SoulFysh各10 PASS、集成Underdocks相邻各7 PASS，Build/Host/Engine/Metadata均0。原始日志为实施树`.local/executor-soulfysh/final-suite-{beta,public}-host.log`、集成树`.local/integration-slices/soulfysh-integrated-{beta,public}-host.log`及`soulfysh-underdocks-regression-{beta,public}-host.log`。独立Standards/Spec无阻塞，正常hooks三处仅换行已复核。覆盖1/4 combat角色，不代签2/3角色、完整存档fresh、真实多游戏端或实机；整票仍未完成。
+
+## Seapunk 普通与事件原生开场（2026-11-14）
+
+源码`a7c9c52`经`efdc880`集成：受罚Underdocks普通/Unknown根在原生生成结束后相对原名单恰加一只mutable原生Seapunk；已有同类仍相对+1。保持原顺序、slot、HP、起手及RNG，新增者为正常primary非Minion且必须击败。Unknown内连续普通/具名Elite/具名Boss分别增强；safe、非Jigsaw、异幕及顶层Elite/Boss/SecondBoss排除。三种专用scene保原marker，Seapunk锚点从实际生成slot取得；GremlinMerc的Slots为空但真实merc存在，不能用空声明推断没有原marker。
+
+真实beta入房原为expected1/actual0；补生产后green，生成矩阵又捕获GremlinMerc地面锚点错误并修正。14原生普通池（10regular/4weak）×1–4角色验证生成与缩放；原生三招循环、Bubble的Block7/Strength1及必须击败均走原生命令。Unknown重复绑定RunState、SecondBoss缺doubleBoss准备及直接执行MoveState绕过历史均为夹具失败，未冒称产品red。
+
+实施和集成专项双版各5 PASS，Build/Host/Engine/Metadata全0。实施树`.local/executor-seapunk/final-suite-{beta,public}-host.log`；集成树`.local/integration-slices/seapunk-integrated-{beta,public}-host.log`。共享接缝相邻回归Forest入口1、Mystic入口1、Glory Axebots正式scene1及Underdocks7双版通过；日志实施树`regression-{forest,mystic-entry,glory-scene}-*-host.log`和`regression-underdocks-fixed-*-host.log`。Underdocks旧event断言总数1实际2失效，严格改为原Boss+恰一非Minion Seapunk，仍排除族母Lagavulin/Minion；原red日志保留。
+
+独立Standards与Spec及旧oracle增量复审无阻塞；正常hooks成功，提交patch与已审暂存patch完全一致。14场正式HP/意图/鼠标/焦点布局及完整fresh恢复另片，不以三scene生成锚点代签正式输入；真实端及#84整票未完成。
