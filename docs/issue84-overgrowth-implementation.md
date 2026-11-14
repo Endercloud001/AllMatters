@@ -101,3 +101,14 @@ Boundary/SetupActFloor0/完整Opening严格按原生阶段对照，覆盖完整S
 fresh真杀Boss后原CheckWinCondition=false、两墨宝仍活且不清场，再杀一墨宝仍拒胜；最后一只普通墨宝死亡才走原coordinator清理及胜利自动保存。胜利序列化前Boundary、奖励生成后Boundary/RewardContents分别独立取样；第二新大厅恢复非空金币/卡奖励、精确原同步领取/重复拒绝/原Proceed，不新增开场、敌人或二扣。药水只按本次实际roll处理，不造ExtraRewards；单Boss一链不机械复制SoulFysh已证的三root矩阵。
 
 独立Standards/Spec实读完整700行、原生RollMove/胜利/奖励消费者均无阻塞，正常hooks退出0、提交patch与已审内容逐字一致。实施树 `.local/executor-vantom-fresh/entry1-{beta,public}-host.log` 双版各1 PASS，Build/Host/Engine/Metadata0；双版编译无新增文件警告。集成源码 `44413ea` 执行全Vantom组（原开场4+布局8+fresh1），集成树 `.local/integration-slices/vantom-fresh-integrated-{public-beta,public}-host.log` 双版各13 PASS，Build/Host/Engine/Metadata全0。单owner同进程两次新大厅，不签真实多端/新进程、正式奖励输入/设备或#84整票。
+## Phrog 死亡生成与残虫完整 fresh（2026-11-14）
+
+测试源码 `9236f53` 经 `9c17a70` 集成，三文件944行新增：新PhrogRecovery、原PhrogNode类内窄FreshDeathNodeScope与Hello注册。生产、共享checkpoint、原NodeHost/Exercise均未改。合法三幕act0的原Elite队列只在source准备一次，真实session.Enter推进消费0→1；原活Phrog零虫开场独立封存完整玩家保存、五堆有序卡牌、Energy/Block/powers、run/owner/monster RNG、Act/map/history、敌HP/slot/powers/NextMove/StateLog及根房步数/预算/entry。
+
+真INFECT新增三Infection后，原CreatureCmd.Kill执行约2.5秒非零死亡；public保原等待前零虫，beta保五个真实隐藏节点及原揭示等待。两次各自独立的node scope都先settle原Kill/Reveal再释放，不跨新大厅复用。原五虫真实SPAWNED空过，第二虫真Wriggle产生Infection/Strength2，杀两虫并损血/移牌/金币/RNG扰动后实际保存；第一新LoadRunLobby沿原setup/map/load恢复新run/session/room、活新Phrog零虫和完整原开场，消费仍1，重复Enter不二扣。
+
+恢复后原Phrog再次真实死亡生成五个全新普通非Minion实例；杀原四虫、只剩第五虫时原胜利检查仍拒绝，无prefinished保存或奖励。末虫真死才进入原Ending，原战后清理/BurningBlood回血6并自动保存胜利点。第二新大厅不重新开战，精确重现原Elite非空金币/卡/遗物/药水奖励，实际原同步领取、重复拒绝及原Proceed。Expected分before-roll、原生setup ActFloor0、完整opening、胜利序列化前boundary、奖励生成后boundary/contents；profile完整JSON深克隆，finally恢复原引用及完整原内容。两版奖励按各版独立expected，不强压跨版同值。
+
+新增观察器在原Phrog七例之后两次真实暴露beta启动Task捕获0，而opening/首手已成、原生Task仍运行；日志实施树`.local/executor-phrog-fresh/related1-public-beta-host.log`和`original2-beta-host.log`均Build0/Host1/EngineMetadata0，不是生产恢复red。一次cleanup→fresh窄probe为2 PASS但未复原错，完整撤回、不作为修复证据；probe1只是编译Environment歧义，未进host。永久观察改到真实CombatRoom.StartCombat async caller，保唯一原AfterCombatRoomLoaded调用；beta唯一采原_turnLoopTask并核before→after新引用，public保原StartCombatInternal调用后复制同一Task；逐caller核manager/run/room/combat归属与单捕获。public随后在额外Task全异oracle失败，原生短开场可同步完成；仅允许双方都严格引用Task.CompletedTask且成功完成的缓存例外，其他共享仍拒绝，beta长loop保持Task互异。
+
+最终同源码实施`Test.ps1 -Branch public/public-beta -Filter Phrog -SkipResourceExport`各8 PASS，Build/Host/Engine/Metadata全0；日志实施树`.local/executor-phrog-fresh/final-caller-{public,public-beta}-host.log`，public明确记录完成缓存分支。独立Standards/Spec完整及28行增量复审无未解决发现；正常hooks，已审与提交patch逐字一致。集成同组双版各8 PASS四诊断0，日志集成树`.local/integration-slices/phrog-fresh-integrated-{public-beta,public}-host.log`。本片是单owner同进程两次新大厅，不签真实远端/新进程/正式奖励按钮/设备，也不签暂停P87原组六项间歇故障已修；#84仍部分完成。

@@ -1,14 +1,14 @@
 # #82–#88 当前调度看板
 
-更新：2026-11-14。唯一维护者：集成主控。集成树：`AllMatters/.claude/worktrees/hunting-20261112`，分支`integration/issues-82-88-20261112`。当前源码HEAD=`44413ea`（Vantom完整fresh已完成双版13相关组）；交接审查起点为`1464953`，流程入口`776e2ef`、Holes源码`1956c17`保留。
+更新：2026-11-14。唯一维护者：集成主控。集成树：`AllMatters/.claude/worktrees/hunting-20261112`，分支`integration/issues-82-88-20261112`。当前源码HEAD=`9c17a70`（Phrog完整fresh已合入，实施及集成双版各8 PASS四诊断0）；交接审查起点为`1464953`，流程入口`776e2ef`、Holes源码`1956c17`保留。
 
 目标：public v0.107.1 / beta v0.113.0 / RitsuLib 0.6.11。本轮已实际查询GitHub，#82–#88均OPEN；当前本地切片不自动关闭issue。后续主控更新此文首和卡片，不再另建当前状态表。
 
-**当前在制2/2：Phrog完整fresh、帝皇蟹正式布局；技术诊断暂停1；Ready 0。** Glory和SoulFysh开场均已独立双轴审查、正常hooks提交并集成；SoulFysh完整专项集成双版各17及此前Underdocks各7 PASS，四诊断0。下节旧交接记录仅保留当时失败签名，当前动作以活跃卡为准。
+**当前在制2/2：Waterfall完整fresh、帝皇蟹原场景保持对照；技术诊断暂停1；Ready 0。** Glory和SoulFysh开场均已独立双轴审查、正常hooks提交并集成；SoulFysh完整专项集成双版各17及此前Underdocks各7 PASS，四诊断0。下节旧交接记录仅保留当时失败签名，当前动作以活跃卡为准。
 
 ## 拉取入口
 
-Seapunk开场及完整fresh已集成，正式14场布局已修真实scene/自动行遮挡并完成实施双版各14，集成双版各14 PASS四诊断0；生成锚点有效不等于HP和目标输入可用。Aeonglass完整fresh已集成8481af1，实施及集成双版各1 PASS四诊断0、独立双轴无阻塞、正常hooks patch一致；TestSubject完整fresh已集成cc0bc71，实施/集成双版各1四诊断0；Phrog完整显示/输入已由3961924→22a2cc3集成、实施及集成双版各7四诊断0；Vantom实施及集成双版各12四诊断0；Matriarch完整fresh已集成；Vantom完整fresh已集成双版各13四诊断0，拉Phrog死亡前后名单重建与帝皇蟹正式场地，原生休息遗物已集成双版遗物2+原native rest2四诊断0；主控继续唯一执行native/API/build/hooks。
+Seapunk开场及完整fresh已集成，正式14场布局已修真实scene/自动行遮挡并完成实施双版各14，集成双版各14 PASS四诊断0；生成锚点有效不等于HP和目标输入可用。Aeonglass完整fresh已集成8481af1，实施及集成双版各1 PASS四诊断0、独立双轴无阻塞、正常hooks patch一致；TestSubject完整fresh已集成cc0bc71，实施/集成双版各1四诊断0；Phrog完整显示/输入已由3961924→22a2cc3集成、实施及集成双版各7四诊断0；Vantom实施及集成双版各12四诊断0；Matriarch完整fresh已集成；Vantom完整fresh已集成双版各13四诊断0，Phrog死亡前后名单重建已集成；帝皇蟹仅加效果、原场景保持对照与Waterfall特殊复生fresh在制，原生休息遗物已集成双版遗物2+原native rest2四诊断0；主控继续唯一执行native/API/build/hooks。
 
 ### 2026-11-14 对话交接
 
@@ -23,8 +23,8 @@ Seapunk开场及完整fresh已集成，正式14场布局已修真实scene/自动
 
 |卡片/issue|行为|状态|owner / worktree|依赖与热点|下一动作/证据|开始时间|
 |---|---|---|---|---|---|---|
-|C84-phrog-fresh / #84|旧战Phrog已死/虫已行动且部分死后完整fresh回活Phrog零虫，再死五新虫/末虫才胜利|Doing/独立树准备|`phrog_fresh` / `phrog-fresh-20261114`，基`44413ea`|新PhrogRecoveryTests/Hello；PhrogNodeTests仅新增窄FreshDeathNodeScope包装，原生命周期不改|brief `.local/batch-scope-audit/phrog-fresh-next-slice.md`（末节主控已关闭新beta三模型/双版RoomSet前置）；主控待默认资源+原非零死亡最小beta；不跑暂停P87原组；双版新各1/相关各8|2026-11-14 拉取|
-|C85-crab-layout / #85|原crusher/rocket双臂1/4角色两宽完整显示、精确鼠标与全环焦点|Verify/完整场地最小例|`crab_layout` / `crab-layout-20261114`，基`76e49d2`|新CrabLayoutTests/Hello；真几何red才专用生产布局，其他默认只读|选择蟹补#85完整场地真实缺口，不捆无新增敌的Hive全池；brief `.local/batch-scope-audit/hive-layout-next-slice.md`，默认导出+旧开场双版各1四诊断0；首tests-only788行双版编译0；entry1-beta夹具NRE在未SetupBackground的room.Background（Build0/Host1/无PASS/EngineMetadata0），正补原生背景准备，未出现几何red，不改生产，后四布局+原蟹五例|2026-11-14 拉取|
+|C85-crab-layout / #85|原crusher/rocket双臂1/4角色两宽原生场景/输入保持，仅双臂增加Artifact3|Doing/tests-only范围纠正|`crab_layout` / `crab-layout-20261114`，基`76e49d2`|仅新CrabLayoutTests/Hello；所有生产/资源只读，不新增布局补丁|用户明确只有效果强化、未加怪物，不应改贴图/人物/目标。旧移动Crusher方案虽双版9绿，Spec查出独立背景美术与目标错位，已完整归档并撤出src/index、未提交；不采用移动玩家候选。现精确同阶段safe/hunted原几何对照、记录共同原生交叠而不修，双臂/玩家/背景/markers/scale/input不变，仅Artifact3；旧绿不代签新版tests-only，tests-only908行+Hello已stage；Spec旧阻塞已关闭，Standards可见HP键集合增量已通过，新最小beta1 PASS四诊断0，正跑双版各9相关，旧方案9绿不复用|2026-11-14 拉取|
+|C84-waterfall-fresh / #84|首次自然致死后无限HP/隐藏数值、已捕获爆炸伤害→fresh回有限原HP/PRESSURIZE；再次复生与胜利奖励恢复|Doing/独立树准备|`matriarch_fresh_prepare` / `waterfall-fresh-20261114`，基`9c17a70`|新WaterfallRecoveryTests/Hello；tests-only，生产/checkpoint只读|Phrog完整fresh已流出，选择独特复生/隐藏HP/捕获伤害回滚缺口；brief `.local/batch-scope-audit/waterfall-fresh-next-slice.md`；新树默认资源+原首次自然致死beta基线已1 PASS四诊断0，允许两文件实施；后新各1/相关各8，复用隐藏过滤与自然致死证据；API额外缺口报主控|2026-11-14 拉取|
 
 ## 候选池：尚不能派发实施
 
@@ -48,6 +48,7 @@ Seapunk开场及完整fresh已集成，正式14场布局已修真实scene/自动
 |#82 真实休息遗物/双run自然离开|`09fa14f`，合入`76e49d2`|原Tent Heal→精确Mend/禁Smith+Dig；safe原袋精确Dig；真ENet两run各完成/投票/原ready自然下一根|双轴两P2闭环、正常hooks patch一致；实施beta1+1/public2及集成遗物2+原native rest2双版四诊断0、child无诊断/stderr0；[记录](issue82-hunting-implementation.md#真实休息遗物与双-run-原生离开2026-11-14)。正式UI仅host，真实游戏双UI/设备待|
 |#84 Matriarch醒态/随从计数完整fresh|`050314d`，合入`9364122`|真Damage醒body/shell、随从SleepTurnCount2、完整五堆/RNG/双方能力扰动后第一新大厅原开场；真胜利第二大厅空终局不重开|双轴无阻塞、正常hooks patch一致；实施/集成双版fresh各1及集成Underdocks各7四诊断0；[记录](issue84-underdocks-implementation.md#matriarch-醒态与睡眠随从完整-fresh2026-11-14)。单owner同进程，不签布局/真实端/非空奖|
 |#84 Vantom三敌完整显示/原生输入|`d9e72b2`，合入`307e829`|Boss/SecondBoss×1/4角色×两宽八布局及原四例；正式HP/意图、精确鼠标与含玩家全环，resize/input模型身份/RNG不变|实施及集成双版各12 PASS四诊断0；独立双轴闭环、正常hooks patch一致；[记录](issue84-overgrowth-implementation.md#vantom-与墨宝完整显示及原生输入2026-11-14)。初始hook模型不变为源码审查；完整fresh/全部后续意图/真实端待|
+|#84 Phrog完整fresh|`9236f53`，合入`9c17a70`|旧战只剩三虫后新大厅回活Phrog零虫，再死五新虫/末虫才胜利；第二新大厅非空原Elite领奖/重复拒绝/Proceed|实施及集成双版原Phrog组各8 PASS四诊断0；独立双轴及原caller观察/Task.CompletedTask缓存增量通过，正常hooks patch一致；[记录](issue84-overgrowth-implementation.md#phrog-死亡生成与残虫完整-fresh2026-11-14)，单owner同进程，不签P87修复/正式端|
 |#84 Phrog五虫完整显示/原生输入|`3961924`，合入`22a2cc3`|原非零死亡/五虫链，1/4角色两宽完整HP与意图描边、精确鼠标target、含玩家左右全环及模型/RNG不变|初始六对及新增完整HP相交red均已修；独立双轴返修闭环、正常hooks patch一致；实施/集成双版各7四诊断0；[记录](issue84-overgrowth-implementation.md#phrog-五虫完整显示与原生输入2026-11-14)。不签暂停Boss诊断、完整fresh/真实端|
 |#87 TestSubject完整fresh|`d0ca778`，合入`cc0bc71`|真实两复生/第三形态clock3细看拒抽→fresh第一形态/clock缺席，再两复生新clock1可抽，终局第二fresh不重开|双轴无阻塞、正常hooks patch一致；实施及集成双版各1四诊断0；[记录](issue87-boss-implementation.md#testsubject-第三阶段与细看完整-fresh2026-11-14)，终局空奖/单owner同进程，不签暖Phrog修复或真实端|
 |#87 Aeonglass完整fresh|`fff3232`，合入`8481af1`|真实个人旧counter11/五状态/Ebb护甲与全战斗扰动，新大厅完整开场counter12，真实胜利第二大厅终局不重开|独立双轴无阻塞、正常hooks patch一致；实施及集成双版各1四诊断0；[记录](issue87-boss-implementation.md#aeonglass-个人计数与终局完整-fresh2026-11-14)，终局空奖励，不签非空领奖/真实端|
