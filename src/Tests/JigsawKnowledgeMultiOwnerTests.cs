@@ -37,6 +37,7 @@ using MegaCrit.Sts2.Core.Nodes.Multiplayer;
 using MegaCrit.Sts2.Core.Nodes.Pooling;
 using MegaCrit.Sts2.Core.Nodes.Rooms;
 using MegaCrit.Sts2.Core.Nodes.Screens;
+using MegaCrit.Sts2.Core.Nodes.Vfx.Utilities;
 using MegaCrit.Sts2.Core.Nodes.Screens.Capstones;
 using MegaCrit.Sts2.Core.Nodes.Screens.CardSelection;
 using MegaCrit.Sts2.Core.Nodes.Screens.Map;
@@ -53,7 +54,9 @@ internal static class JigsawKnowledgeMultiOwnerTests
 {
     private const string Name = "Jigsaw Knowledge two native owners stagger first-round screens and synchronize distinct choices";
     internal static readonly (string Name, Func<Task> Test)[] Cases = [(Name, () => StaggeredFirstChoice(false)),
-        (NativeName, () => StaggeredFirstChoice(true))];
+        (NativeName, () => StaggeredFirstChoice(true)),
+        (ThreeRoundsName, () => StaggeredFirstChoice(true, 3))];
+    private const string ThreeRoundsName = "Jigsaw Knowledge two native owners naturally stagger all three curse rounds";
     private const string NativeName = "Jigsaw Knowledge two native owners native first turn waits and advances once";
     private static readonly JsonSerializerOptions SnapshotJson = new() { IncludeFields = true };
     private static readonly string[] Roles = ["host", "2"];
@@ -167,13 +170,13 @@ internal static class JigsawKnowledgeMultiOwnerTests
         return map;
     }
 
-    private static HeadlessProcessOutput Launch(ushort port, bool nativeTurn)
+    private static HeadlessProcessOutput Launch(ushort port, string caseName)
     {
         var start = new ProcessStartInfo(OS.GetExecutablePath())
         {
             UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true, RedirectStandardError = true
         };
-        foreach (string argument in new[] { "--headless", "--path", ProjectSettings.GlobalizePath("res://"), "--", nativeTurn ? NativeName : Name })
+        foreach (string argument in new[] { "--headless", "--path", ProjectSettings.GlobalizePath("res://"), "--", caseName })
             start.ArgumentList.Add(argument);
         start.Environment["JIGSAW_KNOWLEDGE_ROLE"] = "2";
         start.Environment["JIGSAW_KNOWLEDGE_DIR"] = evidence;
@@ -181,7 +184,7 @@ internal static class JigsawKnowledgeMultiOwnerTests
         return new HeadlessProcessOutput(start);
     }
 
-    private static async Task StaggeredFirstChoice(bool nativeTurn)
+    private static async Task StaggeredFirstChoice(bool nativeTurn, int curseRounds = 1)
     {
         var manager = RunManager.Instance;
         ulong? previousNetId = LocalContext.NetId;
@@ -200,14 +203,14 @@ internal static class JigsawKnowledgeMultiOwnerTests
         var actionCache = AccessTools.Field(typeof(ActionTypes), "_cache");
         var previousActionCache = actionCache.GetValue(null);
         IDisposable? openingAtlases = null;
-        int readyRound = 0, readyCount = 0;
+        int readyRound = 0, readyCount = 0, expectedReadyRound = 2;
         var nextTurn = new TaskCompletionSource();
         void Ready(CombatState state)
         {
             if (state.CurrentSide != CombatSide.Player) return;
             readyRound = state.RoundNumber;
             readyCount++;
-            if (readyCount == 2) nextTurn.TrySetResult();
+            if (readyRound == expectedReadyRound) nextTurn.TrySetResult();
         }
         var errors = new List<Exception>();
         void Cleanup(Action action) { try { action(); } catch (Exception error) { errors.Add(error); } }
@@ -233,7 +236,7 @@ internal static class JigsawKnowledgeMultiOwnerTests
                 socket.Close();
                 Check(!host.StartENetHost(port, 1).HasValue, "The real two-owner ENet host binds loopback.");
                 host.ClientConnected += id => host.SetPeerReadyForBroadcasting(id);
-                child = Launch(port, nativeTurn); childProcess = child.Process;
+                child = Launch(port, curseRounds == 3 ? ThreeRoundsName : nativeTurn ? NativeName : Name); childProcess = child.Process;
                 await Until(() => host.ConnectedPeers.Count == 1 && host.ConnectedPeers[0].peerId == 2,
                     "native child authentication");
             }
@@ -354,6 +357,20 @@ internal static class JigsawKnowledgeMultiOwnerTests
 #endif
             Signal("ready");
             await Until(() => Both("ready"), "both mounted combat hosts");
+            if (curseRounds == 3)
+            {
+                Task EndTurn(int round)
+                {
+                    expectedReadyRound = round + 1;
+                    nextTurn = new TaskCompletionSource();
+                    var local = owners[(int)network.NetId - 1];
+                    manager.ActionQueueSynchronizer.RequestEnqueue(new EndPlayerTurnAction(local, local.PlayerCombatState!.TurnNumber));
+                    return nextTurn.Task;
+                }
+                await ThreeRounds(ui, owners, monster, combat, receivedChoices, EndTurn, () => readyRound, () => readyCount);
+            }
+            else
+            {
             Task performing;
             if (nativeTurn)
             {
@@ -447,6 +464,7 @@ internal static class JigsawKnowledgeMultiOwnerTests
             Console.WriteLine($"KNOWLEDGE_MULTI role={Role} local={network.NetId} selected={ui.ChosenName} " +
                 $"powers={owners[0].Creature.GetPowerAmount<CalamityPower>()}/{owners[1].Creature.GetPowerAmount<MindRotPower>()} " +
                 $"history={received.Length} remove={ui.Removals} freed={ui.ScreenFreed} next={monster.NextMove.Id}");
+            }
             Signal("done");
             await Until(() => Both("done"), "both peer assertions");
             if (host != null)
@@ -501,6 +519,108 @@ internal static class JigsawKnowledgeMultiOwnerTests
             if (errors.Count != 0) throw new AggregateException("Knowledge multi-owner cleanup failed.", errors);
         }
     }
+    private static async Task ThreeRounds(KnowledgeUi ui, Player[] owners, MonsterModel monster, CombatState combat,
+        List<(ulong Owner, uint Id)> choices, Func<int, Task> endTurn, Func<int> readyRound, Func<int> readyCount)
+    {
+        var displays = new List<CardModel>();
+        Type[] hostPowers = [typeof(CalamityPower), typeof(TenderPower), typeof(DisintegrationPower)];
+        Type[] childPowers = [typeof(MindRotPower), typeof(SlothPower), typeof(WasteAwayPower)];
+        decimal[] hostAmounts = [1, 1, 21], childAmounts = [1, 3, 1];
+        decimal Amount(Player owner, Type power) => owner.Creature.Powers.Where(item => item.GetType() == power).Sum(item => item.Amount);
+        PowerReceivedEntry[] History() => CombatManager.Instance.History.Entries.OfType<PowerReceivedEntry>().ToArray();
+        async Task ReturnToPlayer(Task turn, int round)
+        {
+            await Until(() => turn.IsCompleted, $"round {round} native player return");
+            await turn;
+            await Until(() => readyRound() == round + 1 && combat.CurrentSide == CombatSide.Player,
+                $"round {round} player side");
+            await Frames(3);
+            Check(readyCount() == round + 1 && combat.RoundNumber == round + 1 && moveCalls == round,
+                $"Round {round} advances exactly once through the real coordinator.");
+        }
+        for (int curse = 1; curse <= 3; curse++)
+        {
+            int round = 1 + (curse - 1) * 4, index = curse - 1;
+            Check(readyRound() == round && monster.NextMove.Id == "CURSE_OF_KNOWLEDGE_MOVE",
+                $"Curse {curse} is reached naturally on round {round}.");
+            int historyBefore = History().Length, choicesBefore = choices.Count;
+            decimal hostBefore = Amount(owners[0], hostPowers[index]), childBefore = Amount(owners[1], childPowers[index]);
+            Check(hostBefore == 0 && childBefore == 0 && Amount(owners[0], childPowers[index]) == 0 &&
+                Amount(owners[1], hostPowers[index]) == 0, "This pair has no previous applications to either owner.");
+            string stage = $"curse-{curse}-";
+            Task turn = endTurn(round);
+            await Until(() => ui.SelectionCalls == curse || turn.IsCompleted, stage + "screen");
+            if (turn.IsFaulted) await turn;
+            ui.AssertPending(turn, owners[IsHost ? 0 : 1], curse);
+            var originalScreen = ui.Screen;
+            displays.AddRange(ui.Offered);
+            Signal(stage + "screen");
+            await Until(() => Both(stage + "screen"), stage + "both screens");
+            Check(moveCalls == round && readyCount() == round && combat.CurrentSide == CombatSide.Enemy,
+                "One original enemy action waits on the actual owner screens.");
+            if (IsHost)
+            {
+                if (curse == 1) await ui.ClickChoice<KnowledgeCalamityChoice>();
+                else if (curse == 2) await ui.ClickChoice<KnowledgeTenderChoice>();
+                else await ui.ClickChoice<Disintegration>();
+                await Until(() => ui.Removals == curse && ui.ScreenFreed &&
+                    Amount(owners[0], hostPowers[index]) == hostAmounts[index], stage + "host applied and freed");
+                Check(ui.CombatFocused && !turn.IsCompleted, "Host focus returns while the remote choice still blocks the turn.");
+                Signal(stage + "host-selected");
+                await Until(() => Signaled("2", stage + "pending"), stage + "remote pending");
+                Check(!turn.IsCompleted && readyCount() == round && moveCalls == round &&
+                    Amount(owners[1], childPowers[index]) == 0, "Waiting owner keeps the native enemy turn suspended.");
+                Signal(stage + "release");
+            }
+            else
+            {
+                await Until(() => Signaled("host", stage + "host-selected") &&
+                    Amount(owners[0], hostPowers[index]) == hostAmounts[index], stage + "host synchronized");
+                Check(ReferenceEquals(originalScreen, ui.Screen) && !ui.SelectionTask!.IsCompleted && !turn.IsCompleted &&
+                    ui.Removals == curse - 1 && !ui.ScreenFreed && Amount(owners[1], hostPowers[index]) == 0 &&
+                    Amount(owners[1], childPowers[index]) == 0, "The child retains its original untouched screen after the host selects.");
+                ui.AssertPending(turn, owners[1], curse);
+                Signal(stage + "pending");
+                await Until(() => Signaled("host", stage + "release"), stage + "release child");
+                if (curse == 1) await ui.ClickChoice<MindRot>();
+                else if (curse == 2) await ui.ClickChoice<Sloth>();
+                else await ui.ClickChoice<WasteAway>();
+                await Until(() => ui.Removals == curse && ui.ScreenFreed, stage + "child freed");
+            }
+            await ReturnToPlayer(turn, round);
+            await Until(() => choices.Count == choicesBefore + 2 &&
+                Amount(owners[0], hostPowers[index]) == hostAmounts[index] &&
+                Amount(owners[1], childPowers[index]) == childAmounts[index], stage + "effects converge");
+            var applications = History().Skip(historyBefore).Where(entry =>
+                entry.Power.GetType() == hostPowers[index] || entry.Power.GetType() == childPowers[index]).ToArray();
+            Check(applications.Length == 2 && applications.Count(entry => entry.Power.GetType() == hostPowers[index] &&
+                ReferenceEquals(entry.Actor, owners[0].Creature) && ReferenceEquals(entry.Applier, owners[0].Creature) && entry.Amount == hostAmounts[index]) == 1 &&
+                applications.Count(entry => entry.Power.GetType() == childPowers[index] &&
+                ReferenceEquals(entry.Actor, owners[1].Creature) && ReferenceEquals(entry.Applier, owners[1].Creature) && entry.Amount == childAmounts[index]) == 1,
+                "Each OnChosen records exactly one independently specified amount, actor and applier.");
+            Check(choices.Skip(choicesBefore).Select(choice => choice.Owner).Order().SequenceEqual(new[] { 1UL, 2UL }) &&
+                Amount(owners[0], childPowers[index]) == 0 && Amount(owners[1], hostPowers[index]) == 0 &&
+                ui.SelectionTask!.IsCompletedSuccessfully && ui.SelectionCalls == curse && ui.Removals == curse && ui.ScreenFreed && ui.CombatFocused,
+                "Both owner IDs resolve once; the unselected powers remain absent and each screen is freed.");
+            foreach (string move in new[] { "SLAP_MOVE", "KNOWLEDGE_OVERWHELMING_MOVE", "PONDER_MOVE" })
+            {
+                round++;
+                Check(monster.NextMove.Id == move, $"Natural round {round} reaches {move}.");
+                await ReturnToPlayer(endTurn(round), round);
+                Check(ui.SelectionCalls == curse && ui.Removals == curse && choices.Count == curse * 2,
+                    "The intervening original action opens no extra choice screen.");
+            }
+            Console.WriteLine($"KNOWLEDGE_THREE role={Role} curse={curse} round={combat.RoundNumber} moves={moveCalls} choices={choices.Count} removals={ui.Removals} next={monster.NextMove.Id}");
+        }
+        Check(monster.NextMove.Id == "SLAP_MOVE" && combat.RoundNumber == 13 && ui.SelectionCalls == 3 && choices.Count == 6,
+            "The third Ponder returns to Slap with no fourth Curse screen.");
+        Check(displays.Count == 6 && displays.All(card => card.Pile == null && owners.All(owner => !owner.Deck.Cards.Contains(card))) &&
+            ModelDb.Card<Disintegration>().DynamicVars["DisintegrationPower"].BaseValue == 6,
+            "All six local display instances stay outside decks and piles; canonical Disintegration remains six.");
+        await Until(() => !RunManager.Instance.ActionExecutor.IsRunning, "three-round action queue drain");
+        await RunManager.Instance.ActionExecutor.FinishedExecutingActions();
+    }
+
 }
 
 internal sealed class KnowledgeUi
@@ -578,6 +698,7 @@ internal sealed class KnowledgeUi
     {
         var owner = active;
         if (owner == null) return;
+        owner.screenFreed = false;
         owner.selectedScreen = __instance;
         owner.selectionTask = __result;
         owner.selectionCalls++;
@@ -641,6 +762,9 @@ internal sealed class KnowledgeUi
         AccessTools.Field(typeof(NGame), "_screenShake").SetValue(game, shake);
         foreach (string method in new[] { "_EnterTree", "_Ready", "_ExitTree" })
             patches.Patch(AccessTools.Method(typeof(NGame), method), prefix: new HarmonyMethod(typeof(KnowledgeUi), nameof(SkipNativeLifecycle)));
+        // This headless camera has no authored shake presets; damage and its hooks stay native.
+        patches.Patch(AccessTools.Method(typeof(NGame), nameof(NGame.ScreenShake), [typeof(ShakeStrength), typeof(ShakeDuration), typeof(float)]),
+            prefix: new HarmonyMethod(typeof(KnowledgeUi), nameof(SkipNativeLifecycle)));
         game.MouseFilter = Control.MouseFilterEnum.Ignore;
         hoverTips = new Node { Name = "HoverTipsContainer" };
         game.AddChild(hoverTips);
@@ -692,16 +816,23 @@ internal sealed class KnowledgeUi
             "The actual native combat scene mounts the Knowledge monster in this peer.");
     }
 
-    internal void AssertPending(Task performing, Player localOwner)
+    internal void AssertPending(Task performing, Player localOwner, int curse = 1)
     {
         Check(selectedScreen != null && selectionTask != null && !selectionTask.IsCompleted && !performing.IsCompleted,
             "Original PerformMove awaits this peer's actual owner screen.");
         Check(ReferenceEquals(overlays!.Peek(), selectedScreen) && overlays.ScreenCount == 1 &&
             ActiveScreenContext.Instance.IsCurrent(selectedScreen!), "The actual overlay and focus own this peer's pending screen.");
         var holders = selectedScreen!.GetNode<Control>("CardRow").GetChildren().OfType<NGridCardHolder>().ToArray();
-        Check(holders.Length == 2 && holders[0].CardModel is MindRot && holders[1].CardModel is KnowledgeCalamityChoice &&
+        Check(holders.Length == 2 && (curse switch
+            {
+                1 => holders[0].CardModel is MindRot && holders[1].CardModel is KnowledgeCalamityChoice,
+                2 => holders[0].CardModel is Sloth && holders[1].CardModel is KnowledgeTenderChoice,
+                3 => holders[0].CardModel is WasteAway && holders[1].CardModel is Disintegration &&
+                    holders[1].CardModel.DynamicVars["DisintegrationPower"].BaseValue == 21,
+                _ => false
+            }) &&
             holders.All(holder => ReferenceEquals(holder.CardModel.Owner, localOwner)),
-            "This native screen presents only its local owner's first-round MindRot and Calamity.");
+            "This native screen presents the specified pair and values for its local owner and curse round.");
         offered = holders.Select(holder => holder.CardModel).ToArray();
         Console.WriteLine($"KNOWLEDGE_MULTI_SCREEN owner={localOwner.NetId} cards={string.Join(',', offered.Select(card => card.Id.Entry))}");
     }
