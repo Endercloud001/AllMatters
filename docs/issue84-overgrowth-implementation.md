@@ -78,3 +78,15 @@ beta首真实几何red为六对显示/目标相交，含HP互压63.65logical宽�
 新增输入scope补真实挂树NGame、原Target/Controller/arrow、screen tracker、TopBar焦点代理与真实energy factory；保原Activate/Enable/导航/输入，隔离游戏启动/音频生命周期。public热键读取真实隐藏DevConsole可见性依赖，保存并恢复原引用；不是patch热键消音。旧`input-tree2`虽1 PASS但Engine860、旧`final-phrog-public`虽7 PASS但Engine128均保留为失败夹具证据，不当最终green。新增scope的异常退出按源码审查核原引用/TestMode/InputMap/Harmony清理；旧NodeHost.Cleanup不冒称单独覆盖了新scope所有异常路径。
 
 独立Standards初审/增量无硬标准阻塞；Spec发现HP文字包络漏检及public输入缺console，均返修实读关闭，随后新几何red也按生产一行改动复审。正常hooks退出0，提交451+/27−与已审patch逐字一致；实施树`.local/executor-phrog-layout/upper-row-related-{beta,public}-host.log`双版各7 PASS，Build/Host/Engine/Metadata全0，涵盖真实死亡、原行动、backend warmup、旧room隔离、响应式地图前置及清理。集成`22a2cc3`再执行同组，集成树`.local/integration-slices/phrog-layout-integrated-{beta,public}-host.log`双版各7 PASS，四诊断全0。本片不代签暂停的#87 Boss原组六项故障、完整fresh、真实设备/游戏多端或#84整票。
+
+## Vantom 与墨宝完整显示及原生输入（2026-11-14）
+
+源码 `d9e72b2` 经 `307e829` 合入，新增专用 `JigsawHuntingVantomLayout`、八个独立布局 case 和 Hello 注册三文件819行。Vantom 原场没有 scene/slot；仅精确受罚 Boss/SecondBoss、原 `[Inklet,Vantom,Inklet]` 三个无槽节点生效。测原命中框/HP 容器/标签包络后，以24 logical间距仅水平移动完整 NCreature 子树，再调用原 `UpdateCreatureNavigation`；不改变模型、比例、纵向或其他遭遇。
+
+首轮 beta 真几何 red 为四角色紧凑宽左右墨宝血条各交 Boss 血条约9.3/21.3 logical，日志实施树 `.local/executor-vantom-layout/native-generation-beta-host.log`（Build0/Host1、无PASS、Engine/Metadata0）；专用布局后原最小例 `spacing-beta-host.log` 为1 PASS、四诊断0。原生按生成插入序抽HP且CombatId参与怪物RNG，前插墨宝会自然改变Boss样本，因此撤回 safe/hunted HP/招式/RNG跨名单精确全等的假oracle，保留原生成与合法HP、原Slippery多人缩放及同一场状态快照。
+
+矩阵为Boss/SecondBoss × 1/4角色 × 1280/1680×720八独立case，另合跑原Vantom四例。包含完整HP文字、最小内容及outline，原首招意图图标/数值及描边；safe实际走同原生焦点阶段，逐实体对记录旧玩家显示/显示及显示/hitbox交叠面积，hunted不得增加且新增墨宝不继承豁免。真实鼠标必须返回原三个不同实例，左右方向输入走包含玩家的完整原导航环。Initialize后、resize前采Creature/Monster/NextMove对象身份、HP/powers/monster RNG、玩家HP及完整Run RNG，resize后和输入后各核不变；完整RNG启用IncludeFields以包含beta counter/state0–3。初始布局hook发生在该动态快照之前，其不改模型由专用生产仅写Node.Position的源码审查支持，不冒称动态前后证明。
+
+旧 `full-related-{beta,public}-host.log` 虽各12 PASS但Engine各16，均来自SecondBoss原Act未选择Boss而绘图报错，不作为最终绿。测试改为GenerateRooms后通过原Act公开API设第一/第二Boss、原MarkRoomVisited并核PullNextEncounter/HasSecondBoss/访问计数；`secondboss-fixture-beta-host.log` 最小1 PASS四诊断0。Standards发现默认序列化丢RNG字段，Spec发现晚快照/玩家pair漏检，均补齐后独立实读index增量关闭；初始生产及真实API范围继承已审结果，未用reviewer摘要代替源码。
+
+正常hooks退出0，提交patch与已审三文件逐字一致；实施树 `.local/executor-vantom-layout/final-rng-{beta,public}-host.log` 双版各12 PASS，Build/Host/Engine/Metadata全0。集成源码 `307e829` 执行相同双版相关组，集成树 `.local/integration-slices/vantom-layout-integrated-{public-beta,public}-host.log` 双版各12 PASS，四诊断全0。完整fresh、全部后续招式、真实游戏多端及实体设备仍归#84后续，不签整票或暂停#87原组六项诊断。

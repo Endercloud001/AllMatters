@@ -1,5 +1,7 @@
 # #82–#88 验证覆盖地图：V14 / S6 / H13 / U8
 
+2026-11-14 Vantom正式布局：`d9e72b2`→`307e829`，八个Boss/SecondBoss×1/4角色×两宽case及原四例，实施双版各12 PASS、Build/Host/Engine/Metadata0；独立双轴返修闭环、正常hooks patch一致。集成同组双版各12 PASS四诊断0（`.local/integration-slices/vantom-layout-integrated-{public-beta,public}-host.log`）；显示/原生鼠标/完整焦点环与resize/input前后状态已证，初始layout hook模型不变来自生产源码审查。完整fresh及正常墨宝胜利边界另备后续片，真实游戏多端/设备仍待；详[布局记录](issue84-overgrowth-implementation.md#vantom-与墨宝完整显示及原生输入2026-11-14)。
+
 首轮2026-11-13，2026-11-14补充当前缺口再核。下表保留首轮审计时的证据及缺口；当前实施提交以[实施索引](issues-82-88-implementation.md)和下述最新增量为准，历史W锚点不是当前分支状态。首轮审计仅只读调查，后续逐片实施；均未启动游戏、安装或改真实存档。编号沿来源；S1–S6、H1–H13、U1–U8在本文表示**六/十三/八个场景行**，不要与交接文档中 S1模型、S2注册、S3保存等证据级别混淆。D=领域行为，N=真实原生DLL/命令/保存，G=真实Godot树/输入，M=正式游戏真实端。ENet本机独立进程单列，不能自动代签M。
 
 ## 后续实施增量（均未作为整票交付）
@@ -18,7 +20,7 @@
 |#87|Queen一次重燃/火炬、完整fresh、四组合正式布局，MultiClaw/Wither源行为已集成|Aeonglass个人计数完整fresh已由fff3232→8481af1补证，实施及集成双版各1四诊断0；TestSubject第三阶段完整fresh已由d0ca778→cc0bc71补证（实施/集成双版各1四诊断0）；适用正式布局尚缺；Boss原组间歇故障仍暂停未修，只有可区分新假说才恢复实验，不用probe绿签修。|
 |#88|匹配public资源、两遗物/Flight/控制台/每日字段已实现，用户#93/#94既有人工结果保留|V01–14/S6/H13/U8旧表是历史审计；当前未齐整票证据继续由原票承担。最终同提交完整Check、双版包/许可及集中人工矩阵仍待；真实手柄责任明确列出，不要求当前用户补设备。|
 
-本轮已完成 #85 **首普通Hive完整fresh**（c2cb995→2cf965c）；本片范围为：从已核两版`Hive.GenerateAllEncounters`及现有`SpinyToadNormal`入口入手，只在准备期选择合法原生队列，实际session.Enter→战中保存→新大厅完整开场/三种初始负面一次→自然胜利保存→第二新大厅非空领取/原Proceed。复用已有Forest/Seapunk恢复宿主，不改Hive生产、不重复已证开场1–4角色矩阵。Aeonglass个人旧计数重置及终局保存已集成补证；TestSubject完整fresh亦已集成补证；当前Vantom正式布局与#82真实双run休息遗物在制，当前动作见唯一看板；不依赖暂停的Phrog原组六项诊断。其他远期缺口不在此次盘点时细化全部文件级计划。
+本轮已完成 #85 **首普通Hive完整fresh**（c2cb995→2cf965c）；本片范围为：从已核两版`Hive.GenerateAllEncounters`及现有`SpinyToadNormal`入口入手，只在准备期选择合法原生队列，实际session.Enter→战中保存→新大厅完整开场/三种初始负面一次→自然胜利保存→第二新大厅非空领取/原Proceed。复用已有Forest/Seapunk恢复宿主，不改Hive生产、不重复已证开场1–4角色矩阵。Aeonglass个人旧计数重置及终局保存已集成补证；TestSubject完整fresh亦已集成补证；当前Matriarch完整fresh与#82真实双run休息遗物在制，当前动作见唯一看板；不依赖暂停的Phrog原组六项诊断。其他远期缺口不在此次盘点时细化全部文件级计划。
 
 以下为2026-11-13历史增量（当时源码`1956c17`）；当前状态以前段再核和实施索引为准。目标public0.107.1/beta0.113.0/RitsuLib0.6.11，匹配public资源及辅助依赖已齐。商店场景、Phrog右侧布局、Hive精英Weak2、MultiClaw9/10及原生3+N、public启动Task观察修复、Waterfall清负面与Artifact1、Hive事件普通三项各1、Holes单owner战前/奖励恢复、Wither强化链及Holes三端战前/胜利奖励恢复均已独立双轴审查并正常集成；准确提交、专项数量和边界见[实施索引](issues-82-88-implementation.md#当前接续状态2026-11-13)。
 
