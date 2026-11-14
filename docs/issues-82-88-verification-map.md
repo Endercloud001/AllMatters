@@ -31,7 +31,7 @@ D=领域行为，N=真实原生DLL/命令/保存，G=真实Godot节点树及引�
 |V07 商店|批次3真实库存/动态价及#93人工；#82拒绝服务/删牌sender/货架/滞后端|#88正式双端滞后、重访及恢复分版归属；不能重新声称库存从未保存|
 |V08 根房安全/完成/服务|#82权威root快照/全队面具/Heal/遗物及双run自然离开；#83非奖励任务完成|适用正式游戏双端/问号实际房型；战斗票消费当前根快照，不从面具或显示0反推|
 |V09 战斗完整恢复|密林首普通、Phrog、Vantom、Matriarch、Waterfall、SoulFysh、Seapunk、Hive首普通、Knowledge、Mystic及三Boss fresh已逐片集成|每票仍核适用敌人/事件/多owner/双Boss完整端点；多数fresh是单owner同进程新大厅，不能代签正式端/新进程|
-|V10 逐敌/调度/布局|[密林](issue84-overgrowth-implementation.md)、[暗港](issue84-underdocks-implementation.md)、[巢穴](issue85-hunting-implementation.md)、[荣耀](issue86-hunting-implementation.md)、[Boss](issue87-boss-implementation.md)已多片集成|Matriarch布局在制、Aeonglass正式个人UI待；其他适用布局/输入/死亡缺席/调度按票收口，P87间歇故障未修|
+|V10 逐敌/调度/布局|[密林](issue84-overgrowth-implementation.md)、[暗港](issue84-underdocks-implementation.md)、[巢穴](issue85-hunting-implementation.md)、[荣耀](issue86-hunting-implementation.md)、[Boss](issue87-boss-implementation.md)已多片集成|Matriarch布局已集成双版各5、Aeonglass正式个人UI双版eng/zhs各2已集成；其他适用布局/输入/死亡缺席/调度按票收口，P87间歇故障未修|
 |V11 空箱|#83双版正式整房真实鼠标/Proceed/自然保存恢复已集成，实际ENet等待/奖励拒绝保留|真实双游戏端/设备；未知直接支付、未返回Task后台维持未支持范围，不推成通用取消|
 |V12 UI/教程/输入|批次3、#82 HUD/服务、#83整房及多敌完整HP/意图/目标/焦点G证据|U八行逐项：三比例/720p–4K/长译文/重绑/实体设备/实际端归属；模拟输入不代签实体手柄|
 |V13 换幕/终局|既有#79幕转换/双Boss用户认可，#82新幕/最终Boss清理；三Boss fresh含自然胜利终局|#88分版标准/A10实际击杀、双Boss首末/WinRun差异；原型或换幕源码不代签全内容|
@@ -58,8 +58,8 @@ H来源为追猎原型原13组；这里只列正式集成及剩余责任，原�
 |---|---|---|
 |H1 全场景追加/布局→V10|Phrog/Vantom/SoulFysh/Seapunk14场/Glory15场/Queen等正式完整HP意图/鼠标/焦点；蟹原场景保持|#84 Matriarch睡/醒布局双版各5已集成；其他适用场景与真实端逐票补。只有真实加怪/遮挡red才改布局，效果片保持原场景|
 |H2 真菌兽/术士→V10|#84真菌生长/孢子/自然Ending、#86Mystic56HP/六随机/HEAL12/BUFF2/资源/fresh|其他适用人数/独立owner/正式端；不照搬上游AI，不以素材存在当行为通过|
-|H3 第一二幕逐敌→V10|#84密林暗港多敌规则/固定值/自然死亡/fresh；#85Hive普通/精英/事件及蟹Artifact3|其他完整恢复/事件/布局与来源边界仍归#84/#85，不能以代表怪签整表|
-|H4 无厌/知识恶魔→V10|#85三轮单owner选择/效果/展示不入堆、Tender真实屏和Knowledge fresh|双owner首轮已集成（真实ENet/输入/效果归属/屏释放）；自然coordinator调度、死亡/缺席/断线/其他轮多人、正式端与剩余输入|
+|H3 第一二幕逐敌→V10|#84密林暗港多敌规则/固定值/自然死亡/fresh；#85Hive普通/精英/事件及蟹Artifact3|帝皇蟹完整战前/非空奖励fresh已集成；其他完整恢复/事件/布局与来源边界仍归#84/#85，不能以代表怪签整表|
+|H4 无厌/知识恶魔→V10|#85三轮单owner选择/效果/展示不入堆、Tender真实屏和Knowledge fresh|双owner首轮已集成（真实ENet/输入/效果归属/屏释放）；首轮自然coordinator调度已集成；死亡/缺席/断线/其他轮多人、正式端与剩余输入|
 |H5 第三幕/实验体→V10|#86Mecha/SoulNexus/Flail原生动作；#87TestSubject复生完成后计时/3、6、9/Skittish10/Suck3/MultiClaw/fresh|原调度及适用多人/布局/真实端；public/beta动作差异保留，不能改一版对齐另一版|
 |H6 女王→V10|真实死亡一次重燃、六意图/TorchHead50HP/10伤/Minion、出生不攻/次轮攻击/存活+2、fresh/布局|真实端/其他适用意图和设备；来源阻止死亡不得触发，已死火炬不复补|
 |H7 沙漏→V10|初值/触发/reset12、每owner、五状态与溢出/Wither升级、完整fresh|#87原NPower图标/真实hover/个人计数UI双版eng/zhs各2已集成；适用多人/正式端，模型Amount6不等于个人显示12|

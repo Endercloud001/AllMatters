@@ -2,7 +2,7 @@
 
 更新：2026-11-14。唯一维护者：集成主控；集成树`AllMatters/.claude/worktrees/hunting-20261112`，分支`integration/issues-82-88-20261112`，源码基点=`5d127b0`。目标为public0.107.1 / beta0.113.0 / RitsuLib0.6.11。源码切片集成不代表整票关闭；本板不推断GitHub实时状态。
 
-**玩法在制1/2（已恢复）、Ready0、技术诊断暂停1。** 2026-11-14 用户通过 implement 明确恢复交接玩法片；恢复时核实集成 HEAD=`c0e62aa`，当前源码=`b5088fd`，Knowledge/Matriarch 起点仍为`f1eb1dd`/`eb4837c`。Knowledge 已集成并通过双版专项；Matriarch 已集成并通过双版布局；Aeonglass 已集成双版UI通过；Knowledge自然调度 owner 独占工具链。原暂存与 `.import` 改动保留，未跟踪交接文档不纳入本片提交。
+**玩法在制1/2（已恢复）、Ready0、技术诊断暂停1。** 2026-11-14 用户通过 implement 明确恢复交接玩法片；恢复时核实集成 HEAD=`c0e62aa`，当前源码=`f2906d4`，Knowledge/Matriarch 起点仍为`f1eb1dd`/`eb4837c`。Knowledge 已集成并通过双版专项；Matriarch 已集成并通过双版布局；Aeonglass 已集成双版UI通过；Knowledge自然首轮与帝皇蟹fresh均已集成；主控持唯一工具链，后两轮多人选择已就绪并拉取，owner仅源码准备。原暂存与 `.import` 改动保留，未跟踪交接文档不纳入本片提交。
 
 ## 复盘改进实施（2026-11-14）
 
@@ -28,7 +28,9 @@
 |C85-knowledge-owner / #85|首轮双owner错峰选择与屏释放|Integrated|knowledge / knowledge-owner-20261114|tests-only两文件|1d22277→e93d304；集成双版各1 PASS四诊断0，严格归档knowledge-owner-integrated-20261114-173527158-d598714f64cd459da98a9b97dfc305cc；自然调度/等待断线仍未签|2026-11-14 拉取|
 |C84-matriarch-layout / #84|追加睡眠Lagavulin睡/醒完整显示与原生输入|Integrated|matriarch / matriarch-layout-20261114|三文件1040+|6655b2c→10b05df；实施双版layout5/Underdocks7/fresh1；集成双版layout5四诊断0，严格归档matriarch-layout-integrated-20261114-174346277-6e3f7a6e00a644fbab0f1c96d9379034|2026-11-14 拉取|
 |C87-aeonglass-ui / #87|正式本地个人counter图标/数字/真实hover随12次出牌与五状态溢出更新重置12|Integrated|aeonglass_ui / aeonglass-ui-20261114|五文件422+/2-，精确hunted展示修复|8401f1a→b5088fd；单人eng/四角色zhs，集成双版各2四诊断0；详见#87记录；原Boss偶现/完整布局仍未签|2026-11-14 拉取|
-|C85-knowledge-native-turn / #85|双owner首轮通过原生结束回合调度等待选择并仅续一次|Doing/窄核真实开场接缝|knowledge_native_turn / knowledge-native-turn-20261114，基1713a70|既有MultiOwner测试；生产默认只读，本片owner独占工具链|已核两版SetReadyToEndTurn→ExecuteEnemyTurn→TakeTurn；先复用ENet宿主补自然开场，不手工PerformMove/RollMove签调度|2026-11-14 拉取|
+|C85-knowledge-native-turn / #85|双owner首轮通过原生结束回合调度等待选择并仅续一次|Integrated|knowledge_native_turn / knowledge-native-turn-20261114|单文件151+/32-|2c45c7c→845d00e；双版自然1/manual1，集成自然各1四诊断0；等待死亡/断线与后两轮未签|2026-11-14 拉取|
+|C85-crab-fresh / #85|蟹完整战前/两臂能力状态与非空胜利奖励新大厅恢复|Integrated|crab_fresh / crab-fresh-20261114|两文件685+，生产场景未改|859096a→f2906d4；实施fresh1/开场5/布局4双版，集成fresh各1四诊断0；仅same-process单owner|2026-11-14 拉取|
+|C85-knowledge-three-rounds / #85|双owner自然三轮真实屏错峰/效果归属/每轮仅续一次且无第四屏|Doing/待最小beta|knowledge_three_rounds / knowledge-three-rounds-20261114，基f2906d4|仅现MultiOwner测试；主控持工具链|已核自然round1/5/9与原牌对；泛化现runner/信号/逐屏计数，不手工PerformMove/RollMove；双版新1及受影响旧2|2026-11-14 拉取|
 
 ### 2026-11-14 15:49 历史停止交接（已由上方当前卡片覆盖）
 

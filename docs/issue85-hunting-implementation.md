@@ -220,3 +220,21 @@ Tender 图为用户提供的1,529,010字节原件 `tender.png`，按 #63 设计�
 实施提交1d22277经e93d304合入。public错峰1、ActTwo双版各8、Tender双版各1均严格通过，Build/Host/Engine/Metadata全0；beta错峰复用entry9。实施树.local/tests/archives/knowledge-stagger-public-20261114-172517352-6a69d2120ac54b5c8fe8299c84bcf8d9、knowledge-acttwo-20261114-172547358-c6b44d492ace43d9820b0f67cd565444、knowledge-tender-20261114-172621129-223e520264454194bc882170762bff46含原始日志与summary。public child c32d1dc783494c14849d29e50663d065 的2.err为空且父测试断言退出0。独立Standards/Spec均0发现，正常hooks成功，reviewed.patch与提交diff逐字一致。当前集成双版错峰专项进行中，未代签自然coordinator调度、等待中断线、第二三轮多人或完整#85。
 
 集成e93d304的实际严格专项双版各1 PASS，四诊断全0；归档 .local/tests/archives/knowledge-owner-integrated-20261114-173527158-d598714f64cd459da98a9b97dfc305cc/summary.json 及同目录两目标原始日志。没有扩跑模型矩阵。
+
+## Knowledge 双owner原生首轮调度（2026-11-14）
+
+2c45c7c经845d00e合入，单测试文件151+/32-，旧manual错峰分支保留。新增两真实ENet进程从原生Launch、ManagedNetActions能力协商、session.Enter及首轮TurnStarted进入；通过原按钮对应的ActionQueueSynchronizer.RequestEnqueue(EndPlayerTurnAction)结束回合，不手工PerformMove/RollMove。host先选Calamity后child仍持原屏，Enemy侧/readyCount1/moveCalls1保持；child选MindRot后仅一次返回round2，下一招Slap，原生角色首轮5/7及MindRot后5/4独立核验。屏幕释放、能力归属、原任务settle/child退出及全局ActionTypes原缓存引用恢复均保留。
+
+实施归档knowledge-native-turn-20261114/.local/tests/archives/knowledge-native-beta-mindrot-20261114-182459340-bf14288dc9c249b78053424d202214d9、knowledge-native-public-first-20261114-182531196-81196120114a41e29b7c56fbcbae432c各1；旧manual双版各1在knowledge-native-manual-regression-20261114-182616487-0cd90dd998174fb390dd7253ddeb9fed，均strict四诊断0。原入房/能力协商/动作注册及手牌预期准备失败保留，不称产品red。额度中断后两独立轴重新实审，0阻塞；正常hooks成功，已审patch与提交字节一致，原.import保留。
+
+集成845d00e双版各1严格通过，原日志/summary在.local/tests/archives/knowledge-native-integrated-20261114-230007005-a30f34f77598419097a21956b994e1e0。仅首轮自然调度，不签等待死亡/断线、后两轮多owner或完整#85。
+
+## 帝皇蟹完整战前与非空奖励fresh（2026-11-14）
+
+859096a经f2906d4合入，两文件685+。真实Kaiser遭遇只有Crusher/Rocket两臂，保持原背景/slot/方向/版本首招，非第三敌。原生入房开场前独立完整Boundary及开场后Opening采样，源战两臂真实动作/roll、玩家与五堆/卡牌身份/HP/block/powers/monster与run/player RNG实际扰动后保存；第一新LoadRunLobby恢复完整原开场、每臂Artifact3一次，不拼旧阶段或二扣。恢复战通过逐臂足量Unblockable/Unpowered Damage原生致死，保留BeforeDeath/AfterDeath及胜利消费者，不用force Kill。
+
+胜利保存前和非空奖励生成后分别独立采预期，第二新大厅恢复相同胜利/金卡奖励，原生同步领取、重复拒绝且状态不变、Proceed完成均有断言。真实Kaiser背景持有者与清理保留；只提供自有NAudioManager单例，原PlayOneShot在TestMode原生跳过音频，不跳死亡。profile完整隔离及finally恢复保留。
+
+实施树crab-fresh-20261114/.local/tests/archives的crab-fresh-beta3-20261114-224250831-867305aa91464e8bbcb0b42a03f9cabc、crab-fresh-public1-20261114-224340584-806cdd7ef46d46d88d10b2b3ca52de85各1 PASS；crab-regression-20261114-224406263-c1431efe10c7463483c3f35b43c32fb1双版开场各5、crab-layout-regression-20261114-224515170-d1a58d39987540bf8e8c370d83fb7c6a双版布局各4。全部strict四诊断0，准备路径/canonical未生成怪物资源失败单独保留。Standards硬规范0/smell0，Spec0发现；正常hooks，已审/提交patch逐字节一致，.import保留未提交。
+
+集成f2906d4双版fresh各1 strict通过，原日志和summary位于.local/tests/archives/crab-fresh-integrated-20261114-230726065-7f3a488b905f4a368658fffe5620bb02。仅单owner同进程两个新大厅，不签真实多端/新进程/正式奖励按钮与完整#85。
