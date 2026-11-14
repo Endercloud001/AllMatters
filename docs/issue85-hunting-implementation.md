@@ -246,3 +246,11 @@ Tender 图为用户提供的1,529,010字节原件 `tender.png`，按 #63 设计�
 只有精确新例预算180秒，保留每阶段20秒及旧例预算；实际原60秒watchdog中断于第三轮前的原生动画链。真实Slap缺相机Strong preset按现Matriarch纯相机隔离接缝处理，保留Damage/动画/回合消费者，finally卸patch。两次宿主/预算准备失败留原归档，不冒称玩法red。
 
 实施树knowledge-three-rounds-20261114/.local/tests/archives的knowledge-three-beta-budget-20261114-233926415-911936f94a404b499113128fa1394c93及knowledge-three-public-20261114-234208249-950d1913b8ef4ec3a66fac59eafa8b3c双版新各1；旧manual/native各双版1，归档knowledge-three-regression-manual-20261114-234443718-f5dd8cfd892b427ab210c0a9214916f5及knowledge-three-regression-native-20261114-234532354-f12c7be8c8fc4111b390aa9ddd2914ca，全部strict四诊断0。独立双轴0发现，正常hooks，已审/提交patch逐字一致，原.import保留。集成673ce47双版新贯穿各1 strict通过，原日志/summary在.local/tests/archives/knowledge-three-integrated-20261114-235238176-09aab019d90249f5ba95365b387313ec。死亡/缺席、等待中断线及完整#85仍未签。
+
+## Knowledge 选择开始前dead/absent资格（2026-11-15）
+
+5d33563经a4bb2b9合入，仅ActTwoTests新增80行。safe/hunted×already-dead/absent四组合：B仍在run名单；dead时HP0且在PlayerCreatures集合，absent时从combat移除而不脱离run，先核两种前提。通过原生RollMove/PerformMove和既有selector，A固定第二项独立expected为safe MindRot1/hunted Calamity1，总请求恰一次归A；B无请求/效果，双owner牌组/五堆身份顺序不变，MonsterPerformedMoveEntry恰一且下一Slap。缺席仅指不在战斗目标集合，不冒签网络断线。
+
+沿用ActOne原scaling夹具：合法单人root绑定后原生AddPlayerDebug(B)再加combat，保留ChooseCurse原guard，不patch资格。初始多owner绑定guard/重复设置RunState的动作前准备失败归档，未称产品red。实施树knowledge-targets-20261115/.local/tests/archives/knowledge-targets-acttwo-20261115-002354363-dca4842c670943588f0109ead0d51146双版各9 strict通过；最小beta新1亦通过。Standards/Spec独立0发现，正常hooks，已审与提交patch逐字一致，导入资源状态保留未暂存。
+
+集成a4bb2b9双版ActTwo各9，Build/Host/Engine/Metadata均0；原日志/summary在.local/tests/archives/knowledge-targets-integrated-20261115-003344125-5e1f8bfa1a694adc95ad8fb5ab60bbc0。等待中死亡/断线及整票仍未签。

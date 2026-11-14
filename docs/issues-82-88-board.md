@@ -2,7 +2,7 @@
 
 更新：2026-11-15。唯一维护者：集成主控；集成树`AllMatters/.claude/worktrees/hunting-20261112`，分支`integration/issues-82-88-20261112`，源码基点=`5d127b0`。目标为public0.107.1 / beta0.113.0 / RitsuLib0.6.11。源码切片集成不代表整票关闭；本板不推断GitHub实时状态。
 
-**玩法在制1/2（已恢复）、Ready0、技术诊断暂停1。** 2026-11-14 用户通过 implement 明确恢复交接玩法片；恢复时核实集成 HEAD=`c0e62aa`，当前源码=`673ce47`，Knowledge/Matriarch 起点仍为`f1eb1dd`/`eb4837c`。Knowledge 已集成并通过双版专项；Matriarch 已集成并通过双版布局；Aeonglass 已集成双版UI通过；Knowledge自然首轮与帝皇蟹fresh均已集成；三轮贯穿已集成双版绿，入口前dead/absent资格例已拉取、仅源码准备；主控持工具链。原暂存与 `.import` 改动保留，未跟踪交接文档不纳入本片提交。
+**玩法在制0/2（已恢复）、Ready0、技术诊断暂停1。** 2026-11-14 用户通过 implement 明确恢复交接玩法片；恢复时核实集成 HEAD=`c0e62aa`，当前源码=`a4bb2b9`，Knowledge/Matriarch 起点仍为`f1eb1dd`/`eb4837c`。Knowledge 已集成并通过双版专项；Matriarch 已集成并通过双版布局；Aeonglass 已集成双版UI通过；Knowledge自然首轮与帝皇蟹fresh均已集成；三轮贯穿已集成双版绿，入口前dead/absent资格已集成双版各9；主控持工具链，#87正式原场景片只读准备。原暂存与 `.import` 改动保留，未跟踪交接文档不纳入本片提交。
 
 ## 复盘改进实施（2026-11-14）
 
@@ -31,7 +31,7 @@
 |C85-knowledge-native-turn / #85|双owner首轮通过原生结束回合调度等待选择并仅续一次|Integrated|knowledge_native_turn / knowledge-native-turn-20261114|单文件151+/32-|2c45c7c→845d00e；双版自然1/manual1，集成自然各1四诊断0；等待死亡/断线与后两轮未签|2026-11-14 拉取|
 |C85-crab-fresh / #85|蟹完整战前/两臂能力状态与非空胜利奖励新大厅恢复|Integrated|crab_fresh / crab-fresh-20261114|两文件685+，生产场景未改|859096a→f2906d4；实施fresh1/开场5/布局4双版，集成fresh各1四诊断0；仅same-process单owner|2026-11-14 拉取|
 |C85-knowledge-three-rounds / #85|双owner自然三轮错峰/归属/仅续一次且无第四屏|Integrated|knowledge_three_rounds / knowledge-three-rounds-20261114|两文件143+/10-，仅新例180s预算|22dd5cc→673ce47；新1+旧2双版strict绿，集成新双版各1四诊断0；死亡缺席断线仍未签|2026-11-14 拉取|
-|C85-knowledge-targets / #85|选择开始前已死/不在combat目标集合者无请求与效果，活者仅一次|Doing/源码准备|knowledge_targets / knowledge-targets-20261115，基673ce47|仅ActTwoTests；主控持工具链|safe/hunted×dead/absent最低原生层，不再复制ENet/UI；不覆盖等待中死亡/断线|2026-11-15 拉取|
+|C85-knowledge-targets / #85|选择开始前已死/不在combat集合者无请求/效果，活者一次|Integrated|knowledge_targets / knowledge-targets-20261115|仅ActTwoTests80+|5d33563→a4bb2b9；实施/集成双版ActTwo各9 strict绿，等待中死亡/网络断线仍未签|2026-11-15 拉取|
 
 ### 2026-11-14 15:49 历史停止交接（已由上方当前卡片覆盖）
 
