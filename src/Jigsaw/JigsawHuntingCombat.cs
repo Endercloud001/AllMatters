@@ -50,10 +50,15 @@ internal static class JigsawHuntingOpeningEnemies
         if (JigsawHuntingCombat.IsVantomBossRoot(runState, __instance))
             ____monstersWithSlots = [(ModelDb.Monster<Inklet>().ToMutable(), null),
                 .. ____monstersWithSlots, (ModelDb.Monster<Inklet>().ToMutable(), null)];
-        if (JigsawHuntingCombat.IsOrdinaryRoot(runState) && runState.Act is Overgrowth or Glory)
+        if (JigsawHuntingCombat.IsOrdinaryRoot(runState) && runState.Act is Overgrowth or Underdocks or Glory)
         {
             JigsawHuntingCombat.RegisterLayout(__instance);
-            MonsterModel addition = runState.Act is Glory ? ModelDb.Monster<Mystic>().ToMutable() : ModelDb.Monster<FungusBeast>().ToMutable();
+            MonsterModel addition = runState.Act switch
+            {
+                Underdocks => ModelDb.Monster<Seapunk>().ToMutable(),
+                Glory => ModelDb.Monster<Mystic>().ToMutable(),
+                _ => ModelDb.Monster<FungusBeast>().ToMutable()
+            };
             ____monstersWithSlots = [.. ____monstersWithSlots, (addition,
                 __instance.HasScene ? JigsawHuntingCombat.AdditionSlot : null)];
         }
@@ -67,12 +72,19 @@ internal static class JigsawHuntingEncounterLayout
     {
         if (!JigsawHuntingCombat.HasLayout(__instance))
             return;
-        var originalMarkers = __instance.Slots.Select(slot => __result.GetNodeOrNull<Marker2D>(slot))
+        var additionMonster = __instance.MonstersWithSlots.Single(pair => pair.Item2 == JigsawHuntingCombat.AdditionSlot).Item1;
+        // GremlinMerc's authored merc marker is real, but absent from Slots.
+        // Anchor Seapunk to actual generated slots without moving native markers.
+        IEnumerable<string> originalSlots = additionMonster is Seapunk
+            ? __instance.MonstersWithSlots.Where(pair => pair.Item2 != null && pair.Item2 != JigsawHuntingCombat.AdditionSlot)
+                .Select(pair => pair.Item2!)
+            : __instance.Slots;
+        var originalMarkers = originalSlots.Select(slot => __result.GetNodeOrNull<Marker2D>(slot))
             .Where(marker => marker != null).ToArray();
         float left = originalMarkers.Length == 0 ? 1200 : originalMarkers.Min(marker => marker!.Position.X);
         float ground = originalMarkers.Length == 0 ? 740 : originalMarkers.Max(marker => marker!.Position.Y);
         var position = new Vector2(left - 260, ground);
-        if (__instance.MonstersWithSlots.Single(pair => pair.Item2 == JigsawHuntingCombat.AdditionSlot).Item1 is Mystic mystic)
+        if (additionMonster is Mystic mystic)
         {
             // Keep the Forest addition unchanged. Glory's scene markers are
             // centres: a fixed centre distance ignores Axebot's wider bounds.
