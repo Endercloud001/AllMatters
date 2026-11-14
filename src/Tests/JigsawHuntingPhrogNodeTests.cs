@@ -42,6 +42,89 @@ internal static class JigsawHuntingPhrogNodeTests
     private static NodeHost? current;
     private static bool SkipLifecycle() => false;
 
+    internal static async Task<FreshDeathNodeScope> CreateFreshDeathNodes(Creature phrog)
+    {
+        var scope = new FreshDeathNodeScope();
+        try { await scope.Mount(phrog); return scope; }
+        catch { await scope.DisposeAsync(); throw; }
+    }
+
+    // Supply only the real room/death observation boundary. The caller keeps
+    // its original run, encounter queue and naturally started coordinator.
+    internal sealed class FreshDeathNodeScope : IAsyncDisposable
+    {
+        private readonly NativeDisplayScope display = new();
+        private readonly JigsawNativeMapUiHost mapHost = new();
+        private NodeHost? nodes;
+        private Task? killing;
+        private Creature phrog = null!;
+        internal NCombatRoom Room => nodes!.Room;
+        internal float AnimationLength => nodes!.AnimationLength;
+        internal int WaitCount => nodes!.WaitCount;
+
+        internal async Task Mount(Creature creature)
+        {
+            phrog = creature;
+            JigsawHuntingNativeTests.RegisterScripts();
+            HeadlessUiHost.EnsureInputActions();
+            var native = (RunState)phrog.CombatState!.RunState;
+            var session = JigsawNativeSession.TryGet(native)!;
+            await mapHost.Open(session);
+            session.HideMap();
+            nodes = new NodeHost(phrog);
+            await nodes.Mount((CombatRoom)native.CurrentRoom!);
+            Check(Room.GetCreatureNode(phrog) is { } node && node.IsInsideTree() && node.Visuals.HasSpineAnimation,
+                "Fresh Phrog uses the actual mounted native creature and its original animated visual.");
+        }
+
+        internal async Task<Creature[]> KillAndReveal()
+        {
+            var combat = phrog.CombatState!;
+            killing = CreatureCmd.Kill(phrog);
+#if STS2_PUBLIC
+            await FramesUntil(() => WaitCount >= 1 || killing.IsCompleted, "fresh public original death wait");
+            if (killing.IsFaulted) await killing;
+            Check(AnimationLength > 0 && WaitCount == 1 && !killing.IsCompleted &&
+                !combat.Enemies.Any(enemy => enemy.Monster is Wriggler),
+                "Fresh public retains the nonzero original death wait before any worm is created.");
+#else
+            await FramesUntil(() => WaitCount >= 2 || killing.IsFaulted, "fresh beta original reveal waits");
+            if (killing.IsFaulted) await killing;
+            var hidden = combat.Enemies.Where(enemy => enemy.Monster is Wriggler).ToArray();
+            Check(AnimationLength > 0 && WaitCount == 2 && hidden.Length == 5 &&
+                hidden.All(enemy => Room.GetCreatureNode(enemy) is { Visible: false } node && node.IsInsideTree()),
+                "Fresh beta creates five hidden actual worms before both nonzero original reveal waits settle.");
+#endif
+            // HoldActualWait awaits the native timer before this observation
+            // barrier. Releasing it never replaces or shortens that timer.
+            nodes!.Release.TrySetResult();
+            await killing;
+            await Task.WhenAll(nodes.Waits);
+            var worms = combat.Enemies.Where(enemy => enemy.Monster is Wriggler)
+                .OrderBy(enemy => enemy.SlotName, StringComparer.Ordinal).ToArray();
+            await FramesUntil(() => worms.All(enemy => Room.GetCreatureNode(enemy) is { Visible: true }), "fresh five visible native worms");
+            Check(worms.Length == 5 && worms.All(enemy => enemy.IsAlive &&
+                Room.GetCreatureNode(enemy) is { Visible: true } node && node.IsInsideTree() && node.Entity == enemy) &&
+                worms.Select(enemy => enemy.SlotName).SequenceEqual(new[] { "wriggler1", "wriggler2", "wriggler3", "wriggler4", "wriggler5" }),
+                "Settled actual Phrog death owns five living visible native worms in all five original numbered slots.");
+            return worms;
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            var failures = new List<Exception>();
+            nodes?.Release.TrySetResult();
+            if (killing != null) try { await killing; } catch (Exception error) { failures.Add(error); }
+            if (nodes != null)
+                try { await Task.WhenAll(nodes.Waits); } catch (Exception error) { failures.Add(error); }
+            try { await Frames(4); } catch (Exception error) { failures.Add(error); }
+            try { nodes?.Dispose(); } catch (Exception error) { failures.Add(error); }
+            try { mapHost.Dispose(); } catch (Exception error) { failures.Add(error); }
+            try { display.Dispose(); } catch (Exception error) { failures.Add(error); }
+            if (failures.Count > 0) throw new AggregateException("Fresh Phrog native death scope cleanup failed.", failures);
+        }
+    }
+
     internal static Task NonzeroDeath(Creature phrog) => Exercise(phrog, false);
     internal static Task OldReveal(Creature phrog) => Exercise(phrog, true);
     internal static Task Geometry(Creature phrog) => phrog.CombatState!.Players.Count is 1 or 4
