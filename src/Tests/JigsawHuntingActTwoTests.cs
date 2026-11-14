@@ -10,6 +10,7 @@ using MegaCrit.Sts2.Core.Models.Monsters;
 using MegaCrit.Sts2.Core.TestSupport;
 using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Entities.Cards;
+using MegaCrit.Sts2.Core.Map;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Acts;
 using MegaCrit.Sts2.Core.Models.Characters;
@@ -29,6 +30,7 @@ internal static class JigsawHuntingActTwoTests
       ("Jigsaw hunting act two Insatiable Liquify gives original target five sandpit and four in each pile", Liquify),
       ("Jigsaw hunting act two Knowledge attacks match native intents and A8 A9 damage", KnowledgeAttacks),
       ("Jigsaw hunting act two Knowledge first pair uses native player choice without adding display cards", KnowledgeFirstPair),
+      ("Jigsaw hunting act two Knowledge skips already dead and absent combat targets before first choice", KnowledgeEligibleTargets),
       ("Jigsaw hunting act two Knowledge second pair follows native cycle and applies Tender to its owner", KnowledgeSecondPair),
       ("Jigsaw hunting act two Knowledge third pair uses twenty one and finishes the native three curse cycle", KnowledgeThirdPair),
       ("Jigsaw hunting act two Hive normal opening uses native power commands and preserves unrelated Weak", HiveNormalOpening),
@@ -110,11 +112,13 @@ internal static class JigsawHuntingActTwoTests
     {
         internal int Calls;
         internal CardModel[] Offered = [];
+        internal readonly List<Player> Owners = [];
         public Task<IEnumerable<CardModel>> GetSelectedCards(IEnumerable<CardModel> options, int minSelect, int maxSelect)
         {
             Offered = options.ToArray();
             Check(Offered.Length == 2 && maxSelect == 1, "The real native command offers exactly two single-choice display cards.");
             Calls++;
+            Owners.Add(Offered[0].Owner!);
             return Task.FromResult<IEnumerable<CardModel>>([Offered[firstOnFirst && Calls == 1 ? 0 : 1]]);
         }
         public CardRewardSelection GetSelectedCardReward(IReadOnlyList<CardCreationResult> options,
@@ -157,6 +161,82 @@ internal static class JigsawHuntingActTwoTests
                 "The completed outer action advances once to Slap without another player choice.");
         }
     }
+    private static async Task KnowledgeEligibleTargets()
+    {
+        foreach (bool hunted in new[] { false, true })
+        foreach (bool dead in new[] { false, true })
+        {
+            var alive = Player.CreateForNewRun<Ironclad>(UnlockState.all, 1);
+            var skipped = Player.CreateForNewRun<Ironclad>(UnlockState.all, 2);
+            var players = new[] { alive, skipped };
+            var run = RunState.CreateForTest([alive], acts: [ModelDb.Act<Overgrowth>(), ModelDb.Act<Hive>()],
+                seed: "HUNTING_85_KNOWLEDGE_TARGETS");
+            run.CurrentActIndex = 1;
+            using var battle = new HeadlessTestSetup.EncounterCombatScope(run,
+                ModelDb.Encounter<KnowledgeDemonBoss>().ToMutable(), setUpMonster: false);
+            run.PushRoom(new CombatRoom(battle.Combat));
+            JigsawCheckpoint.Capture(run, BossRoot(hunted, [alive.NetId]));
+            JigsawNativeSession.Restore(run);
+            // As in the native scaling fixtures, enroll the second combat owner
+            // after binding a legal single-player root; no network lifecycle is exercised.
+            run.AppendToMapPointHistory(MapPointType.Boss, RoomType.Boss, battle.Combat.Encounter.Id);
+            run.AddPlayerDebug(skipped, 1);
+            battle.Combat.AddPlayer(skipped);
+            skipped.ResetCombatState();
+            battle.Monster.SetUpForCombat();
+            if (dead)
+            {
+                skipped.Creature.SetCurrentHpInternal(0);
+                Check(skipped.Creature.IsDead && battle.Combat.PlayerCreatures.Contains(skipped.Creature),
+                    "The already-dead owner remains in native combat targets, so ChooseCurse must reject it.");
+            }
+            else
+            {
+                battle.Combat.RemoveCreature(skipped.Creature, unattach: false);
+                Check(!skipped.Creature.IsDead && run.Players.Contains(skipped) &&
+                    !battle.Combat.PlayerCreatures.Contains(skipped.Creature),
+                    "The absent owner remains in the run but is absent from combat targets before selection starts.");
+            }
+            Check(!alive.Creature.IsDead && battle.Combat.PlayerCreatures.Contains(alive.Creature),
+                "The other owner remains an eligible native combat target.");
+            var decks = players.Select(player => player.Deck.Cards.ToArray()).ToArray();
+            var pileTypes = new[] { PileType.Hand, PileType.Draw, PileType.Discard, PileType.Exhaust, PileType.Play };
+            var piles = players.Select(player => pileTypes.Select(pile => pile.GetPile(player).Cards.ToArray()).ToArray()).ToArray();
+            var skippedPowers = skipped.Creature.Powers.Select(power => (power, power.Amount)).ToArray();
+            decimal skippedHp = skipped.Creature.CurrentHp;
+            var selector = new KnowledgeSecondOption();
+            battle.Monster.RollMove(battle.Combat.PlayerCreatures);
+            Check(battle.Monster.NextMove.Id == "CURSE_OF_KNOWLEDGE_MOVE", "The native first move remains Curse of Knowledge.");
+            using (HeadlessNativeApi.UseSelector(run, selector)) await battle.Monster.PerformMove();
+            Check(selector.Calls == 1 && selector.Owners.SequenceEqual(new[] { alive }) &&
+                selector.Offered.All(card => ReferenceEquals(card.Owner, alive)),
+                $"Only the living present owner receives one request; hunted={hunted}, alreadyDead={dead}.");
+            Check(alive.Creature.GetPowerAmount<MindRotPower>() == (hunted ? 0 : 1) &&
+                alive.Creature.GetPowerAmount<CalamityPower>() == (hunted ? 1 : 0) &&
+                alive.Creature.GetPowerAmount<DisintegrationPower>() == 0,
+                "The living owner receives the fixed second choice: safe MindRot one or hunted Calamity one.");
+            var received = CombatManager.Instance.History.Entries.OfType<PowerReceivedEntry>()
+                .Where(entry => entry.Power is MindRotPower or CalamityPower or DisintegrationPower).ToArray();
+            Check(received.Length == 1 && received[0].Amount == 1 && ReferenceEquals(received[0].Actor, alive.Creature),
+                "The native action records exactly one selected curse application, attributed to the eligible owner.");
+            Check(skipped.Creature.CurrentHp == skippedHp && skipped.Creature.Powers.Select(power => (power, power.Amount)).SequenceEqual(skippedPowers),
+                "The skipped owner receives no power or HP change.");
+            for (int index = 0; index < players.Length; index++)
+            {
+                Check(players[index].Deck.Cards.SequenceEqual(decks[index]) && pileTypes.Select((pile, pileIndex) =>
+                    pile.GetPile(players[index]).Cards.SequenceEqual(piles[index][pileIndex])).All(unchanged => unchanged),
+                    "Both owners retain the exact deck and all five combat piles, including their card order.");
+            }
+            Check(selector.Offered.All(card => card.Pile == null), "The eligible owner's display cards remain outside every pile.");
+            Check(CombatManager.Instance.History.Entries.OfType<MonsterPerformedMoveEntry>()
+                .Count(entry => ReferenceEquals(entry.Monster, battle.Monster)) == 1,
+                "The native history records exactly one completed monster action despite the skipped owner.");
+            battle.Monster.RollMove(battle.Combat.PlayerCreatures);
+            Check(battle.Monster.NextMove.Id == "SLAP_MOVE" && selector.Calls == 1,
+                "The outer native action advances once to Slap without another choice for either owner.");
+        }
+    }
+
     private static async Task KnowledgeSecondPair()
     {
         foreach (bool hunted in new[] { false, true })
