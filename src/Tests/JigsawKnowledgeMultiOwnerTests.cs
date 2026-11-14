@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.Json;
 using AllMatters.Jigsaw;
 using Godot;
@@ -15,6 +15,7 @@ using MegaCrit.Sts2.Core.Entities.Multiplayer;
 using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Factories;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+using MegaCrit.Sts2.Core.GameActions;
 using MegaCrit.Sts2.Core.Helpers;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Acts;
@@ -42,6 +43,7 @@ using MegaCrit.Sts2.Core.Nodes.Screens.Map;
 using MegaCrit.Sts2.Core.Nodes.Screens.Overlays;
 using MegaCrit.Sts2.Core.Nodes.Screens.ScreenContext;
 using MegaCrit.Sts2.Core.Platform;
+using MegaCrit.Sts2.Core.Saves;
 using MegaCrit.Sts2.Core.Rooms;
 using MegaCrit.Sts2.Core.Runs;
 using MegaCrit.Sts2.Core.TestSupport;
@@ -50,7 +52,9 @@ using MegaCrit.Sts2.Core.Unlocks;
 internal static class JigsawKnowledgeMultiOwnerTests
 {
     private const string Name = "Jigsaw Knowledge two native owners stagger first-round screens and synchronize distinct choices";
-    internal static readonly (string Name, Func<Task> Test)[] Cases = [(Name, StaggeredFirstChoice)];
+    internal static readonly (string Name, Func<Task> Test)[] Cases = [(Name, () => StaggeredFirstChoice(false)),
+        (NativeName, () => StaggeredFirstChoice(true))];
+    private const string NativeName = "Jigsaw Knowledge two native owners native first turn waits and advances once";
     private static readonly JsonSerializerOptions SnapshotJson = new() { IncludeFields = true };
     private static readonly string[] Roles = ["host", "2"];
     private static string Role => System.Environment.GetEnvironmentVariable("JIGSAW_KNOWLEDGE_ROLE") == "2" ? "2" : "host";
@@ -70,6 +74,8 @@ internal static class JigsawKnowledgeMultiOwnerTests
     {
         if (ReferenceEquals(__instance, observedMonster)) moveCalls++;
     }
+
+    private static bool SeenFtue(ref bool __result) { __result = true; return false; }
 
     private static string MonsterRng(MonsterModel monster) =>
 #if STS2_PUBLIC
@@ -120,12 +126,16 @@ internal static class JigsawKnowledgeMultiOwnerTests
             if (IsHost && childProcess is { HasExited: true } && !Signaled("2", "done"))
                 throw new InvalidOperationException("Knowledge child exited before " + stage + "; evidence=" + evidence);
             if (clock.Elapsed > TimeSpan.FromSeconds(20))
+            {
+                var state = RunManager.Instance.DebugOnlyGetState();
+                Console.Error.WriteLine($"KNOWLEDGE_TIMEOUT stage={stage} room={state?.CurrentRoom?.GetType().Name} hands={string.Join(',', state?.Players.Select(player => PileType.Hand.GetPile(player).Cards.Count) ?? [])} paused={RunManager.Instance.ActionExecutor.IsPaused} action={RunManager.Instance.ActionExecutor.CurrentlyRunningAction}");
                 throw new TimeoutException("Knowledge " + Role + " timed out at " + stage + "; evidence=" + evidence);
+            }
             await Frames();
         }
     }
 
-    private static JigsawRun PunishedBoss()
+    private static JigsawRun PunishedBoss(bool enterBoss = true)
     {
         var map = JigsawRun.Create(75, players: [1UL, 2UL]);
         foreach (ulong owner in new[] { 1UL, 2UL }) Ok(map.ChooseEnd(owner, EndChoice.Automatic));
@@ -148,21 +158,22 @@ internal static class JigsawKnowledgeMultiOwnerTests
         path.Reverse();
         foreach (int node in path)
         {
+            if (node == boss && !enterBoss) { Check(map.BeginEnter(node) != null, "Both peers prepare the same shared Boss entry."); break; }
             var entry = map.BeginEnter(node)!; Ok(map.ConfirmEnter(entry.Id));
             if (node != boss) Ok(map.CompleteRoom(entry.Id));
         }
-        Check(map.CurrentRoomHunted && map.ActivePlayers.Order().SequenceEqual(new[] { 1UL, 2UL }),
+        Check((!enterBoss || map.CurrentRoomHunted) && map.ActivePlayers.Order().SequenceEqual(new[] { 1UL, 2UL }),
             "Both owners share the accepted punished top-level Boss root.");
         return map;
     }
 
-    private static HeadlessProcessOutput Launch(ushort port)
+    private static HeadlessProcessOutput Launch(ushort port, bool nativeTurn)
     {
         var start = new ProcessStartInfo(OS.GetExecutablePath())
         {
             UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true, RedirectStandardError = true
         };
-        foreach (string argument in new[] { "--headless", "--path", ProjectSettings.GlobalizePath("res://"), "--", Name })
+        foreach (string argument in new[] { "--headless", "--path", ProjectSettings.GlobalizePath("res://"), "--", nativeTurn ? NativeName : Name })
             start.ArgumentList.Add(argument);
         start.Environment["JIGSAW_KNOWLEDGE_ROLE"] = "2";
         start.Environment["JIGSAW_KNOWLEDGE_DIR"] = evidence;
@@ -170,7 +181,7 @@ internal static class JigsawKnowledgeMultiOwnerTests
         return new HeadlessProcessOutput(start);
     }
 
-    private static async Task StaggeredFirstChoice()
+    private static async Task StaggeredFirstChoice(bool nativeTurn)
     {
         var manager = RunManager.Instance;
         ulong? previousNetId = LocalContext.NetId;
@@ -183,11 +194,27 @@ internal static class JigsawKnowledgeMultiOwnerTests
         Action<Player, uint, NetPlayerChoiceResult>? observeChoice = null;
         var receivedChoices = new List<(ulong Owner, uint Id)>();
         bool runStarted = false;
+        var hostPatches = new Harmony("AllMatters.TestHost");
+        bool nativeHost = false;
+        var previousSave = JigsawNativeSaveHost.Save;
+        var actionCache = AccessTools.Field(typeof(ActionTypes), "_cache");
+        var previousActionCache = actionCache.GetValue(null);
+        IDisposable? openingAtlases = null;
+        int readyRound = 0, readyCount = 0;
+        var nextTurn = new TaskCompletionSource();
+        void Ready(CombatState state)
+        {
+            if (state.CurrentSide != CombatSide.Player) return;
+            readyRound = state.RoundNumber;
+            readyCount++;
+            if (readyCount == 2) nextTurn.TrySetResult();
+        }
         var errors = new List<Exception>();
         void Cleanup(Action action) { try { action(); } catch (Exception error) { errors.Add(error); } }
         try
         {
             MegaCrit.Sts2.Core.Multiplayer.Serialization.MessageTypes.Initialize();
+            if (nativeTurn) ActionTypes.Initialize();
 #if STS2_PUBLIC
             host = IsHost ? new NetHostGameService() : null;
             client = IsHost ? null : new NetClientGameService();
@@ -206,7 +233,7 @@ internal static class JigsawKnowledgeMultiOwnerTests
                 socket.Close();
                 Check(!host.StartENetHost(port, 1).HasValue, "The real two-owner ENet host binds loopback.");
                 host.ClientConnected += id => host.SetPeerReadyForBroadcasting(id);
-                child = Launch(port); childProcess = child.Process;
+                child = Launch(port, nativeTurn); childProcess = child.Process;
                 await Until(() => host.ConnectedPeers.Count == 1 && host.ConnectedPeers[0].peerId == 2,
                     "native child authentication");
             }
@@ -230,27 +257,81 @@ internal static class JigsawKnowledgeMultiOwnerTests
                 seed: "KNOWLEDGE_85_TWO_OWNERS");
             run.CurrentActIndex = 1;
             var encounter = ModelDb.Encounter<KnowledgeDemonBoss>().ToMutable();
-            var combat = new CombatState(encounter, run) { RoundNumber = 1 };
-            foreach (var owner in owners) { combat.AddPlayer(owner); owner.ResetCombatState(); }
-            manager.SetUpTest(run, network); runStarted = true;
-            manager.CombatReplayWriter.IsEnabled = false;
-            LocalContext.NetId = network.NetId;
-            CombatManager.Instance.Reset(true);
-            CombatManager.Instance.SetUpCombat(combat);
-            encounter.GenerateMonstersWithSlots(run);
-            var (monster, slot) = encounter.MonstersWithSlots.Single();
-            combat.AddCreature(combat.CreateCreature(monster, CombatSide.Enemy, slot));
-            var room = new CombatRoom(combat);
-            run.PushRoom(room);
-            JigsawCheckpoint.Capture(run, PunishedBoss());
-            JigsawNativeSession.Restore(run);
-            var session = JigsawNativeSession.TryGet(run)!;
+            CombatState combat;
+            MonsterModel monster;
+            CombatRoom room;
+            JigsawNativeSession session;
+            if (nativeTurn)
+            {
+                openingAtlases = HeadlessTestSetup.LoadAtlases("card_atlas", "relic_atlas", "ui_atlas", "compressed");
+                nativeHost = true;
+                moveObservation ??= new Harmony("AllMatters.Tests.KnowledgeMultiOwnerMove");
+                moveObservation.Patch(AccessTools.Method(typeof(SaveManager), nameof(SaveManager.SeenFtue)),
+                    prefix: new HarmonyMethod(typeof(JigsawKnowledgeMultiOwnerTests), nameof(SeenFtue)));
+                hostPatches.Unpatch(AccessTools.PropertyGetter(typeof(CombatManager), nameof(CombatManager.IsInProgress)),
+                    AccessTools.Method(typeof(HeadlessCombatInProgress), "Prefix"));
+                hostPatches.Unpatch(AccessTools.PropertyGetter(typeof(CombatManager), nameof(CombatManager.IsEnding)),
+                    AccessTools.Method(typeof(HeadlessCombatNotEnding), "Prefix"));
+                CombatManager.Instance.TurnStarted += Ready;
+                manager.SetUpTest(run, network); runStarted = true;
+                manager.Launch();
+                manager.ActionExecutor.Unpause();
+                manager.CombatReplayWriter.IsEnabled = false;
+                LocalContext.NetId = network.NetId;
+                CombatManager.Instance.Reset(true);
+                JigsawNativeSaveHost.Save = _ => Task.CompletedTask;
+                manager.GenerateRooms();
+                run.Act.SetBossEncounter(ModelDb.Encounter<KnowledgeDemonBoss>());
+                await manager.GenerateMap();
+                await manager.EnterRoom(new MapRoom());
+                var map = PunishedBoss(false);
+                JigsawCheckpoint.Capture(run, map);
+                JigsawNativeSession.Restore(run);
+                session = JigsawNativeSession.TryGet(run)!;
+                await Until(() => STS2RitsuLib.Networking.Sidecar.RitsuLibSidecarSessionManager.TryGetPeerFeatures(IsHost ? 2UL : 1UL, out var features) &&
+                    (features & STS2RitsuLib.Networking.Sidecar.RitsuLibSidecarPeerFeatures.ManagedNetActions) != 0,
+                    "native sidecar capability negotiation");
+                Signal("entry-ready");
+                await Until(() => Both("entry-ready"), "both prepared shared entries");
+                var entering = session.Enter(map.Nodes.Single(node => node.Room == JigsawRoom.Boss).Id);
+                await Until(() => entering.IsCompleted, "native shared room entry");
+                await entering;
+                room = (CombatRoom)run.CurrentRoom!;
+                combat = room.CombatState;
+                monster = room.Encounter.MonstersWithSlots.Single().Item1;
+                await Until(() => readyRound == 1 && combat.CurrentSide == CombatSide.Player &&
+                    PileType.Hand.GetPile(owners[0]).Cards.Count == 5 &&
+                    PileType.Hand.GetPile(owners[1]).Cards.Count == 7, "native opening player turn");
+            }
+            else
+            {
+                combat = new CombatState(encounter, run) { RoundNumber = 1 };
+                foreach (var owner in owners) { combat.AddPlayer(owner); owner.ResetCombatState(); }
+                manager.SetUpTest(run, network); runStarted = true;
+                manager.CombatReplayWriter.IsEnabled = false;
+                LocalContext.NetId = network.NetId;
+                CombatManager.Instance.Reset(true);
+                CombatManager.Instance.SetUpCombat(combat);
+                encounter.GenerateMonstersWithSlots(run);
+                var pair = encounter.MonstersWithSlots.Single();
+                monster = pair.Item1;
+                var slot = pair.Item2;
+                combat.AddCreature(combat.CreateCreature(monster, CombatSide.Enemy, slot));
+                room = new CombatRoom(combat);
+                run.PushRoom(room);
+                JigsawCheckpoint.Capture(run, PunishedBoss());
+                JigsawNativeSession.Restore(run);
+                session = JigsawNativeSession.TryGet(run)!;
+            }
             Check(session.Map!.CurrentRoomHunted && run.CurrentRoomCount == 1 &&
                 owners.All(JigsawHuntingNative.RootIsHunted) && manager.RunLobby != null && network.IsConnected,
                 "Both true peer roles own one accepted punished Hive Boss combat root.");
             foreach (var owner in owners) { owner.Creature.SetMaxHpInternal(2000); owner.Creature.SetCurrentHpInternal(2000); }
-            monster.SetUpForCombat();
-            monster.RollMove(combat.PlayerCreatures);
+            if (!nativeTurn)
+            {
+                monster.SetUpForCombat();
+                monster.RollMove(combat.PlayerCreatures);
+            }
             Check(monster.NextMove.Id == "CURSE_OF_KNOWLEDGE_MOVE", "The untouched Knowledge state machine starts at Curse.");
             ui = await KnowledgeUi.Open(run, room, combat, monster);
             string beforeUnchanged = UnchangedState(run, owners, monster, combat);
@@ -262,7 +343,7 @@ internal static class JigsawKnowledgeMultiOwnerTests
             };
             choiceSync.PlayerChoiceReceived += observeChoice;
             observedMonster = monster; moveCalls = 0;
-            moveObservation = new Harmony("AllMatters.Tests.KnowledgeMultiOwnerMove");
+            moveObservation ??= new Harmony("AllMatters.Tests.KnowledgeMultiOwnerMove");
             moveObservation.Patch(AccessTools.Method(typeof(MonsterModel), nameof(MonsterModel.PerformMove)),
                 prefix: new HarmonyMethod(typeof(JigsawKnowledgeMultiOwnerTests), nameof(ObserveMove)));
 #if STS2_PUBLIC
@@ -273,12 +354,22 @@ internal static class JigsawKnowledgeMultiOwnerTests
 #endif
             Signal("ready");
             await Until(() => Both("ready"), "both mounted combat hosts");
-            Task performing = monster.PerformMove();
+            Task performing;
+            if (nativeTurn)
+            {
+                performing = nextTurn.Task;
+                var localOwner = owners[(int)network.NetId - 1];
+                manager.ActionQueueSynchronizer.RequestEnqueue(new EndPlayerTurnAction(localOwner, localOwner.PlayerCombatState!.TurnNumber));
+            }
+            else performing = monster.PerformMove();
             await Until(() => ui.Screen != null || performing.IsCompleted, "local first curse screen");
             if (performing.IsFaulted) await performing;
             ui.AssertPending(performing, owners[(int)network.NetId - 1]);
             Signal("screen");
             await Until(() => Both("screen"), "both native choice screens");
+            if (nativeTurn)
+                Check(readyCount == 1 && readyRound == 1 && combat.CurrentSide == CombatSide.Enemy && moveCalls == 1,
+                    "The original enemy turn entered one PerformMove and has not returned while either owner is choosing.");
             if (IsHost)
             {
                 await ui.ClickChoice<KnowledgeCalamityChoice>();
@@ -291,6 +382,9 @@ internal static class JigsawKnowledgeMultiOwnerTests
                 await Until(() => Signaled("2", "pending"), "remote pending check");
                 Check(!performing.IsCompleted && owners[1].Creature.GetPowerAmount<MindRotPower>() == 0,
                     "The host still awaits the unchosen remote owner.");
+                if (nativeTurn)
+                    Check(readyCount == 1 && combat.CurrentSide == CombatSide.Enemy && moveCalls == 1,
+                        "The coordinator remains in its first enemy action after host Calamity while the child is pending.");
                 Signal("release-child");
             }
             else
@@ -309,7 +403,8 @@ internal static class JigsawKnowledgeMultiOwnerTests
             }
             await Until(() => performing.IsCompleted, "both native choices complete");
             await performing;
-            Check(moveCalls == 1, "This isolated harness invoked the original monster action exactly once on this peer.");
+            Check(moveCalls == 1, nativeTurn ? "The native coordinator invoked the original monster action exactly once on this peer." :
+                "This isolated harness invoked the original monster action exactly once on this peer.");
             await Until(() => owners[0].Creature.GetPowerAmount<CalamityPower>() == 1 &&
                 owners[1].Creature.GetPowerAmount<MindRotPower>() == 1, "both owner powers converge");
             Check(owners[0].Creature.GetPowerAmount<MindRotPower>() == 0 &&
@@ -325,12 +420,24 @@ internal static class JigsawKnowledgeMultiOwnerTests
                 received.Count(entry => entry.Power is CalamityPower && ReferenceEquals(entry.Actor, owners[0].Creature)) == 1 &&
                 received.Count(entry => entry.Power is MindRotPower && ReferenceEquals(entry.Actor, owners[1].Creature)) == 1,
                 "Both native OnChosen effects produce exactly one correctly owned history entry.");
-            Check(UnchangedState(run, owners, monster, combat) == beforeUnchanged &&
-                ui.Offered.All(card => card.Pile == null && owners.All(owner => !owner.Deck.Cards.Contains(card))),
-                "Both owner decks and ordered five piles retain exact cards; run/owner/monster RNG, vitals, other powers and current move remain unchanged.");
+            if (!nativeTurn)
+                Check(UnchangedState(run, owners, monster, combat) == beforeUnchanged,
+                    "Both owner decks and ordered five piles retain exact cards; run/owner/monster RNG, vitals, other powers and current move remain unchanged.");
+            Check(ui.Offered.All(card => card.Pile == null && owners.All(owner => !owner.Deck.Cards.Contains(card))),
+                "Choice display instances never enter either owner's deck or combat piles.");
             Check(ui.CombatFocused, "After selection this peer's native focus returns to combat.");
-            monster.RollMove(combat.PlayerCreatures);
+            if (nativeTurn)
+            {
+                await Until(() => readyRound == 2 && combat.CurrentSide == CombatSide.Player &&
+                    PileType.Hand.GetPile(owners[0]).Cards.Count == 5 &&
+                    PileType.Hand.GetPile(owners[1]).Cards.Count == 4, "next native player turn");
+                await Frames(3);
+                Check(readyCount == 2 && combat.RoundNumber == 2 && moveCalls == 1,
+                    "The coordinator returns exactly once after both owners; no manual move or roll advances it.");
+            }
+            else monster.RollMove(combat.PlayerCreatures);
             Check(monster.NextMove.Id == "SLAP_MOVE" && ui.SelectionCalls == 1 && moveCalls == 1,
+                nativeTurn ? "The original coordinator reaches Slap after both choices and one enemy turn." :
                 "One direct original action completes both choices; one manual RollMove reaches native Slap on each peer.");
             var executor = manager.ActionExecutor;
             Console.WriteLine($"KNOWLEDGE_MULTI_EXECUTOR role={Role} paused={executor.IsPaused} running={executor.IsRunning}");
@@ -363,6 +470,17 @@ internal static class JigsawKnowledgeMultiOwnerTests
         }
         finally
         {
+            if (nativeHost)
+            {
+                Cleanup(() => CombatManager.Instance.TurnStarted -= Ready);
+                Cleanup(() => hostPatches.Patch(AccessTools.PropertyGetter(typeof(CombatManager), nameof(CombatManager.IsInProgress)),
+                    prefix: new HarmonyMethod(typeof(HeadlessCombatInProgress), "Prefix")));
+                Cleanup(() => hostPatches.Patch(AccessTools.PropertyGetter(typeof(CombatManager), nameof(CombatManager.IsEnding)),
+                    prefix: new HarmonyMethod(typeof(HeadlessCombatNotEnding), "Prefix")));
+                JigsawNativeSaveHost.Save = previousSave;
+
+            }
+            if (nativeTurn) Cleanup(() => actionCache.SetValue(null, previousActionCache));
             if (moveObservation != null) Cleanup(() => moveObservation.UnpatchAll(moveObservation.Id));
             observedMonster = null; moveCalls = 0;
             if (choiceSync != null && observeChoice != null) Cleanup(() => choiceSync.PlayerChoiceReceived -= observeChoice);
@@ -377,6 +495,7 @@ internal static class JigsawKnowledgeMultiOwnerTests
                 try { await child.Finish(Path.Combine(evidence!, "2.log"), Path.Combine(evidence!, "2.err")); }
                 catch (Exception error) { errors.Add(error); }
             }
+            openingAtlases?.Dispose();
             LocalContext.NetId = previousNetId;
             network = null; childProcess = null; evidence = null;
             if (errors.Count != 0) throw new AggregateException("Knowledge multi-owner cleanup failed.", errors);
