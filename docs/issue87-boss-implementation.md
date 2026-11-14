@@ -76,3 +76,13 @@
 新战斗再次原生两复生，新clock仅1且额外抽牌实际接受，随后真实最终Kill→原CheckWinCondition、BurningBlood回血及胜利保存。第二新大厅无敌人/无startup或opening增加，原最终Glory空奖励completed且内容一致，不造非空奖励；profile深克隆及原引用/全内容恢复。独立Standards无硬问题（BeforeBoss准备重复为非阻塞维护建议，未扩大本片重构），Spec无阻塞；正常hooks退出0且提交patch与已审暂存完全一致。
 
 实施树`.local/executor-testsubject-fresh/first-{beta,public}-host.log`双版各1 PASS；集成树`.local/integration-slices/testsubject-fresh-integrated-{beta,public}-host.log`双版各1 PASS，Build/Host/Engine/Metadata均0；首轮默认导出匹配资源，集成资源未变复用。单owner同进程两新大厅，不代签原九回合人数矩阵以外的新覆盖、真实多端/设备或整票；暂停的暖Phrog原组间歇故障未被重跑或签修。空槽拉取#82真实MiniatureTent剩余操作及Shovel原生附加项验证。
+
+## Aeonglass 个人计数正式图标与中英悬浮说明（2026-11-14）
+
+8401f1a经b5088fd合入，五文件422+/2-。真实产品red为图标12但正式hover仍每6次仅Wither，safe同版本同文；未改Amount6、原生出牌/五状态命令或布局。新JigsawHuntingAeonglassHoverTips仅精确mutable/visible/hunted Glory Aeonglass的原PowerModel.HoverTips首项替换说明，保留额外原Wither预览，eng/zhs本地化提供12规则、当前剩余及五状态牌名。
+
+新增单人eng、四combat角色九手牌溢出zhs两例，真实原生NPower/texture/label和13次出牌，12/11/1/reset12与1280/1680宽度下held/rehover实际文字、完整可见几何、纯观察前后玩家/五堆/怪物/RNG不变。四模型仅本地Target图标可见；非本地出牌不减本地图标。public接受精确NPower根或该实例直接Icon.Pass子节点真实鼠标路由。卡池寿命涵盖房间及延迟清理，语言finally恢复。
+
+实施最终严格归档在aeonglass-ui-20261114/.local/tests/archives/aeonglass-ui-languages-final-20261114-180304321-ea4c3572673d4fd6895341cd5299a1ca，双版各2 PASS，Build/Host/Engine/Metadata全0。编译Title误用、public路由过窄、延迟回池等准备失败保留，不冒称产品red；Spec新增简中P2已用原四角色例双版闭环。独立双轴0剩余，正常hooks成功，已审patch与提交逐字节一致，.import未暂存保留。集成专项进行中。原Boss偶现故障、完整原场景焦点/布局、真实远端/实体设备与整票未签。
+
+集成b5088fd双版各2严格通过，Build/Host/Engine/Metadata全0；原始日志及summary位于.local/tests/archives/aeonglass-ui-integrated-20261114-181023625-989c9ed033204a339c3a4b8645b49c77。集成运行重新导出含新中英键的PCK，不复用旧文案包。

@@ -62,7 +62,7 @@ H来源为追猎原型原13组；这里只列正式集成及剩余责任，原�
 |H4 无厌/知识恶魔→V10|#85三轮单owner选择/效果/展示不入堆、Tender真实屏和Knowledge fresh|双owner首轮已集成（真实ENet/输入/效果归属/屏释放）；自然coordinator调度、死亡/缺席/断线/其他轮多人、正式端与剩余输入|
 |H5 第三幕/实验体→V10|#86Mecha/SoulNexus/Flail原生动作；#87TestSubject复生完成后计时/3、6、9/Skittish10/Suck3/MultiClaw/fresh|原调度及适用多人/布局/真实端；public/beta动作差异保留，不能改一版对齐另一版|
 |H6 女王→V10|真实死亡一次重燃、六意图/TorchHead50HP/10伤/Minion、出生不攻/次轮攻击/存活+2、fresh/布局|真实端/其他适用意图和设备；来源阻止死亡不得触发，已死火炬不复补|
-|H7 沙漏→V10|初值/触发/reset12、每owner、五状态与溢出/Wither升级、完整fresh|#87原NPower图标/真实hover/个人计数UI在制；适用多人/正式端，模型Amount6不等于个人显示12|
+|H7 沙漏→V10|初值/触发/reset12、每owner、五状态与溢出/Wither升级、完整fresh|#87原NPower图标/真实hover/个人计数UI双版eng/zhs各2已集成；适用多人/正式端，模型Amount6不等于个人显示12|
 |H8 HP固定值Fatal→V10|各票原生人数缩放/固定Artifact/Minion来源与真实History、自然死亡已逐片验证|逐敌适用组合及真实Ending归属；不把1–4角色扩写成四真实端|
 |H9 商店→V07|#82服务拒绝/Used保留/ENet滞后；批次3库存人工认可|#88正式双端/分版重访归属；库存既有证据不重复标未验|
 |H10 休息→V08|#82Heal加成/附奖/禁项无历史/遗物禁项、双run投票后自然离开|真实双UI/设备及适用分版归属；public本端Exit不等于全员完成|
