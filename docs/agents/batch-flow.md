@@ -98,7 +98,7 @@
 
 每次执行先确认命令实际语义：`Test -Branch All`为beta→public、首失败终止，窄filter仍build；资源未变且已有有效PCK才用`-SkipResourceExport`，完整Check按现行导出方式。不要每派一个子片就重启成“新批次”；新批次冒烟仍按开发入口，用户指定的既有诊断续接按其范围运行。
 
-归档只对应实际启动的目标和命令。构建失败后未执行的public写“未运行”，不复制旧last.log。报告命令退出、Build/Host、通过数、Engine/Metadata和原始路径；`ReadTestLog`成功不等于所有字段为0，编译警告另记。完整原始输出留本地，只将失败签名/必要位置送回主控。
+归档字段与读取命令见[开发入口的日志节](../development.md#游戏日志与交接)；从本轮`Test.ps1`输出及`summary.json`取实际路径，不按标签拼猜目录。构建失败后未执行的public写“未运行”，不复制旧last.log；`ReadTestLog`成功不等于所有字段为0。完整原始输出留本地，只将失败签名/必要位置送回主控。
 
 失败先分类并归档，再按委托边界继续；未授权的修复交回行为owner，不能把夹具失败当产品red或放宽断言换green：
 
@@ -110,7 +110,7 @@
 
 ## 5. 用一个Markdown看板管理流动
 
-批次只维护集成树的一份看板，主控是写入者。issue tracker是需求/关闭状态权威；看板是当前本地调度入口；实现文档/日志是证据权威。看板只链接它们，不复制完整时间线，也不在各worktree维护独立进度副本。其他树的旧board副本只作历史，派发必须指向集成树原件。
+批次只维护集成树的一份看板，主控是写入者。issue tracker是需求/关闭状态权威；看板管理当前调度；逐票记录保存实施证据；verification-map维护验收覆盖与剩余责任。看板只链接它们，不复制完整时间线，也不在各worktree维护独立进度副本。其他树的旧board副本只作历史，派发必须指向集成树原件。
 
 状态为：Candidate（待准备）→Ready（可派发）→Doing（实施/诊断）→Verify（验证）→Review（审查/返修）→Integrate（待集成）→Integrated（片已合入）。Paused单独列明恢复条件；正式人工验收独立列明所属issue，自动化切片Integrated不关闭整票。Ready至少有验收、文件级brief、真实依赖、owner和最小验证计划。
 

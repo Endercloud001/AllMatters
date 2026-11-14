@@ -303,6 +303,54 @@ exit $LASTEXITCODE
     Assert ((Get-Content (Join-Path $fixture 'output.log') -Raw) -match 'Placeholder scan\s+FAIL') "The placeholder scan reports FAIL for '$marker'."
     "PASS: Check placeholder rejects '$marker' in $stubPath"
 }
+# Use the installed Husky runner and the repository task definitions; replace only the
+# task executables so filtering and failure propagation need no game dependencies.
+New-Fixture 'pre-commit-filtering'
+New-Item -ItemType Directory -Path (Join-Path $fixture '.husky/_') -Force | Out-Null
+Copy-Item -LiteralPath (Join-Path $repoDir '.husky/pre-commit') -Destination (Join-Path $fixture '.husky/pre-commit')
+Copy-Item -LiteralPath (Join-Path $repoDir '.husky/_/husky.sh') -Destination (Join-Path $fixture '.husky/_/husky.sh')
+$tasks = Get-Content (Join-Path $repoDir '.husky/task-runner.json') -Raw | ConvertFrom-Json
+foreach ($task in $tasks.tasks) {
+    $task.command = $shellExecutable
+    $task.args = @('-NoProfile', '-File', 'record-task.ps1', $task.name)
+}
+Write-FixtureFile '.husky/task-runner.json' ($tasks | ConvertTo-Json -Depth 6)
+Write-FixtureFile 'record-task.ps1' @'
+param($TaskName)
+Add-Content (Join-Path $PSScriptRoot 'calls.txt') $TaskName
+if ($TaskName -eq 'pre-commit' -and (Get-Content (Join-Path $PSScriptRoot 'failure.txt')) -eq 'format') { exit 7 }
+'@
+Push-Location $fixture
+try {
+    & git init --quiet
+    Assert ($LASTEXITCODE -eq 0) 'Hook fixture must initialize its own repository.'
+    & git config core.hooksPath .husky
+    Assert ($LASTEXITCODE -eq 0) 'Hook fixture must select its own Husky configuration.'
+    foreach ($scenario in @('empty', 'docs', 'tools', 'csharp', 'format-failure')) {
+        Write-FixtureFile 'calls.txt' ''
+        Write-FixtureFile 'failure.txt' $(if ($scenario -eq 'format-failure') { 'format' } else { '' })
+        if ($scenario -eq 'docs') { Write-FixtureFile 'README.md' 'docs'; & git add -- README.md }
+        if ($scenario -eq 'tools') { Write-FixtureFile 'tools/example.ps1' '# tools'; & git add -- tools/example.ps1 }
+        if ($scenario -eq 'csharp') {
+            Write-FixtureFile 'Example.cs' 'class Example {}'
+            & git add -- Example.cs
+        }
+        & git hook run pre-commit *> (Join-Path $fixture "$scenario.log")
+        $hookExit = $LASTEXITCODE
+        $hookCalls = @(Get-Content (Join-Path $fixture 'calls.txt') | Where-Object { $_ })
+        $expected = switch ($scenario) {
+            'csharp' { 'pre-commit,stage-formatted' }
+            'format-failure' { 'pre-commit' }
+            default { '' }
+        }
+        Assert (($hookCalls -join ',') -eq $expected) "Husky $scenario must run only matching tasks in order; see $fixture/$scenario.log"
+        Assert (($hookExit -eq 0) -eq ($scenario -ne 'format-failure')) "Husky must preserve formatter failure and skip restaging; see $fixture/$scenario.log"
+        "PASS: pre-commit $scenario"
+    }
+} finally {
+    Pop-Location
+}
+
 $requiresRoot = if ($env:ALLMATTERS_REQUIRES_ROOT) { $env:ALLMATTERS_REQUIRES_ROOT } else { Join-Path $repoDir 'tools' }
 foreach ($name in @('Test.ps1', 'Check.ps1')) {
     $ast = [Management.Automation.Language.Parser]::ParseFile((Join-Path $requiresRoot $name), [ref]$null, [ref]$null)

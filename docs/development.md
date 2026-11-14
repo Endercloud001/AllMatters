@@ -102,6 +102,8 @@ pwsh -NoProfile -File ./tools/GitRemote.ps1 -Operation fetch
 
 `Check.ps1` 的 Placeholder scan 检索 `src/**/*.cs`（排除 `src/Tests/`），命中 `Placeholder`、`In a real implementation` 或 `TODO: Implement` 即判该步失败。
 
+pre-commit 的 Husky 任务以 `filteringRule: staged` 匹配 C#；docs/tools-only 暂存跳过 formatter 和 C# 回暂存，C# 格式化失败仍阻止提交。Husky 0.9.1 从 `core.hooksPath` 读取任务配置；若该值是另一棵树的绝对目录，当前树的配置不会自动生效，按下节设置本树路径。`git hook run pre-commit` 可单独验证正常提交入口。
+
 `Check.ps1` 分步骤汇总 PASS/FAIL/SKIP，任一步失败或跳过均返回非零，详细日志在 `.local/checks/last-run.log`。空白问题不阻止其他独立检查，单目标测试失败也继续另一目标及开发包构建；新资源导出失败则明确跳过依赖它的测试和打包，避免使用旧包。脚本流程测试使用隔离临时目录和命令替身验证执行顺序、资源复用与失败传播，不启动游戏。pre-push 自动调用同一命令，将输出留在 `.local/checks/hook-console.log`，失败会警示但仍允许推送。它不是强制合并条件，也不启动正式游戏或安装产物。安装器遇到已有 hook 或 hooksPath 时保留它们并停止，避免覆盖安全措施。其他 clone 需要自行运行安装器；没有依赖的公共 CI runner 不代跑本机测试。
 
 开始新工单前先刷新目标分支并查看 `ReviewScope.ps1`，选择相对 main 的独立分支或明确已有提交的处理方式。准备 PR 时再核对同一范围；审查起点覆盖不到的额外提交由 reviewer 补审或拆分。工具只展示差异，不替代范围判断。
@@ -111,6 +113,8 @@ CLI 遇到连接问题时按 [GitHub 操作约定](agents/issue-tracker.md) 处�
 ## 并行实施与 worktree
 
 多issue拆片、WIP/角色配置、派发顺序和测试复用见[批次流程](agents/batch-flow.md)；#82–#88当前拉取入口为[唯一调度看板](issues-82-88-board.md)。先确定行为切片和所有权，再按本节创建/复用worktree，完成一片后继续拉取就绪项。
+
+创建或复用树后核对 `git config --show-origin --get core.hooksPath`。本机已启用 `extensions.worktreeConfig`；确认当前树的 `.husky/pre-commit`、`.husky/pre-push`、`.husky/_/husky.sh` 和 `task-runner.json` 完整后，在该树运行 `git config --worktree core.hooksPath .husky`，让正常提交读取自己的配置。旧绝对主仓路径仍保留在 common 配置，供缺少 hooks 的历史树继承；不把它全局改成相对路径，否则那些树会悄悄失去 hooks。其他 clone 先核实 worktree 配置扩展和既有 hooks，再配置对应入口。
 
 ### Worktree 创建前验证
 
@@ -265,7 +269,7 @@ Agent 完成适当的自动化测试和两目标构建后，向用户提供 `dis
 
 `Test.ps1` 直接把原始输出写入本轮归档目录的 `<目标>.log`，并保留 `.local/tests/<目标>-last.log` 兼容副本。目录中的 `summary.json` 统一记录实际入口命令、请求目标、严格模式、成功/失败及原因；每目标记录实际命令、版本、Build/Host/Passed、Engine/Metadata、HostStarted 和原始日志路径。缺失可执行文件、缺少复用包、编译、导出或宿主异常也归档；宿主未启动时 HostExit 为空，不能当作行为 red。归档路径无效或不可写会直接报错，无法在该位置生成证据。
 
-使用 `./tools/ReadTestLog.ps1 -Path <归档目录>/<目标>.log` 获取首个异常位置及诊断数量；已知 Mod 关联提示单独计数，其余引擎错误仍报告。`-NoExit` 供 runner 共享解析，只设置 LASTEXITCODE 并返回对象，避免解析器退出当前调用链；runner 自己保留原始失败并返回非零。摘要不替代原始日志。进一步读取具体位置使用 `ReadTextSlice.ps1 -Path <日志> -StartLine <行号> -Count 12`，长行可用 `-Pattern` 定位，不重复打印整份日志。
+从本轮 `Test.ps1` 输出或 `summary.json` 的 Source 取实际日志路径，再用 `./tools/ReadTestLog.ps1 -Path <实际路径>` 获取首个异常位置及诊断数量；已知 Mod 关联提示单独计数，其余引擎错误仍报告。`-NoExit` 供 runner 共享解析，只设置 LASTEXITCODE 并返回对象，避免解析器退出当前调用链；runner 自己保留原始失败并返回非零。摘要不替代原始日志。进一步读取具体位置使用 `ReadTextSlice.ps1 -Path <日志> -StartLine <行号> -Count 12`，长行可用 `-Pattern` 定位，不重复打印整份日志。
 
 脚本读取 props 中的字面值，不展开 MSBuild 表达式；工具路径可相对仓库根目录填写，游戏程序集目录建议使用绝对路径。配置仅保存在本机忽略文件。
 
