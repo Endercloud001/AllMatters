@@ -44,3 +44,15 @@ Flight 保存/大厅切片也已实施并双版各 3 项通过（兼容过滤词
 #84–#87 完整交付后，还需 #88 的 V14/S6/H13/U8 全部证据归属、组合回归、同一最终提交的双版包及准确许可声明。本切片已提交为 `080104f29997eddc5df85ca7b3869cc15d560dfc`，并快进合入集成分支；上述全量检查在该切片提交前执行，提交钩子完成后代码保持相同。
 
 测试目标为 public v0.107.1 与 public-beta v0.111.0 的真实 DLL；public 宿主共用 beta PCK，不证明匹配 public 正式资源或真实游戏运行。未启动游戏/Steam、安装产物或改真实存档。保留用户已确认的 #93/#94 人工结果，实体设备及剩余分版实机责任在最终交付中逐项列明。
+
+## U3 正式长译文按钮与引擎输入（2026-11-15）
+
+本节双版归档目标为public0.107.1/beta0.113.0；后续用户升级beta目标至0.113.1，旧结果不重标版本。
+
+335653f经fcc8831合入，仅两测试文件119+，生产未改。新case通过独立临时eo Translation消费JigsawScreen正式三个中文key，先核Translate值再创建/Refresh实际按钮；1280×720核manual/automatic的WordSmart及help的Off实际字体/rect/字形envelope和四种内容style边距，不把focus叠加框当内容margin。真实viewport motion/press/release分别核automatic callback恰1、manual领域投票、Help Reading/真实遮罩；finally仅移除自建翻译并恢复locale/viewport/原资源。
+
+最小focus边距误算、首次本地依赖与public DLL-only配置缺匹配PCK均属准备失败，原归档保留；公版仅本地配置对齐现有public107-content后补跑。headless dummy.GetImage曾产生EngineError，即使Host0也未签strict；最终headless分支明确不调用GetImage并记录无可读截图，几何/文本/真实输入G不代像素截图或设备验收。
+
+实施树translated-buttons-20261115/.local/tests/archives/translated-presentation-final-20261115-063547005-a1da9f335ff34a1293d4217d474e2c33/public-beta.log及translated-presentation-public-final-20261115-063649658-61bdd6f4790c45e5a95057f0a84596d1/public.log分别各20 strict通过，Build/Host/Engine/Metadata0，不把前者All的public准备失败写成功。两独立轴0发现，正常hooks，提交与已审内容一致。
+
+集成fcc8831双版Presentation各20 strict通过，原日志/summary在.local/tests/archives/translated-buttons-integrated-20261115-064134237-e9f7444ae49d4235ac332ac7de4acf38。该片只补720p替代长译文按钮路径；三比例/4K已有NavigationLayout证据，不再新增重复矩阵，完整U3/U5与#88仍按各自实际端/设备范围签收。

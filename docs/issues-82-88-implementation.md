@@ -1,6 +1,6 @@
 # #82–#88 实施索引
 
-目标：public0.107.1 / public-beta0.113.0 / RitsuLib0.6.11。集成树`hunting-20261112`、分支`integration/issues-82-88-20261112`，源码基点=`5d127b0`。本页只导航已集成成果和验证基点；在制源码、未提交状态、Ready顺序及下一命令统一见[唯一看板](issues-82-88-board.md)。
+目标：public0.107.1 / public-beta0.113.1 / RitsuLib0.6.11。集成树`hunting-20261112`、分支`integration/issues-82-88-20261112`，源码基点=`5d127b0`。本页只导航已集成成果和验证基点；在制源码、未提交状态、Ready顺序及下一命令统一见[唯一看板](issues-82-88-board.md)。
 
 需求以[#73](https://github.com/Endercloud001/AllMatters/issues/73)及各票明确修订为准；规格固定来源见[验证地图](issues-82-88-verification-map.md#规范与历史依据)，API/工具方法见[开发入口](development.md#api-查询)，来源与分发边界见[素材来源](issues-82-88-asset-sources.md)。覆盖矩阵集中在[验证地图](issues-82-88-verification-map.md)，不在此重复逐次执行日志。
 
@@ -16,12 +16,18 @@
 |#84 暗港|共享完整检查点`d8fb141`→`31bb112`；Gardener/Colony/Eel、Matriarch生命/睡眠随从/fresh、Waterfall复生/fresh、SoulFysh随从/fresh/布局、Seapunk14场开场/fresh/布局|[共享接缝](issue84-combat-checkpoint-seam.md)、[暗港记录](issue84-underdocks-implementation.md)；最新Waterfall`2fb2b0a`→`eb4837c`集成双版各8，四诊断0。Matriarch布局`6655b2c`→`10b05df`已集成，双版各5四诊断0|
 |#85 巢穴/知识/蟹/Holes|ActTwo规则、Hive精英与事件开场/Hive首普通fresh；Knowledge三轮单owner规则、Tender真实屏与单ownerfresh；帝皇蟹固定Artifact3与原场景保持；Holes单owner及三端战前/奖励/完成点恢复|[巢穴记录](issue85-hunting-implementation.md)；蟹最新集成双版各9，Holes完成点`1956c17`双版event各4。Knowledge首轮双owner片及`2c45c7c`→`845d00e`自然调度及`22dd5cc`→`673ce47`三轮双owner已集成；蟹`859096a`→`f2906d4`完整fresh已集成，专项双版各1四诊断0|
 |#86 荣耀普通/精英|Mecha/SoulNexus/Flail原生规则；Mystic正式模型/资源/三动作/fresh；`a050e7b`→`21a563f`12普通/3精英正式布局及输入|[荣耀记录](issue86-hunting-implementation.md)；布局集成双版各15、相关Forest/Mystic各3，四诊断0|
-|#87 荣耀Boss|Aeonglass个人12计数/五状态/Wither及fresh；TestSubject复生/计时/Skittish/Suck/MultiClaw/fresh；Queen一次重燃/TorchHead/激怒/fresh/布局|[Boss记录](issue87-boss-implementation.md)；Queen布局后集成各9、Aeonglass/TestSubject fresh各1，双版四诊断0。间歇P87故障未修，个人正式UI片`8401f1a`→`b5088fd`已集成，双版各2（eng/zhs）四诊断0|
-|#88 兼容/交付|`080104f`GoldenCompass/WingedBoots与Flight边界；控制台注册/执行；`4aae096`→`f5d8dde`64种子每日modifier字段/RNG验证|[兼容记录](issue88-compatibility-implementation.md)、[控制台](issues-82-88-console-reference.md)；最终当前源码Check/同提交包/集中人工矩阵仍待|
+|#87 荣耀Boss|Aeonglass个人12计数/五状态/Wither及fresh；TestSubject复生/计时/Skittish/Suck/MultiClaw/fresh；Queen一次重燃/TorchHead/激怒/fresh/布局|[Boss记录](issue87-boss-implementation.md)；Queen布局后集成各9、Aeonglass/TestSubject fresh各1，双版四诊断0。间歇P87故障未修，个人正式UI及`adfc29f`→`251147c`原场景、`8e57b7d`→`8d3c602`三阶段布局已集成，专项双版各2四诊断0|
+|#88 兼容/交付|`080104f`GoldenCompass/WingedBoots与Flight边界；控制台注册/执行；`4aae096`→`f5d8dde`64种子每日modifier字段/RNG验证|[兼容记录](issue88-compatibility-implementation.md)、[控制台](issues-82-88-console-reference.md)；U3长译文按钮`335653f`→`fcc8831`集成双版Presentation各20；当前候选完整Check/同提交包/集中人工矩阵收口中|
 
 ## 完整检查与已知诊断
 
-最近已执行的双版全量基点是**历史提交`df6a1f9`**，不是当前HEAD：public509 / beta507 PASS，Build/Host/Metadata均0，EngineErrors分别25/26，不能称零错误或为后续切片签完整Check。
+最新完整`Check.ps1 -Branch All`在`fcc8831`退出1：脚本、空白、资源与双版构建通过，但beta0.113.0在RestRelic真实子端握手失败，public0.107.1在Hive fresh的启动Task计数断言失败。控制台归档`.local/implement-resume-20261114/full-check-20261115-fcc8831.log`；原测试档分别为`.local/tests/archives/run-20261115-064511158-8eb09c30e9534b08afe81e89da4a0d35/`及`run-20261115-070007780-632c2093b76848b593dfcef61dbee504/`。构建成功不能消去这两个失败，当前包尚未交付。
+
+beta握手已定位为Beggar保存测试重复调用原生非幂等的模型缓存初始化，使宿主与新子端Hash不同；`fb9e6bc`→`030eb34`删除重复Init并保留保存恢复原断言，新增已初始化Hash不变检查。新目标beta0.113.1先取得真实断言red，修复后双版库存各1、真实RestRelic各2 strict通过；证据位于实施树`model-cache-fixture-20261115/.local/tests/archives/cache-fixture-{red,green,rest-regression}-*`。独立双轴无发现，正常hooks，提交补丁与已审补丁一致。Hive失败尚在独立诊断，不能据此宣布全量已修。
+
+2026-11-15用户确认beta更新为0.113.1（d09d48e5），public仍为0.107.1；独立完整运行时快照与RitsuLib0.6.11实际加载冒烟已通过。本文及逐票记录此前的beta0.113.0证据保留历史版本归属，不代签0.113.1完整检查。
+
+较早双版全量基点为**历史提交`df6a1f9`**：public509 / beta507 PASS，Build/Host/Metadata均0，EngineErrors分别25/26，不能称零错误或为后续切片签完整Check。
 
 - 原始日志在兼容树`.local/host-20261113/{public,beta}-full-df6a1f9-host.log`。诊断分类在**主仓**`.local/main-control-20261113-resume/{public,beta}-df6a1f9-diagnostics.md`。
 - public含18条坏档/名单保护负例＋1worker注入，其余视觉缺类1、managed action pop2、退出资源3；beta含19条保护负例＋1worker注入＋1原生CursedTome多人场外致死保护，其余视觉缺类1、treasure空Tween NRE1、退出资源3。CursedTome保护恢复1HP，不是实际击杀成功。

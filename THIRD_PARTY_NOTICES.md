@@ -60,7 +60,7 @@ AllMatters is distributed under GNU GPL version 3 (see LICENSE). Copyright 2026 
 
 ## RitsuLib
 
-RitsuLib 0.6.11, by OLC: [BAKAOLC/STS2-RitsuLib](https://github.com/BAKAOLC/STS2-RitsuLib), MIT licensed. Current development uses its complete variant-pack for public 0.107.1 and public-beta 0.113.0; earlier preview builds used 0.6.7. It is a separately installed runtime dependency; AllMatters does not redistribute its assemblies in this package. Preserve RitsuLib's own license and complete variant-pack layout when installing or redistributing it.
+RitsuLib 0.6.11, by OLC: [BAKAOLC/STS2-RitsuLib](https://github.com/BAKAOLC/STS2-RitsuLib), MIT licensed. Current development targets public 0.107.1 and public-beta 0.113.1 using the complete variant-pack's compat/0.107.1 and compat/0.113.0 branches respectively; earlier preview builds used 0.6.7. It is a separately installed runtime dependency; AllMatters does not redistribute its assemblies in this package. Preserve RitsuLib's own license and complete variant-pack layout when installing or redistributing it.
 
 ## Colosseum
 

@@ -1,8 +1,8 @@
 # #82–#88 当前调度看板
 
-更新：2026-11-15。唯一维护者：集成主控；集成树`AllMatters/.claude/worktrees/hunting-20261112`，分支`integration/issues-82-88-20261112`，源码基点=`5d127b0`。目标为public0.107.1 / beta0.113.0 / RitsuLib0.6.11。源码切片集成不代表整票关闭；本板不推断GitHub实时状态。
+更新：2026-11-15。唯一维护者：集成主控；集成树`AllMatters/.claude/worktrees/hunting-20261112`，分支`integration/issues-82-88-20261112`，源码基点=`5d127b0`。目标为public0.107.1 / beta0.113.1 / RitsuLib0.6.11。源码切片集成不代表整票关闭；本板不推断GitHub实时状态。
 
-**玩法在制0/2（已恢复）、Ready0、技术诊断暂停1。** 2026-11-14 用户通过 implement 明确恢复交接玩法片；恢复时核实集成 HEAD=`c0e62aa`，当前源码=`a4bb2b9`，Knowledge/Matriarch 起点仍为`f1eb1dd`/`eb4837c`。Knowledge 已集成并通过双版专项；Matriarch 已集成并通过双版布局；Aeonglass 已集成双版UI通过；Knowledge自然首轮与帝皇蟹fresh均已集成；三轮贯穿已集成双版绿，入口前dead/absent资格已集成双版各9；主控持工具链，#87正式原场景片只读准备。原暂存与 `.import` 改动保留，未跟踪交接文档不纳入本片提交。
+**在制1/2、Ready0、技术诊断暂停1。** 当前源码=`030eb34`；`fcc8831`完整Check退出1，beta旧目标RestRelic握手及public Hive启动计数失败。模型缓存夹具修复已集成；Hive由`hive_startup_owner`在独立树诊断，暂持唯一native/API/build/hooks执行权，主控只维护集成文档。用户已确认beta升级0.113.1；旧0.113.0专项不代签新版本。原暂存与`.import`改动保留，未跟踪交接文档不纳入提交。
 
 ## 复盘改进实施（2026-11-14）
 
@@ -25,6 +25,8 @@
 
 |卡片/issue|行为|状态|owner / worktree|依赖与热点|下一动作/证据|开始时间|
 |---|---|---|---|---|---|---|
+|T-cache-fixture / 批次宿主|库存保存恢复不重新初始化已供新端握手使用的原生模型缓存|Integrated|root / model-cache-fixture-20261115|仅BeggarFountainTests.cs 3+/4−|fb9e6bc→030eb34；1131真实red，双版库存各1/RestRelic各2 strict绿，独立双轴0发现、正常hooks、已审补丁一致；不代签Hive或全量|2026-11-15|
+|T-hive-startup / #85|原顺序暖调用后，区分真实重复启动与Task漏观测并修复适用夹具|Doing|hive_startup_owner / hive-startup-diagnosis-20261115|030eb34；HiveRecoveryTests独占，临时runner须归档撤回|先实际计数/Task诊断，public前置真实入房+Hive两例预算；无信息增益暂停，不盲重跑或放宽断言|2026-11-15|
 |C85-knowledge-owner / #85|首轮双owner错峰选择与屏释放|Integrated|knowledge / knowledge-owner-20261114|tests-only两文件|1d22277→e93d304；集成双版各1 PASS四诊断0，严格归档knowledge-owner-integrated-20261114-173527158-d598714f64cd459da98a9b97dfc305cc；自然调度/等待断线仍未签|2026-11-14 拉取|
 |C84-matriarch-layout / #84|追加睡眠Lagavulin睡/醒完整显示与原生输入|Integrated|matriarch / matriarch-layout-20261114|三文件1040+|6655b2c→10b05df；实施双版layout5/Underdocks7/fresh1；集成双版layout5四诊断0，严格归档matriarch-layout-integrated-20261114-174346277-6e3f7a6e00a644fbab0f1c96d9379034|2026-11-14 拉取|
 |C87-aeonglass-ui / #87|正式本地个人counter图标/数字/真实hover随12次出牌与五状态溢出更新重置12|Integrated|aeonglass_ui / aeonglass-ui-20261114|五文件422+/2-，精确hunted展示修复|8401f1a→b5088fd；单人eng/四角色zhs，集成双版各2四诊断0；详见#87记录；原Boss偶现/完整布局仍未签|2026-11-14 拉取|
@@ -32,6 +34,9 @@
 |C85-crab-fresh / #85|蟹完整战前/两臂能力状态与非空胜利奖励新大厅恢复|Integrated|crab_fresh / crab-fresh-20261114|两文件685+，生产场景未改|859096a→f2906d4；实施fresh1/开场5/布局4双版，集成fresh各1四诊断0；仅same-process单owner|2026-11-14 拉取|
 |C85-knowledge-three-rounds / #85|双owner自然三轮错峰/归属/仅续一次且无第四屏|Integrated|knowledge_three_rounds / knowledge-three-rounds-20261114|两文件143+/10-，仅新例180s预算|22dd5cc→673ce47；新1+旧2双版strict绿，集成新双版各1四诊断0；死亡缺席断线仍未签|2026-11-14 拉取|
 |C85-knowledge-targets / #85|选择开始前已死/不在combat集合者无请求/效果，活者一次|Integrated|knowledge_targets / knowledge-targets-20261115|仅ActTwoTests80+|5d33563→a4bb2b9；实施/集成双版ActTwo各9 strict绿，等待中死亡/网络断线仍未签|2026-11-15 拉取|
+|C87-aeonglass-layout / #87|原场景完整HP/意图/原中心目标/全玩家左右焦点环|Integrated|aeonglass_layout / aeonglass-layout-20261115|两测试文件589+，生产资源未改|adfc29f→251147c；双版各2及集成各2 strict四诊断0；仅初始Ebb，不签全后续意图|2026-11-15 拉取|
+|C87-testsubject-layout / #87|两次原生复生三阶段正式HP/意图/目标/全焦点环|Integrated|testsubject_layout / testsubject-layout-20261115|三测试文件732+；生产未改|8e57b7d→8d3c602，实施适用双版各2、集成双版各2 strict绿；public真实选卡/取消后导航，不签自动焦点恢复|2026-11-15 拉取|
+|C88-translated-buttons / #88|正式Translation长译文结束/帮助按钮字形与真实点击|Integrated|translated_buttons / translated-buttons-20261115|两测试文件119+；生产未改|335653f→fcc8831；实施适用双版Presentation各20，集成各20 strict四诊断0；headless像素QA未验|2026-11-15 拉取|
 
 ### 2026-11-14 15:49 历史停止交接（已由上方当前卡片覆盖）
 

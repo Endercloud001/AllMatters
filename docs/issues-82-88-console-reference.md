@@ -1,6 +1,6 @@
 # #82–#88 集中验收控制台参考
 
-日期：2026-11-12。命令已随对应实现接入；本文件整理统一验收入口，不表示 #84–#88 已交付。两版分别安装主控最终统一包，使用测试跑局，记录游戏、Mod、RitsuLib 版本和 Host/Client 身份。
+日期：2026-11-15。当前目标public0.107.1/beta0.113.1；命令已随对应实现接入，本文件整理统一验收入口，不表示 #84–#88 已交付。两版分别安装主控最终统一包，使用测试跑局，记录游戏、Mod、RitsuLib 版本和 Host/Client 身份。
 
 ## 打开与权限
 
@@ -37,6 +37,6 @@
 - #74/#80 的既有 `Jigsaw native console discovery and editable phase reset` 用例通过原生控制台发现重置命令，执行真实原生顺序动作，检查部分布局/持有/连线、重复执行及授权后拒绝；真实 ENet 用例覆盖 Host 重置与 Client 拒绝。对应批次来源见实施索引。
 - #82 已验证 `am_steps` 的实际顺序动作、0/1/40/intMax、非法参数原子拒绝，双版 ENet 覆盖 Host 40/1/0/99 同步与 Client 拒绝；精确日志及用户确认边界见 [#82 实施记录](issue82-hunting-implementation.md)。
 - #88 在现有真实控制台发现/重置用例新增 `am_steps` 完成候选断言；`Test.ps1 -Branch All -Filter 'Jigsaw native console discovery' -SkipResourceExport` 双版各 1 项通过，Build/Host 0、EngineErrors/ModMetadataErrors 0。日志在 `.local/issue88/console-discovery-green-{public-beta,public}.log`，同时保留真实顺序重置及非法阶段断言。
-- public v0.107.1 与 public-beta v0.111.0 必须分别留真实游戏注册/执行记录；共享 beta PCK 的宿主结果不能代签 public 正式资源。用户集中安装启动，Agent 不启动游戏或 Steam、不改真实存档。
+- public v0.107.1 与 public-beta v0.113.1 必须分别留真实游戏注册/执行记录；上列较早beta0.111.0、共享beta PCK的宿主结果保留历史归属，不能代签当前目标。用户集中安装启动，Agent 不启动游戏或 Steam、不改真实存档。
 
 集中复测时依次覆盖 0、1、N、重复执行、非法参数、后续扣步、完成根待投票设 0、多人同步及非法阶段状态不变；无需重新否定已确认的 #93/#94 结果。

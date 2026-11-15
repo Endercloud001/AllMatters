@@ -86,3 +86,23 @@
 实施最终严格归档在aeonglass-ui-20261114/.local/tests/archives/aeonglass-ui-languages-final-20261114-180304321-ea4c3572673d4fd6895341cd5299a1ca，双版各2 PASS，Build/Host/Engine/Metadata全0。编译Title误用、public路由过窄、延迟回池等准备失败保留，不冒称产品red；Spec新增简中P2已用原四角色例双版闭环。独立双轴0剩余，正常hooks成功，已审patch与提交逐字节一致，.import未暂存保留。集成专项进行中。原Boss偶现故障、完整原场景焦点/布局、真实远端/实体设备与整票未签。
 
 集成b5088fd双版各2严格通过，Build/Host/Engine/Metadata全0；原始日志及summary位于.local/tests/archives/aeonglass-ui-integrated-20261114-181023625-989c9ed033204a339c3a4b8645b49c77。集成运行重新导出含新中英键的PCK，不复用旧文案包。
+
+## Aeonglass 原场景完整战场与输入（2026-11-15）
+
+本节及后续TestSubject布局归档的beta目标为升级前0.113.0；public为0.107.1，不代签新目标0.113.1。
+
+adfc29f经251147c合入，两测试文件589+，生产/资源/旧测试未改。roles1/4两例每例1280×720→1680×720，safe/hunted初始Ebb同相位配对：真实身体、完整HP文本/envelope与当前可见HP集合、意图模型归属和数字可读性、原position/scale/visual/hitbox均核；原safe中心真实viewport鼠标hover/点击返回同Boss，实际左右action遍历含全部players整环。远端聚焦按原生可见性处理，不要求四条HP永亮；纯resize/input前后完整状态/五堆/RNG不变。仅既有原生重叠按同相位矩形对照，不给hunted新增遮挡豁免。
+
+首次最小失败是测试带入Crab专属EncounterSlots非空假设，Aeonglass无该slots scene；移除不适用marker测量后保留真实scene/节点几何，属于oracle准备失败而非产品布局red。最终实施树aeonglass-layout-20261115/.local/tests/archives/aeonglass-layout-20261115-005556270-3f8f7e3d50d24ff3b54d1fe6bdc854f3双版各2 strict通过，Build/Host/Engine/Metadata全0。独立Standards/Spec各0，正常hooks，已审/提交patch逐字节一致，.import保留未暂存。
+
+集成251147c双版各2 strict通过，原日志/summary在.local/tests/archives/aeonglass-layout-integrated-20261115-055225668-8989d22a74234cfb87d92964224cd3be。只签初始Ebb正式布局/模拟输入，不签所有后续意图、真实设备/远端或完整#87；P87间歇诊断未重跑未签修。
+
+## TestSubject 三阶段正式几何与输入（2026-11-15）
+
+8e57b7d经8d3c602合入，三测试文件732+，生产未改。roles1/4每例safe/hunted两房各原生命令Kill→RESPAWN_MOVE→PerformMove/RollMove两次复生，不写私有phase/respawns、不手动UpdateBounds；每阶段1280×720/1680×720核实际RespawnBounds1/2的%Bounds/IntentPos、同Creature/NCreature/Visuals/身体身份、Visuals.DefaultScale1/1.1/1.2及对应阶段的原safe中心/变换/完整HP意图。原Animator回调全留日志，仅连续同容器折叠后核Bounds1→Bounds2，不接受缺失或倒退。各阶段真实鼠标目标和含所有players左右全环，纯输入/resize前后完整状态/五堆/RNG不变。
+
+public原StartDeathAnim清FocusMode而普通turn不恢复；正常选卡目标/取消链会恢复导航。因此本片仅public分支准备零费Anger于baseline前，经真实holder select→原ControllerCardPlay目标模式→真实cancel再全环，未调用fixture EnableControllerNavigation/写FocusMode，未加生产补丁，不签复生动画自动恢复或新自然coordinator证据。原Recovery两死调度既有证据继续适用。
+
+首轮音频前提、观察器Mount前安装与原60秒整例watchdog失败留档，不称几何red；仅两个明确新例180秒，逐focus等待和原生时间比例未改。实施beta适用target在testsubject-layout-20261115/.local/tests/archives/testsubject-layout-budget-final-20261115-060415853-ca6b99fb0a4e4effb73b8d92aa75336f/public-beta.log，public最终在testsubject-layout-controller-public-final-20261115-062105172-69143aea718c4858b107d4c2308db9a2/public.log，分别各2 strict通过、四诊断0，不把前一All中public失败写成整轮成功。独立两轴及public-only输入增量均0阻塞，正常hooks，已审/提交patch逐字节一致，.import保留。
+
+集成8d3c602双版各2 strict通过，原日志/summary在.local/tests/archives/testsubject-layout-integrated-20261115-062811437-2f2126fa8172424a8d51e16f5f32f3c5。没有CanvasItem RID/ObjectDB警告；60秒失败的退出警告仍保留。不签真实端/实体设备、完整#87或暂停P87已修复。

@@ -1,12 +1,12 @@
 # 开发环境
 
-## 当前开发目标（2026-11-13）
+## 当前开发目标（2026-11-15）
 
-用户确认后，#82–#88 的接续开发目标调整为 **public v0.107.1 / public-beta v0.113.0**。本机 beta `release_info.json` 为 v0.113.0、commit `16ac0fe3`；旧 v0.111.0 的测试记录仅为历史证据。兼容迁移与当前结果见 [实施索引](issues-82-88-implementation.md)，尚不能把旧版通过数视作新目标已通过。
+用户于2026-11-15确认 beta 更新为 **public-beta v0.113.1**，public 继续 **v0.107.1**。本机新 beta 为 commit `d09d48e5`；独立开发副本在主仓 `.local/beta-resource-recovery-20261115/beta1131-content/`，包含匹配 DLL/PCK/Spine，活动树本机配置指向该副本，不随 Steam 再次更新漂移。旧 v0.113.0 (`16ac0fe3`) 与 v0.111.0 日志保留原版本边界，不代签新目标。
 
-此次开发依赖使用完整 RitsuLib **0.6.11 variant-pack**，独立保存在 `.local/dependencies/RitsuLib-0.6.11/`，保留旧包。`RitsuLibDir` 可在本机 `Paths.local.props` 指定；public 编译引用 `compat/0.107.1`，beta 引用 `compat/0.113.0`，均须来自同一完整包。官方包包含两个目标不等于 AllMatters 行为已验证；新目标仍需实际宿主、保存恢复及受影响流程的验证。不向游戏安装目录复制产物或依赖。
+此次开发依赖使用完整 RitsuLib **0.6.11 variant-pack**，独立保存在 `.local/dependencies/RitsuLib-0.6.11/`，保留旧包。`RitsuLibDir` 可在本机 `Paths.local.props` 指定；public 编译引用 `compat/0.107.1`，beta 引用 `compat/0.113.0`，均须来自同一完整包。0.113.1 实际启动选择该包的 `0.113.0` 兼容分支并已通过严格冒烟；这不等于新版完整玩法已验证。官方包包含两个目标不等于 AllMatters 行为已验证；新目标仍需实际宿主、保存恢复及受影响流程的验证。不向游戏安装目录复制产物或依赖。
 
-API 反编译按实际版本分目录：`.local/api/queries/public-v0.107.1/`、`.local/api/queries/public-beta-v0.113.0/`；保留旧 `.local/api/queries/public-beta-v0.111.0/` 用于比较，不覆盖或混写新旧证据。匹配 public 资源及所需辅助依赖已准备到主仓 `.local/public-resource-recovery-20261113/public107-content/`；`8a69527` 起宿主按实际目标加载 DLL / PCK / Spine，日志输出目标目录、资源路径和实际程序集版本。匹配资源的专项通过与完整回归分别留证，当前结论见[实施索引](issues-82-88-implementation.md)。
+API 反编译按实际版本分目录：`.local/api/queries/public-v0.107.1/`、`.local/api/queries/public-beta-v0.113.1/`；保留旧 `.local/api/queries/public-beta-v0.113.0/` 和 `.local/api/queries/public-beta-v0.111.0/` 用于比较，不覆盖或混写新旧证据。匹配 public 资源及所需辅助依赖已准备到主仓 `.local/public-resource-recovery-20261113/public107-content/`；`8a69527` 起宿主按实际目标加载 DLL / PCK / Spine，日志输出目标目录、资源路径和实际程序集版本。匹配资源的专项通过与完整回归分别留证，当前结论见[实施索引](issues-82-88-implementation.md)。
 
 ## 已发现环境（2026-10-20）
 
