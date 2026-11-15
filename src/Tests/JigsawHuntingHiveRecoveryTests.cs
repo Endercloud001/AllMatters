@@ -33,7 +33,9 @@ using MegaCrit.Sts2.Core.Saves.Test;
 using MegaCrit.Sts2.Core.Saves.Validation;
 using MegaCrit.Sts2.Core.Unlocks;
 using MegaCrit.Sts2.Core.ValueProps;
+using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
@@ -52,9 +54,104 @@ internal static class JigsawHuntingHiveRecoveryTests
         internal readonly List<Task> Offers = [];
         internal readonly List<RewardsSet> Rewards = [];
         internal int ReadyRound;
+        internal readonly List<StartupCaller> Callers = [];
+        internal StartupCaller? PendingCaller;
     }
 
-    private static void CaptureStartup(Task task) => observation?.Startups.Add(task);
+    private sealed class StartupCaller(CombatManager manager, RunState run, CombatRoom room, Task? previousTask, int captureCount)
+    {
+        internal readonly CombatManager Manager = manager;
+        internal readonly RunState Run = run;
+        internal readonly CombatRoom Room = room;
+        internal readonly CombatState Combat = room.CombatState;
+        internal readonly Task? PreviousTask = previousTask;
+        internal readonly int CaptureCount = captureCount;
+        internal Task? Task;
+        internal bool Returned;
+    }
+
+    private static void BeforeRoomLoaded(CombatManager manager, CombatRoom room)
+    {
+        var state = observation!;
+        var run = RunManager.Instance.DebugOnlyGetState()!;
+        Check(state.PendingCaller == null && ReferenceEquals(manager, CombatManager.Instance) &&
+            ReferenceEquals(run.CurrentRoom, room) && ReferenceEquals(room.CombatState.RunState, run),
+            "The original room-loaded call belongs to this exact live run, room and combat, without an overlapping old caller.");
+        Task? previousTask = null;
+#if !STS2_PUBLIC
+        previousTask = (Task?)AccessTools.Field(typeof(CombatManager), "_turnLoopTask").GetValue(manager);
+#endif
+        var caller = new StartupCaller(manager, run, room, previousTask, state.Startups.Count);
+        state.Callers.Add(caller);
+        state.PendingCaller = caller;
+    }
+    private static void AfterRoomLoaded(CombatRoom room)
+    {
+        var state = observation!;
+        var caller = state.PendingCaller ?? throw new InvalidOperationException("The original room-loaded return has no matching observed caller.");
+        Check(ReferenceEquals(caller.Manager, CombatManager.Instance) &&
+            ReferenceEquals(caller.Run, RunManager.Instance.DebugOnlyGetState()) && ReferenceEquals(caller.Run.CurrentRoom, room) &&
+            ReferenceEquals(caller.Room, room) && ReferenceEquals(caller.Combat, room.CombatState) &&
+            ReferenceEquals(caller.Combat.RunState, caller.Run),
+            "The returning original room-loaded call retains its exact run, room, combat and manager owner.");
+#if STS2_PUBLIC
+        Check(state.Startups.Count == caller.CaptureCount + 1 && caller.Task != null && ReferenceEquals(state.Startups.Last(), caller.Task),
+            "The one original public room-loaded call captures exactly the same single StartCombatInternal Task passed to RunSafely.");
+#else
+        // This is beta's sole startup observer, not a missing-capture fallback.
+        // Native AfterCombatRoomLoaded stores its original RunTurnLoopAfter Task
+        // before returning. Read that exact field at the real room caller.
+        var task = (Task?)AccessTools.Field(typeof(CombatManager), "_turnLoopTask").GetValue(caller.Manager);
+        Check(state.Startups.Count == caller.CaptureCount && task != null && !ReferenceEquals(task, caller.PreviousTask),
+            "The single original beta room-loaded call replaces its previous loop with one new native Task and has no second observation source.");
+        caller.Task = task;
+        state.Startups.Add(task!);
+        Check(ReferenceEquals(caller.Task, AccessTools.Field(typeof(CombatManager), "_turnLoopTask").GetValue(caller.Manager)),
+            "The retained beta startup is the actual native field Task of this caller, not a task wrapper or a restarted coordinator.");
+#endif
+        caller.Returned = true;
+        state.PendingCaller = null;
+    }
+    private static IEnumerable<CodeInstruction> ObserveRoomLoadedCaller(IEnumerable<CodeInstruction> instructions)
+    {
+        var start = AccessTools.Method(typeof(CombatRoom), "StartCombat");
+        var machine = start.GetCustomAttribute<AsyncStateMachineAttribute>()!.StateMachineType;
+        var owner = machine.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            .Single(field => field.FieldType == typeof(CombatRoom));
+        var loaded = AccessTools.Method(typeof(CombatManager), nameof(CombatManager.AfterCombatRoomLoaded));
+        int matches = 0;
+        foreach (var instruction in instructions)
+        {
+            if (!instruction.Calls(loaded)) { yield return instruction; continue; }
+            matches++;
+            // Duplicate only the existing receiver, then observe its actual
+            // enclosing room. The original call executes once, unchanged.
+            var duplicate = new CodeInstruction(OpCodes.Dup);
+            duplicate.labels.AddRange(instruction.labels);
+            instruction.labels.Clear();
+            yield return duplicate;
+            yield return new CodeInstruction(OpCodes.Ldarg_0);
+            yield return new CodeInstruction(OpCodes.Ldfld, owner);
+            yield return new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(JigsawHuntingHiveRecoveryTests), nameof(BeforeRoomLoaded)));
+            yield return instruction;
+            yield return new CodeInstruction(OpCodes.Ldarg_0);
+            yield return new CodeInstruction(OpCodes.Ldfld, owner);
+            yield return new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(JigsawHuntingHiveRecoveryTests), nameof(AfterRoomLoaded)));
+        }
+        Check(matches == 1, "The real combat-room state machine contains exactly one original room-loaded call to observe.");
+    }
+#if STS2_PUBLIC
+    private static void CaptureStartup(Task task)
+    {
+        var state = observation!;
+        var caller = state.PendingCaller ?? throw new InvalidOperationException("The public startup Task has no matching original room-loaded caller.");
+        Check(caller.Task == null && ReferenceEquals(caller.Run, RunManager.Instance.DebugOnlyGetState()) &&
+            ReferenceEquals(caller.Run.CurrentRoom, caller.Room) && ReferenceEquals(caller.Room.CombatState, caller.Combat),
+            "Public captures only the single original Task inside the exact active native room caller.");
+        caller.Task = task;
+        state.Startups.Add(task);
+    }
+#endif
     private static void CaptureOpening(Task __result) => observation?.Openings.Add(__result);
     private static void CaptureOffer(Task __result) => observation?.Offers.Add(__result);
     private static Task ObserveRewards(RewardsSet set)
@@ -65,14 +162,11 @@ internal static class JigsawHuntingHiveRecoveryTests
     }
     private static bool SkipProfile() => false;
     private static bool SeenFtue(ref bool __result) { __result = true; return false; }
+#if STS2_PUBLIC
     private static IEnumerable<CodeInstruction> ObserveStartup(IEnumerable<CodeInstruction> instructions)
     {
         var start = AccessTools.Method(typeof(CombatManager),
-#if STS2_PUBLIC
             "StartCombatInternal");
-#else
-            "RunTurnLoopAfter");
-#endif
         int matches = 0;
         foreach (var instruction in instructions)
         {
@@ -85,6 +179,7 @@ internal static class JigsawHuntingHiveRecoveryTests
         Check(matches == 1, "Observe the single original coordinator Task; never invoke a second combat startup.");
     }
 
+#endif
     private sealed class LoadListener(JsonNode expectedBoundary) : ILoadRunLobbyListener
     {
         internal LoadRunLobby Lobby = null!;
@@ -173,8 +268,16 @@ internal static class JigsawHuntingHiveRecoveryTests
                 prefix: new HarmonyMethod(typeof(JigsawHuntingHiveRecoveryTests), nameof(SeenFtue)));
             patch.Patch(AccessTools.Method(typeof(Hook), nameof(Hook.BeforeCombatStart)),
                 postfix: new HarmonyMethod(typeof(JigsawHuntingHiveRecoveryTests), nameof(CaptureOpening)));
+#if STS2_PUBLIC
             patch.Patch(AccessTools.Method(typeof(CombatManager), nameof(CombatManager.AfterCombatRoomLoaded)),
                 transpiler: new HarmonyMethod(typeof(JigsawHuntingHiveRecoveryTests), nameof(ObserveStartup)));
+#endif
+            // Recompile the actual caller as well: a warmed caller may already
+            // inline the short room-loaded method before this fixture patches it.
+            var nativeStart = AccessTools.Method(typeof(CombatRoom), "StartCombat");
+            var machine = nativeStart.GetCustomAttribute<AsyncStateMachineAttribute>()!.StateMachineType;
+            patch.Patch(AccessTools.Method(machine, "MoveNext"),
+                transpiler: new HarmonyMethod(typeof(JigsawHuntingHiveRecoveryTests), nameof(ObserveRoomLoadedCaller)));
             patch.Patch(AccessTools.Method(typeof(RewardsSet), nameof(RewardsSet.Offer)),
                 postfix: new HarmonyMethod(typeof(JigsawHuntingHiveRecoveryTests), nameof(CaptureOffer)));
             hostTouched = true;
@@ -430,7 +533,41 @@ internal static class JigsawHuntingHiveRecoveryTests
             RunManager.Instance.DebugOnlyGetState()!.Players.All(player => PileType.Hand.GetPile(player).Cards.Count == 5),
             "The single native opening completes actual first-turn setup and drawing before state sampling.");
         await state.Openings.Last();
-        Check(state.Startups.Count == expected, "Each active room naturally starts exactly one original combat coordinator.");
+        Check(state.Startups.Count == expected, $"Each active room naturally starts exactly one original combat coordinator. expected={expected} actual={state.Startups.Count}; startups=[{string.Join(",", state.Startups.Select(task => $"{task.Id}:{task.Status}"))}]; openings=[{string.Join(",", state.Openings.Select(task => $"{task.Id}:{task.Status}"))}]; liveRoom={RunManager.Instance.DebugOnlyGetState()?.CurrentRoom?.GetType().Name}");
+        // A public startup finishes after first-turn setup; it is not beta's
+        // long-running turn loop. Observe each real call and exact returned Task,
+        // allowing only the explicit successful completion cache to be shared.
+        void Fail(string part) => Check(false,
+            $"Native startup observation failed: {part}. expected={expected}, callers={state.Callers.Count}, captured={state.Startups.Count}, " +
+            "tasks=[" + string.Join(";", state.Callers.Select((caller, index) => caller.Task == null
+                ? $"caller={index},task=null,returned={caller.Returned}"
+                : $"caller={index},id={caller.Task.Id},status={caller.Task.Status},returned={caller.Returned}")) + "]");
+        if (state.Callers.Count != expected) Fail("original room-loaded caller count");
+        if (state.PendingCaller != null) Fail("original room-loaded caller has not returned");
+        for (int index = 0; index < state.Callers.Count; index++)
+        {
+            var caller = state.Callers[index];
+            var task = caller.Task;
+            if (!caller.Returned || task == null) Fail($"caller {index} did not retain its returned original Task");
+            if (caller.CaptureCount != index || !ReferenceEquals(task, state.Startups[index]))
+                Fail($"caller {index} did not observe exactly its own single original Task at the matching capture position");
+            for (int previous = 0; previous < index; previous++)
+            {
+                var prior = state.Callers[previous];
+                if (ReferenceEquals(caller.Run, prior.Run)) Fail($"callers {previous}/{index} reused a native run");
+                if (ReferenceEquals(caller.Room, prior.Room)) Fail($"callers {previous}/{index} reused a native room");
+                if (ReferenceEquals(caller.Combat, prior.Combat)) Fail($"callers {previous}/{index} reused a native combat");
+                if (!ReferenceEquals(task, prior.Task)) continue;
+#if STS2_PUBLIC
+                if (!ReferenceEquals(task, Task.CompletedTask) || !ReferenceEquals(prior.Task, Task.CompletedTask) ||
+                    !task!.IsCompletedSuccessfully || !prior.Task!.IsCompletedSuccessfully)
+                    Fail($"public callers {previous}/{index} shared a Task other than the successful Task.CompletedTask cache");
+                Console.WriteLine($"HIVE_FRESH public-startup-completed-cache callers={previous}/{index} same-Task.CompletedTask=true completed-successfully=true");
+#else
+                Fail($"beta callers {previous}/{index} reused the same long-running native turn-loop Task");
+#endif
+            }
+        }
     }
 
     private static void SelectSourceEncounter(ActModel act)
