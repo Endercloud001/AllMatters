@@ -49,6 +49,7 @@ using MegaCrit.Sts2.Core.Rooms;
 using MegaCrit.Sts2.Core.Runs;
 using MegaCrit.Sts2.Core.TestSupport;
 using MegaCrit.Sts2.Core.Unlocks;
+using STS2RitsuLib.Networking.Sidecar;
 
 internal static class JigsawKnowledgeMultiOwnerTests
 {
@@ -130,11 +131,38 @@ internal static class JigsawKnowledgeMultiOwnerTests
                 throw new InvalidOperationException("Knowledge child exited before " + stage + "; evidence=" + evidence);
             if (clock.Elapsed > TimeSpan.FromSeconds(20))
             {
-                var state = RunManager.Instance.DebugOnlyGetState();
-                Console.Error.WriteLine($"KNOWLEDGE_TIMEOUT stage={stage} room={state?.CurrentRoom?.GetType().Name} hands={string.Join(',', state?.Players.Select(player => PileType.Hand.GetPile(player).Cards.Count) ?? [])} paused={RunManager.Instance.ActionExecutor.IsPaused} action={RunManager.Instance.ActionExecutor.CurrentlyRunningAction}");
-                throw new TimeoutException("Knowledge " + Role + " timed out at " + stage + "; evidence=" + evidence);
+                var timeout = new TimeoutException("Knowledge " + Role + " timed out at " + stage + "; evidence=" + evidence);
+                Diagnose("timeout:" + stage);
+                throw timeout;
             }
             await Frames();
+        }
+    }
+
+    private static void Diagnose(string stage)
+    {
+        string Read(Func<string> read)
+        {
+            try { return read(); }
+            catch (Exception error) { return $"diagnostic-error:{error.GetType().Name}:{error.Message}"; }
+        }
+        // Diagnostics must never replace the failure they describe, including before combat exists.
+        try
+        {
+            ulong peer = IsHost ? 2UL : 1UL;
+            Console.Error.WriteLine($"KNOWLEDGE_SESSION stage={stage} role={Role} evidence={evidence} " +
+                $"network={Read(() => network == null ? "null" : $"{network.Type}/{network.NetId}/{network.IsConnected}")} " +
+                $"epoch={Read(() => RitsuLibSidecarSessionManager.Epoch.ToString())} peer={peer} " +
+                $"reachability={Read(() => RitsuLibSidecarSessionManager.TryGetReachability(peer, out var reachability) + "/" + reachability)} " +
+                $"features={Read(() => RitsuLibSidecarSessionManager.TryGetPeerFeatures(peer, out var features) + "/" + features)} " +
+                $"room={Read(() => RunManager.Instance.DebugOnlyGetState()?.CurrentRoom?.GetType().Name ?? "null")} " +
+                $"hands={Read(() => string.Join(',', RunManager.Instance.DebugOnlyGetState()?.Players.Select(player => player.PlayerCombatState == null ? $"{player.NetId}:out-of-combat" : $"{player.NetId}:{PileType.Hand.GetPile(player).Cards.Count}") ?? []))} " +
+                $"paused={Read(() => RunManager.Instance.ActionExecutor.IsPaused.ToString())} " +
+                $"action={Read(() => RunManager.Instance.ActionExecutor.CurrentlyRunningAction?.ToString() ?? "null")}");
+        }
+        catch (Exception error)
+        {
+            Console.Error.WriteLine($"KNOWLEDGE_DIAGNOSTIC_ERROR stage={stage} error={error}");
         }
     }
 
@@ -197,6 +225,16 @@ internal static class JigsawKnowledgeMultiOwnerTests
         Action<Player, uint, NetPlayerChoiceResult>? observeChoice = null;
         var receivedChoices = new List<(ulong Owner, uint Id)>();
         bool runStarted = false;
+        bool failed = false;
+        long? sidecarEpoch = null;
+        void ObserveNetwork()
+        {
+            // This fixture bypasses the normal lobby lifecycle. The frame watcher keeps an
+            // existing multiplayer service even after it disconnects, so bind this instance.
+            RitsuLibSidecarSessionManager.ObserveNetService(network);
+            sidecarEpoch = RitsuLibSidecarSessionManager.Epoch;
+            Diagnose("fixture-network-observed");
+        }
         var hostPatches = new Harmony("AllMatters.TestHost");
         bool nativeHost = false;
         var previousSave = JigsawNativeSaveHost.Save;
@@ -276,7 +314,10 @@ internal static class JigsawKnowledgeMultiOwnerTests
                 hostPatches.Unpatch(AccessTools.PropertyGetter(typeof(CombatManager), nameof(CombatManager.IsEnding)),
                     AccessTools.Method(typeof(HeadlessCombatNotEnding), "Prefix"));
                 CombatManager.Instance.TurnStarted += Ready;
+                Diagnose("native-before-setup");
                 manager.SetUpTest(run, network); runStarted = true;
+                ObserveNetwork();
+                Diagnose("native-after-setup");
                 manager.Launch();
                 manager.ActionExecutor.Unpause();
                 manager.CombatReplayWriter.IsEnabled = false;
@@ -310,7 +351,10 @@ internal static class JigsawKnowledgeMultiOwnerTests
             {
                 combat = new CombatState(encounter, run) { RoundNumber = 1 };
                 foreach (var owner in owners) { combat.AddPlayer(owner); owner.ResetCombatState(); }
+                Diagnose("manual-before-setup");
                 manager.SetUpTest(run, network); runStarted = true;
+                ObserveNetwork();
+                Diagnose("manual-after-setup");
                 manager.CombatReplayWriter.IsEnabled = false;
                 LocalContext.NetId = network.NetId;
                 CombatManager.Instance.Reset(true);
@@ -486,6 +530,11 @@ internal static class JigsawKnowledgeMultiOwnerTests
                 await Until(() => Signaled("host", "peer-released"), "host consumed disconnect");
             }
         }
+        catch
+        {
+            failed = true;
+            throw;
+        }
         finally
         {
             if (nativeHost)
@@ -513,10 +562,19 @@ internal static class JigsawKnowledgeMultiOwnerTests
                 try { await child.Finish(Path.Combine(evidence!, "2.log"), Path.Combine(evidence!, "2.err")); }
                 catch (Exception error) { errors.Add(error); }
             }
+            // A newer session belongs to another caller; release only the epoch we bound.
+            if (sidecarEpoch == RitsuLibSidecarSessionManager.Epoch)
+                Cleanup(() => RitsuLibSidecarSessionManager.ObserveNetService(null));
+            Diagnose("after-cleanup");
             openingAtlases?.Dispose();
             LocalContext.NetId = previousNetId;
             network = null; childProcess = null; evidence = null;
-            if (errors.Count != 0) throw new AggregateException("Knowledge multi-owner cleanup failed.", errors);
+            if (errors.Count != 0)
+            {
+                var cleanupError = new AggregateException("Knowledge multi-owner cleanup failed.", errors);
+                if (failed) Console.Error.WriteLine(cleanupError);
+                else throw cleanupError;
+            }
         }
     }
     private static async Task ThreeRounds(KnowledgeUi ui, Player[] owners, MonsterModel monster, CombatState combat,
