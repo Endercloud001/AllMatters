@@ -43,6 +43,7 @@ public partial class JigsawScreen : Control
     private readonly VBoxContainer cards = new();
     private readonly PanelContainer poolFrame = new();
     private readonly ScrollContainer pool = new() { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
+    private readonly HBoxContainer dialogueRow = new() { SizeFlagsVertical = SizeFlags.ExpandFill };
     private readonly ScrollContainer dialogScroll = new() { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
     private readonly HBoxContainer root = new();
     private readonly VBoxContainer main = new(), footer = new();
@@ -204,7 +205,6 @@ public partial class JigsawScreen : Control
         main.AddChild(bottom);
         bottom.AddChild(footer);
         footer.SizeFlagsHorizontal = SizeFlags.ExpandFill;
-        var dialogueRow = new HBoxContainer { SizeFlagsVertical = SizeFlags.ExpandFill };
         footer.AddChild(dialogueRow);
         dialogueRow.AddThemeConstantOverride("separation", -12);
         var tail = new TextureRect { Texture = JigsawNativeArt.Load("ui/dialogue_tail.png"), Modulate = new Color("28454f"), CustomMinimumSize = new(28, 0), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, MouseFilter = MouseFilterEnum.Ignore };
@@ -368,6 +368,7 @@ public partial class JigsawScreen : Control
         nodeIndex = Math.Clamp(nodeIndex, 0, Math.Max(0, NavigableNodeIds.Count - 1));
         steps.Text = L("剩余步数") + "  " + map.RemainingSteps + " / " + map.Budget;
         steps.Visible = false;
+        dialogueRow.Visible = map.Phase != JigsawPhase.Exploring;
         bottom.Visible = !CanReturnToRoom && (map.Phase != JigsawPhase.Exploring || map.PendingEntry != null);
         manual.Visible = automatic.Visible = map.Phase is JigsawPhase.Editing or JigsawPhase.Inspecting or JigsawPhase.Generating;
         manual.Disabled = automatic.Disabled = Reading || map.Phase != JigsawPhase.Editing;

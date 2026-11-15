@@ -76,7 +76,7 @@ public sealed class JigsawNativeSession
             JigsawEditorAction.Stop(Map);
         if (GodotObject.IsInstanceValid(screen))
             screen?.SetProcessInput(false);
-        ReleaseHotkeys();
+        HideMap();
         // TODO(cleanup): ConditionalWeakTable entry cleanup - Sessions WeakTable entry
         // not explicitly removed. Benign: `closed` flag prevents reuse, RunState GC
         // triggers auto-cleanup, and Current property guards with reference check.
@@ -88,6 +88,7 @@ public sealed class JigsawNativeSession
     private bool enteringAncient;
     private int act = -1;
     private JigsawScreen? screen;
+    private NMapScreen? presentedNativeMap;
     private Task saveTask = Task.CompletedTask;
     private Task nativeSaveTask = Task.CompletedTask;
     private TaskCompletionSource<JigsawResult>? pendingAutomaticVote;
@@ -292,6 +293,11 @@ public sealed class JigsawNativeSession
             blockingHotkeys = true;
         }
         screen.Show();
+        if (presentedNativeMap == null && NMapScreen.Instance is { } nativeMap)
+        {
+            presentedNativeMap = nativeMap;
+            nativeMap.EmitSignal(NMapScreen.SignalName.Opened);
+        }
     }
     internal JigsawScreen CreateScreen(IJigsawTutorialProfile? profile = null)
     {
@@ -360,6 +366,10 @@ public sealed class JigsawNativeSession
         ReleaseHotkeys();
         if (GodotObject.IsInstanceValid(screen))
             screen?.Hide();
+        var nativeMap = presentedNativeMap;
+        presentedNativeMap = null;
+        if (GodotObject.IsInstanceValid(nativeMap))
+            nativeMap!.EmitSignal(NMapScreen.SignalName.Closed);
     }
 
     private void Pause()

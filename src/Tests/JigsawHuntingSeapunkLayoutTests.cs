@@ -33,6 +33,7 @@ using MegaCrit.Sts2.Core.TestSupport;
 using MegaCrit.Sts2.Core.Unlocks;
 using MegaCrit.Sts2.addons.mega_text;
 using System.Text.Json;
+using System.Runtime.CompilerServices;
 
 internal static class JigsawHuntingSeapunkLayoutTests
 {
@@ -41,6 +42,26 @@ internal static class JigsawHuntingSeapunkLayoutTests
         Enumerable.Range(0, 14)
             .Select(index => ($"Jigsaw Seapunk native layout ordinary encounter {index + 1:00}", (Func<Task>)(() => Layout(index))))
             .ToArray();
+
+    private sealed record NativeQueue(float Centre, NCreature[] Nodes);
+    private static readonly ConditionalWeakTable<NCombatRoom, NativeQueue> nativeQueues = new();
+
+    private static float QueueCentre(NCreature[] nodes)
+    {
+        var toParent = ((CanvasItem)nodes[0].GetParent()).GetGlobalTransform().AffineInverse();
+        var bodies = nodes.Select(node => toParent * node.Hitbox.GetGlobalRect()).ToArray();
+        return (bodies.Min(rect => rect.Position.X) + bodies.Max(rect => rect.End.X)) * 0.5f;
+    }
+
+    // CreateEnemyNodes has completed native same-count positioning before its
+    // hunting postfix calls PositionAutomatic. Observe; never replace that call.
+    private static void CaptureNativeQueue(NCombatRoom room, NCreature[] enemies)
+    {
+        Check(enemies.Length == room.CreatureNodes.Count(node => node.Entity.IsEnemy),
+            context + ": sample contains every actual native enemy, including the hunting addition.");
+        nativeQueues.Remove(room);
+        nativeQueues.Add(room, new NativeQueue(QueueCentre(enemies), enemies.ToArray()));
+    }
 
     private static string context = "not mounted";
     private static Dictionary<string, float> originalOverlaps = [];
@@ -247,6 +268,19 @@ internal static class JigsawHuntingSeapunkLayoutTests
             foreach (var (element, rect) in new[] { ("visual", node.Visuals.Bounds.GetGlobalRect()), ("hitbox", node.Hitbox.GetGlobalRect()), ("hp", HealthBounds(node)) })
                 Check(rect.Size.X > 0 && rect.Size.Y > 0 && logical.Encloses(rect) && physicalBounds.Encloses(stretch * rect),
                     context + $": {Name(node)}/{element}={rect} fits logical={logical} and physical={physicalBounds}; transformed={stretch * rect}.");
+        if (enemies[0].Entity.CombatState!.Encounter is { HasScene: false })
+        {
+            Check(nativeQueues.TryGetValue(room, out var sample),
+                context + ": the native same-count queue was sampled before hunting repositioning.");
+            Check(sample!.Nodes.Length == enemies.Length && sample.Nodes.All(enemies.Contains),
+                context + ": the sampled original queue and the corrected queue contain the identical native nodes.");
+            float centre = QueueCentre(enemies);
+            // Health-bar padding and asymmetric body bounds can move the body's
+            // midpoint within one 24-unit display clearance after uniform scaling.
+            // This bounded tolerance applies equally to left and right drift.
+            Check(Mathf.Abs(centre - sample.Centre) <= 25f,
+                context + $": enemy body centre stays within one display clearance of the independently sampled native same-count queue in either direction; actual={centre}, native={sample.Centre}.");
+        }
         var overlaps = new List<string>();
         for (int first = 0; first < nodes.Length; first++)
             for (int second = first + 1; second < nodes.Length; second++)
@@ -584,6 +618,8 @@ internal static class JigsawHuntingSeapunkLayoutTests
             AccessTools.Field(typeof(NGame), "_screenShake").SetValue(game, Own(new MegaCrit.Sts2.Core.Nodes.Vfx.Utilities.NScreenShake()));
             foreach (string method in new[] { "_EnterTree", "_Ready", "_ExitTree" })
                 patches.Patch(AccessTools.Method(typeof(NGame), method), prefix: new HarmonyMethod(typeof(JigsawHuntingSeapunkLayoutTests), nameof(SkipLifecycle)));
+            patches.Patch(AccessTools.Method(typeof(JigsawHuntingSeapunkLayout), "PositionAutomatic"),
+                prefix: new HarmonyMethod(typeof(JigsawHuntingSeapunkLayoutTests), nameof(CaptureNativeQueue)));
             patches.Patch(AccessTools.Method(typeof(SfxCmd), nameof(SfxCmd.Play), [typeof(string), typeof(float)]), prefix: new HarmonyMethod(typeof(JigsawHuntingSeapunkLayoutTests), nameof(SkipAudio)));
             foreach (string method in new[] { "_Ready", "_Process" })
                 patches.Patch(AccessTools.Method(typeof(NMapScreen), method), prefix: new HarmonyMethod(typeof(JigsawHuntingSeapunkLayoutTests), nameof(SkipLifecycle)));

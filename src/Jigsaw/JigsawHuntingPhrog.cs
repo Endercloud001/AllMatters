@@ -7,6 +7,7 @@ using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Encounters;
 using MegaCrit.Sts2.Core.Models.Monsters;
 using MegaCrit.Sts2.Core.Models.Powers;
+using MegaCrit.Sts2.Core.Nodes.Rooms;
 using MegaCrit.Sts2.Core.Runs;
 using MegaCrit.Sts2.Core.MonsterMoves.MonsterMoveStateMachine;
 #if !STS2_PUBLIC
@@ -16,7 +17,7 @@ using MegaCrit.Sts2.Core.Helpers;
 namespace AllMatters.Jigsaw;
 
 // The authored encounter has only four worm markers. Keep complete native HP
-// bars and intent values apart across the lower row and the added upper slot.
+// bars and intent values apart along one ground row.
 [HarmonyPatch(typeof(EncounterModel), nameof(EncounterModel.CreateScene))]
 internal static class JigsawHuntingPhrogLayout
 {
@@ -29,16 +30,29 @@ internal static class JigsawHuntingPhrogLayout
         var second = __result.GetNode<Marker2D>(PhrogParasiteElite.GetWrigglerSlotName(1));
         var third = __result.GetNode<Marker2D>(PhrogParasiteElite.GetWrigglerSlotName(2));
         var fourth = __result.GetNode<Marker2D>(PhrogParasiteElite.GetWrigglerSlotName(3));
-        var fifthPosition = new Vector2(1485f, first.Position.Y - 270f);
+        var fifthPosition = new Vector2(1770f, first.Position.Y);
         first.Position = new Vector2(915f, first.Position.Y);
-        second.Position = new Vector2(1200f, second.Position.Y);
-        third.Position = new Vector2(1485f, third.Position.Y);
-        fourth.Position = new Vector2(1770f, fourth.Position.Y);
+        second.Position = new Vector2(1128.75f, second.Position.Y);
+        third.Position = new Vector2(1342.5f, third.Position.Y);
+        fourth.Position = new Vector2(1556.25f, fourth.Position.Y);
         __result.AddChild(new Marker2D
         {
             Name = PhrogParasiteElite.GetWrigglerSlotName(4),
             Position = fifthPosition
         });
+    }
+}
+
+// Five complete native displays need a narrower row to remain on the enemy
+// side of the ground without colliding with player creatures.
+[HarmonyPatch(typeof(NCombatRoom), nameof(NCombatRoom.AddCreature))]
+internal static class JigsawHuntingPhrogWormScale
+{
+    private static void Postfix(NCombatRoom __instance, Creature creature)
+    {
+        if (creature.Monster is Wriggler worm && creature.CombatState?.Encounter is PhrogParasiteElite &&
+            JigsawHuntingActOne.HasSpecialRules(worm) && __instance.GetCreatureNode(creature) is { } node)
+            node.Scale *= 0.8f;
     }
 }
 
@@ -91,7 +105,7 @@ internal static class JigsawHuntingFifthWormMove
 {
     private static void Postfix(Wriggler __instance, MonsterMoveStateMachine __result)
     {
-        if (__instance.Creature.SlotName == "wriggler5" &&
+        if (JigsawHuntingActOne.BoundCreature(__instance) is { SlotName: "wriggler5" } &&
             __instance.CombatState.Encounter is PhrogParasiteElite &&
             JigsawHuntingActOne.HasSpecialRules(__instance))
             ((ConditionalBranchState)__result.States["INIT_MOVE"]).AddState(__result.States["NASTY_BITE_MOVE"], () => true);

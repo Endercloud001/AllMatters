@@ -349,13 +349,11 @@ internal static class JigsawHuntingWaterfallRecoveryTests
             await FirstRevival(originalRoom);
             var sourceRegen = originalBoss.Creature.GetPower<RegenPower>()!;
             int sourceRegenAmount = sourceRegen.Amount;
-            var sourceHidden = originalBoss.Creature.GetPower<JigsawHuntingWaterfallTests.HiddenWaterfallState>()!;
-            int sourceHiddenAmount = sourceHidden.Amount;
             Check(!await combatManager.CheckWinCondition() && !originalRoom.IsPreFinished && victoryBoundary == null && state.Rewards.Count == 0,
                 "The first fully returned lethal damage revives the living required giant; the original win check refuses an early victory and no reward save exists.");
             await CaptureExplosion(originalBoss);
-            Check(originalBoss.Creature.GetPowerAmount<ArtifactPower>() == 1,
-                "Source save deliberately retains its one usable hunting Artifact, alongside old Regen and hidden test state.");
+            Check(originalBoss.Creature.GetPowerAmount<ArtifactPower>() == 3,
+                "Source save deliberately retains three usable hunting Artifact alongside Regen after clearing hidden negative state.");
             await CreatureCmd.Damage(new ThrowingPlayerChoiceContext(), run.Players[0].Creature, 7, ValueProp.Unpowered, originalBoss.Creature);
             await PlayerCmd.GainGold(19, run.Players[0]);
             var movedCard = PileType.Hand.GetPile(run.Players[0]).Cards.First();
@@ -370,9 +368,9 @@ internal static class JigsawHuntingWaterfallRecoveryTests
             Check(!JsonNode.DeepEquals(Opening(run, originalRoom), opening),
                 "Infinite HP, old explosion flag, captured damage fifteen, pressure index six, retained powers and real player/pile/RNG changes differ from the independently sampled original opening.");
             Check(ReferenceEquals(originalBoss.Creature.GetPower<RegenPower>(), sourceRegen) && sourceRegen.Amount == sourceRegenAmount &&
-                ReferenceEquals(originalBoss.Creature.GetPower<JigsawHuntingWaterfallTests.HiddenWaterfallState>(), sourceHidden) && sourceHidden.Amount == sourceHiddenAmount &&
-                originalBoss.Creature.GetPowerAmount<ArtifactPower>() == 1,
-                "Immediately before actual active serialization, AboutToBlow and all player/pile/RNG changes retain the exact independently sampled revived Regen and hidden instances and amounts, plus Artifact one.");
+                !originalBoss.Creature.HasPower<JigsawHuntingWaterfallTests.HiddenWaterfallState>() &&
+                originalBoss.Creature.GetPowerAmount<ArtifactPower>() == 3,
+                "Immediately before actual active serialization, AboutToBlow and all player/pile/RNG changes retain the exact independently sampled revived Regen instance and amount, cleared hidden Debuff, plus Artifact three.");
             await JigsawNativeSaveHost.Save(null);
             await originalSession.WaitForSave();
             var active = saves.LoadRunSave();
@@ -417,10 +415,10 @@ internal static class JigsawHuntingWaterfallRecoveryTests
             Check(!await combatManager.CheckWinCondition() && !combatManager.IsEnding && !restoredRoom.IsPreFinished &&
                 victoryBoundary == null && state.Rewards.Count == rewardsBeforeVictory,
                 "Fresh first lethal damage completes its own revival and still cannot prematurely save victory or offer rewards.");
-            await PowerCmd.Apply<WeakPower>(new ThrowingPlayerChoiceContext(), boss.Creature, 2, restored.Players[0].Creature, null);
-            Check(!boss.Creature.HasPower<WeakPower>() && !boss.Creature.HasPower<ArtifactPower>(),
-                "The single newly granted Artifact actually blocks one new Weak and is consumed; no old Artifact was stitched into the fresh phase.");
             await CaptureExplosion(boss);
+            await PowerCmd.Apply<WeakPower>(new ThrowingPlayerChoiceContext(), boss.Creature, 2, restored.Players[0].Creature, null);
+            Check(!boss.Creature.HasPower<WeakPower>() && boss.Creature.GetPowerAmount<ArtifactPower>() == 2,
+                "One of the three post-action Artifact layers blocks a real Weak; no old Artifact was stitched into the fresh phase.");
             int capturedDamage = Field<int>(boss, "_steamEruptionDamage");
             int healthBeforeExplosion = restored.Players[0].Creature.CurrentHp;
             Check(restored.Players[0].Creature.Block == 0 && restored.Players[0].Creature.Powers.Count == 0 && capturedDamage == 15,
@@ -637,8 +635,8 @@ internal static class JigsawHuntingWaterfallRecoveryTests
             "Complete native death cleanup preserves the exact positive Regen and hidden synthetic debuff instances and amounts in the hunted revival.");
         var grants = CombatManager.Instance.History.Entries.Skip(history).OfType<PowerReceivedEntry>()
             .Where(entry => ReferenceEquals(entry.Actor, target) && entry.Power is ArtifactPower).ToArray();
-        Check(target.GetPowerAmount<ArtifactPower>() == 1 && grants.Length == 1 && grants[0].Amount == 1,
-            "Each actual first revival returns with exactly one native Artifact grant of one, with no reused old grant.");
+        Check(target.GetPowerAmount<ArtifactPower>() == 0 && grants.Length == 0,
+            "Each actual first revival defers Artifact until About to Blow executes, with no reused old grant.");
     }
 
     private static async Task CaptureExplosion(WaterfallGiant giant)
@@ -646,7 +644,8 @@ internal static class JigsawHuntingWaterfallRecoveryTests
         int steam = giant.Creature.GetPowerAmount<SteamEruptionPower>();
         Check(steam == 15 && giant.NextMove.Id == "ABOUT_TO_BLOW_MOVE", "Actual AboutToBlow consumes this phase's independently sampled nonzero Steam.");
         await Perform(giant);
-        Check(!giant.Creature.HasPower<SteamEruptionPower>() && giant.NextMove.Id == "EXPLODE_MOVE" &&
+        Check(!giant.Creature.HasPower<SteamEruptionPower>() && giant.Creature.GetPowerAmount<ArtifactPower>() == 3 &&
+            !giant.Creature.Powers.Any(power => power.TypeForCurrentAmount == PowerType.Debuff) && giant.NextMove.Id == "EXPLODE_MOVE" &&
             Field<int>(giant, "_steamEruptionDamage") == steam && Field<int>(giant, "_pressureBuildupIdx") == 6 &&
             Field<bool>(giant, "_isAboutToBlow") && giant.Creature.HpDisplay == HpDisplay.InfiniteWithoutNumbers &&
             giant.ShouldDisappearFromDoom && !giant.ShouldFadeAfterDeath,

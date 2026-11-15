@@ -293,6 +293,11 @@ internal static class JigsawHuntingPhrogNodeTests
             Check(worms.Select(creature => creature.SlotName).SequenceEqual(
                     new[] { "wriggler1", "wriggler2", "wriggler3", "wriggler4", "wriggler5" }),
                 "The actual AddCreature path resolves all five named encounter slots.");
+            var originalGround = worms.Take(4).Select(worm => nodes.Room.GetCreatureNode(worm)!.GlobalPosition.Y).ToArray();
+            float fifthY = nodes.Room.GetCreatureNode(worms[4])!.GlobalPosition.Y;
+            Check(fifthY >= originalGround.Min() - 1f && fifthY <= originalGround.Max() + 1f &&
+                Mathf.IsEqualApprox(fifthY, originalGround[0]),
+                $"The fifth worm stands on the first native marker's ground within the four original ground heights; fifth={fifthY}, original=[{string.Join(",", originalGround)}].");
             if (geometry)
             {
                 using var input = new NativeInputScope(native);

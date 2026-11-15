@@ -213,7 +213,7 @@ internal static class JigsawHuntingInsatiableLiquify
 
     internal static int Count(int original, TheInsatiable monster)
     {
-        if (monster.CombatState.RunState is not RunState native || native.Act is not Hive || native.CurrentRoomCount != 1 ||
+        if (JigsawHuntingActOne.BoundCreature(monster)?.CombatState?.RunState is not RunState native || native.Act is not Hive || native.CurrentRoomCount != 1 ||
             native.CurrentRoom is not CombatRoom { ParentEventId: null, Encounter: TheInsatiableBoss } room ||
             !ReferenceEquals(room.CombatState, monster.CombatState) || native.Players.FirstOrDefault() is not { } player ||
             !JigsawHuntingNative.RootIsHunted(player))

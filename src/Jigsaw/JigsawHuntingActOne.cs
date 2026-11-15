@@ -17,9 +17,12 @@ namespace AllMatters.Jigsaw;
 
 internal static class JigsawHuntingActOne
 {
+    private static readonly FieldInfo creatureField = AccessTools.Field(typeof(MonsterModel), "_creature");
+    internal static Creature? BoundCreature(MonsterModel monster) => (Creature?)creatureField.GetValue(monster);
+
     internal static bool HasSpecialRules(MonsterModel monster)
     {
-        if (monster.CombatState?.RunState is not RunState native || native.CurrentRoomCount != 1 ||
+        if (BoundCreature(monster)?.CombatState?.RunState is not RunState native || native.CurrentRoomCount != 1 ||
             native.CurrentRoom is not CombatRoom || native.Players.Count == 0 ||
             !JigsawHuntingNative.RootIsHunted(native.Players[0]) ||
             JigsawNativeSession.TryGet(native)?.Map is not { } map)

@@ -25,13 +25,50 @@ using MegaCrit.Sts2.Core.ValueProps;
 internal static class JigsawHuntingWaterfallTests
 {
     internal static readonly (string Name, Func<Task> Test)[] Cases =
-    [("Jigsaw hunting Waterfall native trigger removes visible current debuffs and preserves buffs hidden state and native transition", TriggerFiltering),
-     ("Jigsaw hunting Waterfall grants one Artifact for one to four combat roles while independent sources and blocking stay native", ArtifactSources),
-     ("Jigsaw hunting Waterfall native trigger leaves safe unrelated event and stale combat scopes unchanged", TriggerBoundaries),
+    [("Jigsaw hunting Waterfall About to Blow execution cleanses and grants three Artifact after first lethal damage", ExecutionTiming),
+     ("Jigsaw hunting Waterfall About to Blow action removes all debuffs and preserves buffs and native transition", TriggerFiltering),
+     ("Jigsaw hunting Waterfall grants three Artifact for one to four combat roles while independent sources and blocking stay native", ArtifactSources),
+     ("Jigsaw hunting Waterfall About to Blow action leaves safe unrelated event and stale combat scopes unchanged", TriggerBoundaries),
      ("Jigsaw hunting Waterfall native moves preserve Steam Eruption capture explosion damage and final death", NativeExplosion),
      ("Jigsaw hunting Waterfall native trigger rejects stale awaited work and propagates its dependency failure", AwaitedTriggerBoundaries),
      ("Jigsaw hunting Waterfall nested Artifact source retains native scaling before the fixed grant", ReentrantArtifact),
-     ("Jigsaw hunting Waterfall first lethal damage retains one usable Artifact only for the hunted root", FirstLethalDamage)];
+     ("Jigsaw hunting Waterfall first lethal damage defers Artifact until its action only for the hunted root", FirstLethalDamage)];
+
+    private static async Task ExecuteAboutToBlow(WaterfallGiant giant)
+    {
+        await giant.TriggerAboutToBlowState();
+        await giant.PerformMove();
+    }
+
+    private static async Task ExecutionTiming()
+    {
+        ModelDb.Inject(typeof(HiddenWaterfallState));
+        foreach (int count in new[] { 1, 4 })
+        {
+            using var fixture = new WaterfallBattle(count);
+            var giant = fixture.Giant;
+            var target = giant.Creature;
+            var context = new ThrowingPlayerChoiceContext();
+            await giant.AfterAddedToRoom();
+            giant.RollMove(fixture.Battle.Combat.PlayerCreatures);
+            await giant.PerformMove();
+            await CreatureCmd.Damage(context, target, target.CurrentHp,
+                ValueProp.Unblockable | ValueProp.Unpowered, fixture.Players[0].Creature);
+            Check(target.IsAlive && giant.NextMove.Id == "ABOUT_TO_BLOW_MOVE" && !target.HasPower<ArtifactPower>(),
+                "First lethal damage enters About to Blow without granting Artifact before the action executes.");
+            await PowerCmd.Apply<WeakPower>(context, target, 2, fixture.Players[0].Creature, null);
+            await PowerCmd.Apply<StrengthPower>(context, target, -4, fixture.Players[0].Creature, null);
+            await PowerCmd.Apply<HiddenWaterfallState>(context, target, 6, target, null);
+            Check(target.HasPower<WeakPower>(), "The waiting phase still accepts debuffs before its action.");
+            await giant.PerformMove();
+            Check(!target.HasPower<SteamEruptionPower>() && !target.HasPower<WeakPower>() &&
+                !target.HasPower<StrengthPower>() && !target.HasPower<HiddenWaterfallState>() && target.GetPowerAmount<ArtifactPower>() == 3,
+                $"roles={count}: completing the real About to Blow action consumes Steam, clears negative powers and grants exactly three Artifact.");
+            await PowerCmd.Apply<WeakPower>(context, target, 1, fixture.Players[0].Creature, null);
+            Check(!target.HasPower<WeakPower>() && target.GetPowerAmount<ArtifactPower>() == 2,
+                "The post-action Artifact survives death cleanup and blocks a real later debuff.");
+        }
+    }
 
     private static async Task FirstLethalDamage()
     {
@@ -80,19 +117,18 @@ internal static class JigsawHuntingWaterfallTests
                 $"Scope={scope}, roles={count}: hunted revival preserves the positive Regen and exact hidden state after complete death cleanup; Regen={target.GetPowerAmount<RegenPower>()}, hidden={target.GetPowerAmount<HiddenWaterfallState>()}, Artifact={target.GetPowerAmount<ArtifactPower>()}.");
             var grants = CombatManager.Instance.History.Entries.Skip(historyStart).OfType<PowerReceivedEntry>()
                 .Where(entry => ReferenceEquals(entry.Actor, target) && entry.Power is ArtifactPower).ToArray();
-            Check(target.GetPowerAmount<ArtifactPower>() == (hunted ? 1 : 0) &&
-                grants.Length == (hunted ? 1 : 0) && grants.All(entry => entry.Amount == 1),
-                $"Scope={scope}, roles={count}: after the complete lethal damage task only the hunted root retains exactly one granted Artifact; actual={target.GetPowerAmount<ArtifactPower>()}, grant amounts=[{string.Join(",", grants.Select(entry => entry.Amount))}].");
+            Check(target.GetPowerAmount<ArtifactPower>() == 0 && grants.Length == 0,
+                $"Scope={scope}, roles={count}: the complete lethal damage task grants no early Artifact; actual={target.GetPowerAmount<ArtifactPower>()}, grant amounts=[{string.Join(",", grants.Select(entry => entry.Amount))}].");
             // Safe powers may also disappear during ordinary death cleanup;
             // compare a fresh debuff after that cleanup instead of preserving Weak.
+            await giant.PerformMove();
             await PowerCmd.Apply<WeakPower>(context, target, 2, fixture.Players[0].Creature, null);
-            Check(target.GetPowerAmount<WeakPower>() == (hunted ? 0 : 2) && !target.HasPower<ArtifactPower>(),
+            Check(target.GetPowerAmount<WeakPower>() == (hunted ? 0 : 2) && target.GetPowerAmount<ArtifactPower>() == (hunted ? 2 : 0),
                 $"Scope={scope}, roles={count}: the retained hunting Artifact really blocks one new Weak and is consumed, while the safe target receives Weak.");
             await PowerCmd.Apply<ArtifactPower>(context, target, 2, target, null);
             await PowerCmd.Apply<StrengthPower>(context, target, 3, target, null);
-            Check(target.GetPowerAmount<ArtifactPower>() == count + 1 && target.GetPowerAmount<StrengthPower>() > 0,
+            Check(target.GetPowerAmount<ArtifactPower>() == (hunted ? 4 : count + 1) && target.GetPowerAmount<StrengthPower>() > 0,
                 "Independent post-transition powers are present before the final real death.");
-            await giant.PerformMove();
             giant.RollMove(fixture.Battle.Combat.PlayerCreatures);
             Check(!target.HasPower<SteamEruptionPower>() && giant.NextMove.Id == "EXPLODE_MOVE",
                 "The original about-to-blow action consumes Steam and advances to the final explosion.");
@@ -124,7 +160,7 @@ internal static class JigsawHuntingWaterfallTests
             // The trigger entry has its own real red/green evidence. This case
             // follows its native moves, without claiming a lethal entry test.
             await giant.TriggerAboutToBlowState();
-            Check(!target.HasPower<WeakPower>() && target.GetPowerAmount<SteamEruptionPower>() == 15 &&
+            Check(target.HasPower<WeakPower>() && !target.HasPower<ArtifactPower>() && target.GetPowerAmount<SteamEruptionPower>() == 15 &&
                 giant.NextMove.Id == "ABOUT_TO_BLOW_MOVE" && giant.NextMove.Intents.Single() is StunIntent,
                 "Cleansing preserves Steam Eruption and the native about-to-blow intent.");
             int[] hp = fixture.Players.Select(player => player.Creature.CurrentHp).ToArray();
@@ -256,7 +292,7 @@ internal static class JigsawHuntingWaterfallTests
         Task? operation = null;
         try
         {
-            operation = fixture.Giant.TriggerAboutToBlowState();
+            operation = ExecuteAboutToBlow(fixture.Giant);
             await probe.Reached.Task.WaitAsync(TimeSpan.FromSeconds(5));
             Check(!operation.IsCompleted && !target.HasPower<PausedRemovalDebuff>() && target.GetPowerAmount<WeakPower>() == 2,
                 "The native Remove command has removed its first debuff and is awaiting that instance's real AfterRemoved hook.");
@@ -319,14 +355,14 @@ internal static class JigsawHuntingWaterfallTests
                 int historyStart = CombatManager.Instance.History.Entries.Count();
                 try
                 {
-                    await fixture.Giant.TriggerAboutToBlowState();
+                    await ExecuteAboutToBlow(fixture.Giant);
                     var grants = CombatManager.Instance.History.Entries.Skip(historyStart).OfType<PowerReceivedEntry>()
                         .Where(entry => ReferenceEquals(entry.Actor, target) && entry.Power is ArtifactPower).ToArray();
                     Check(probe.Started && probe.Received == count + 1 && grants.Length == 2 &&
-                        grants[0].Amount == count + 1 && grants[1].Amount == 1 &&
+                        grants[0].Amount == count + 1 && grants[1].Amount == 3 &&
                         !ReferenceEquals(grants[0].Power, grants[1].Power),
-                        "A nested independent source retains its native multiplayer scaling while only the hunting instance grants one.");
-                    Check(target.GetPowerAmount<ArtifactPower>() == 1,
+                        "A nested independent source retains its native multiplayer scaling while only the hunting instance grants three.");
+                    Check(target.GetPowerAmount<ArtifactPower>() == 3,
                         "After native removal of the nested source, only the fixed hunting Artifact remains.");
                 }
                 finally { artifactReentry = null; }
@@ -356,18 +392,18 @@ internal static class JigsawHuntingWaterfallTests
                 "An independent existing Artifact grant uses its original multiplayer scaling.");
             int historyStart = CombatManager.Instance.History.Entries.Count();
 
-            await fixture.Giant.TriggerAboutToBlowState();
+            await ExecuteAboutToBlow(fixture.Giant);
 
             var grants = CombatManager.Instance.History.Entries.Skip(historyStart).OfType<PowerReceivedEntry>()
                 .Where(entry => ReferenceEquals(entry.Actor, target) && entry.Power is ArtifactPower).ToArray();
-            Check(target.GetPowerAmount<ArtifactPower>() == before + 1 && grants.Length == 1 && grants[0].Amount == 1,
-                $"Combat roles={count}, previous grant={previousGrant}: the transition adds one native Artifact without replacing existing stacks.");
+            Check(target.GetPowerAmount<ArtifactPower>() == before + 3 && grants.Length == 1 && grants[0].Amount == 3,
+                $"Combat roles={count}, previous grant={previousGrant}: the transition adds three native Artifact without replacing existing stacks.");
             Check(target.GetPowerAmount<StrengthPower>() == strength && target.GetPowerAmount<DexterityPower>() == dexterity,
                 "Positive Strength and Dexterity survive the cleansing unchanged.");
             await PowerCmd.Apply<WeakPower>(context, target, 2, fixture.Players[0].Creature, null);
-            Check(!target.HasPower<WeakPower>() && target.GetPowerAmount<ArtifactPower>() == before,
+            Check(!target.HasPower<WeakPower>() && target.GetPowerAmount<ArtifactPower>() == before + 2,
                 "Native Artifact blocks the next visible debuff and consumes exactly one layer.");
-            if (before > 0) await PowerCmd.Remove<ArtifactPower>(target);
+            await PowerCmd.Remove<ArtifactPower>(target);
             await PowerCmd.Apply<ArtifactPower>(context, target, 2, target, null);
             Check(target.GetPowerAmount<ArtifactPower>() == count + 1,
                 "A later independent new Artifact source on the same monster retains native multiplayer scaling.");
@@ -403,7 +439,7 @@ internal static class JigsawHuntingWaterfallTests
                     "A removed creature retains its old combat reference but is no longer a combat participant.");
             }
 
-            await fixture.Giant.TriggerAboutToBlowState();
+            await ExecuteAboutToBlow(fixture.Giant);
 
             Check(target.MaxHp == 999999999 && fixture.Giant.NextMove.Id == "ABOUT_TO_BLOW_MOVE",
                 $"Scope={scope}: the original native transition still completes.");
@@ -496,7 +532,7 @@ internal static class JigsawHuntingWaterfallTests
                 target.GetPowerAmount<ArtifactPower>() == 0,
                 "Real native commands establish visible debuffs, negative counters, positive powers and a hidden debuff without Artifact blocking setup.");
 
-            await giant.TriggerAboutToBlowState();
+            await ExecuteAboutToBlow(giant);
 
             Check(target.MaxHp == 999999999 && target.CurrentHp == 999999999 &&
                 target.HpDisplay == HpDisplay.InfiniteWithoutNumbers && giant.NextMove.Id == "ABOUT_TO_BLOW_MOVE",
@@ -504,17 +540,16 @@ internal static class JigsawHuntingWaterfallTests
             Check(!target.HasPower<WeakPower>() && !target.HasPower<VulnerablePower>() &&
                 !target.HasPower<StrengthPower>() && !target.HasPower<DexterityPower>(),
                 "The hunted trigger removes visible native debuffs including negative Strength and Dexterity.");
-            Check(target.GetPowerAmount<RegenPower>() == 2 && target.GetPowerAmount<SteamEruptionPower>() == 7 &&
-                ReferenceEquals(target.GetPower<HiddenWaterfallState>(), hidden) && hidden.Amount == 6,
-                "Positive native powers and the exact hidden state survive the trigger unchanged.");
-            Check(target.GetPowerAmount<ArtifactPower>() == 1,
-                "After cleansing, the hunted Waterfall receives exactly one additional Artifact.");
+            Check(target.GetPowerAmount<RegenPower>() == 2 && !target.HasPower<SteamEruptionPower>() &&
+                !target.HasPower<HiddenWaterfallState>(),
+                "Positive Regen survives while the action consumes Steam and cleansing removes hidden negative state.");
+            Check(target.GetPowerAmount<ArtifactPower>() == 3,
+                "After the action and cleansing, the hunted Waterfall receives exactly three additional Artifact.");
         }
         finally { JigsawNativeSession.TryGet(run)?.Close(); }
     }
 
-    // A deliberately hidden debuff is a filtering counterexample, not a claim
-    // that any particular native hidden power has been exercised.
+    // A hidden negative power must also be removed by the post-action cleanse.
     public sealed class HiddenWaterfallState : PowerModel
     {
         public override PowerType Type => PowerType.Debuff;

@@ -15,7 +15,7 @@ using MegaCrit.Sts2.Core.Runs;
 
 namespace AllMatters.Jigsaw;
 
-[HarmonyPatch(typeof(WaterfallGiant), nameof(WaterfallGiant.TriggerAboutToBlowState))]
+[HarmonyPatch(typeof(WaterfallGiant), "AboutToBlowMove")]
 internal static class JigsawHuntingWaterfall
 {
     private static readonly ConditionalWeakTable<ArtifactPower, object> fixedArtifacts = new();
@@ -46,13 +46,13 @@ internal static class JigsawHuntingWaterfall
 
     private static async Task Cleanse(Task original, WaterfallGiant monster, RunState native, ICombatState combat)
     {
-        // Keep the native transition and its exceptions before applying the
+        // Await the action that captures/removes Steam before applying the
         // hunting addition; a late task must never modify a replacement run.
         await original;
         if (!IsCurrent(monster, native, combat))
             return;
         var debuffs = monster.Creature.Powers.Where(power =>
-            power.IsVisible && power.TypeForCurrentAmount == PowerType.Debuff).ToArray();
+            power.TypeForCurrentAmount == PowerType.Debuff).ToArray();
         foreach (var power in debuffs)
         {
             if (!IsCurrent(monster, native, combat))
@@ -65,7 +65,7 @@ internal static class JigsawHuntingWaterfall
         fixedArtifacts.Add(artifact, new object());
         try
         {
-            await PowerCmd.Apply(new ThrowingPlayerChoiceContext(), artifact, monster.Creature, 1, monster.Creature, null);
+            await PowerCmd.Apply(new ThrowingPlayerChoiceContext(), artifact, monster.Creature, 3, monster.Creature, null);
         }
         finally { fixedArtifacts.Remove(artifact); }
     }

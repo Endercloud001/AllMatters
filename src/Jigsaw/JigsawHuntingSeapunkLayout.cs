@@ -71,6 +71,9 @@ internal static class JigsawHuntingSeapunkLayout
         float left = room.CreatureNodes.Where(node => node.Entity.IsPlayer || node.Entity.PetOwner != null)
             .Max(node => (toParent * node.GetGlobalTransform() * Envelope(node)).End.X) + clearance;
         float roomRight = (toParent * (room.GetGlobalTransform() * new Vector2(room.Size.X, 0))).X;
+        // Native automatic combat reserves the enemy container's own area.
+        // A player-derived negative left edge pulls the whole group into the centre.
+        left = Mathf.Max(left, clearance);
         var bounds = enemies.Select(Envelope).ToArray();
         float width = bounds.Sum(rect => rect.Size.X);
         float scale = Mathf.Min(1f, (roomRight - clearance - left - clearance * (enemies.Length - 1)) / width);
@@ -83,7 +86,25 @@ internal static class JigsawHuntingSeapunkLayout
             scale = Mathf.Min(scale, (roomRight - 15f - left - clearance * index - nativeHalf) / centre);
             prefix += bounds[index].Size.X;
         }
-        float cursor = left;
+        float nativeArea = 960f / enemies[0].Entity.CombatState!.Encounter!.GetCameraScaling();
+        float nativeBodies = enemies.Sum(node => node.Visuals.Bounds.Size.X);
+        float nativeGap = 70f;
+        float nativeWidth = nativeBodies + nativeGap * (enemies.Length - 1);
+        float nativeLeft = Math.Max((nativeArea - nativeWidth) * 0.5f, 150f);
+        if (nativeLeft + nativeWidth > nativeArea)
+        {
+            nativeGap = Math.Max((nativeArea - 150f - nativeBodies) / (enemies.Length - 1), 5f);
+            nativeWidth = nativeBodies + nativeGap * (enemies.Length - 1);
+            nativeLeft = (nativeArea - nativeWidth) * 0.5f;
+        }
+        float nativeCentre = nativeLeft + nativeWidth * 0.5f;
+        // Fit the complete displays around the native centre rather than
+        // clamping a wide, full-size row leftwards toward the players.
+        float centredWidth = 2f * Mathf.Min(nativeCentre - left, roomRight - clearance - nativeCentre);
+        scale = Mathf.Min(scale, (centredWidth - clearance * (enemies.Length - 1)) / width);
+        float groupWidth = width * scale + clearance * (enemies.Length - 1);
+        float cursor = Mathf.Clamp(nativeLeft + nativeWidth * 0.5f - groupWidth * 0.5f,
+            left, roomRight - clearance - groupWidth);
         for (int index = 0; index < enemies.Length; index++)
         {
             enemies[index].Scale = Vector2.One * scale;

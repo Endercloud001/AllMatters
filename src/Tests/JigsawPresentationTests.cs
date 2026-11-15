@@ -365,6 +365,7 @@ internal static class JigsawPresentationTests
   try
   {
    await HeadlessUiHost.Mount(probe,view);
+   Require(!view.DialogControl.IsVisibleInTree(),"A pending node entry keeps recovery buttons without reviving the Ancient dialogue bubble.");
    var button=view.DecisionControl.GetChildren().OfType<Button>().SingleOrDefault(b=>b.Text==(abandon?"放弃进入":"重试进入"));
    Require(button is { Visible:true, Disabled:false },"A pending entry exposes the formal retry action.");
    view.SwitchZone(1); view.SwitchZone(1); button!.GrabFocus();

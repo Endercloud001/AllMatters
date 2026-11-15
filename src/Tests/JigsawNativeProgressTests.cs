@@ -26,6 +26,9 @@ internal static class JigsawNativeProgressTests
 {
     internal static readonly (string Name, Func<Task> Test)[] Cases =
     [
+        (JigsawRewardMapLifecycleTests.Name, JigsawRewardMapLifecycleTests.Run),
+        ("Jigsaw native projection repairs legacy saved Boss grid before map observers", LegacyBossProjection),
+        ("Jigsaw native projection preserves special Boss points outside the normal grid", BossProjection),
         ("Jigsaw native progress shop revisits preserve history without advancing native consumers", ShopProgress),
         ("Jigsaw native progress Lantern Key retains native unknown and next event hooks", LanternContext),
         ("Jigsaw native progress rejects corrupt history indices and leaves ordinary runs unchanged", IsolationAndCorruption),
@@ -34,6 +37,53 @@ internal static class JigsawNativeProgressTests
         ("Jigsaw native progress preserves serialized extension spelling and malformed index rejection", SavedIndexValidation)
     ];
 
+    private static async Task LegacyBossProjection()
+    {
+        var native = Native();
+        var manager = RunManager.Instance;
+        manager.SetUpTest(native, new NetSingleplayerGameService());
+        try
+        {
+            manager.GenerateRooms();
+            await manager.GenerateMap();
+            var grid = (MegaCrit.Sts2.Core.Map.MapPoint?[,])AccessTools.Property(typeof(MegaCrit.Sts2.Core.Map.ActMap), "Grid").GetValue(native.Map)!;
+            var oldBoss = new MegaCrit.Sts2.Core.Map.MapPoint(0, 1) { PointType = MegaCrit.Sts2.Core.Map.MapPointType.Boss };
+            grid[0, 1] = oldBoss;
+            native.Map = new MegaCrit.Sts2.Core.Map.SavedActMap(MegaCrit.Sts2.Core.Saves.Runs.SerializableActMap.FromActMap(native.Map));
+            JigsawCheckpoint.Capture(native, Ready(JigsawRoom.Combat));
+            JigsawNativeSession.Restore(native);
+            manager.SavedMapsToLoad = new() { [native.CurrentActIndex] = MegaCrit.Sts2.Core.Saves.Runs.SerializableActMap.FromActMap(native.Map) };
+            await manager.GenerateMap();
+            Check(native.Map.BossMapPoint.coord == oldBoss.coord &&
+                native.Map.GetAllMapPoints().All(point => point.PointType != MegaCrit.Sts2.Core.Map.MapPointType.Boss),
+                "Loading an existing serialized Boss grid migrates the point before native map controls are notified.");
+        }
+        finally { manager.CleanUp(false); }
+    }
+    private static async Task BossProjection()
+    {
+        var native = Native();
+        RunManager.Instance.SetUpTest(native, new NetSingleplayerGameService());
+        try
+        {
+            RunManager.Instance.GenerateRooms();
+            await RunManager.Instance.GenerateMap();
+            var first = JigsawEntryProjection.Append(native.Map, 1, JigsawRoom.Boss);
+            Check(ReferenceEquals(first.Map.BossMapPoint, first.Point) &&
+                ReferenceEquals(first.Map.GetPoint(first.Point.coord), first.Point),
+                "Native reward routing and restoration must resolve the projected first Boss as the special Boss point.");
+            Check(first.Map.GetAllMapPoints().All(point => point.PointType != MegaCrit.Sts2.Core.Map.MapPointType.Boss),
+                "NMapScreen creates normal map controls for every grid point; a Boss there throws IconName(Boss).");
+            var second = JigsawEntryProjection.Append(first.Map, 2, JigsawRoom.SecondBoss);
+            Check(ReferenceEquals(second.Map.SecondBossMapPoint, second.Point) &&
+                ReferenceEquals(second.Map.GetPoint(first.Point.coord), first.Point) &&
+                ReferenceEquals(second.Map.GetPoint(second.Point.coord), second.Point),
+                "Both projected Boss coordinates retain their special identities when the second Boss is appended.");
+            Check(second.Map.GetAllMapPoints().All(point => point.PointType != MegaCrit.Sts2.Core.Map.MapPointType.Boss),
+                "Neither completed nor current Boss belongs in the native normal grid.");
+        }
+        finally { RunManager.Instance.CleanUp(false); }
+    }
     private static JigsawRun Ready(JigsawRoom firstRoom)
     {
         var map = Enumerable.Range(0, 100).Select(seed => JigsawRun.Create(seed))

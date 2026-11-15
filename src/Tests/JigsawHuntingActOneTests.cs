@@ -25,7 +25,10 @@ using MegaCrit.Sts2.Core.MonsterMoves.MonsterMoveStateMachine;
 internal static class JigsawHuntingActOneTests
 {
     internal static readonly (string Name, Func<Task> Test)[] Cases =
-    [ ("JigsawHuntingActOne native Byrdonis gains fixed regeneration and retains Territorial", ByrdonisOpening),
+    [ ("JigsawHuntingActOne native Effigy preload succeeds before creature binding", EffigyPreload),
+      ("Jigsaw native monster preload Wriggler succeeds before creature binding", () => UnboundIntents(ModelDb.Monster<Wriggler>())),
+      ("Jigsaw native monster preload TheInsatiable succeeds before creature binding", () => UnboundIntents(ModelDb.Monster<TheInsatiable>())),
+      ("JigsawHuntingActOne native Byrdonis gains fixed regeneration and retains Territorial", ByrdonisOpening),
       ("JigsawHuntingActOne native Effigy opens Awake and retains Slow and Slash", EffigyOpening),
       ("JigsawHuntingActOne native Kin orbs apply two once before Artifact and keep target subset", KinOrbs),
       ("JigsawHuntingActOne native second-phase Beast Cry retains Ringing and debuffs all living players", BeastCry),
@@ -46,6 +49,15 @@ internal static class JigsawHuntingActOneTests
           NativeOpening<PhrogParasite>(JigsawHuntingPhrogNodeTests.Geometry)),
       ("JigsawHuntingActOne Phrog node cleanup restores globals before later native UI use", () =>
           NativeOpening<PhrogParasite>(JigsawHuntingPhrogNodeTests.Cleanup, maxPlayers: 1)) ];
+
+    private static Task EffigyPreload() => UnboundIntents(ModelDb.Monster<BygoneEffigy>());
+
+    private static Task UnboundIntents(MonsterModel canonical)
+    {
+        _ = HarmonyLib.AccessTools.Method(typeof(MonsterModel), "GetIntents").Invoke(canonical, null);
+        _ = HarmonyLib.AccessTools.Method(typeof(MonsterModel), "GetIntents").Invoke(canonical.ToMutable(), null);
+        return Task.CompletedTask;
+    }
 
     private static Task VantomOpening() => NativeOpening<Vantom>(vantom =>
     {

@@ -53,7 +53,7 @@ internal static class NativeSelectionLocalization
                 ["MORPHIC_GROVE.pages.INITIAL.options.GROUP.description"] = zh ? "失去[red]所有金币[/red]。变化[gold]2[/gold]张牌。" : "Lose [red]all Gold[/red]. [gold]Transform 2[/gold] cards.",
                 ["MORPHIC_GROVE.pages.INITIAL.options.AM_GROUP_LOCKED.title"] = zh ? "大群变形灵" : "The Group",
                 ["MORPHIC_GROVE.pages.INITIAL.options.AM_GROUP_LOCKED.description"] = zh ? "需要[red]2[/red]张能够提升稀有度的合法变化目标。" : "Requires [red]2[/red] legal cards with higher-rarity transformation options.",
-                ["DOORS_OF_LIGHT_AND_DARK.pages.INITIAL.options.LIGHT.description"] = zh ? "[gold]升级2[/gold]张牌，优先非初始牌。" : "[gold]Upgrade 2[/gold] cards, prioritizing non-Basic cards.",
+                ["DOORS_OF_LIGHT_AND_DARK.pages.INITIAL.options.LIGHT.description"] = zh ? "随机升级2张牌" : "Upgrade 2 random cards.",
                 ["DOORS_OF_LIGHT_AND_DARK.pages.INITIAL.options.AM_KEY.title"] = zh ? "看门人先进门" : "Gatekeeper First",
                 ["DOORS_OF_LIGHT_AND_DARK.pages.INITIAL.options.AM_KEY.description"] = zh ? "失去[red]5[/red]点最大生命值，获得[gold]诅咒钥匙[/gold]。" : "Lose [red]5[/red] Max HP. Obtain [gold]Cursed Key[/gold].",
                 ["DOORS_OF_LIGHT_AND_DARK.pages.AM_KEY.description"] = zh ? "你拎起那瘦弱的守门人，一把将它扔进了[purple]暗之门[/purple]中！\n\n门中传来一阵痛苦的哀嚎，随后一把钥匙被扔到了你面前。\n\n显然这东西上有强烈的[red]诅咒之力[/red]......要带着吗？" : "You lift the frail gatekeeper and throw it into the [purple]dark door[/purple]!\n\nAn agonized wail comes from within, then a key is tossed at your feet.\n\nIt clearly carries a powerful [red]curse[/red]… Take it?",
