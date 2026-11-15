@@ -107,10 +107,13 @@ internal static class JigsawHuntingHiveOpening
         var map = JigsawNativeSession.TryGet(native)!.Map!;
         int? node = map.CurrentNode;
         var pending = map.PendingEntry?.Id;
+        var destination = map.PendingEntry?.NodeId;
         var parent = native.BaseRoom;
         bool StillCurrent() => IsCurrent(native, room, combatState) && ReferenceEquals(native.BaseRoom, parent) &&
             ReferenceEquals(JigsawNativeSession.TryGet(native)?.Map, map) &&
-            map.CurrentNode == node && map.PendingEntry?.Id == pending;
+            // Native RoomEntered can confirm this pending destination while a power animation awaits.
+            (map.CurrentNode == node && map.PendingEntry?.Id == pending ||
+             pending != null && map.PendingEntry == null && map.CurrentNode == destination);
         await original;
         if (!StillCurrent())
             return;
@@ -258,7 +261,7 @@ internal static class JigsawHuntingKnowledgeAttacks
 
     private static void Postfix(KnowledgeDemon __instance, MethodBase __originalMethod, ref int __result)
     {
-        if (__instance.CombatState?.RunState is not RunState native || native.Act is not Hive || native.CurrentRoomCount != 1 ||
+        if (JigsawHuntingActOne.BoundCreature(__instance)?.CombatState?.RunState is not RunState native || native.Act is not Hive || native.CurrentRoomCount != 1 ||
             native.CurrentRoom is not CombatRoom { ParentEventId: null, Encounter: KnowledgeDemonBoss } room ||
             !ReferenceEquals(room.CombatState, __instance.CombatState) || native.Players.FirstOrDefault() is not { } player ||
             !JigsawHuntingNative.RootIsHunted(player))

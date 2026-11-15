@@ -51,7 +51,7 @@ internal static class JigsawHuntingBosses
     }
 
     internal static bool IsHuntedBoss(MonsterModel monster) =>
-        monster.CombatState.RunState is { } run && run.Players.FirstOrDefault() is { } player &&
+        JigsawHuntingActOne.BoundCreature(monster)?.CombatState?.RunState is { } run && run.Players.FirstOrDefault() is { } player &&
         JigsawHuntingNative.RootIsHunted(player) &&
         run is { Act: Glory, CurrentRoomCount: 1, CurrentRoom: CombatRoom room } &&
         ReferenceEquals(room.Encounter, monster.CombatState.Encounter) && room.Encounter.RoomType == RoomType.Boss;
@@ -78,7 +78,7 @@ internal static class JigsawHuntingSubjectMultiClawDamage
 {
     private static void Postfix(TestSubject __instance, ref int __result)
     {
-        if (__instance.Creature.CombatState != null && JigsawHuntingBosses.IsHuntedBoss(__instance))
+        if (JigsawHuntingBosses.IsHuntedBoss(__instance))
             __result = __instance.CombatState.RunState.AscensionLevel >= 9 ? 10 : 9;
     }
 }

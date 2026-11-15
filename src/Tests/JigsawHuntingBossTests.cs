@@ -22,12 +22,38 @@ internal static class JigsawHuntingBossTests
     [ ("Jigsaw hunting Boss Aeonglass initializes independent twelve card counters without Artifact", AeonglassOpening),
       ("Jigsaw hunting Boss Aeonglass mixed owner twelfth plays generate five ordered statuses and reset displays", AeonglassPlays),
       ("Jigsaw hunting Boss Test Subject first real revival replaces only its phase two grants", TestSubjectFirstRevival),
+      ("Jigsaw hunting Boss Test Subject bound A8 A9 damage retains hunted scope after preload", TestSubjectDamage),
       ("Jigsaw hunting Boss Test Subject native second revival and nine complete player turns", TestSubjectTurns),
       ("Jigsaw hunting Boss Test Subject native startup after a completed prior room teardown", TestSubjectAfterPriorRoom),
 #if STS2_PUBLIC
       ("Jigsaw hunting Boss Test Subject native startup survives warmed creature callbacks", TestSubjectAfterWarmedCallbacks),
 #endif
     ];
+
+    private static Task TestSubjectDamage()
+    {
+        foreach (bool hunted in new[] { false, true })
+        foreach (int ascension in new[] { 8, 9 })
+        {
+            // Encounters discover resources on mutable models before binding.
+            _ = ((MonsterModel)ModelDb.Monster<TestSubject>().ToMutable()).AssetPaths.ToArray();
+            var player = Player.CreateForNewRun<Ironclad>(UnlockState.all, 1);
+            var run = RunState.CreateForTest([player], acts: [ModelDb.Act<Overgrowth>(), ModelDb.Act<Hive>(), ModelDb.Act<Glory>()],
+                ascensionLevel: ascension, seed: "HUNTING_SUBJECT_DAMAGE");
+            run.CurrentActIndex = 2;
+            using var battle = new HeadlessTestSetup.EncounterCombatScope(run,
+                ModelDb.Encounter<MegaCrit.Sts2.Core.Models.Encounters.TestSubjectBoss>().ToMutable(), setUpMonster: false);
+            run.PushRoom(new CombatRoom(battle.Combat));
+            JigsawCheckpoint.Capture(run, BossRoot([player.NetId], hunted));
+            JigsawNativeSession.Restore(run);
+            battle.Monster.SetUpForCombat();
+            int expected = hunted ? (ascension == 9 ? 10 : 9) : (ascension == 9 ? 11 : 10);
+            int actual = (int)HarmonyLib.AccessTools.PropertyGetter(typeof(TestSubject), "MultiClawDamage").Invoke(battle.Monster, null)!;
+            NativeEventTests.Check(actual == expected,
+                $"Bound MultiClaw A{ascension}, hunted={hunted}: expected {expected}, actual {actual}.");
+        }
+        return Task.CompletedTask;
+    }
 
     private static async Task TestSubjectAfterPriorRoom()
     {

@@ -1,4 +1,6 @@
 using AllMatters.Jigsaw;
+using MegaCrit.Sts2.Core.Entities.Creatures;
+using MegaCrit.Sts2.Core.Entities.Powers;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Hooks;
@@ -34,12 +36,13 @@ internal static class JigsawHuntingActTwoTests
       ("Jigsaw hunting act two Knowledge second pair follows native cycle and applies Tender to its owner", KnowledgeSecondPair),
       ("Jigsaw hunting act two Knowledge third pair uses twenty one and finishes the native three curse cycle", KnowledgeThirdPair),
       ("Jigsaw hunting act two Hive normal opening uses native power commands and preserves unrelated Weak", HiveNormalOpening),
+      ("Jigsaw hunting act two Hive pending confirmation retains all three opening debuffs", HivePendingConfirmation),
       ("Jigsaw hunting act two native opening leaves a non Jigsaw run with no acts untouched", NonJigsawOpening) ];
 
     private static void Check(bool value, string reason) => NativeEventTests.Check(value, reason);
     private static void Ok(JigsawResult result) => Check(result.Success, result.Reason);
 
-    private static JigsawRun BossRoot(bool hunted, IEnumerable<ulong> players, JigsawRoom targetRoom = JigsawRoom.Boss)
+    private static JigsawRun BossRoot(bool hunted, IEnumerable<ulong> players, JigsawRoom targetRoom = JigsawRoom.Boss, bool pending = false)
     {
         var map = JigsawRun.Create(75, players: players);
         foreach (ulong player in map.ActivePlayers) Ok(map.ChooseEnd(player, EndChoice.Automatic));
@@ -70,6 +73,7 @@ internal static class JigsawHuntingActTwoTests
         foreach (int node in path)
         {
             var entry = map.BeginEnter(node)!;
+            if (pending && node == boss) return map;
             Ok(map.ConfirmEnter(entry.Id));
             if (node != boss) Ok(map.CompleteRoom(entry.Id));
         }
@@ -353,6 +357,51 @@ internal static class JigsawHuntingActTwoTests
         Check(player.Creature.GetPowerAmount<WeakPower>() == 0 && player.Creature.GetPowerAmount<FrailPower>() == 0 &&
             player.Creature.GetPowerAmount<VulnerablePower>() == 0,
             "The actual native opening completes without inspecting a missing act or adding Hive debuffs outside Jigsaw.");
+    }
+
+    private static Action? confirmHiveEntry;
+
+    public sealed class ConfirmHiveEntryPower : PowerModel
+    {
+        public override PowerType Type => PowerType.Buff;
+        public override PowerStackType StackType => PowerStackType.Single;
+        public override Task AfterPowerAmountChanged(PlayerChoiceContext choiceContext, PowerModel power,
+            decimal amount, Creature? applier, CardModel? cardSource)
+        {
+            if (power is WeakPower && ReferenceEquals(power.Owner, Owner) && applier == null)
+                confirmHiveEntry?.Invoke();
+            return Task.CompletedTask;
+        }
+    }
+
+    private static async Task HivePendingConfirmation()
+    {
+        ModelDb.Inject(typeof(ConfirmHiveEntryPower));
+        for (int count = 1; count <= 4; count++)
+        {
+            var players = Enumerable.Range(1, count).Select(id => Player.CreateForNewRun<Ironclad>(UnlockState.all, (ulong)id)).ToArray();
+            var run = RunState.CreateForTest([players[0]], acts: [ModelDb.Act<Overgrowth>(), ModelDb.Act<Hive>()], seed: "HIVE_PENDING_CONFIRMATION");
+            run.CurrentActIndex = 1;
+            using var battle = new HeadlessTestSetup.EncounterCombatScope(run, ModelDb.Encounter<SpinyToadNormal>().ToMutable());
+            foreach (var player in players.Skip(1))
+            { player.RunState = run; battle.Combat.AddPlayer(player); player.ResetCombatState(); }
+            run.PushRoom(new CombatRoom(battle.Combat));
+            JigsawCheckpoint.Capture(run, BossRoot(true, [players[0].NetId], JigsawRoom.Combat, pending: true));
+            JigsawNativeSession.Restore(run);
+            var map = JigsawNativeSession.TryGet(run)!.Map!;
+            long attempt = map.PendingEntry!.Id;
+            await PowerCmd.Apply<ConfirmHiveEntryPower>(new ThrowingPlayerChoiceContext(), players[0].Creature, 1, players[0].Creature, null);
+            confirmHiveEntry = () => { Ok(map.ConfirmEnter(attempt)); confirmHiveEntry = null; };
+            try
+            {
+                await Hook.BeforeCombatStart(run, battle.Combat);
+                Check(map.PendingEntry == null && map.CurrentNode != null && players.All(player =>
+                    player.Creature.GetPowerAmount<WeakPower>() == 1 && player.Creature.GetPowerAmount<FrailPower>() == 1 &&
+                    player.Creature.GetPowerAmount<VulnerablePower>() == 1),
+                    $"The first native Weak command confirms the same pending room; all three debuffs still reach every one of {count} living combat roles.");
+            }
+            finally { confirmHiveEntry = null; }
+        }
     }
 
     private static async Task HiveNormalOpening()

@@ -47,7 +47,8 @@ using System.Text.Json.Nodes;
 internal static class JigsawHuntingCrabRecoveryTests
 {
     internal static readonly (string Name, Func<Task> Test)[] Cases =
-    [("Jigsaw crab fresh lobbies restore complete double arm opening and native nonempty victory rewards and Proceed once", Fresh)];
+    [("Jigsaw crab fresh lobbies restore complete double arm opening and native nonempty victory rewards and Proceed once", Fresh),
+     ("Jigsaw crab full console fight Knowledge Demon awaits native room startup and win", ConsoleFight)];
 
     private static readonly JsonSerializerOptions CompleteJson = new() { IncludeFields = true };
     private static Observation? observation;
@@ -170,7 +171,28 @@ internal static class JigsawHuntingCrabRecoveryTests
         public Task<bool> ShouldAllowRunToBegin() => Task.FromResult(true);
     }
 
-    private static async Task Fresh()
+    private static Task Fresh() => WithFreshCrab(null);
+
+    private static Task ConsoleFight() => WithFreshCrab(async (run, state) =>
+    {
+        Check(CombatManager.Instance.IsInProgress && run.CurrentRoom is CombatRoom { Encounter: KaiserCrabBoss },
+            "The console transition starts in the actual running Kaiser Crab combat.");
+        state.ReadyRound = 0;
+        var fight = new MegaCrit.Sts2.Core.DevConsole.ConsoleCommands.FightConsoleCmd()
+            .Process(run.Players[0], ["KNOWLEDGE_DEMON_BOSS"]);
+        Check(fight.success && fight.task != null, "The real fight command accepts the encounter and exposes its transition task.");
+        await fight.task!.WaitAsync(TimeSpan.FromSeconds(15));
+        await OpeningReady(state, 2);
+        Check(run.CurrentRoom is CombatRoom { Encounter: KnowledgeDemonBoss } && CombatManager.Instance.IsInProgress,
+            "After the awaited console task the Knowledge Demon room is a real active combat.");
+        var room = (CombatRoom)run.CurrentRoom!;
+        var win = new MegaCrit.Sts2.Core.DevConsole.ConsoleCommands.WinConsoleCmd().Process(run.Players[0], []);
+        Check(win.success && win.task != null, "The original win command accepts the newly started combat.");
+        await win.task!.WaitAsync(TimeSpan.FromSeconds(15));
+        await Until(() => room.IsPreFinished, "The original win command completes the replacement combat.");
+    });
+
+    private static async Task WithFreshCrab(Func<RunState, Observation, Task>? afterOpening)
     {
         var manager = RunManager.Instance;
         var combatManager = CombatManager.Instance;
@@ -291,6 +313,11 @@ internal static class JigsawHuntingCrabRecoveryTests
             var originalCrusher = Arm<Crusher>(originalRoom);
             var originalRocket = Arm<Rocket>(originalRoom);
             CheckOpening(originalRoom);
+            if (afterOpening != null)
+            {
+                await afterOpening(run, state);
+                return;
+            }
             var opening = Opening(run, originalRoom);
             int steps = originalSession.Map!.Steps;
             int remaining = originalSession.Map.RemainingSteps;

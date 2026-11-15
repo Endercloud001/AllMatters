@@ -28,6 +28,8 @@ internal static class JigsawHuntingActOneTests
     [ ("JigsawHuntingActOne native Effigy preload succeeds before creature binding", EffigyPreload),
       ("Jigsaw native monster preload Wriggler succeeds before creature binding", () => UnboundIntents(ModelDb.Monster<Wriggler>())),
       ("Jigsaw native monster preload TheInsatiable succeeds before creature binding", () => UnboundIntents(ModelDb.Monster<TheInsatiable>())),
+      ("Jigsaw native monster preload TestSubject succeeds before creature binding", () => UnboundIntents(ModelDb.Monster<TestSubject>(), canonicalSupported: false)),
+      ("Jigsaw native monster preload KnowledgeDemon succeeds before creature binding", () => UnboundIntents(ModelDb.Monster<KnowledgeDemon>())),
       ("JigsawHuntingActOne native Byrdonis gains fixed regeneration and retains Territorial", ByrdonisOpening),
       ("JigsawHuntingActOne native Effigy opens Awake and retains Slow and Slash", EffigyOpening),
       ("JigsawHuntingActOne native Kin orbs apply two once before Artifact and keep target subset", KinOrbs),
@@ -52,10 +54,20 @@ internal static class JigsawHuntingActOneTests
 
     private static Task EffigyPreload() => UnboundIntents(ModelDb.Monster<BygoneEffigy>());
 
-    private static Task UnboundIntents(MonsterModel canonical)
+    private static Task UnboundIntents(MonsterModel canonical, bool canonicalSupported = true)
     {
-        _ = HarmonyLib.AccessTools.Method(typeof(MonsterModel), "GetIntents").Invoke(canonical, null);
-        _ = HarmonyLib.AccessTools.Method(typeof(MonsterModel), "GetIntents").Invoke(canonical.ToMutable(), null);
+        // TestSubject's native machine sets DeadState and requires a mutable
+        // model. Encounter resource discovery uses that legal unbound model.
+        var mutable = (MonsterModel)canonical.ToMutable();
+        foreach (var monster in canonicalSupported ? new[] { canonical, mutable } : new[] { mutable })
+        {
+            Check(JigsawHuntingActOne.BoundCreature(monster) == null,
+                "Resource discovery must run before creature binding, including mutable encounter previews.");
+            Check(monster.AssetPaths.ToArray().Length > 0, "Native resource discovery must preserve the monster's assets.");
+            _ = HarmonyLib.AccessTools.Method(typeof(MonsterModel), "GetIntents").Invoke(monster, null);
+            Check(JigsawHuntingActOne.BoundCreature(monster) == null,
+                "Resource discovery must not bind a creature as a side effect.");
+        }
         return Task.CompletedTask;
     }
 

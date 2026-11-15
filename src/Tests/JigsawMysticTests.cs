@@ -32,6 +32,7 @@ internal static class JigsawMysticTests
     [("Jigsaw Mystic hunted Glory normal entry adds one native monster before combat creation", NativeEntry),
      ("Jigsaw Mystic generation respects roots and scales native HP once for one to four combat roles", Generation),
      ("Jigsaw Mystic native CAST HEAL BUFF cycle records real cards and fixed Strength", Cycle),
+     ("Jigsaw Mystic natural CAST adds discard statuses without healing injured enemies", CastWithInjuredEnemies),
      ("Jigsaw Mystic predicts all six independent native status branches and skips dead owners", CastBranches),
      ("Jigsaw Mystic native healing and buff targeting include self and exclude dead enemies", Targets),
      ("Jigsaw Mystic real resource factory plays complete Spine actions and bilingual text", Presentation)];
@@ -190,6 +191,30 @@ internal static class JigsawMysticTests
             Check(CombatManager.Instance.History.Entries.OfType<MonsterPerformedMoveEntry>().Where(entry => ReferenceEquals(entry.Monster, mystic))
                 .Select(entry => entry.Move.Id).SequenceEqual(new[] { "CAST", "HEAL", "BUFF" }),
                 "Native monster history records the full three-action cycle in order.");
+        }
+    }
+
+    private static async Task CastWithInjuredEnemies()
+    {
+        for (int count = 1; count <= 4; count++)
+        {
+            using var battle = new MysticBattle(count);
+            var mystic = battle.Mystic!;
+            foreach (var enemy in battle.Combat.Enemies) enemy.SetCurrentHpInternal(enemy.MaxHp - 20);
+            for (int cast = 0; cast < 2; cast++)
+            {
+                Check(mystic.NextMove.Id == "CAST", "The actual native initial roll or completed HEAL/BUFF cycle selects CAST.");
+                var hp = battle.Combat.Enemies.Select(enemy => enemy.CurrentHp).ToArray();
+                var expected = Clone(mystic.Rng);
+                var cards = battle.Players.Select(_ => StatusIds[expected.NextInt(6)]).ToArray();
+                await Perform(mystic);
+                Check(battle.Combat.Enemies.Select(enemy => enemy.CurrentHp).SequenceEqual(hp) &&
+                    battle.Players.Select((player, index) => player.PlayerCombatState!.DiscardPile.Cards is var pile &&
+                        pile.Count == cast + 1 && pile.Last().Id == cards[index] && ReferenceEquals(pile.Last().Owner, player)).All(value => value) &&
+                    SameRng(mystic.Rng, expected),
+                    "Each natural CAST generates one predicted six-way status per owner while injured enemies retain their exact HP.");
+                if (cast == 0) { await Perform(mystic); await Perform(mystic); }
+            }
         }
     }
 
