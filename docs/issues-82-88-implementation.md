@@ -66,3 +66,23 @@ Hive一次原序prefix复现实际`expected=1 actual=0`、opening完成/liveRoom
 #81仍需按具体分版/设备/故障项核对归属；其[#93/#94收尾确认](https://github.com/Endercloud001/AllMatters/issues/81#issuecomment-6814733380)已认可实现、自动验证及对应人工项，不能因父票OPEN将它们重新标未通过。其他适用真实端/设备验收仍逐项保留。
 
 最终从复审后的同一源码提交执行项目完整Check、双版构建与许可检查，再按[实机验收交付](development.md#实机验收交付)集中提供人工批次。Agent不启动游戏/Steam、不写真实mods或存档；本地切片不授权推送、评论、关票或正式发布。原树、分支、stash及本机证据不因文档精简而删除。
+
+## 第一批人工反馈修复（2026-11-16）
+
+人工通过及全部原始失败项保存在[验收指南](batch-6-test-guide.md#第一批人工反馈2026-11-15)。通过项保留原反馈范围；最新游戏日志为 beta 0.113.1 / Workshop RitsuLib 0.6.13，自动宿主使用完整0.6.11，两者不混签。
+
+本轮源码提交 `226c4e9`，正常pre-commit formatter及回暂存hooks通过，提交后与两实施树已审暂存逐文件一致。完整Check已退出0，PS语法/工作流/空白/占位检查、资源及双版全量宿主/构建全部PASS。beta661（Build/Host0、Engine26、Metadata0），归档 `run-20261116-030906107-4209ff762559452b8bc709b5c604e663`；public663（同为0/0、26/0），归档 `run-20261116-034551760-6cfa4d088f874547b9a3047209b70ec7`。完整控制台 `.local/issue88-manual-feedback/full-check-226c4e9.log`；26条仍按既有负例/宿主诊断分类，不称零错误。
+
+本轮行为改动：未绑定Creature时保留原生怪物预载入口（Effigy/Wriggler/TheInsatiable）；Boss投影保留原生特殊节点，旧保存地图在通知原生控件前迁移（public与beta分别接入口）；地图显示/隐藏配对原生Opened/Closed，移除奖励暗幕残留；Exploring隐藏多余对话，保留入场失败的恢复按钮。光门中英文仅改文案，原升级选择规则不变。
+
+战斗改动：暗港自动布局对齐原版相同数量队列中心，专用场景及密林原站位保留；Phrog五虫沿地面单排并缩放到0.8，真实HP/意图/鼠标与手柄可用；Waterfall在AboutToBlowMove完成后去除全部Debuff（含负力量/隐藏负面）并固定获得Artifact3，首次致死时不提前发放。
+
+窄验证证据在同级实施树 `.local/tests/archives/`：combat树 `issue88-combat-full-slice-1-20261116-000840831-7d44c0448c494ae7b472a0fdabc15ba7` 为双版Waterfall各8，`issue88-combat-full-slice-2-20261116-000855237-6d4d8c040ebf4a10801dcda5348fe964` 为真实恢复/领奖各1；Phrog几何双版各1见 `issue88-combat-corrected-1-20261116-000605246-c7fee472c47b410d953202d064b2b073`。暗港独立oracle直接采样重排前原生同数量真实节点中心，删除公式副本并作双向偏差断言，双版各14 strict、Engine/Metadata均0，见combat树 `issue88-native-layout-independent-20261116-025531858-37a4de85c71049d4be7d8de5fc9eea7b`。
+
+flow树 `issue88-legacy-compatible-green-20261116-000502050-d5333ca6938a4df981ced4fc6959ad58` 覆盖实际SavedMapsToLoad→GenerateMap双版各1；`issue88-flow-strict-fixed-20261116-025343277-ab0a86b2d990459491a723a21c0cfff5` 为补充怪物预载双版各2；`issue88-flow-strict-fixed-20261116-025358200-f2f714b4c6ad47b68ec8369c9b67bfd2` 为奖励Overlay/地图热键/真实Escape双版各1且Engine/Metadata为0。光门既有行为回归双版各1见集成树 `issue88-light-copy-20261115-234637855-414c4354978649dfa2f704ccfcba6b13`。
+
+独立Standards/Spec审查覆盖两个实施树暂存差异与增量；两版新增Harmony目标已核实，暗港测试原单向/公式副本缺口已修。测试名称从“preserves intents”收窄为实际验证的“preload succeeds before creature binding”。本轮误启动的重复基线主动停止，归档 `issue88-manual-smoke-20261115-232243994-c501b03311a2454089c190db40d36e44` 不计通过。
+
+未签收：真实游戏连续精英、事件入场、fight、Boss奖励按钮后跨幕及旧档恢复后领奖出口，均须对修复包实机复测；自动投影/预载/Overlay验证不冒签完整游戏流程。另日志 `godot2026-11-15T22.53.36.log:785` 的Continue异常落在BaseLib.CustomMessageWrapper.Unregister→RunManager.CleanUp，`godot2026-11-15T19.58.20.log:30310` 为D3D12设备丢失；现有栈没有证明本Mod重复清理或事件逻辑致错，两项未宣称修复。
+
+统一包已按五文件白名单更新到本树 `dist/batch-6-integration/AllMatters-public/` 与 `AllMatters-public-beta/`；两版DLL ProductVersion均为 `0.1.1+226c4e9879c50165c24913e31bde8f0f95154b98`，各5文件，PCK各85,203,232字节且与此前已检查资源包字节完全一致，原409资源/113导入及Queen右Torch1320/695证据继续适用。LICENSE/THIRD_PARTY_NOTICES与仓库原件一致，依赖manifest仍为STS2-RitsuLib。旧统一包5文件保留在 `.local/issue88-manual-feedback/previous-delivery/`。Agent没有安装、启动游戏/Steam、写mods或真实存档；按[修复包复测顺序](batch-6-test-guide.md#本轮修复包复测顺序)完成用户实机确认。
