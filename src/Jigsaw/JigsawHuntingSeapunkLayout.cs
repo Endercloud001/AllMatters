@@ -62,7 +62,7 @@ internal static class JigsawHuntingSeapunkLayout
         updateNavigation.Invoke(__instance, null);
     }
 
-    private static void PositionAutomatic(NCombatRoom room, NCreature[] enemies)
+    internal static void PositionAutomatic(NCombatRoom room, NCreature[] enemies)
     {
         enemies = enemies.OrderBy(node => node.GlobalPosition.X).ToArray();
         var parent = (CanvasItem)enemies[0].GetParent();
