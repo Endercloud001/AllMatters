@@ -106,3 +106,11 @@ public原StartDeathAnim清FocusMode而普通turn不恢复；正常选卡目标/�
 首轮音频前提、观察器Mount前安装与原60秒整例watchdog失败留档，不称几何red；仅两个明确新例180秒，逐focus等待和原生时间比例未改。实施beta适用target在testsubject-layout-20261115/.local/tests/archives/testsubject-layout-budget-final-20261115-060415853-ca6b99fb0a4e4effb73b8d92aa75336f/public-beta.log，public最终在testsubject-layout-controller-public-final-20261115-062105172-69143aea718c4858b107d4c2308db9a2/public.log，分别各2 strict通过、四诊断0，不把前一All中public失败写成整轮成功。独立两轴及public-only输入增量均0阻塞，正常hooks，已审/提交patch逐字节一致，.import保留。
 
 集成8d3c602双版各2 strict通过，原日志/summary在.local/tests/archives/testsubject-layout-integrated-20261115-062811437-2f2126fa8172424a8d51e16f5f32f3c5。没有CanvasItem RID/ObjectDB警告；60秒失败的退出警告仍保留。不签真实端/实体设备、完整#87或暂停P87已修复。
+
+## Queen 右火炬血条与女王目标分离（2026-11-15）
+
+4972518完整Check的public0.107.1在4角色1280×720捕获真实遮挡：右Torch HP右端1401.9001，Queen hitbox左端1399.2，逻辑交集2.700×2.182、物理约1.8×1.45。采样中HP的Y位置浮动，旧布局可偶尔不交叠，旧beta654通过不能撤销此red；原档集成树`.local/tests/archives/run-20261115-163417811-4dc7c2d635004954bdae0accdb3b4f8f/public.log`。
+
+2b0725d经41b2130合入，仅`hunting_queen.tscn`右Torch marker X1330→1320；左1050、聚合体1207、女王1606及Y保留，原几何/完整HP与意图/鼠标选择/控制器全环断言未改。public0.107.1及beta0.113.1各原Queen组9项strict通过，Build/Host/Engine/Metadata均0。两版×1/4角色×1280/1680共8采样，左右HP间距10.8logical，右HP到Queen目标框间距6.2999logical；1280实际边界为1149.9→1160.7001、1392.9001→1399.2，1680整体+270。新资源由默认入口导出，不复用旧PCK。
+
+实施原档在`queen-display-clearance-20261115/.local/tests/archives/queen-clearance-public-20261115-171547083-c50da3b436bb4f6d9d1dde0e5aebf3fe`及`queen-clearance-beta-20261115-171636681-3f0deb98a25746ff85f965bd03b901bd`。独立Standards/Spec无发现、正常hooks、提交与已审补丁一致；集成41b2130完整Check退出0，beta654/public656项通过，两版宿主/构建0、Engine26/Metadata0，原序包含本布局。此修复不签整票、真实设备或暂停GCHandle/P87已修。

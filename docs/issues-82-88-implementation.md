@@ -21,9 +21,31 @@
 
 ## 完整检查与已知诊断
 
-最新完整`Check.ps1 -Branch All`在`fcc8831`退出1：脚本、空白、资源与双版构建通过，但beta0.113.0在RestRelic真实子端握手失败，public0.107.1在Hive fresh的启动Task计数断言失败。控制台归档`.local/implement-resume-20261114/full-check-20261115-fcc8831.log`；原测试档分别为`.local/tests/archives/run-20261115-064511158-8eb09c30e9534b08afe81e89da4a0d35/`及`run-20261115-070007780-632c2093b76848b593dfcef61dbee504/`。构建成功不能消去这两个失败，当前包尚未交付。
+最终候选源码`41b21300cf7a30ef2d2aa89f6cc232a416de8e81`完整`Check.ps1 -Branch All`退出0：脚本、空白、资源、两版宿主及两版构建全部通过；beta0.113.1通过654项、public0.107.1通过656项，Build/Host均0、Engine均26、Metadata均0。实际归档分别为`.local/tests/archives/run-20261115-172333350-347d3f22e4544ec18a012a60f814c3ca/`和`run-20261115-180125874-702ef8e3ecd840c681d478cff9b29529/`，控制台`.local/implement-resume-20261114/full-check-20261115-41b2130.log`。模型缓存、Hive、Knowledge与Queen右火炬修复点均已越过完整原序。
 
-beta握手已定位为Beggar保存测试重复调用原生非幂等的模型缓存初始化，使宿主与新子端Hash不同；`fb9e6bc`→`030eb34`删除重复Init并保留保存恢复原断言，新增已初始化Hash不变检查。新目标beta0.113.1先取得真实断言red，修复后双版库存各1、真实RestRelic各2 strict通过；证据位于实施树`model-cache-fixture-20261115/.local/tests/archives/cache-fixture-{red,green,rest-regression}-*`。独立双轴无发现，正常hooks，提交补丁与已审补丁一致。Hive失败尚在独立诊断，不能据此宣布全量已修。
+beta26条诊断标题与4972518逐条一致，分类见下；public为18条保存/名单保护负例、1条worker注入、1条失效事件任务拒绝、2条原生managed action队列诊断、1条headless视觉脚本缺类、3条退出资源诊断。完整通过不代表零诊断，也不改签暂停的GCHandle/P87已修。
+
+同源码统一包已生成到`dist/batch-6-integration/AllMatters-public/`及`AllMatters-public-beta/`，每版恰五文件，DLL产品版本均含完整41b2130提交。最终PCK原生枚举409条、导入113条全部有源引用，已从包内读取Queen新marker1320/695；实物/来源核对见[素材来源](issues-82-88-asset-sources.md)，用户集中安装与剩余人工项见[验收指南](batch-6-test-guide.md)。未推送、安装或关闭工单。
+
+前候选`4972518`完整Check退出1：静态/脚本/资源与双版构建通过，beta0.113.1的Build0/Host0/Passed654/Engine26/Metadata0；public0.107.1的Build0/Host1/Passed=null/Engine25/Metadata0，已通过原序Hive与Knowledge三轮，随后Queen四角色720p布局的右Torch血条与Queen目标框出现逻辑2.700×2.182、物理约1.8×1.45交集。原档分别`.local/tests/archives/run-20261115-155544343-fe2baffe8fba441ab726e4c144b97dc2/`与`run-20261115-163417811-4dc7c2d635004954bdae0accdb3b4f8f/`，控制台`.local/implement-resume-20261114/full-check-20261115-4972518.log`；布局按真实red另片最小修复，原断言不放宽。
+
+beta26条诊断已核为21条保存/名单负例、worker注入及失效事件任务拒绝，另1条原生多人场外致死保护、1条headless视觉脚本缺类和3条退出资源诊断；不能称零错误。本轮未复现既往GCHandle致命错误，也不把它改签已修。
+
+Queen几何red已由`2b0725d`→`41b2130`最小修复，仅右Torch marker X1330→1320，测试未改；双版Queen原组各9 strict通过，独立双轴无发现、正常hooks、已审补丁一致。实测间隙与原档见[Queen右火炬分离记录](issue87-boss-implementation.md#queen-右火炬血条与女王目标分离2026-11-15)；当前41b2130完整Check已通过，实测654/656来自新资源实际执行。
+
+前候选`c4bc995`的完整Check也退出1：静态/脚本/资源与双版构建通过；beta0.113.1在ENet进入转换用例发生地图绘制GCHandle致命错误，public0.107.1已通过原序Hive fresh，但在Knowledge原生双owner准备屏障失败。两目标Build0/Host1/Passed=null，Engine分别5/25、Metadata0。控制台`.local/implement-resume-20261114/full-check-20261115-c4bc995.log`；beta原档`.local/tests/archives/run-20261115-120357097-b91d1314bf6e47c6a2500d79a20a2fa0/`、public原档`run-20261115-120600967-b7d41baa2d1647758037cb6508f3d3c0/`。该候选当时进入两项窄诊断，后续修复与暂停事实见下文。
+
+beta角色2栈为`ResourceLoader.Load`→`JigsawNativeArt.DrawPath`→正式`_Draw`，Host随后等其头像超时；首fatal已复制到`.local/enet-art-binding-20261115/first-beta-fatal`。public的Until超时诊断在MapRoom读Hand又抛异常，遮住真实等待；父已写`host.entry-ready`、子未写，不能把失败端武断归父。该次失败时统一包尚未就绪；当前交付状态见页首。
+
+Knowledge后续窄复现与0.6.11方法体确认：父Sidecar仍观察旧断线服务，旧features使父越过能力检查，子尚未协商，父实际超时于双方准备屏障。`c52af37`→`4972518`只修改测试夹具：SetUpTest后公有Observe实际network，清理只释放本例owned epoch；保留20秒、真实握手与三轮断言，诊断房外读取不再遮原异常。实施树`knowledge-handshake-20261115/.local/tests/archives/knowledge-handshake-diagnostic-20261115-123518036-4bf72692bbe34a3caf33d8230bbf5256`为真实red，`knowledge-handshake-fixed-20261115-123758450-1b75dde896b947689cc2ea42d9f74687`及`knowledge-handshake-fixed-beta-20261115-124054448-ead8d00638aa4111b448fac9b7481b4d`分别public/beta各3 strict绿。独立双轴无发现、正常hooks、已审补丁一致；本片不签正式游戏跨跑局入口。
+
+绘制强持有实验已归档撤回：1131实际AtlasManager已有强缓存，不能称缺少GC根；实验绿不签根因，GodotSharp版本一致也不证明没有绑定竞态。原件在`map-art-lifetime-20261115/.local/map-art-lifetime-experiment/`，当前暂停等待实际绑定重建或Dispose证据。4972518中beta完整通过，绘制致命错误未复现但仍未定位，不签根因修复。
+
+更早完整`Check.ps1 -Branch All`在`fcc8831`退出1：脚本、空白、资源与双版构建通过，但beta0.113.0在RestRelic真实子端握手失败，public0.107.1在Hive fresh的启动Task计数断言失败。控制台归档`.local/implement-resume-20261114/full-check-20261115-fcc8831.log`；原测试档分别为`.local/tests/archives/run-20261115-064511158-8eb09c30e9534b08afe81e89da4a0d35/`及`run-20261115-070007780-632c2093b76848b593dfcef61dbee504/`。该候选当时因这两个失败未交付，不能用构建成功替代宿主通过。
+
+beta握手已定位为Beggar保存测试重复调用原生非幂等的模型缓存初始化，使宿主与新子端Hash不同；`fb9e6bc`→`030eb34`删除重复Init并保留保存恢复原断言，新增已初始化Hash不变检查。新目标beta0.113.1先取得真实断言red，修复后双版库存各1、真实RestRelic各2 strict通过；证据位于实施树`model-cache-fixture-20261115/.local/tests/archives/cache-fixture-{red,green,rest-regression}-*`。独立双轴无发现，正常hooks，提交补丁与已审补丁一致。该片不代签独立Hive问题或完整Check。
+
+Hive一次原序prefix复现实际`expected=1 actual=0`、opening完成/liveRoom=CombatRoom，确认为原Task漏观测而非重复启动证据。`654e25c`→`c4bc995`只修改Hive测试，复用Waterfall已用的`CombatRoom.StartCombat.MoveNext`单次原调用前后观测；public保留原Task，beta读真实`_turnLoopTask`，原count及恢复断言保留，public仅成功`Task.CompletedTask`缓存允许共享而run/room/combat保持独立。实施树`hive-startup-diagnosis-20261115/.local/tests/archives/`下`hive-startup-prefix-20261115-113549838-cd510441e18e4a6bb6f88da84f851c50`为red，`hive-caller-verified-20261115-115637505-8f3865b80bc446e0977dea383faf6bef`及`hive-neighbor-waterfall-20261115-115721389-322147de42a34537ba356a87d896bc2b`为Hive/Waterfall双版各1 strict绿。临时runner已撤回，独立双轴无发现、正常hooks、已审补丁一致；集成c4bc995当次public原序已通过Hive，beta因更早ENet失败尚未到此；当前41b2130双版完整通过见页首。
 
 2026-11-15用户确认beta更新为0.113.1（d09d48e5），public仍为0.107.1；独立完整运行时快照与RitsuLib0.6.11实际加载冒烟已通过。本文及逐票记录此前的beta0.113.0证据保留历史版本归属，不代签0.113.1完整检查。
 
@@ -31,7 +53,7 @@ beta握手已定位为Beggar保存测试重复调用原生非幂等的模型缓�
 
 - 原始日志在兼容树`.local/host-20261113/{public,beta}-full-df6a1f9-host.log`。诊断分类在**主仓**`.local/main-control-20261113-resume/{public,beta}-df6a1f9-diagnostics.md`。
 - public含18条坏档/名单保护负例＋1worker注入，其余视觉缺类1、managed action pop2、退出资源3；beta含19条保护负例＋1worker注入＋1原生CursedTome多人场外致死保护，其余视觉缺类1、treasure空Tween NRE1、退出资源3。CursedTome保护恢复1HP，不是实际击杀成功。
-- 当前局部宿主已能运行匹配资源；P87原六项间歇故障单独暂停，事实与恢复条件见[看板](issues-82-88-board.md#暂停与等待)。未捕获原错的probe绿不构成修复。
+- 当前局部宿主已能运行匹配资源；P87原六项间歇故障单独暂停，事实与恢复条件见[看板](issues-82-88-board.md#暂停的技术诊断)。未捕获原错的probe绿不构成修复。
 
 最早开工基点`f7e915c`的beta0.111.0/public0.107.1冒烟为403/405 PASS、Engine22/23；仅保留主仓`.local/research/batch82-88/{public-beta-smoke,public-smoke}.log`历史锚点，不作为当前目标证据。
 

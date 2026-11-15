@@ -1,16 +1,16 @@
-# 批次4–6集中人工验收准备
+# 批次4–6集中人工验收：#82–#88
 
-当前统一包未就绪，无需安装。`fcc8831`完整Check失败，后续模型缓存修复已合入`030eb34`，Hive启动观测仍在诊断；最终源码、双版完整检查与五文件包完成后，再将本页状态改为可验收。现有`dist/public*`是开发输出，不能据此当作本页交付包。
+统一包已就绪，源码提交`41b21300cf7a30ef2d2aa89f6cc232a416de8e81`。`Check.ps1 -Branch All`退出0：beta0.113.1通过654项、public0.107.1通过656项，双版构建/宿主退出码均0；各有26条已分类引擎诊断、Metadata0，不能称零错误。集中验收仍待用户执行，#82–#88不据此整票关闭。
 
 ## 批次与版本
 
 批次4为#82/#83，批次5为#84–#87，批次6为#88组合兼容；每个游戏目标使用一个统一包，不逐票更换。目标public0.107.1、beta0.113.1，依赖完整RitsuLib0.6.11 variant-pack；此前beta0.113.0自动日志保留历史归属，新目标必须另有实际证据。#93/#94既有人工通过继续有效，以下只补新增行为及尚未细分的环境范围。
 
-计划交付目录为本集成树`dist/batch-6-integration/AllMatters-public/`及`AllMatters-public-beta/`，最终填入审查通过的同一源码SHA和实际归档路径。每目录仅包含`AllMatters.dll`、`AllMatters.pck`、`AllMatters.json`、`LICENSE`、`THIRD_PARTY_NOTICES.md`。
+实际统一包为本集成树`dist/batch-6-integration/AllMatters-public/`及`AllMatters-public-beta/`。两版DLL产品版本均为`0.1.1+41b21300cf7a30ef2d2aa89f6cc232a416de8e81`；每目录仅包含`AllMatters.dll`、`AllMatters.pck`、`AllMatters.json`、`LICENSE`、`THIRD_PARTY_NOTICES.md`。最终PCK实际409条资源、113条导入资源，右Torch marker已核为1320/695。
 
-## 包就绪后的安装
+## 安装
 
-由用户退出游戏，保留原Mod和测试存档，再将对应目标的五文件复制到`mods/AllMatters/`，不要将两目标叠放。完整依赖位于仓库`.local/dependencies/RitsuLib-0.6.11/`，另装到`mods/STS2-RitsuLib/`，保留bootstrap、compat、shared、viewer、assets.zip及manifest原布局；单个compat DLL不能代替完整包。本机现有安装manifest仍为0.6.7，自动宿主用的隔离0.6.11没有替用户升级安装；实际启动日志还须核对最终加载版本。
+由用户退出游戏，保留原Mod和测试存档，再将对应目标的五文件复制到`mods/AllMatters/`，不要将两目标叠放。完整依赖位于主仓`AllMatters/.local/dependencies/RitsuLib-0.6.11/`，另装到`mods/STS2-RitsuLib/`，保留bootstrap、compat、shared、viewer、assets.zip及manifest原布局；单个compat DLL不能代替完整包。本机现有安装manifest仍为0.6.7，自动宿主用的隔离0.6.11没有替用户升级安装；实际启动日志还须核对最终加载版本。
 
 通过Steam启动对应版本，所有参与端使用同一目标包及依赖。每组记下游戏版本、源码SHA、人数、Host/Client、输入设备、保存阶段和日志；public与beta分别记录，四角色宿主不是四个真实游戏端。
 
@@ -36,6 +36,8 @@
 
 ## 修复后验证项与未证范围
 
-模型缓存夹具修复已有beta0.113.1/public库存恢复与真实子端握手专项通过；它没有修改正式游戏握手。Hive启动计数诊断尚未结束，P87后台HP订阅间歇失败也未修复，两者不能互相代签。最终完整Check和PCK内容核验尚待，不用当前开发构建提前填“通过”。
+Queen重燃后重点看720p的右火炬血条与女王目标：两者应保持分离，火炬HP/意图完整，鼠标能分别选中各敌人；有条件时用宽屏及多人队伍复验。4角色×两宽自动几何已有双版证据，不把它写成四个真实游戏端已验。
 
-自动宿主的同进程新大厅、实际ENet、角色数和Godot输入各有证据边界；真实多游戏端、像素、实体设备及等待中死亡/断线仍按上表记录。Agent未启动Steam或游戏、未向安装目录复制产物、未更改真实存档。
+模型缓存、Hive启动观测和Knowledge Sidecar会话修复已通过本候选双版完整原序；它们属于自动宿主适配，正式游戏跨跑局、真实端/设备仍按上表验收。Queen一行坐标修复已通过双版Queen各9项strict及当前完整Check。
+
+历史自动宿主GCHandle绘制致命错误与P87后台HP订阅间歇失败仍未定位，本轮均未复现，暂停条件见[看板](issues-82-88-board.md#暂停的技术诊断)。自动宿主的同进程新大厅、实际ENet、角色数和Godot输入各有证据边界；真实多游戏端、像素、实体设备及等待中死亡/断线仍按上表记录。Agent未启动Steam或游戏、未向安装目录复制产物、未更改真实存档。

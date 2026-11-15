@@ -31,3 +31,5 @@ Fungus Beast、Mystic、Torch Head 的来源为 `MT-SUPER-POWER/STS2-Balance-MOD
 最终包仍应按实际文件核对用户图片和返回怪物NOTICE。当前双版宿主已绑定各自匹配的DLL/PCK/Spine；更早共用beta资源的日志只保留原证明范围，任何宿主通过都不代签真实游戏端验收。
 
 来源调查与逐文件读取证据保存在主仓本机 `.local/research/issues-82-88-license-current-audit.md`，以及 `implementation-82-88-assets.md`。本页未新增运行时校验或资源 hash。
+
+2026-11-15对最终候选41b2130的实际统一包PCK执行独立空项目原生挂载/目录枚举，清单在集成树`.local/pck-delivery-audit/41b2130-inventory.txt`：AllMatters与导入资源两根共409条，113条导入资源均有当前源.import引用，无孤立导入缓存；上述三张用户图及三组返回怪物均在实际PCK内，未发现程序集/调试符号。包内Queen场景另存于`41b2130-inventory.txt.queen.tscn`，新右marker已核1320/695。两目标包均恰五文件、DLL产品版本含同一完整41b2130提交，NOTICE与资源来源已核；RitsuLib单独完整安装，不混入AllMatters五文件目录。
