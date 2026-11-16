@@ -245,7 +245,7 @@ internal static class WhisperingHollowTests
         sync.ChooseLocalOption(1);
         network.Receive(new VotedForSharedEventOptionMessage { optionIndex = 0, pageIndex = 0, location = buffer.CurrentLocation }, 2);
         NativeEventTests.Check(sync.Events.All(e => !e.IsFinished) && first.Gold == gold, "Mixed votes do not resolve or pay anything.");
-        using (CardSelectCmd.UseSelector(new FirstCards()))
+        using (HeadlessNativeApi.UseSelector(first.RunState, new FirstCards()))
         {
             network.Receive(new VotedForSharedEventOptionMessage { optionIndex = 1, pageIndex = 0, location = buffer.CurrentLocation }, 2);
             await sync.AwaitPendingOptionTasks();

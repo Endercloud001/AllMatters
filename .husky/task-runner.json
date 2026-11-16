@@ -6,14 +6,16 @@
       "group": "pre-commit",
       "command": "dotnet",
       "args": ["format", "AllMatters.sln"],
-      "include": ["**/*.cs"]
+      "include": ["**/*.cs"],
+      "filteringRule": "staged"
     },
     {
       "name": "stage-formatted",
       "group": "pre-commit",
       "command": "git",
       "args": ["add", "-u", "--", "*.cs"],
-      "include": ["**/*.cs"]
+      "include": ["**/*.cs"],
+      "filteringRule": "staged"
     }
   ]
 }

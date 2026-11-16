@@ -56,6 +56,7 @@ public sealed record JigsawSave(
     [property: JsonRequired] long NextEntry,
     [property: JsonRequired] ulong[] AncientCompleted)
 {
+    public int StepRelicBonus { get; init; }
     public ulong[]? OriginalPlayers { get; init; }
     public JigsawLayout? AutomaticWitness { get; init; }
     public JigsawAutomaticOperation? AutomaticOperation { get; init; }
@@ -63,6 +64,8 @@ public sealed record JigsawSave(
     public ulong DestinationRandomState { get; init; } = 1;
     public Dictionary<int, JigsawRoom>? ResolvedRooms { get; init; }
     public Dictionary<string, object>? ShopStates { get; init; }
+    public JigsawHuntingState? Hunting { get; init; }
+    public JigsawQuestMarkers? QuestMarkers { get; init; }
 }
 public sealed record JigsawAutomaticOperation(string Algorithm, int ExpansionBudget, int[] CandidateOrder, ulong RandomState);
 

@@ -1,5 +1,13 @@
 # 开发环境
 
+## 当前开发目标（2026-11-15）
+
+用户于2026-11-15确认 beta 更新为 **public-beta v0.113.1**，public 继续 **v0.107.1**。本机新 beta 为 commit `d09d48e5`；独立开发副本在主仓 `.local/beta-resource-recovery-20261115/beta1131-content/`，包含匹配 DLL/PCK/Spine，活动树本机配置指向该副本，不随 Steam 再次更新漂移。旧 v0.113.0 (`16ac0fe3`) 与 v0.111.0 日志保留原版本边界，不代签新目标。
+
+此次开发依赖使用完整 RitsuLib **0.6.11 variant-pack**，独立保存在 `.local/dependencies/RitsuLib-0.6.11/`，保留旧包。`RitsuLibDir` 可在本机 `Paths.local.props` 指定；public 编译引用 `compat/0.107.1`，beta 引用 `compat/0.113.0`，均须来自同一完整包。0.113.1 实际启动选择该包的 `0.113.0` 兼容分支并已通过严格冒烟；这不等于新版完整玩法已验证。官方包包含两个目标不等于 AllMatters 行为已验证；新目标仍需实际宿主、保存恢复及受影响流程的验证。不向游戏安装目录复制产物或依赖。
+
+API 反编译按实际版本分目录：`.local/api/queries/public-v0.107.1/`、`.local/api/queries/public-beta-v0.113.1/`；保留旧 `.local/api/queries/public-beta-v0.113.0/` 和 `.local/api/queries/public-beta-v0.111.0/` 用于比较，不覆盖或混写新旧证据。匹配 public 资源及所需辅助依赖已准备到主仓 `.local/public-resource-recovery-20261113/public107-content/`；`8a69527` 起宿主按实际目标加载 DLL / PCK / Spine，日志输出目标目录、资源路径和实际程序集版本。匹配资源的专项通过与完整回归分别留证，当前结论见[实施索引](issues-82-88-implementation.md)。
+
 ## 已发现环境（2026-10-20）
 
 - .NET SDK：9.0.319；项目目标 net9.0。
@@ -22,7 +30,7 @@ pwsh -NoProfile -File ./tools/Build.ps1 -Branch public-beta
 pwsh -NoProfile -File ./tools/Build.ps1 -Branch public -GameDataDir 'D:/STS2-public/data_sts2_windows_x86_64'
 ```
 
-Paths.local.props 不提交 Git；PublicGameDataDir 与 BetaGameDataDir 分别指向两套 DLL。本工作区前者指向从 GitHub 核对后下载的 0.107.1 实际 DLL，后者指向本机 Steam beta 安装；复制示例 props 会覆盖这些本地设置，请按实际路径填写。也可直接运行 `dotnet build -p:GameBranch=public-beta`。引用游戏程序集时 Private=false，避免把游戏 DLL 打包进 Mod。
+Paths.local.props 不提交 Git；PublicGameDataDir 与 BetaGameDataDir 分别指向两套 `data_sts2_windows_x86_64` DLL 目录。本工作区前者使用独立 public 开发资源，后者使用本机 Steam beta 安装。无界面测试还要求所选数据目录的父目录含匹配的 `SlayTheSpire2.pck` 与 Spine 原生库，以及该版本所需辅助 DLL；不再以 beta 目录替 public 补依赖。保留本地配置后再按实际路径填写示例，也可直接运行 `dotnet build -p:GameBranch=public-beta`。引用游戏程序集时 Private=false，避免把游戏 DLL 打包进 Mod。
 
 输出按分支隔离到 `dist/<branch>/AllMatters/`；构建不会自动写游戏目录。现在包含 DLL、manifest、PCK、GPLv3 LICENSE 和来源声明。构建脚本先导入 `src/Resources/`，再用 `src/Tooling/PackResources.gd` 的原生 `PCKPacker` 打包纹理导入文件及原样场景/Spine 资源，不依赖 Windows 导出模板。`tools/ExportResources.ps1` 可单独运行；`tools/Test.ps1` 也会先导出最新 PCK。
 
@@ -30,7 +38,7 @@ Paths.local.props 不提交 Git；PublicGameDataDir 与 BetaGameDataDir 分别�
 
 默认公开版完整运行环境的准备：可通过 Steam 切换至默认分支，退出游戏后准备独立开发副本，再切回 public-beta。GitHub 下载的 DLL 足以进行本轮方法体检查和编译，但没有 PCK、原生库等完整环境，不能用于启动游戏验收。本次未切换 Steam 分支或修改存档；已更新 mods 中的 AllMatters 并安装 RitsuLib，原 AllMatters 已备份。
 
-你好世界的无界面测试使用目标分支真实游戏程序集、Godot 原生运行环境及本机 beta 资源包，测试命令和替代的宿主边界见 验证记录（本地记录：`docs/testing/hello-world.md`，不随仓库分发）。两个分支测试按顺序运行，不能并行使用同一测试输出目录。
+无界面测试使用所选分支真实游戏程序集、匹配的 PCK / Spine 及 Godot 原生运行环境。旧记录中 public 共用 beta PCK 的结果只代表当时范围，不能替代匹配 public 资源后的回归。测试宿主替代的边界仍见 验证记录（本地记录：`docs/testing/hello-world.md`，不随仓库分发）。两个分支测试按顺序运行，不能并行使用同一测试输出目录。
 
 ## 测试
 
@@ -42,6 +50,7 @@ pwsh -NoProfile -File ./tools/Test.ps1               # 默认 public-beta，无�
 pwsh -NoProfile -File ./tools/Test.ps1 -Branch All   # 顺序运行 public-beta 与 public
 pwsh -NoProfile -File ./tools/Test.ps1 -Filter 'highlights only'
 pwsh -NoProfile -File ./tools/Test.ps1 -Filter 'Trash heap' -SkipResourceExport # 仅 C# 改动，显式复用上次资源包
+pwsh -NoProfile -File ./tools/Test.ps1 -Branch All -Filter 'highlights only' -SkipResourceExport -ArchiveName host-smoke -ArchivePath .local/tests/host-review -StrictDiagnostics
 ```
 
 `Test.ps1` 与 `Check.ps1` 要求 PowerShell 7，版本不足时脚本宿主拒绝执行。5.1 会把 Godot 写到 stderr 的行当作终止错误，从而把提示误判为失败。
@@ -49,6 +58,10 @@ pwsh -NoProfile -File ./tools/Test.ps1 -Filter 'Trash heap' -SkipResourceExport 
 测试脚本恢复调用前的 DOTNET_ROOT，不修改系统配置；两个分支不能并行使用同一测试输出目录。CLI 仍可传 `-GodotPath`、`-DotNetRoot` 临时覆盖配置。
 
 独立 `Test.ps1` 先编译，再导出一次资源并顺序执行目标；编译失败不启动资源导入。`-SkipResourceExport` 仅用于已成功导出且 `src/Resources/`、`src/Tooling/PackResources.gd` 未变的迭代，资源包缺失会报错；资源改动后使用默认命令重新导出。`Build.ps1` 支持相同选项。完整 `Check.ps1` 每次重新导出一次资源，供双目标测试和打包共用，不依赖资源缓存判定。
+
+`-ArchiveName` 是归档标签（1–80 个字母、数字、点、下划线或连字符，以字母/数字开头且不能以点结尾）；`-ArchivePath` 是归档父目录，相对路径按仓库根目录解析。每次创建带时间和随机后缀的独立目录，同名重跑不覆盖旧证据。默认父目录为 `.local/tests/archives`，标签为 `run`。`All` 在首个失败目标处停止；摘要仅包含本轮已尝试目标，不复制未执行目标的旧 `last.log`。
+
+默认模式保留故障注入测试的引擎诊断输出，仍要求有 Passed 行、编译/宿主没有非零退出或调用异常，且 Metadata 提示不超过 1 条。新宿主专项使用 `-StrictDiagnostics`：额外要求 Build/Host 均明确为 0、Passed 大于 0、EngineErrors/ModMetadataErrors 均为 0；不满足时 Test 入口返回非零。单独解析旧日志也可用 `ReadTestLog.ps1 -Path <日志> -StrictDiagnostics`。默认解析继续兼容未记录 Build/Host 退出码的历史日志。
 
 新增原生 API 调用后先用真实 DLL 编译两个目标，再运行专项行为测试：
 
@@ -58,20 +71,6 @@ dotnet build src/Tests/AllMatters.Tests.csproj -p:GameBranch=public --nologo
 ```
 
 测试准备复用 `src/Tests/HeadlessCombatHost.cs` 中的 `HeadlessTestSetup`：`PlayerWithRun` 返回已绑定测试局的玩家，`Run` 创建指定角色的多人测试局，`Combat` 为局内玩家准备真实战斗状态；已有 `NativeEventTests.Player/Combat` 继续代理该入口。原生资源测试用 `using var atlases = HeadlessTestSetup.LoadAtlases("card_atlas", "relic_atlas")` 加载并自动撤销资源加载器；需要遗物袋时调用原生 `player.RelicGrabBag.Populate(player, player.RunState.Rng.UpFront)`。比较单目标前后 RNG 是否变化时复用 `RngPosition`，其数值不用于跨版本比较。事件原生文案的变量绑定沿实际 UI 使用事件 DynamicVars；既有框架初始化和生命周期替代顺序保持不变。
-
-### PR 合并后清理
-
-PR 合并到 main 后，本地 main 与远程不再同步。标准清理操作序列：
-
-```powershell
-rtk git fetch origin
-rtk git checkout main
-rtk git reset --hard origin/main
-rtk git branch -d integration/batch-N
-rtk git branch -d <feature-branch>  # 如有特性分支
-```
-
-参见 [Git 最佳实践](git-best-practices.md#pr-合并后同步)。
 
 ### 开工前冒烟检查
 
@@ -83,7 +82,7 @@ pwsh -NoProfile -File ./tools/ReadTestLog.ps1 -Path .local/tests/public-beta-las
 pwsh -NoProfile -File ./tools/ReadTestLog.ps1 -Path .local/tests/public-last.log
 ```
 
-`ReadTestLog.ps1` 本身就是冒烟门：日志的通过数为空，或「未关联 mod」提示（`ModMetadataErrors`）超过 1 条时，它以退出码 1 结束；通过数非空且提示不超过 1 条时以退出码 0 结束。两条命令都以退出码 0 结束，批次才能开工。
+`ReadTestLog.ps1` 本身就是冒烟门：通过数为空、编译/宿主非零退出、准备/调用异常，或「未关联 mod」提示（`ModMetadataErrors`）超过 1 条时退出码为 1；其余情况为 0。两条命令都以退出码 0 结束，批次才能开工；新宿主专项同时传入 `-StrictDiagnostics`，不能拿旧 `last.log` 代签本轮未执行目标。
 
 宿主 red（`ReadTestLog.ps1` 退出码非零）时：
 1. 立即修复宿主问题，不开始批次实施工单
@@ -103,6 +102,8 @@ pwsh -NoProfile -File ./tools/GitRemote.ps1 -Operation fetch
 
 `Check.ps1` 的 Placeholder scan 检索 `src/**/*.cs`（排除 `src/Tests/`），命中 `Placeholder`、`In a real implementation` 或 `TODO: Implement` 即判该步失败。
 
+pre-commit 的 Husky 任务以 `filteringRule: staged` 匹配 C#；docs/tools-only 暂存跳过 formatter 和 C# 回暂存，C# 格式化失败仍阻止提交。Husky 0.9.1 从 `core.hooksPath` 读取任务配置；若该值是另一棵树的绝对目录，当前树的配置不会自动生效，按下节设置本树路径。`git hook run pre-commit` 可单独验证正常提交入口。
+
 `Check.ps1` 分步骤汇总 PASS/FAIL/SKIP，任一步失败或跳过均返回非零，详细日志在 `.local/checks/last-run.log`。空白问题不阻止其他独立检查，单目标测试失败也继续另一目标及开发包构建；新资源导出失败则明确跳过依赖它的测试和打包，避免使用旧包。脚本流程测试使用隔离临时目录和命令替身验证执行顺序、资源复用与失败传播，不启动游戏。pre-push 自动调用同一命令，将输出留在 `.local/checks/hook-console.log`，失败会警示但仍允许推送。它不是强制合并条件，也不启动正式游戏或安装产物。安装器遇到已有 hook 或 hooksPath 时保留它们并停止，避免覆盖安全措施。其他 clone 需要自行运行安装器；没有依赖的公共 CI runner 不代跑本机测试。
 
 开始新工单前先刷新目标分支并查看 `ReviewScope.ps1`，选择相对 main 的独立分支或明确已有提交的处理方式。准备 PR 时再核对同一范围；审查起点覆盖不到的额外提交由 reviewer 补审或拆分。工具只展示差异，不替代范围判断。
@@ -110,6 +111,10 @@ pwsh -NoProfile -File ./tools/GitRemote.ps1 -Operation fetch
 CLI 遇到连接问题时按 [GitHub 操作约定](agents/issue-tracker.md) 处理。`GitRemote.ps1` 尊重既有 Git/环境代理，否则为当前命令采用系统代理，不修改全局配置。
 
 ## 并行实施与 worktree
+
+多issue拆片、WIP/角色配置、派发顺序和测试复用见[批次流程](agents/batch-flow.md)；#82–#88当前拉取入口为[唯一调度看板](issues-82-88-board.md)。先确定行为切片和所有权，再按本节创建/复用worktree，完成一片后继续拉取就绪项。
+
+创建或复用树后核对 `git config --show-origin --get core.hooksPath`。本机已启用 `extensions.worktreeConfig`；确认当前树的 `.husky/pre-commit`、`.husky/pre-push`、`.husky/_/husky.sh` 和 `task-runner.json` 完整后，在该树运行 `git config --worktree core.hooksPath .husky`，让正常提交读取自己的配置。旧绝对主仓路径仍保留在 common 配置，供缺少 hooks 的历史树继承；不把它全局改成相对路径，否则那些树会悄悄失去 hooks。其他 clone 先核实 worktree 配置扩展和既有 hooks，再配置对应入口。
 
 ### Worktree 创建前验证
 
@@ -154,16 +159,7 @@ CLI 遇到连接问题时按 [GitHub 操作约定](agents/issue-tracker.md) 处�
 
 ### worktree 清理
 
-完成工作后清理 worktree：
-
-1. 归档相关子代理会话：`mcp__ccd_session_mgmt__archive_session` 对应的 session_id
-2. 等待约 5 秒确保进程退出（Windows 文件句柄释放）
-3. 执行删除：
-   ```powershell
-   git worktree remove --force <path>
-   ```
-   
-如若删除失败，检查目录是否仍被子代理持有文件句柄；必要时用资源管理器或 Handle 工具查看占用情况。参见 [Git 最佳实践](git-best-practices.md#worktree-清理)。
+按 [Git 最佳实践](git-best-practices.md#worktree-清理安全规范强制执行) 先检查、备份并报告，再按仓库授权要求处理。遇到Windows文件句柄占用时，结束持有该树的进程后重试；以当前客户端可用工具为准，不使用旧会话管理工具名。
 
 ## 实机验收交付
 
@@ -271,7 +267,9 @@ Agent 完成适当的自动化测试和两目标构建后，向用户提供 `dis
 
 日志目录读取 `Paths.local.props` 的 `GameLogDir`，未填写时使用 `%APPDATA%/SlayTheSpire2/logs`；可用 `-LogDir` 临时覆盖，`-ModId` 指定其他模组。脚本只读，按文件修改时间选择最新 `.log`，输出来源和原始行号；无匹配不代表加载失败。需要排查更早的启动过程时，直接读取输出中的来源文件。分享日志前检查其中的本机路径和个人信息。
 
-`Test.ps1` 将本次每个目标的编译与宿主原始输出留在 `.local/tests/<目标>-last.log`，再次运行该目标会覆盖，需留证时复制到本票目录。使用 `./tools/ReadTestLog.ps1 -Path .local/tests/public-beta-last.log` 获取版本、编译/宿主退出码、完整通过数、首个异常位置及诊断数量；未执行的宿主结果为空，编译或资源准备失败不算行为 red。缺少 Mod 关联的既有提示单独计数，其余引擎错误仍报告。摘要以退出码表达冒烟结论：通过数为空或未关联 mod 提示超过 1 条时退出码为 1，否则为 0，见[开工前冒烟检查](#开工前冒烟检查)。摘要不替代原始日志。进一步读取具体位置使用 `ReadTextSlice.ps1 -Path <日志> -StartLine <行号> -Count 12`，长行可用 `-Pattern` 定位，不重复打印整份日志。
+`Test.ps1` 直接把原始输出写入本轮归档目录的 `<目标>.log`，并保留 `.local/tests/<目标>-last.log` 兼容副本。目录中的 `summary.json` 统一记录实际入口命令、请求目标、严格模式、成功/失败及原因；每目标记录实际命令、版本、Build/Host/Passed、Engine/Metadata、HostStarted 和原始日志路径。缺失可执行文件、缺少复用包、编译、导出或宿主异常也归档；宿主未启动时 HostExit 为空，不能当作行为 red。归档路径无效或不可写会直接报错，无法在该位置生成证据。
+
+从本轮 `Test.ps1` 输出或 `summary.json` 的 Source 取实际日志路径，再用 `./tools/ReadTestLog.ps1 -Path <实际路径>` 获取首个异常位置及诊断数量；已知 Mod 关联提示单独计数，其余引擎错误仍报告。`-NoExit` 供 runner 共享解析，只设置 LASTEXITCODE 并返回对象，避免解析器退出当前调用链；runner 自己保留原始失败并返回非零。摘要不替代原始日志。进一步读取具体位置使用 `ReadTextSlice.ps1 -Path <日志> -StartLine <行号> -Count 12`，长行可用 `-Pattern` 定位，不重复打印整份日志。
 
 脚本读取 props 中的字面值，不展开 MSBuild 表达式；工具路径可相对仓库根目录填写，游戏程序集目录建议使用绝对路径。配置仅保存在本机忽略文件。
 
@@ -279,34 +277,15 @@ Agent 完成适当的自动化测试和两目标构建后，向用户提供 `dis
 
 工作区父目录可能不是 Git 仓库，先定位含 `AGENTS.md`、项目文件和 `.git` 的仓库根目录，再执行 Git/工具命令。文件查找先 `rg --files <目录> -g '<模式>'`，确认文件后按章节或成员读取；PowerShell 下使用 `rg '<内容>' src/Tests -g '*.cs'`，不将 `src/Tests/*.cs` 当成已展开路径。长日志保留本地，只返回退出码、通过数、首个相关错误及来源行；遇到输出截断时缩小范围。
 
-## PR 合并后清理
+## Git 清理
 
-PR 合并到 main 后（特别是 squash-merge），本地 main 会与远程分叉。标准清理流程：
-
-```powershell
-rtk git fetch origin
-rtk git checkout main
-rtk git reset --hard origin/main   # 先确认本地 main 没有未推送的独有提交
-rtk git branch -D <feature-branch>  # 如 integration/batch-1；squash 后需 -D
-```
-
-### Worktree 清理
-
-Windows 上子代理会话仍持有 worktree 文件句柄时，`git worktree remove` 会返回 Permission denied / Device or resource busy。顺序：
-
-1. 用 `mcp__ccd_session_mgmt__archive_session` 归档对应子代理会话
-2. 等约 5 秒让进程退出
-3. `git worktree remove --force <path>`，然后 `git worktree prune`
-
-### Stash 操作
-
-`git stash drop` 前先 `git stash list` 并用 `git stash show -p stash@{N}` 确认目标内容，再按显式编号删除；新 stash 会把旧编号整体后移。
+PR合并后的分支同步、worktree清理及stash操作统一见 [Git 最佳实践](git-best-practices.md)。执行前保留目标树的未提交内容，并遵守目标树AGENTS.md的安全要求。
 
 ## 文档与参考目录
 
-本工作区 `AllMatters/docs` 是指向 `../AllMatters_docs` 的 junction，Git 索引保存其中的普通文档文件。重新 clone 时 docs 是普通目录，不依赖原机器路径。参考源码保存在 .local/references，由 .gitignore 排除。编译只枚举 src/**/*.cs，避免误编译参考仓库。
+先检查各树 `docs` 的实际目录属性和 junction 目标，再决定文档是否共享。2026-11-13 接续时主仓、集成树、兼容树的 `docs` 均为普通目录，`AllMatters_docs` 中的本机交接不会自动出现在各树内。文档由主控统一修改和集成，不依赖本机链接参与构建。参考源码保存在 .local/references，由 .gitignore 排除。编译只枚举 src/**/*.cs，避免误编译参考仓库。
 
-`.local/` 保存依赖、API 资料、运行工具与日志，路径不经过 `docs/`。本机旧 `docs/local/`、`docs/references/` 保留兼容入口，新的默认值和 Paths.local.props 均使用 `.local/`。历史测试日志中的旧路径不重写。切换分支后若 docs junction 被 Git 替换为普通目录，先保留文档改动再恢复 junction；本机依赖仍可直接从 `.local/` 使用。
+`.local/` 保存依赖、API 资料、运行工具与日志，路径不经过 `docs/`。本机旧 `docs/local/`、`docs/references/` 保留兼容入口，新的默认值和 Paths.local.props 均使用 `.local/`。历史测试日志中的旧路径不重写。切换分支后先保留文档改动、核对实际目录关系，再处理链接；不自动替换已有普通目录。本机依赖仍可直接从 `.local/` 使用。
 
 不运行上游项目，避免其自动部署、更新 API stub 等构建副作用。升级 RitsuLib 时需先验证版本与两分支 API，再调整引用及对应 manifest，不直接照搬上游的浮动包版本和自动部署脚本。
 

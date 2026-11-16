@@ -6,13 +6,26 @@ internal static class JigsawSaveValidation
     {
         void Require(bool condition, string reason)
         { if (!condition) throw new ArgumentException(reason, nameof(save)); }
+        Require(save.StepRelicBonus is 0 or 3 && save.Budget >= save.StepRelicBonus, "Invalid step relic bonus.");
         Require(Enum.IsDefined(save.Phase), "Unknown phase.");
+        Require(save.Hunting is { RemainingSteps: >= 0 }, "Missing or invalid hunting state.");
+        Require(save.Hunting!.RootHunted == false || save.CurrentNode != null, "Punished root requires a current room.");
+        Require(!save.Hunting.BossOnTime || save.Hunting.BossChecked, "Invalid on-time Boss result.");
         Require(save.DestinationRandomState != 0, "Invalid destination random state.");
         if (save.AutomaticOperation != null || save.Phase == JigsawPhase.Generating)
             Require(save.GenerationRandomState != 0 && save.AutomaticOperation is { Algorithm: JigsawAutomatic.Algorithm, ExpansionBudget: >= 0, RandomState: > 0 } operation && operation.CandidateOrder.Order().SequenceEqual(save.Pool.Select(p => p.Id).Order()), "Unsupported or incomplete authorized generation input.");
         Require(save.Pool.Length == 14 && Enum.GetValues<JigsawShape>().All(s => save.Pool.Count(p => p.Shape == s) == 2), "Checkpoint must preserve the fourteen-piece pool.");
         Require(save.Pool.All(p => p.Nodes.Count == 4), "Each piece must have four nodes.");
         var all = save.Pool.SelectMany(p => p.Nodes).ToArray();
+        if (save.QuestMarkers is { } markers)
+        {
+            var placed = save.Placements.Select(p => p.PieceId).ToHashSet();
+            var nodes = save.Pool.Where(p => placed.Contains(p.Id)).SelectMany(p => p.Nodes).ToArray();
+            Require(markers.SpoilsNode == null || markers.SpoilsFinalized && nodes.Any(n => n.Id == markers.SpoilsNode && n.Room == JigsawRoom.Treasure), "Invalid shared Spoils marker.");
+            Require(!markers.NoChestRemovalPending || markers.SpoilsFinalized && markers.SpoilsNode == null && save.Phase == JigsawPhase.Ancient, "Invalid pending Spoils removal.");
+            Require(markers.FurNodes == null || markers.FurNodes.Length <= 8 && markers.FurNodes.Distinct().Count() == markers.FurNodes.Length && markers.FurNodes.All(id => nodes.Any(n => n.Id == id && n.Room is JigsawRoom.Combat or JigsawRoom.Elite)), "Invalid shared FurCoat markers.");
+            Require(markers.PaidOwners != null && markers.PaidOwners.Distinct().Count() == markers.PaidOwners.Length && markers.PaidOwners.All(id => (save.OriginalPlayers ?? save.Players).Contains(id)) && (markers.PaidOwners.Length == 0 || markers.SpoilsNode != null), "Invalid shared Spoils settlement.");
+        }
         Require(save.Pool.Select(p => p.Id).Distinct().Count() == 14 && all.Select(n => n.Id).Distinct().Count() == 56 && all.All(n => n.Id != 0), "Piece and node IDs must be unique.");
         var quota = new Dictionary<JigsawRoom, int> { [JigsawRoom.Combat] = 20, [JigsawRoom.Unknown] = 16, [JigsawRoom.Elite] = 6, [JigsawRoom.Shop] = 4, [JigsawRoom.Rest] = 6, [JigsawRoom.Treasure] = 4 };
         Require(all.All(n => quota.ContainsKey(n.OriginalRoom)) && quota.All(q => all.Count(n => n.OriginalRoom == q.Key) == q.Value), "Original room quota is invalid.");

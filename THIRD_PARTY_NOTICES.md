@@ -60,7 +60,7 @@ AllMatters is distributed under GNU GPL version 3 (see LICENSE). Copyright 2026 
 
 ## RitsuLib
 
-RitsuLib 0.6.7, by OLC: [BAKAOLC/STS2-RitsuLib](https://github.com/BAKAOLC/STS2-RitsuLib), MIT licensed. It is a separately installed runtime dependency; AllMatters does not redistribute its assemblies in this package. Preserve RitsuLib's own license and complete variant-pack layout when installing or redistributing it.
+RitsuLib 0.6.11, by OLC: [BAKAOLC/STS2-RitsuLib](https://github.com/BAKAOLC/STS2-RitsuLib), MIT licensed. Current development targets public 0.107.1 and public-beta 0.113.1 using the complete variant-pack's compat/0.107.1 and compat/0.113.0 branches respectively; earlier preview builds used 0.6.7. It is a separately installed runtime dependency; AllMatters does not redistribute its assemblies in this package. Preserve RitsuLib's own license and complete variant-pack layout when installing or redistributing it.
 
 ## Colosseum
 
@@ -98,7 +98,15 @@ Ink Bottle and the global Symbiotic Virus replacement use unchanged `images/reli
 - Adapted `Sts2BalanceModCode/Monsters/Sentry.cs`: fixed requested values, two opposite first moves, one Artifact in multiplayer, AllMatters model/resource identities and native event integration.
 - Assets: the five scene/Spine/atlas/texture files in `Sts2BalanceMod/monsters/sentry/` (Spine 4.2.11). Scene and atlas paths are adapted; binary skeleton and PNG are unchanged. Original STS1 artwork remains Mega Crit/original artists' property. Redistribution follows the same Balance/ActsFromThePast provenance limitations as the Lagavulin assets above, without claiming an independent underlying artwork license audit. No game DLL, PCK or native Spine library is distributed.
 
+## Hunting Fungus Beast and Spore Cloud
+
+- The five files in `src/Resources/AllMatters/monsters/fungi_beast/` come from `Assets/ActsFromPast/ActsFromThePast/monsters/fungi_beast/` in MT-SUPER-POWER/STS2-Balance-MOD, revision `d9eff9e067b07689e722c5283e7c3e7c451961ca`. The repository declares GPLv3 and credits ActsFromThePast. Texture and binary skeleton are unchanged; scene, skeleton-data and atlas paths use AllMatters identities, and the scene's foreign script is replaced by the existing RitsuLib creature-visual factory.
+- Redistribution follows the same Balance/ActsFromThePast provenance limitations documented for Lagavulin and Sentry above. Original game artwork remains Mega Crit/original artists' property; this does not claim a separate underlying artwork license audit. No upstream DLL, PCK or native Spine library is included.
+- `images/powers/spore_cloud.png` is the project-use image supplied and authorized by the user at `AllMatters_docs/research/assets/hunting/spore-cloud.png`; it is used unchanged for both power icon sizes. The code's GPL license does not relicense the supplied artwork. Fungus behavior and localization implement the approved hunting specification.
+
 ## Sentry laser and short-beam audio
+
+
 
 - Added 2026-10-27 from the locally owned original Slay the Spire `desktop-1.0.jar`, by Mega Crit and the respective rights holders. `src/Resources/AllMatters/vfx/sentry_laser.png` is the nonrotated 981×101 packed `combat/laserThin` region at (2,104) of `vfx/vfx2.png`, located by `vfx/vfx.atlas`. No full atlas is distributed.
 - `src/Resources/AllMatters/sfx/sentry_beam_short.ogg` is the unchanged `audio/sound/SOTE_SFX_SlowMagic_BeamShort_v1.ogg` from that jar. These game assets retain their original ownership; the mod's GPL code license does not relicense them.
@@ -139,3 +147,23 @@ Champion Belt icon/outline and the Tight Grip icon are cropped and fitted to 128
 The restored purple fist icon is the original STS2 Grasp artwork, obtained from `loonai321/STS2-CombineBossln-mod` revision `cdd726c48a1b61e6102be1dea622abbae90ccb6c`, `CombineBosslnmod/images/grasp_power.png`. This is game artwork owned by Mega Crit/original artists, not original artwork of that mod and not relicensed under this repository's code license. The Weighted scene reconstructs the legacy overlay layout/tint visible in that repository's `scenes/cards/overlays/afflictions/weighted.tscn`, using the installed game's retained `shaders/afflictions/devoured.gdshader` without redistributing the shader or upstream C# code. No upstream code license is asserted. The prior STS1 choker placeholder is replaced.
 
 Champion Belt icon and outline are resized from the same owned STS1 source entries credited above, sharing an alpha bounding box and scale to restore normal relic display size.
+
+
+## Architect Mask (#82)
+
+`src/Resources/AllMatters/images/relics/architect_mask.png` is the unchanged user-provided `architect-mask.png` archived for the confirmed hunting design (#63, comment 6584771226). The project owner authorized its use in this implementation. The same image supplies the inventory, outline and large relic views. This attribution records the supplied artwork's provenance; the code's GPL license does not relicense the artwork.
+
+## Knowledge Demon Tender choice artwork (#85)
+
+`src/Resources/AllMatters/images/card_portraits/tender.png` is the unchanged user-provided `tender.png`, archived in `AllMatters_docs/research/assets/hunting/` for the confirmed hunting design (#63, comment 6584771226). The project owner authorized its use for the Knowledge Demon Tender display card. The 1,529,010-byte original is used without cropping, resizing or other image conversion. This entry records the supplied artwork's provenance and project use; the code's GPL license does not relicense the supplied artwork. Native Calamity artwork and native Tender ability text/effects are loaded from the installed game rather than redistributed here.
+
+## Mystic monster visuals
+
+- Source: MT-SUPER-POWER/STS2-Balance-MOD, revision `d9eff9e067b07689e722c5283e7c3e7c451961ca`, checked 2026-11-14. The repository LICENSE declares GPLv3; upstream credits Balance and ActsFromThePast. Preserve those credits and Mega Crit/original artists' ownership.
+- Files: `Assets/ActsFromPast/ActsFromThePast/monsters/mystic/{mystic.tscn,mystic_skel_data.tres,mystic.spatlas,mystic.spskel,mystic.png}`. Scene, skeleton-data and atlas paths are adapted to AllMatters and the foreign script is removed; the PNG and binary skeleton are unchanged. Redistribution follows the same Balance repository declaration as the existing Lagavulin and Sentry visuals; this is not an independent chain-of-title audit or a claim to relicense the underlying game artwork.
+- Mystic's hunting-specific 56-HP model and CAST/HEAL/BUFF behavior are AllMatters implementation of the approved specification, not a copy of upstream combat AI. No game DLL, PCK or native library is included.
+
+## Torch Head monster visuals
+
+- The five files in `src/Resources/AllMatters/monsters/torch_head/` come from `Assets/ActsFromPast/ActsFromThePast/monsters/torch_head/` in MT-SUPER-POWER/STS2-Balance-MOD, revision `d9eff9e067b07689e722c5283e7c3e7c451961ca`. The repository declares GPLv3 and credits ActsFromThePast. Texture and binary skeleton are unchanged; scene, skeleton-data and atlas paths use AllMatters identities, and the scene's foreign script is replaced by the existing RitsuLib creature-visual factory.
+- Original game artwork retains its Mega Crit / original artists ownership; the project's code license does not relicense those assets. AllMatters implements the approved independent Torch Head and Queen hunting behavior; it does not substitute the native Torch Head Amalgam model or ship the reference mod's DLL/PCK.

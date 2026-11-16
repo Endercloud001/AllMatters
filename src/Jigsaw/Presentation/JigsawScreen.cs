@@ -28,7 +28,17 @@ public partial class JigsawScreen : Control
     private readonly HBoxContainer manualVoters = new(), autoVoters = new();
     private readonly HBoxContainer continueVoters = new() { Name = "ContinueVoters" };
     private readonly Dictionary<int, HBoxContainer> destinationVoters = [];
+    private readonly Dictionary<int, Control> pingAnchors = [];
     private JigsawMultiplayerHud? multiplayerHud;
+    private JigsawDrawingTools? drawingTools;
+    private bool drawingCapture;
+    internal Rect2 DrawingBounds => ContentBounds;
+    internal float DrawingCell => Cell;
+    internal Vector2 DrawingOrigin => MapOrigin;
+    internal void AttachDrawingTools(MegaCrit.Sts2.Core.Nodes.Screens.Map.NMapScreen native) =>
+        drawingTools ??= JigsawDrawingTools.Attach(this, canvas, paper, native);
+    internal void BeginDrawingCapture() => drawingCapture = true;
+    internal void EndDrawingCapture() => drawingCapture = false;
     private int helpIndex;
     private readonly Theme adaptiveTheme = new();
     private JigsawNativeArt art = null!;
@@ -43,6 +53,7 @@ public partial class JigsawScreen : Control
     private readonly VBoxContainer cards = new();
     private readonly PanelContainer poolFrame = new();
     private readonly ScrollContainer pool = new() { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
+    private readonly HBoxContainer dialogueRow = new() { SizeFlagsVertical = SizeFlags.ExpandFill };
     private readonly ScrollContainer dialogScroll = new() { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
     private readonly HBoxContainer root = new();
     private readonly VBoxContainer main = new(), footer = new();
@@ -186,12 +197,18 @@ public partial class JigsawScreen : Control
         top.Alignment = BoxContainer.AlignmentMode.End;
         top.AddChild(steps);
         steps.SizeFlagsHorizontal = SizeFlags.ExpandFill;
-        main.AddChild(explorationNotice);
         help.Text = L("帮助");
         help.Pressed += OpenHelp;
         top.AddChild(help);
         paper = new JigsawPaper { Art = art, SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill, MouseFilter = MouseFilterEnum.Ignore };
         main.AddChild(paper);
+        AddChild(explorationNotice);
+        explorationNotice.MouseFilter = MouseFilterEnum.Ignore;
+        explorationNotice.SetAnchorsAndOffsetsPreset(LayoutPreset.BottomWide);
+        explorationNotice.OffsetLeft = 20;
+        explorationNotice.OffsetRight = -20;
+        explorationNotice.OffsetTop = -90;
+        explorationNotice.OffsetBottom = -20;
         canvas = new JigsawCanvas { OwnerScreen = this, FocusMode = FocusModeEnum.All, ClipContents = true, MouseFilter = MouseFilterEnum.Stop };
         paper.AddChild(canvas);
         canvas.AnchorLeft = .12f;
@@ -204,7 +221,6 @@ public partial class JigsawScreen : Control
         main.AddChild(bottom);
         bottom.AddChild(footer);
         footer.SizeFlagsHorizontal = SizeFlags.ExpandFill;
-        var dialogueRow = new HBoxContainer { SizeFlagsVertical = SizeFlags.ExpandFill };
         footer.AddChild(dialogueRow);
         dialogueRow.AddThemeConstantOverride("separation", -12);
         var tail = new TextureRect { Texture = JigsawNativeArt.Load("ui/dialogue_tail.png"), Modulate = new Color("28454f"), CustomMinimumSize = new(28, 0), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, MouseFilter = MouseFilterEnum.Ignore };
@@ -368,6 +384,7 @@ public partial class JigsawScreen : Control
         nodeIndex = Math.Clamp(nodeIndex, 0, Math.Max(0, NavigableNodeIds.Count - 1));
         steps.Text = L("剩余步数") + "  " + map.RemainingSteps + " / " + map.Budget;
         steps.Visible = false;
+        dialogueRow.Visible = map.Phase != JigsawPhase.Exploring;
         bottom.Visible = !CanReturnToRoom && (map.Phase != JigsawPhase.Exploring || map.PendingEntry != null);
         manual.Visible = automatic.Visible = map.Phase is JigsawPhase.Editing or JigsawPhase.Inspecting or JigsawPhase.Generating;
         manual.Disabled = automatic.Disabled = Reading || map.Phase != JigsawPhase.Editing;
@@ -430,7 +447,11 @@ public partial class JigsawScreen : Control
         if (map.Phase == JigsawPhase.Ancient)
             return L("你的愿望实现了...");
         if (map.Phase == JigsawPhase.Exploring)
-            return L(map.RemainingSteps == 1 ? "最后一步，请尽快前往Boss处。" : $"还可前行{map.RemainingSteps}步。");
+        {
+            if (map.HuntingActive || map.BossReachedOnTime || map.IsEndgame || map.RemainingSteps > 1)
+                return "";
+            return new MegaCrit.Sts2.Core.Localization.LocString("static_hover_tips", JigsawStepCounter.DescriptionKey(map)).GetFormattedText();
+        }
         return L(map.Holdings.ContainsKey(player) ? "放置碎块，旋转，返回取消，或归还碎块。" : "从左侧拿取碎块，或选择两端连线／拆线。");
     }
     public void AdvanceDialog()
@@ -576,8 +597,11 @@ public partial class JigsawScreen : Control
         if (!IsVisibleInTree() || tutorialPaused)
             return;
         AdvanceTime(delta);
+        drawingTools?.Update(map.Phase == JigsawPhase.Exploring);
+        explorationNotice.OffsetBottom = drawingTools == null ? -20 : -90;
+        explorationNotice.OffsetTop = explorationNotice.OffsetBottom - 70;
         explorationNotice.Visible = map.Phase == JigsawPhase.Exploring;
-        explorationNotice.Text = errorRemaining > 0 ? dialog.Text : "";
+        explorationNotice.Text = errorRemaining > 0 ? dialog.Text : CurrentInstruction();
         hints.Visible = false;
         mouseHints.Visible = false;
         foreach (var (icon, action) in inputIcons)
@@ -688,8 +712,8 @@ public partial class JigsawScreen : Control
             return new Rect2(min, max - min);
         }
     }
-    private float Cell => Math.Max(40 * Math.Max(.75f, Size.Y / 1080f), Math.Min(26 * Math.Max(1, Size.Y / 720), Math.Min(Math.Max(1, canvas.Size.X - 48) / ContentBounds.Size.X, Math.Max(1, canvas.Size.Y - 48) / ContentBounds.Size.Y))) * zoom;
-    private Vector2 MapOrigin => canvas.Size / 2 + pan - ContentBounds.GetCenter() * Cell;
+    private float Cell => drawingCapture ? 48 : Math.Max(40 * Math.Max(.75f, Size.Y / 1080f), Math.Min(26 * Math.Max(1, Size.Y / 720), Math.Min(Math.Max(1, canvas.Size.X - 48) / ContentBounds.Size.X, Math.Max(1, canvas.Size.Y - 48) / ContentBounds.Size.Y))) * zoom;
+    private Vector2 MapOrigin => canvas.Size / 2 + (drawingCapture ? Vector2.Zero : pan) - ContentBounds.GetCenter() * Cell;
     public Vector2 GridToCanvas(GridPoint p) => MapOrigin + new Vector2(p.X, -p.Y) * Cell;
     private GridPoint CanvasToGrid(Vector2 p) => GridPoint.Snap((p.X - MapOrigin.X) / Cell, -(p.Y - MapOrigin.Y) / Cell);
     private JigsawNode? Hit(Vector2 p) => map.Nodes.OrderBy(n => (GridToCanvas(n.Center) - p).LengthSquared()).FirstOrDefault(n => Math.Abs(GridToCanvas(n.Center).X - p.X) <= Cell * (n.Radius + .55f) && Math.Abs(GridToCanvas(n.Center).Y - p.Y) <= Cell * (n.Radius + .55f));
@@ -729,7 +753,19 @@ public partial class JigsawScreen : Control
             return;
         if (MegaCrit.Sts2.Core.Nodes.NRun.Instance?.GlobalUi.SubmenuStack.Stack?.SubmenusOpen == true)
             return;
+        if (MegaCrit.Sts2.Core.Nodes.Screens.Capstones.NCapstoneContainer.Instance?.InUse == true ||
+            (MegaCrit.Sts2.Core.Nodes.Screens.Overlays.NOverlayStack.Instance?.Peek() as Control)?.IsVisibleInTree() == true)
+            return;
         if (NModalContainer.Instance?.OpenModal != null)
+            return;
+        if (drawingTools?.IsSharing == true)
+        { GetViewport()?.SetInputAsHandled(); return; }
+        if (drawingTools?.IsDrawing == true &&
+            (ev.IsActionPressed(MegaInput.viewMap) || ev.IsActionPressed(MegaInput.cancel) ||
+             ev.IsActionPressed(MegaInput.pauseAndBack) ||
+             ev is InputEventKey { Pressed: true, PhysicalKeycode: Key.Escape }))
+            drawingTools.Stop();
+        if (drawingTools?.IsDrawing == true)
             return;
         if (CanReturnToRoom && ev.IsActionPressed(MegaInput.viewMap))
         { returnToRoom!(); GetViewport()?.SetInputAsHandled(); return; }
@@ -839,6 +875,14 @@ public partial class JigsawScreen : Control
     }
     internal void DrawMarkers(CanvasItem target)
     {
+        foreach (var (node, anchor) in pingAnchors)
+        {
+            if (map.Nodes.FirstOrDefault(candidate => candidate.Id == node) is not { } point)
+                continue;
+            var size = Vector2.One * Cell * (point.Radius * 2 + 1);
+            anchor.Position = GridToCanvas(point.Center) - size / 2;
+            anchor.Size = size;
+        }
         foreach (var (node, row) in destinationVoters)
         {
             var at = GridToCanvas(map.Nodes.Single(candidate => candidate.Id == node).Center);
@@ -854,6 +898,28 @@ public partial class JigsawScreen : Control
         DrawHolding(target, HeldPreview(), player);
         foreach (var holding in map.Holdings.Where(h => h.Key != player))
             DrawHolding(target, map.Nodes.Where(n => n.PieceId == holding.Value.PieceId).ToArray(), holding.Key);
+    }
+    internal void PingNode(int node, Color color)
+    {
+        if (!IsInsideTree() || !map.Nodes.Any(candidate => candidate.Id == node))
+            return;
+        if (!pingAnchors.TryGetValue(node, out var anchor))
+        {
+            anchor = new Control { MouseFilter = MouseFilterEnum.Ignore };
+            canvas.AddChild(anchor);
+            pingAnchors.Add(node, anchor);
+        }
+        var point = map.Nodes.Single(candidate => candidate.Id == node);
+        anchor.Size = Vector2.One * Cell * (point.Radius * 2 + 1);
+        anchor.Position = GridToCanvas(point.Center) - anchor.Size / 2;
+        var ripple = MegaCrit.Sts2.Core.Nodes.Vfx.NMapPingVfx.Create();
+        if (ripple == null)
+            return;
+        ripple.Modulate = color;
+        anchor.AddChild(ripple);
+        ripple.Position = Vector2.Zero;
+        ripple.Size *= anchor.Size.X / 64f;
+        ripple.PivotOffset = ripple.Size / 2;
     }
     private void DrawHolding(CanvasItem target, JigsawNode[] nodes, ulong holder)
     {
@@ -905,7 +971,7 @@ public partial class JigsawScreen : Control
             if (!roomVisuals.TryGetValue(n.Id, out var icon))
             {
                 icon = new JigsawRoomPulse { Name = $"Room{n.Id}" };
-                icon.AddChild(new Sprite2D { Name = "Visited", Texture = JigsawNativeArt.Load("atlases/compressed.sprites/map/map_circle_4.tres"), ShowBehindParent = true, Modulate = Colors.Black });
+                icon.AddChild(new Sprite2D { Name = "Visited", Texture = JigsawNativeArt.MapDecoration("map_circle_4"), ShowBehindParent = true, Modulate = Colors.Black });
                 roomVisuals[n.Id] = icon;
                 target.AddChild(icon);
             }
@@ -918,6 +984,8 @@ public partial class JigsawScreen : Control
             var ring = icon.GetChild<Sprite2D>(0);
             ring.Visible = !preview && map.Visited.Contains(n.Id) && n.Room is not (JigsawRoom.Shop or JigsawRoom.Ancient);
             ring.Scale = Vector2.One * (Math.Max(icon.Texture.GetWidth(), icon.Texture.GetHeight()) * 1.4f / Math.Max(ring.Texture.GetWidth(), ring.Texture.GetHeight()));
+            if (!preview && (map.SpoilsNode == n.Id || map.HasFurMarker(n.Id)))
+                target.DrawTextureRect(JigsawNativeArt.QuestMarker(), new Rect2(at + new Vector2(size * .15f, -size * .65f), Vector2.One * size * .55f), false);
         }
 
     }

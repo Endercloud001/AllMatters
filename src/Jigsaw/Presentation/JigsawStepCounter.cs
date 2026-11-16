@@ -80,6 +80,8 @@ public partial class JigsawStepCounter : HBoxContainer
             if (number.GetThemeColor(key) != floor.GetThemeColor(key))
                 number.AddThemeColorOverride(key, floor.GetThemeColor(key));
     }
+    internal static string DescriptionKey(JigsawRun map) => map.RemainingSteps switch
+    { 0 when map.HuntingActive || !map.BossReachedOnTime && !map.IsEndgame => "AM_JIGSAW_EXHAUSTED", 1 => "AM_JIGSAW_LAST_STEP", _ => "AM_JIGSAW_STEPS.description" };
     private void ShowTip()
     {
         var map = current();
@@ -87,7 +89,7 @@ public partial class JigsawStepCounter : HBoxContainer
             return;
         hovering = true;
         NHoverTipSet.Remove(this);
-        var description = new LocString("static_hover_tips", "AM_JIGSAW_STEPS.description");
+        var description = new LocString("static_hover_tips", DescriptionKey(map));
         description.Add("Remaining", map.RemainingSteps);
         description.Add("Budget", map.Budget);
         var tip = new HoverTip(new LocString("static_hover_tips", "AM_JIGSAW_STEPS.title"), description);

@@ -176,8 +176,8 @@ public sealed class LobbyRecovery
                 CompletedCount = explorationSnapshot.CompletedNodes.Count,
                 CurrentNode = explorationSnapshot.CurrentNode,
                 Steps = explorationSnapshot.Steps,
-                RemainingSteps = Math.Max(0, explorationSnapshot.Budget - explorationSnapshot.Steps),
-                IsHunting = explorationSnapshot.Steps > explorationSnapshot.Budget,
+                RemainingSteps = explorationSnapshot.RemainingSteps,
+                IsHunting = explorationSnapshot.HuntingActive,
                 Phase = explorationSnapshot.Phase
             } : null
         };

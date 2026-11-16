@@ -137,6 +137,8 @@ public sealed class SaveStateRecovery
         ulong[] players;
         try
         {
+            if (checkpointData.Version is not (1 or 2) || checkpointData.Version == 2 && mapSave.Hunting == null)
+                throw new InvalidDataException("Unsupported or incomplete hunting checkpoint.");
             // Restore runs JigsawSaveValidation plus the geometry and automatic-witness checks.
             JigsawRun.Restore(mapSave);
             players = [.. (mapSave.Players ?? []).Distinct()];

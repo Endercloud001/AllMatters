@@ -66,7 +66,7 @@ exit $LASTEXITCODE
     "PASS: Check $scenario"
 }
 
-foreach ($scenario in @('compile-failure', 'host-failure', 'fresh', 'reuse', 'missing-pack')) {
+foreach ($scenario in @('compile-failure', 'export', 'host-failure', 'host-throw', 'fresh', 'reuse', 'missing-pack', 'missing-godot', 'engine', 'strict-engine', 'strict-metadata', 'strict-zero', 'missing-pass', 'last-copy-failure', 'last-copy-host-failure', 'pass-nonzero')) {
     New-Fixture "test-$scenario"
     Copy-Item -LiteralPath (Join-Path $repoDir 'tools/Test.ps1') -Destination (Join-Path $fixture 'tools/Test.ps1')
     foreach ($script in @('ReadTestLog.ps1', 'Check.ps1')) {
@@ -75,19 +75,31 @@ foreach ($scenario in @('compile-failure', 'host-failure', 'fresh', 'reuse', 'mi
         }
     }
     Write-FixtureFile 'failure.txt' $scenario
+    New-Item -ItemType Directory -Path (Join-Path $fixture '.local/tests') -Force | Out-Null
+    Write-FixtureFile '.local/tests/public-last.log' 'old public evidence'
+    if ($scenario -like 'last-copy-*') {
+        # Copy-Item treats a directory destination as a container. Block the resulting child too.
+        New-Item -ItemType Directory -Path (Join-Path $fixture '.local/tests/public-beta-last.log/public-beta.log') -Force | Out-Null
+    }
     if ($scenario -eq 'reuse') { Write-FixtureFile 'dist/AllMatters.pck' 'existing fixture pack' }
     Write-FixtureFile 'godot.ps1' @'
 Add-Content (Join-Path $PSScriptRoot 'calls.txt') 'godot'
-if ((Get-Content (Join-Path $PSScriptRoot 'failure.txt')) -eq 'host-failure') {
+$scenario = Get-Content (Join-Path $PSScriptRoot 'failure.txt')
+if ($scenario -eq 'host-throw') { throw 'injected host invocation failure' }
+if ($scenario -in @('engine', 'strict-engine')) { 'ERROR: injected engine failure' }
+if ($scenario -eq 'strict-metadata') { '[ERROR] Attempting to register type Example, but it is not associated with any mod!' }
+if ($scenario -eq 'host-failure') {
     'System.Exception: injected behavior failure'
     $global:LASTEXITCODE = 7
 } else {
-    'Passed 2 tests against fixture.'
-    $global:LASTEXITCODE = 0
+    if ($scenario -eq 'strict-zero') { 'Passed 0 tests against fixture.' }
+    elseif ($scenario -ne 'missing-pass') { 'Passed 2 tests against fixture.' }
+    $global:LASTEXITCODE = if ($scenario -in @('pass-nonzero', 'last-copy-host-failure')) { 9 } else { 0 }
 }
 '@
     Write-FixtureFile 'tools/ReadLocalPaths.ps1' @'
-@{ GodotPath = Join-Path (Split-Path -Parent $PSScriptRoot) 'godot.ps1' }
+$root = Split-Path -Parent $PSScriptRoot
+@{ GodotPath = Join-Path $root $(if ((Get-Content (Join-Path $root 'failure.txt')) -eq 'missing-godot') { 'absent.ps1' } else { 'godot.ps1' }) }
 '@
     Write-FixtureFile 'run.ps1' @'
 function global:dotnet {
@@ -95,7 +107,8 @@ function global:dotnet {
     $global:LASTEXITCODE = if ((Get-Content (Join-Path $PSScriptRoot 'failure.txt')) -eq 'compile-failure') { 1 } else { 0 }
 }
 $reuse = (Get-Content (Join-Path $PSScriptRoot 'failure.txt')) -in @('reuse', 'missing-pack')
-& (Join-Path $PSScriptRoot 'tools/Test.ps1') -Branch All -SkipResourceExport:$reuse
+$strict = (Get-Content (Join-Path $PSScriptRoot 'failure.txt')) -like 'strict-*'
+& (Join-Path $PSScriptRoot 'tools/Test.ps1') -Branch All -SkipResourceExport:$reuse -ArchiveName fixture -ArchivePath evidence -StrictDiagnostics:$strict
 exit $LASTEXITCODE
 '@
     Run-Fixture
@@ -105,21 +118,69 @@ exit $LASTEXITCODE
         'fresh' { 'compile,export,godot,compile,godot' }
         'reuse' { 'compile,godot,compile,godot' }
         'missing-pack' { '' }
+        'missing-godot' { '' }
+        'export' { 'compile,export' }
+        'engine' { 'compile,export,godot,compile,godot' }
+        default { 'compile,export,godot' }
     }
-    Assert ($code -eq $(if ($scenario -in @('compile-failure', 'host-failure', 'missing-pack')) { 1 } else { 0 })) "Test must preserve $scenario exit status; see $fixture/output.log"
+    $success = $scenario -in @('fresh', 'reuse', 'engine')
+    Assert ($code -eq $(if ($success) { 0 } else { 1 })) "Test must preserve $scenario exit status; see $fixture/output.log"
     Assert (($calls -join ',') -eq $expected) "Test $scenario must compile before export and reuse only an existing pack. Calls: $calls"
-    if ($scenario -ne 'missing-pack') {
+    $archives = @(Get-ChildItem (Join-Path $fixture 'evidence') -Directory)
+    Assert ($archives.Count -eq 1) 'Every invocation gets one distinct archive.'
+    $report = Get-Content (Join-Path $archives[0].FullName 'summary.json') -Raw | ConvertFrom-Json
+    Assert ($report.Success -eq $success -and $report.Targets.Count -eq $(if ($success) { 2 } else { 1 })) 'Unified summary includes only attempted targets and preserves failure.'
+    Assert ($report.Targets[0].Command -match 'ArchiveName' -and (Test-Path $report.Targets[0].Source)) 'Summary records actual command and original archive path.'
+    if (!$success) {
+        Assert (!(Test-Path (Join-Path $archives[0].FullName 'public.log'))) 'An unstarted second target must not acquire stale evidence.'
+        Assert ((Get-Content (Join-Path $fixture '.local/tests/public-last.log')) -eq 'old public evidence') 'A failed first target leaves the old second-target last.log untouched.'
+    }
+    if ($scenario -in @('missing-pack', 'missing-godot', 'compile-failure', 'export')) {
+        Assert (!$report.Targets[0].HostStarted -and $null -eq $report.Targets[0].HostExit) 'Preparation failures must never claim a host result.'
+    }
+    if ($scenario -like 'last-copy-*') {
+        $target = $report.Targets[0]
+        $expectedHostExit = if ($scenario -eq 'last-copy-host-failure') { 9 } else { 0 }
+        Assert ($target.BuildExit -eq 0 -and $target.HostExit -eq $expectedHostExit -and $target.Passed -eq 2 -and $target.HostStarted) 'A failed last.log copy must retain the actual build and host results.'
+        Assert ($target.Target -eq 'public-beta' -and $target.Command -match 'ArchiveName' -and (Test-Path $target.Source)) 'A failed compatibility copy must retain target, command and raw archive path.'
+        Assert ($target.Success -eq ($expectedHostExit -eq 0)) 'Target success must reflect the host while the overall run preserves the copy failure.'
+        Assert ((Get-Content (Join-Path $fixture 'output.log') -Raw) -match 'last.log update failed') 'Compatibility copy failure must be reported.'
+        if ($expectedHostExit -ne 0) {
+            Assert ($report.Failure -match 'Tests failed for public-beta \(exit 9\)') 'Compatibility copy failure must not replace the original host failure.'
+        }
+    }
+    if ($scenario -eq 'fresh') {
+        $original = Get-Content (Join-Path $archives[0].FullName 'summary.json') -Raw
+        Run-Fixture
+        Assert ($code -eq 0 -and @(Get-ChildItem (Join-Path $fixture 'evidence') -Directory).Count -eq 2) 'Repeated archive names create independent runs.'
+        Assert ((Get-Content (Join-Path $archives[0].FullName 'summary.json') -Raw) -ceq $original) 'A repeated run must not overwrite previous evidence.'
+    }
+    if ($scenario -ne 'missing-pack' -and $scenario -notlike 'last-copy-*') {
         $summary = & (Join-Path $repoDir 'tools/ReadTestLog.ps1') -Path (Join-Path $fixture '.local/tests/public-beta-last.log')
         if ($scenario -eq 'compile-failure') {
             Assert ($summary.BuildExit -eq 1 -and $null -eq $summary.HostExit) 'Runner must log failed compilation without a host exit.'
         } elseif ($scenario -eq 'host-failure') {
             Assert ($summary.HostExit -eq 7 -and $summary.FirstException.Text -match 'injected behavior failure') 'Runner must preserve the actual host exit and assertion.'
-        } else {
+        } elseif ($success) {
             Assert ($summary.HostExit -eq 0 -and $summary.Passed -eq 2) 'Runner must capture actual completed host output.'
         }
     }
     "PASS: Test $scenario"
 }
+
+# Parameter rejection must happen before preparation or writes outside the archive parent.
+foreach ($name in @('../escape', 'trailing.', 'bad/name')) {
+    & $shellExecutable -NoProfile -File (Join-Path $repoDir 'tools/Test.ps1') -ArchiveName $name -ArchivePath (Join-Path $fixture 'rejected') *> (Join-Path $fixture 'rejected.log')
+    Assert ($LASTEXITCODE -ne 0 -and !(Test-Path (Join-Path $fixture 'rejected'))) 'Invalid archive names must be rejected before creating a run.'
+}
+"PASS: Archive name rejects traversal and ambiguous names"
+
+Write-FixtureFile 'tools/ReadTestLog.ps1' "throw 'injected summary failure'"
+Run-Fixture
+$output = Get-Content (Join-Path $fixture 'output.log') -Raw
+Assert ($code -ne 0 -and $output -match 'Tests failed for public-beta \(exit 9\)') 'A failed summary must not replace the original nonzero host failure.'
+Assert ($output -match 'injected summary failure') 'A summary failure still reports its own diagnostic.'
+"PASS: Summary failure preserves original runner failure"
 
 New-Fixture 'test-log-summary'
 $testLog = Join-Path $fixture 'host.log'
@@ -242,6 +303,54 @@ exit $LASTEXITCODE
     Assert ((Get-Content (Join-Path $fixture 'output.log') -Raw) -match 'Placeholder scan\s+FAIL') "The placeholder scan reports FAIL for '$marker'."
     "PASS: Check placeholder rejects '$marker' in $stubPath"
 }
+# Use the installed Husky runner and the repository task definitions; replace only the
+# task executables so filtering and failure propagation need no game dependencies.
+New-Fixture 'pre-commit-filtering'
+New-Item -ItemType Directory -Path (Join-Path $fixture '.husky/_') -Force | Out-Null
+Copy-Item -LiteralPath (Join-Path $repoDir '.husky/pre-commit') -Destination (Join-Path $fixture '.husky/pre-commit')
+Copy-Item -LiteralPath (Join-Path $repoDir '.husky/_/husky.sh') -Destination (Join-Path $fixture '.husky/_/husky.sh')
+$tasks = Get-Content (Join-Path $repoDir '.husky/task-runner.json') -Raw | ConvertFrom-Json
+foreach ($task in $tasks.tasks) {
+    $task.command = $shellExecutable
+    $task.args = @('-NoProfile', '-File', 'record-task.ps1', $task.name)
+}
+Write-FixtureFile '.husky/task-runner.json' ($tasks | ConvertTo-Json -Depth 6)
+Write-FixtureFile 'record-task.ps1' @'
+param($TaskName)
+Add-Content (Join-Path $PSScriptRoot 'calls.txt') $TaskName
+if ($TaskName -eq 'pre-commit' -and (Get-Content (Join-Path $PSScriptRoot 'failure.txt')) -eq 'format') { exit 7 }
+'@
+Push-Location $fixture
+try {
+    & git init --quiet
+    Assert ($LASTEXITCODE -eq 0) 'Hook fixture must initialize its own repository.'
+    & git config core.hooksPath .husky
+    Assert ($LASTEXITCODE -eq 0) 'Hook fixture must select its own Husky configuration.'
+    foreach ($scenario in @('empty', 'docs', 'tools', 'csharp', 'format-failure')) {
+        Write-FixtureFile 'calls.txt' ''
+        Write-FixtureFile 'failure.txt' $(if ($scenario -eq 'format-failure') { 'format' } else { '' })
+        if ($scenario -eq 'docs') { Write-FixtureFile 'README.md' 'docs'; & git add -- README.md }
+        if ($scenario -eq 'tools') { Write-FixtureFile 'tools/example.ps1' '# tools'; & git add -- tools/example.ps1 }
+        if ($scenario -eq 'csharp') {
+            Write-FixtureFile 'Example.cs' 'class Example {}'
+            & git add -- Example.cs
+        }
+        & git hook run pre-commit *> (Join-Path $fixture "$scenario.log")
+        $hookExit = $LASTEXITCODE
+        $hookCalls = @(Get-Content (Join-Path $fixture 'calls.txt') | Where-Object { $_ })
+        $expected = switch ($scenario) {
+            'csharp' { 'pre-commit,stage-formatted' }
+            'format-failure' { 'pre-commit' }
+            default { '' }
+        }
+        Assert (($hookCalls -join ',') -eq $expected) "Husky $scenario must run only matching tasks in order; see $fixture/$scenario.log"
+        Assert (($hookExit -eq 0) -eq ($scenario -ne 'format-failure')) "Husky must preserve formatter failure and skip restaging; see $fixture/$scenario.log"
+        "PASS: pre-commit $scenario"
+    }
+} finally {
+    Pop-Location
+}
+
 $requiresRoot = if ($env:ALLMATTERS_REQUIRES_ROOT) { $env:ALLMATTERS_REQUIRES_ROOT } else { Join-Path $repoDir 'tools' }
 foreach ($name in @('Test.ps1', 'Check.ps1')) {
     $ast = [Management.Automation.Language.Parser]::ParseFile((Join-Path $requiresRoot $name), [ref]$null, [ref]$null)

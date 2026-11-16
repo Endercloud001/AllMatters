@@ -10,11 +10,23 @@ namespace AllMatters.Relics;
 [HarmonyPatch(typeof(TreasureRoomRelicSynchronizer), nameof(TreasureRoomRelicSynchronizer.BeginRelicPicking))]
 internal static class NlothSkipTreasure
 {
-    private static void Postfix(TreasureRoomRelicSynchronizer __instance, IPlayerCollection ____playerCollection)
+    private static void Postfix(TreasureRoomRelicSynchronizer __instance,
+#if STS2_PUBLIC
+        IPlayerCollection ____playerCollection
+#else
+        IRunState ____runState
+#endif
+        )
     {
         if (__instance.CurrentRelics == null)
             return;
-        foreach (var player in ____playerCollection.Players.Where(NlothsHungryFace.IsEmptyFor))
+        foreach (var player in
+#if STS2_PUBLIC
+            ____playerCollection
+#else
+            ____runState
+#endif
+            .Players.Where(NlothsHungryFace.IsEmptyFor))
             __instance.OnPicked(player, null);
     }
 }
@@ -32,9 +44,21 @@ internal static class NlothTreasureVote
 [HarmonyPatch(typeof(TreasureRoomRelicSynchronizer), nameof(TreasureRoomRelicSynchronizer.PickRelicLocally))]
 internal static class NlothLocalTreasureVote
 {
-    private static void Prefix(ulong ____localPlayerId, IPlayerCollection ____playerCollection, ref int? index)
+    private static void Prefix(ulong ____localPlayerId,
+#if STS2_PUBLIC
+        IPlayerCollection ____playerCollection,
+#else
+        IRunState ____runState,
+#endif
+        ref int? index)
     {
-        if (NlothsHungryFace.IsEmptyFor(____playerCollection.Players.Single(p => p.NetId == ____localPlayerId)))
+        if (NlothsHungryFace.IsEmptyFor(
+#if STS2_PUBLIC
+            ____playerCollection
+#else
+            ____runState
+#endif
+            .Players.Single(p => p.NetId == ____localPlayerId)))
             index = null;
     }
 }

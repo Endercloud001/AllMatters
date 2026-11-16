@@ -38,6 +38,9 @@ public sealed class ExplorationStateRecovery
         if (JigsawCheckpoint.Slot.TryGet(nativeRun, out var checkpointData) &&
             checkpointData?.Map is { } mapSave)
         {
+            if (checkpointData.Version is not (1 or 2) || checkpointData.Version == 2 && mapSave.Hunting == null)
+                throw new InvalidDataException("Unsupported or incomplete hunting checkpoint.");
+            mapSave = JigsawHuntingMigration.FromLegacy(mapSave);
             snapshot = new ExplorationSnapshot
             {
                 VisitedNodes = [.. mapSave.Visited],
@@ -46,7 +49,9 @@ public sealed class ExplorationStateRecovery
                 Steps = mapSave.Steps,
                 FirstProgress = mapSave.FirstProgress,
                 Phase = mapSave.Phase,
-                Budget = mapSave.Budget
+                Budget = mapSave.Budget,
+                RemainingSteps = mapSave.Hunting?.RemainingSteps ?? throw new InvalidDataException("Missing hunting state."),
+                HuntingActive = mapSave.Hunting.Active
             };
 
             Console.WriteLine($"[ExplorationStateRecovery] Loaded checkpoint: " +
@@ -73,7 +78,9 @@ public sealed class ExplorationStateRecovery
                 Steps = map.Steps,
                 FirstProgress = map.FirstProgress,
                 Phase = map.Phase,
-                Budget = map.Budget
+                Budget = map.Budget,
+                RemainingSteps = map.RemainingSteps,
+                HuntingActive = map.HuntingActive
             };
 
         // The native deserialization postfix can run before the checkpoint slot is attached.
@@ -100,7 +107,7 @@ public sealed class ExplorationStateRecovery
         var current = GetSnapshot();
         if (current == null)
             return 0;
-        return Math.Max(0, current.Budget - current.Steps);
+        return current.RemainingSteps;
     }
 
     /// <summary>Check if exploration is in hunting phase (budget exceeded).</summary>
@@ -109,7 +116,7 @@ public sealed class ExplorationStateRecovery
         var current = GetSnapshot();
         if (current == null)
             return false;
-        return current.Steps > current.Budget;
+        return current.HuntingActive;
     }
 
     /// <summary>Snapshot of exploration state for recovery.</summary>
@@ -122,6 +129,8 @@ public sealed class ExplorationStateRecovery
         public required int FirstProgress { get; init; }
         public required JigsawPhase Phase { get; init; }
         public required int Budget { get; init; }
+        public required int RemainingSteps { get; init; }
+        public required bool HuntingActive { get; init; }
     }
 }
 

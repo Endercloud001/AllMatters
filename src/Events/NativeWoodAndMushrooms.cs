@@ -31,7 +31,7 @@ internal static class PeckBlockRemoval
             .FromCard(card).Targeting(play.Target).WithHitFx("vfx/vfx_attack_slash").Execute(context);
 #else
         await CreatureCmd.LoseBlock(context, play.Target, Math.Min(15, play.Target.Block), card.Owner.Creature);
-        await DamageCmd.Attack(card.DynamicVars.Damage.BaseValue).WithHitCount(card.DynamicVars.Repeat.IntValue)
+        await DamageCmd.Attack(card.DynamicVars.Damage.BaseValue).WithHitCount(card.DynamicVars.HitCount.IntValue)
             .FromCard(card, play).Targeting(play.Target).WithHitFx("vfx/vfx_attack_slash").Execute(context);
 #endif
     }

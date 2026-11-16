@@ -87,7 +87,7 @@ internal static class JigsawNativeShopSync
         var session = JigsawNativeSession.Current;
         if (session?.Map is not { CurrentNode: int node } map || session.Native.CurrentRoom is not MerchantRoom room)
             return;
-        var inventory = room.Inventories.FirstOrDefault(candidate => candidate.AllEntries.Contains(entry));
+        var inventory = JigsawNativeShopPersistence.Inventories(room).FirstOrDefault(candidate => candidate.AllEntries.Contains(entry));
         if (inventory == null || inventory.Player.NetId != RunManager.Instance.NetService.NetId)
             return;
         if (entry is MerchantCardRemovalEntry removal)
@@ -118,10 +118,11 @@ internal static class JigsawNativeShopSync
             return;
         if (sender.NetId != RunManager.Instance.NetService.NetId)
         {
-            var index = room.Inventories.FindIndex(inventory => inventory.Player.NetId == sender.NetId);
+            var inventories = JigsawNativeShopPersistence.Inventories(room);
+            var index = inventories.FindIndex(inventory => inventory.Player.NetId == sender.NetId);
             if (index < 0)
                 throw new InvalidDataException("Shop stock owner is missing from the native room.");
-            JigsawNativeShopPersistence.Apply(room.Inventories[index], update.Stock);
+            JigsawNativeShopPersistence.Apply(inventories[index], update.Stock);
             session.CaptureCurrentShop();
         }
         state.Applied[sender.NetId] = update.Sequence;
@@ -134,6 +135,7 @@ internal static class JigsawNativeShopSync
     }
 }
 
+#if STS2_PUBLIC
 [HarmonyPatch(typeof(MegaCrit.Sts2.Core.Multiplayer.Game.RewardSynchronizer), "HandleGoldLostMessage")]
 internal static class JigsawNativeShopGoldReceived
 {
@@ -175,6 +177,26 @@ internal static class JigsawNativeShopRemovalReceived
         return completed;
     }
 }
+#else
+// Beta runs every purchase through its merchant synchronizer, including removal.
+// Keep remote saves blocked until both this native task and the ordered stock update settle.
+[HarmonyPatch(typeof(MegaCrit.Sts2.Core.Multiplayer.Game.MerchantSynchronizer), "PurchaseEntry")]
+internal static class JigsawNativeShopPurchaseReceived
+{
+    private static void Prefix(Player player) => JigsawNativeShopSync.NativePurchaseStarted(player.NetId, removal: true);
+
+    private static void Postfix(Player player, ref Task<bool> __result) => __result = Track(__result, player.NetId);
+
+    private static async Task<bool> Track(Task<bool> purchase, ulong owner)
+    {
+        var session = JigsawNativeSession.Current;
+        bool completed = await purchase;
+        if (session != null)
+            JigsawNativeShopSync.NativeRemovalFinished(session, owner, completed);
+        return completed;
+    }
+}
+#endif
 
 [HarmonyPatch(typeof(MerchantEntry), nameof(MerchantEntry.InvokePurchaseCompleted))]
 internal static class JigsawNativeShopPurchaseCompleted

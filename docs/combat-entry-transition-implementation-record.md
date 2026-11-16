@@ -10,7 +10,7 @@
 
 public 的 `EnterMapPointInternal` 异步状态机由真实方法的 `AsyncStateMachineAttribute` 定位，只把末尾唯一的 private `FadeIn(bool)` 调用换为局部桥接。当前普通 native invocation 的 AsyncLocal scope 延后该调用；其他调用点及 scope 外调用执行原生方法。scope 在 native invocation 返回后失效，继承执行上下文不能延续抑制；本次视觉拥有权丢失也不能让旧 native call 揭开其他过场。匹配不兼容时保留原 IL，报告并停用本功能过场适配。
 
-真实 ENet 测试发现：快端已进入原生 `CombatStateSynchronizer.WaitForSync`，另一端淡出失败而从未进入时，快端会一直等原生同步。新增仅绑定当前 round/attempt 的 `EntryFadeReady`，追加现有 enum 末尾，复用可靠 entry descriptor。所有端淡出成功才共同开始 native entry；仍需原有 native-ready 共同确认。发送本地 fade-ready 后，本端承担 native 参与责任，之后视觉接管只阻止自有揭幕；不因仅视觉变化退出原生同步。淡出失败沿原有 `EntryFailed` 和完整点可靠重试。此状态不持久化，不是通用动画/屏障框架；运行时协调的具体必要性见实施计划。
+真实 ENet 测试发现：快端已进入原生 `CombatStateSynchronizer.WaitForSync`，另一端淡出失败而从未进入时，快端会一直等原生同步。新增仅绑定当前 round/attempt 的 `EntryFadeReady`，追加现有 enum 末尾，复用可靠 entry descriptor。所有端淡出成功才共同开始 native entry；仍需原有 native-ready 共同确认。发送本地 fade-ready 后，本端承担 native 参与责任，之后视觉接管只阻止自有揭幕；不因仅视觉变化退出原生同步。淡出失败沿原有 `EntryFailed` 和完整点可靠重试。此状态不持久化，不是通用动画/屏障框架。
 
 ## 验证证据
 

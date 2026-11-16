@@ -289,7 +289,7 @@ public static class LobbyExplorationRecoveryTests
         Assert.Contains(3UL, restored.ActivePlayers);
 
         // The recovery snapshot the late player reads is built from the same single save.
-        var snapshot = ExplorationRecoveryTests.CreateExplorationSnapshotFromSave(save);
+        var snapshot = ExplorationRecoveryTests.ReadCheckpointSnapshot(save);
         Assert.Equal(sharedVisited, snapshot.VisitedNodes.OrderBy(id => id).ToArray());
         Assert.Equal(sharedVisited.Length, snapshot.VisitedNodes.Count);
     }
@@ -322,7 +322,7 @@ public static class LobbyExplorationRecoveryTests
 
         // The save and the recovery snapshot each hold one shared set, never a per-player map.
         Assert.Equal(sharedVisited, save.Visited.OrderBy(id => id).ToArray());
-        var snapshot = ExplorationRecoveryTests.CreateExplorationSnapshotFromSave(save);
+        var snapshot = ExplorationRecoveryTests.ReadCheckpointSnapshot(save);
         Assert.Equal(sharedVisited, snapshot.VisitedNodes.OrderBy(id => id).ToArray());
         Assert.Equal(sharedCompleted, snapshot.CompletedNodes.OrderBy(id => id).ToArray());
     }

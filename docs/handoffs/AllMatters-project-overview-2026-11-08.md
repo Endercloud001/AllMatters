@@ -7,7 +7,7 @@
 - 实际工作仓库：`E:/Godot_v4.5.1-stable_mono_win64/sts2mod/AllMatters`。
 - GitHub：[Endercloud001/AllMatters](https://github.com/Endercloud001/AllMatters)。任务跟踪采用 GitHub Issues 及原生 sub-issue/dependency 关系。
 - 外层 `sts2mod` 不是 Git 仓库；旁边有多份研究、原型和 worktree，不能误当成正式生产目录。
-- 本机 `AllMatters/docs` 是到同级 `AllMatters_docs` 的 Windows junction。Git 跟踪其中普通文档；新 clone 可使用普通 docs 目录。依赖在 `.local/`，不要通过 junction 清理或搬动它们。
+- 各目标树先核 `docs` 实际属性：可能是普通目录，也可能是 junction，不能假定它们共用 `AllMatters_docs`。依赖与日志从目标树 `.local/` 读取。
 
 ## 项目是什么
 
@@ -19,7 +19,7 @@
 |---|---|
 | 操作约束、文件组织 | `AGENTS.md` |
 | 开发、双版 DLL 查询、测试宿主、打包和人工交付 | `docs/development.md` |
-| 现有功能及历史范围 | `README.md`、`docs/v0.1-scope.md`、`docs/v0.1.1-scope.md` |
+| 现有功能及历史范围 | `README.md`、`docs/v0.1-scope.md`及对应工单 |
 | 术语与领域上下文 | `GLOSSARY.md`、`docs/agents/domain.md`；相关 ADR 若存在再读 |
 | 游戏机制调用链 | `docs/game-mechanics.md` |
 | GitHub 操作、分批人工验收状态政策 | `docs/agents/issue-tracker.md` |

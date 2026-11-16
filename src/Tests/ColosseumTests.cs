@@ -181,7 +181,7 @@ internal static class ColosseumTests
                     // Rare relics such as Old Coin can grant additional gold on pickup.
                     Check(player.Gold == beforeGold + 100, "The native gold reward pays exactly 100 to its owner.");
                     await relic.SelectUnsynchronized();
-                    using (CardSelectCmd.UseSelector(new ChooseReward(player == second))) await cards.SelectUnsynchronized();
+                    using (HeadlessNativeApi.UseSelector(player.RunState, new ChooseReward(player == second))) await cards.SelectUnsynchronized();
                     Check(player.Relics.Any(r => r.Id == relic.Relic!.Id) && player.Deck.Cards.Count == beforeDeck + (player == second ? 0 : 1),
                         "Native reward selection pays the owner, including choosing versus skipping the card.");
                     var inventory = Player.FromSerializable(player.ToSerializable());

@@ -54,7 +54,11 @@ internal static class NativeNlothTests
             NativeEventTests.Check(face.IsUsedUp && !Hook.ShouldGenerateTreasure(run, p) && Hook.ShouldGenerateTreasure(run, other), "The next chest is empty only for the holder.");
             var sync = new TreasureRoomRelicSynchronizer(run, 2, RunManager.Instance.ActionQueueSynchronizer, run.SharedRelicGrabBag, run.Rng.Niche);
             List<RelicPickingResult>? awards = null;
-            sync.RelicsAwarded += results => awards = results;
+            sync.RelicsAwarded += (results
+#if !STS2_PUBLIC
+                , isFinished
+#endif
+            ) => awards = results;
             sync.BeginRelicPicking();
             NativeEventTests.Check(sync.CurrentRelics!.Count == 1 && sync.GetPlayerVote(p).voteReceived && !sync.GetPlayerVote(p).index.HasValue,
                 "Generate one teammate relic and automatically skip the holder's native vote.");

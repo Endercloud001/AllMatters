@@ -33,12 +33,21 @@ internal static class JigsawActivationTests
         // Substitutes the screen/NGame listener; lobby messages and RunManager entry stay native.
         public void BeginRun(string seed,List<ActModel> acts,IReadOnlyList<ModifierModel> modifiers)
         {
-            if(modifiers.Count!=0)throw new Exception("Mode identity must not enter gameplay modifiers.");
-            Native=RunState.CreateForTest(players:Lobby.Players.Select(p=>Player.CreateForNewRun(p.character,UnlockState.all,p.id)).ToList(),acts:[ModelDb.Act<Overgrowth>()],seed:seed);
-            RunManager.Instance.SetUpNewMultiplayer(Native,Lobby,shouldSave:ShouldSave);
+            if(Lobby.GameMode != GameMode.Daily && modifiers.Count!=0)throw new Exception("Mode identity must not enter gameplay modifiers.");
+            Native=RunState.CreateForTest(players:Lobby.Players.Select(p=>Player.CreateForNewRun(p.character,UnlockState.all,p.id)).ToList(),acts:[ModelDb.Act<Overgrowth>()],modifiers:modifiers,gameMode:Lobby.GameMode,
+#if !STS2_PUBLIC
+                isCustomGame:Lobby.IsCustom,
+#endif
+                seed:seed);
+            RunManager.Instance.SetUpNewMultiplayer(Native,Lobby,shouldSave:ShouldSave,dailyTime:Lobby.DailyTime?.serverTime);
         }
         public void PlayerConnected(StartPlayer player){}
+#if STS2_PUBLIC
         public void PlayerChanged(StartPlayer player,bool isRandomCharacterResolution){}
+#else
+        public void PlayerChanged(StartPlayer player){}
+        public void GameModeChanged(){}
+#endif
         public void RemotePlayerDisconnected(StartPlayer player){}
         public void AscensionChanged(){}
         public void SeedChanged(){}
@@ -52,7 +61,14 @@ internal static class JigsawActivationTests
         // Keep vanilla model-cache authentication independent of mutation by earlier tests.
         if (Environment.GetEnvironmentVariable("JIGSAW_NET_ROLE") == null)
         {
-            foreach(bool disabled in new[]{false,true})
+            foreach (var scenario in new[] { "Standard", "Disabled", "Daily",
+#if STS2_PUBLIC
+                "Custom"
+#else
+                "Dread", "Blitz", "Custom"
+#endif
+            })
+
             {
                 string logs = Path.Combine(Path.GetTempPath(), "allmatters-enet-" + Guid.NewGuid());
                 Directory.CreateDirectory(logs);
@@ -60,7 +76,8 @@ internal static class JigsawActivationTests
                 foreach (var arg in new[] { "--headless", "--path", ProjectSettings.GlobalizePath("res://"), "--", Name }) start.ArgumentList.Add(arg);
                 start.Environment["JIGSAW_NET_ROLE"] = "host";
                 start.Environment["JIGSAW_NET_DIR"] = logs;
-                start.Environment["JIGSAW_HOST_DISABLED"] = disabled.ToString();
+                start.Environment["JIGSAW_HOST_DISABLED"] = (scenario == "Disabled").ToString();
+                start.Environment["JIGSAW_MODE_SCENARIO"] = scenario;
                 using var process = Process.Start(start)!;
                 var output = process.StandardOutput.ReadToEndAsync();
                 var errors = process.StandardError.ReadToEndAsync();
@@ -135,14 +152,39 @@ internal static class JigsawActivationTests
             bool enabled=Environment.GetEnvironmentVariable("JIGSAW_HOST_DISABLED")!="True";
             JigsawPreferences.Enabled=host!=null?enabled:!enabled;
             var listener=new NewRunListener();
-            var lobby=new StartRunLobby(GameMode.Standard,net,listener,3);listener.Lobby=lobby;
-            if(host!=null)lobby.AddLocalHostPlayer(UnlockState.all,0);
+            string scenario = Environment.GetEnvironmentVariable("JIGSAW_MODE_SCENARIO") ?? "Standard";
+            bool custom = scenario == "Custom";
+            var mode = Enum.TryParse<GameMode>(scenario, out var parsed) ? parsed : GameMode.Standard;
+            var lobby = mode == GameMode.Daily
+                ? new StartRunLobby(mode,
+#if !STS2_PUBLIC
+                    custom,
+#endif
+                    net, listener, new MegaCrit.Sts2.Core.Daily.TimeServerResult
+                    { serverTime = DateTimeOffset.UtcNow, localReceivedTime = DateTimeOffset.UtcNow }, 3)
+                : new StartRunLobby(mode,
+#if !STS2_PUBLIC
+                    custom,
+#endif
+                    net, listener, 3);
+            listener.Lobby = lobby;
+            if(host!=null)lobby.AddLocalHostPlayer(UnlockState.all,0
+#if !STS2_PUBLIC
+                ,0
+#endif
+            );
             File.WriteAllText(Path.Combine(directory,role+".constructed"),"ready");
             await Until(()=>new[]{"host","2","3"}.All(r=>File.Exists(Path.Combine(directory,r+".constructed"))),"all lobby handlers installed");
             if(host==null)
             {
                 net.RegisterMessageHandler<MegaCrit.Sts2.Core.Multiplayer.Messages.Lobby.ClientLobbyJoinResponseMessage>((message,_)=>lobby.InitializeFromMessage(message));
-                net.SendMessage(new MegaCrit.Sts2.Core.Multiplayer.Messages.Lobby.ClientLobbyJoinRequestMessage{unlockState=UnlockState.all.ToSerializable(),maxAscensionUnlocked=0});
+                net.SendMessage(new MegaCrit.Sts2.Core.Multiplayer.Messages.Lobby.ClientLobbyJoinRequestMessage{unlockState=UnlockState.all.ToSerializable(),
+#if STS2_PUBLIC
+                    maxAscensionUnlocked=0
+#else
+                    maxStandardAscension=0,maxBlitzAscension=0
+#endif
+                });
             }
             await Until(()=>lobby.Players.Count==3,"native lobby roster");
             File.WriteAllText(Path.Combine(directory,role+".lobby"),"ready");
@@ -151,7 +193,21 @@ internal static class JigsawActivationTests
             await Until(()=>listener.Native!=null,"native begin-run callback");
             var native=listener.Native!;
             var session=JigsawNativeSession.Current;
-            if((session!=null)!=enabled)throw new Exception("Host-selected Jigsaw must activate through native multiplayer new-run entry on every peer, regardless of client preference.");
+            bool expected = enabled && !custom && (mode == GameMode.Standard
+#if !STS2_PUBLIC
+                || mode == GameMode.Dread
+#endif
+            );
+            if((session!=null)!=expected)throw new Exception("Host-selected Jigsaw must activate through native multiplayer new-run entry on every peer, regardless of client preference.");
+            if (expected && mode == GameMode.Standard)
+            {
+                var owners = native.Players.OrderBy(p => p.NetId).ToArray();
+                await MegaCrit.Sts2.Core.Commands.RelicCmd.Obtain<MegaCrit.Sts2.Core.Models.Relics.WingedBoots>(owners[0]);
+                await MegaCrit.Sts2.Core.Commands.RelicCmd.Obtain<MegaCrit.Sts2.Core.Models.Relics.GoldenCompass>(owners[1]);
+                await MegaCrit.Sts2.Core.Commands.RelicCmd.Obtain<MegaCrit.Sts2.Core.Models.Relics.WingedBoots>(owners[2]);
+                if (session!.Map is not { Budget: 18, RemainingSteps: 18 })
+                    throw new Exception("Different owners and repeated relics must share one +3 allowance on every peer.");
+            }
             File.WriteAllText(Path.Combine(directory,role+".activated"),"ready");
             await Until(()=>new[]{"host","2","3"}.All(r=>File.Exists(Path.Combine(directory,r+".activated"))),"all peers checked mode identity");
             Console.WriteLine($"ENET ACTIVATED role={role} hostPreference={enabled} clientPreference={!enabled} modifiers={native.Modifiers.Count}");

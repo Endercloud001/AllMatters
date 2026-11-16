@@ -1,3 +1,5 @@
+using HarmonyLib;
+using MegaCrit.Sts2.Core.Runs;
 using MegaCrit.Sts2.Core.Map;
 
 namespace AllMatters.Jigsaw;
@@ -11,19 +13,30 @@ internal sealed class JigsawEntryProjection : ActMap
     public override MapPoint? SecondBossMapPoint { get; }
     protected override MapPoint?[,] Grid => grid;
 
-    private JigsawEntryProjection(ActMap original, int row, MapPoint point)
+    private JigsawEntryProjection(ActMap original, int row, MapPoint point, JigsawRoom room)
     {
         StartingMapPoint = original.StartingMapPoint;
-        BossMapPoint = original.BossMapPoint;
-        SecondBossMapPoint = original.SecondBossMapPoint;
+        BossMapPoint = room == JigsawRoom.Boss ? point : original.BossMapPoint;
+        SecondBossMapPoint = room == JigsawRoom.SecondBoss ? point : original.SecondBossMapPoint;
         grid = new MapPoint?[Math.Max(original.GetColumnCount(), 1), Math.Max(original.GetRowCount(), row + 1)];
         foreach (var old in original.GetAllMapPoints())
             if (old.coord.col >= 0 && old.coord.col < grid.GetLength(0) && old.coord.row >= 0 && old.coord.row < grid.GetLength(1))
                 grid[old.coord.col, old.coord.row] = old;
-        grid[point.coord.col, point.coord.row] = point;
+        // Native map UI treats every grid entry as a normal point; bosses have dedicated controls.
+        grid[point.coord.col, point.coord.row] = point.PointType == MapPointType.Boss ? null : point;
         startMapPoints.UnionWith(original.startMapPoints);
     }
 
+    internal static ActMap RepairLegacyBossPoints(ActMap original)
+    {
+        var bosses = original.GetAllMapPoints().Where(point => point.PointType == MapPointType.Boss)
+            .OrderBy(point => point.coord.row).ToArray();
+        ActMap repaired = original;
+        for (int index = 0; index < bosses.Length; index++)
+            repaired = new JigsawEntryProjection(repaired, bosses[index].coord.row, bosses[index],
+                index == 0 ? JigsawRoom.Boss : JigsawRoom.SecondBoss);
+        return repaired;
+    }
     public static (ActMap Map, MapPoint Point) Append(ActMap original, int row, JigsawRoom room)
     {
         var point = new MapPoint(0, row)
@@ -40,6 +53,44 @@ internal sealed class JigsawEntryProjection : ActMap
                 _ => throw new InvalidOperationException("This is not an exploration destination.")
             }
         };
-        return (new JigsawEntryProjection(original, row, point), point);
+        return (new JigsawEntryProjection(original, row, point, room), point);
     }
 }
+
+// Saved legacy projections placed Boss points among normal map controls. Repair
+// before MapChanged subscribers mount their controls, including while continuing a run.
+#if !STS2_PUBLIC
+[HarmonyPatch(typeof(RunManager), nameof(RunManager.InvokeMapChanged))]
+internal static class JigsawRepairLegacyNativeMap
+{
+    private static void Prefix()
+    {
+        if (JigsawNativeSession.Current is { Map: not null } session)
+            session.Native.Map = JigsawEntryProjection.RepairLegacyBossPoints(session.Native.Map);
+    }
+}
+#else
+[HarmonyPatch(typeof(RunManager), nameof(RunManager.GenerateMap))]
+internal static class JigsawRepairLegacyNativeMap
+{
+    private static void Postfix(ref Task __result) => __result = Repair(__result);
+    private static async Task Repair(Task original)
+    {
+        await original;
+        if (JigsawNativeSession.Current is { Map: not null } session)
+            session.Native.Map = JigsawEntryProjection.RepairLegacyBossPoints(session.Native.Map);
+    }
+}
+
+[HarmonyPatch(typeof(MegaCrit.Sts2.Core.Nodes.Screens.Map.NMapScreen), "SetMap")]
+internal static class JigsawRepairLegacyPublicMapControls
+{
+    private static void Prefix(ref ActMap map)
+    {
+        if (JigsawNativeSession.Current is not { Map: not null } session || !ReferenceEquals(session.Native.Map, map))
+            return;
+        map = JigsawEntryProjection.RepairLegacyBossPoints(map);
+        session.Native.Map = map;
+    }
+}
+#endif

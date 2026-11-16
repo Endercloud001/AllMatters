@@ -45,9 +45,14 @@ internal static class NativeEventLocalization
         }
         else if (name == "cards")
         {
+#if STS2_PUBLIC
+            const string peckHits = "{Repeat:diff()}";
+#else
+            const string peckHits = "{HitCount:diff()}";
+#endif
             __result.MergeWith(new Dictionary<string, string>
             {
-                ["PECK.description"] = zh ? "先去除目标至多[blue]15[/blue]点[gold]格挡[/gold]，再造成{Damage:diff()}点伤害{Repeat:diff()}次。" : "Remove up to [blue]15[/blue] [gold]Block[/gold] from the target, then deal {Damage:diff()} damage {Repeat:diff()} times.",
+                ["PECK.description"] = zh ? "先去除目标至多[blue]15[/blue]点[gold]格挡[/gold]，再造成{Damage:diff()}点伤害" + peckHits + "次。" : "Remove up to [blue]15[/blue] [gold]Block[/gold] from the target, then deal {Damage:diff()} damage " + peckHits + " times.",
                 ["TORIC_TOUGHNESS.description"] = zh ? "获得{Block:diff()}点[gold]格挡[/gold]。下回合获得[blue]7[/blue]点[gold]格挡[/gold]。" : "Gain {Block:diff()} [gold]Block[/gold]. Next turn gain [blue]7[/blue] [gold]Block[/gold].",
             });
         }

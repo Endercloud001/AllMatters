@@ -103,7 +103,7 @@ internal static class BeggarFountainTests
         await give.Chosen();
         Check(player.Gold == 5, "A stale payment choice must not charge twice.");
         var purify = model.CurrentOptions[0];
-        using (CardSelectCmd.UseSelector(new SelectCard(selected))) await purify.Chosen();
+        using (HeadlessNativeApi.UseSelector(player.RunState, new SelectCard(selected))) await purify.Chosen();
         Check(model.IsFinished && player.Gold == 5 && player.Deck.Cards.SequenceEqual(new[] { keep, eternal }),
             "Exactly the selected legal card must be removed, with no second charge.");
         await purify.Chosen();
@@ -211,7 +211,7 @@ internal static class BeggarFountainTests
                                 "Payment must change the portrait to Cleric.");
                             Check(model.CurrentOptions[0].Title.GetFormattedText() == (language == "zhs" ? "净化" : "Purify"),
                                 "The reveal page must offer localized purification.");
-                            using (CardSelectCmd.UseSelector(new SelectCard(card))) await model.CurrentOptions[0].Chosen();
+                            using (HeadlessNativeApi.UseSelector(player.RunState, new SelectCard(card))) await model.CurrentOptions[0].Chosen();
                         }
                         finally { node.Free(); }
                     }
@@ -238,10 +238,7 @@ internal static class BeggarFountainTests
 
     private static async Task SaveBoundaries()
     {
-#if !STS2_PUBLIC
-        MegaCrit.Sts2.Core.Modding.AssemblyInfo.Init();
-#endif
-        MegaCrit.Sts2.Core.Multiplayer.Serialization.ModelIdSerializationCache.Init();
+        uint originalModelHash = MegaCrit.Sts2.Core.Multiplayer.Serialization.ModelIdSerializationCache.Hash;
         var (player, other, run) = Party();
         player.Gold = 80;
         other.Gold = 100;
@@ -254,7 +251,7 @@ internal static class BeggarFountainTests
         var model = await Begin("ALL_MATTERS_EVENT_OLD_BEGGAR", player);
         await model.CurrentOptions[0].Chosen();
         var selector = new PendingSelection(card);
-        using (CardSelectCmd.UseSelector(selector))
+        using (HeadlessNativeApi.UseSelector(player.RunState, selector))
         {
             var removal = model.CurrentOptions[0].Chosen();
             Check(selector.WasRequested && !removal.IsCompleted && player.Gold == 5 && player.Deck.Cards.Count == 2,
@@ -288,6 +285,8 @@ internal static class BeggarFountainTests
             "Loading the pre-drink node must restore the curse and a pending choice.");
         await unfinished.CurrentOptions[0].Chosen();
         Check(before[1].Deck.Cards.Count == 0, "The restored choice must remain executable once.");
+        Check(MegaCrit.Sts2.Core.Multiplayer.Serialization.ModelIdSerializationCache.Hash == originalModelHash,
+            "Saving and restoring native event inventories must preserve the initialized model IDs used by fresh peer handshakes.");
     }
 
     private static string[] Snapshot(IEnumerable<Player> players) => players.Select(player =>

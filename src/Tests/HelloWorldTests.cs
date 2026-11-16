@@ -58,6 +58,7 @@ internal static class HelloWorldTests
             [
                 ("Test host registers mod assembly correctly without association warnings", ModAssociationRegistration),
                 ("Test host watchdog renews each case and reports a stalled case", WatchdogPerCase),
+                (HeadlessNativeApiTests.Name, HeadlessNativeApiTests.Run),
                 ("Upgrade does not add Innate", UpgradeWithoutInnate),
                 ("Ordinary single source keeps original behavior", OrdinarySingle),
                 ("Upgraded single source has its own power and upgrades its card", UpgradedSingle),
@@ -80,7 +81,57 @@ internal static class HelloWorldTests
                 .Concat(EventFeedbackTests.Cases).Concat(AmbrosiaTests.Cases)
                 .Concat(JungleMazeAdventureTests.Cases).Concat(WhisperingHollowTests.Cases).Concat(HolesTests.Cases).Concat(TeaTrialTests.Cases)
                 .Concat(NativeLockedOptionTests.Cases).Concat(NativeVegetationTests.Cases).Concat(JigsawDomainTests.Cases).Concat(JigsawNativeTests.Cases).Concat(JigsawPresentationTests.Cases)
-                .Concat(JigsawRecoveryNetworkTests.Cases)
+                .Concat(JigsawHuntingTests.Cases).Concat(JigsawHuntingNativeTests.Cases).Concat(JigsawHuntingTreasureTests.Cases).Concat(JigsawCompatibilityTests.Cases).Concat(JigsawFlightCompatibilityTests.Cases).Concat(JigsawCombatCheckpointTests.Cases).Concat(JigsawHuntingUnderdocksTests.Cases).Concat(JigsawHuntingCombatTests.Cases).Concat(JigsawRecoveryNetworkTests.Cases)
+#if !STS2_PUBLIC
+                .Concat(NativeMuseumOfTortureTests.Cases)
+#endif
+                .Concat(JigsawHuntingRestRelicTests.Cases)
+                .Concat(JigsawMapDrawingSaveTests.Cases)
+                .Concat(JigsawDrawingToolsTests.Cases)
+                .Concat(JigsawHuntingActTwoTests.Cases)
+                .Concat(JigsawHuntingHiveRecoveryTests.Cases)
+                .Concat(JigsawKnowledgeUiTests.Cases)
+                .Concat(JigsawKnowledgeMultiOwnerTests.Cases)
+                .Concat(JigsawHuntingCrabTests.Cases)
+                .Concat(JigsawHuntingCrabRecoveryTests.Cases)
+                .Concat(JigsawHuntingCrabLayoutTests.Cases)
+                .Concat(JigsawMysticTests.Cases)
+                .Concat(JigsawHuntingMysticRecoveryTests.Cases)
+                .Concat(JigsawHuntingForestRecoveryTests.Cases)
+                .Concat(JigsawHuntingKnowledgeRecoveryTests.Cases)
+                .Concat(JigsawHuntingGloryLayoutTests.Cases)
+                .Concat(JigsawHuntingSoulFyshTests.Cases)
+                .Concat(JigsawHuntingSeapunkTests.Cases)
+                .Concat(JigsawHuntingSeapunkRecoveryTests.Cases)
+                .Concat(JigsawHuntingSoulFyshRecoveryTests.Cases)
+                .Concat(JigsawHuntingSeapunkLayoutTests.Cases)
+                .Concat(JigsawHuntingVantomLayoutTests.Cases)
+                .Concat(JigsawHuntingVantomRecoveryTests.Cases)
+                .Concat(JigsawHuntingPhrogRecoveryTests.Cases)
+            .Concat(JigsawHuntingQueenTests.Cases)
+            .Concat(JigsawStepRelicTests.Cases)
+            .Concat(JigsawQuestMarkerTests.Cases)
+            .Concat(JigsawHuntingTorchFlameTests.Cases)
+            .Concat(JigsawHuntingQueenRecoveryTests.Cases)
+            .Concat(JigsawHuntingAeonglassRecoveryTests.Cases)
+            .Concat(JigsawHuntingAeonglassUiTests.Cases)
+            .Concat(JigsawHuntingAeonglassLayoutTests.Cases)
+            .Concat(JigsawHuntingTestSubjectRecoveryTests.Cases)
+            .Concat(JigsawHuntingMatriarchRecoveryTests.Cases)
+            .Concat(JigsawHuntingMatriarchLayoutTests.Cases)
+            .Concat(JigsawHuntingQueenLayoutTests.Cases)
+            .Concat(JigsawHuntingTestSubjectLayoutTests.Cases)
+                .Concat(JigsawHuntingHiveEliteTests.Cases)
+                .Concat(JigsawHuntingHiveEventTests.Cases)
+                .Concat(JigsawHuntingHolesCheckpointTests.Cases)
+                .Concat(JigsawHuntingActThreeTests.Cases)
+                .Concat(JigsawHuntingBossTests.Cases)
+                .Concat(JigsawHuntingMultiClawTests.Cases)
+                .Concat(JigsawHuntingWaterfallTests.Cases)
+                .Concat(JigsawHuntingWaterfallRecoveryTests.Cases)
+                .Concat(JigsawHuntingWitherTests.Cases)
+                .Concat(HeadlessProcessOutputTests.Cases)
+                .Concat(JigsawWinnerEvidenceTests.Cases)
                 .Concat(JigsawRecoveryNetworkTests.RewardCases)
                 .Where(test => args.Length == 0 || test.Name.Contains(args[0], StringComparison.OrdinalIgnoreCase)).ToArray();
             Check(selected.Length > 0, "No test matches the supplied filter.");

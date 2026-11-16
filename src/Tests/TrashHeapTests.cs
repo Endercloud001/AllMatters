@@ -143,7 +143,11 @@ internal static class TrashHeapTests
                 && entry.Card.Rarity == entry.Rarity && !ModelDb.CardPool<EventCardPool>().AllCardIds.Contains(entry.Card.Id),
                 $"{entry.Card.Id} belongs to its normal character pool at the specified rarity.");
             var legal = pool.Where(c => c.Id == entry.Card.Id);
-            var shop = CardFactory.CreateForMerchant(player, legal, entry.Rarity).Card;
+            var shop = CardFactory.CreateForMerchant(player, legal,
+#if !STS2_PUBLIC
+                [],
+#endif
+                entry.Rarity).Card;
             HeadlessTestSetup.Combat(player.RunState);
             var generated = CardFactory.GetDistinctForCombat(player, legal, 1, player.RunState.Rng.CombatCardGeneration).Single();
             NativeEventTests.Check(shop.Id == entry.Card.Id && shop.Owner == player && generated.Id == entry.Card.Id,

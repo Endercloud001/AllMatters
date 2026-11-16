@@ -1,4 +1,4 @@
-﻿using MegaCrit.Sts2.Core.CardSelection;
+using MegaCrit.Sts2.Core.CardSelection;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.CardRewardAlternatives;
 using MegaCrit.Sts2.Core.Models.Events;
@@ -65,6 +65,21 @@ internal static class JigsawNetworkTests
     }
     private static void ObserveTake(ulong __0) { executed.Add(__0); Console.WriteLine("ENET CALLBACK sender="+__0); }
     internal const string Name="Jigsaw native ENet editor broadcast";
+    internal static async Task PublishWinnerEvidence(string source, string destination)
+    {
+        var clock = Stopwatch.StartNew();
+        while (true)
+        {
+            try { File.Move(source, destination); return; }
+            catch (IOException error) when ((error.HResult & 0xffff) is 32 or 33)
+            {
+                // Only a sharing/lock refusal can be transient. Preserve atomic
+                // publication and report the original IO error when it persists.
+                if (clock.Elapsed >= TimeSpan.FromMilliseconds(500)) throw;
+                await Task.Delay(20);
+            }
+        }
+    }
     public static async Task Run()
     {
         // Keep vanilla model-cache authentication independent of mutation by earlier tests.
@@ -80,10 +95,14 @@ internal static class JigsawNetworkTests
             var output = process.StandardOutput.ReadToEndAsync();
             var errors = process.StandardError.ReadToEndAsync();
             try { await process.WaitForExitAsync().WaitAsync(TimeSpan.FromSeconds(50)); }
-            finally { if (!process.HasExited) process.Kill(true); }
-            File.WriteAllText(Path.Combine(logs, "host.log"), await output);
-            File.WriteAllText(Path.Combine(logs, "host.err"), await errors);
-            Console.WriteLine($"ENET isolated native host/client evidence: {logs}; host exit={process.ExitCode}");
+            finally
+            {
+                if (!process.HasExited) process.Kill(true);
+                await process.WaitForExitAsync();
+                File.WriteAllText(Path.Combine(logs, "host.log"), await output);
+                File.WriteAllText(Path.Combine(logs, "host.err"), await errors);
+                Console.WriteLine($"ENET isolated native host/client evidence: {logs}; host exit={process.ExitCode}");
+            }
             if (process.ExitCode != 0) throw new Exception("Native ENet host failed: " + logs);
             return;
         }
@@ -92,11 +111,12 @@ internal static class JigsawNetworkTests
         var directory=Environment.GetEnvironmentVariable("JIGSAW_NET_DIR")??Path.Combine(Path.GetTempPath(),"allmatters-enet-"+Guid.NewGuid());
         Directory.CreateDirectory(directory);
         var children=new List<Process>();
+        var childOutputs = new List<(HeadlessProcessOutput Output, string Role)>();
         var harmony=new HarmonyLib.Harmony("AllMatters.Tests.ENet80");
         harmony.Patch(HarmonyLib.AccessTools.Method(typeof(SaveManager),nameof(SaveManager.SaveRun)),
             prefix:new HarmonyLib.HarmonyMethod(typeof(JigsawNetworkTests),nameof(SaveThroughIsolatedManager)));
         harmony.Patch(HarmonyLib.AccessTools.Method(typeof(EventSynchronizer),nameof(EventSynchronizer.BeginEvent)),prefix:new HarmonyLib.HarmonyMethod(typeof(JigsawNetworkTests),nameof(ForceReward)));
-        using var selector=CardSelectCmd.UseSelector(new LegalSelector());
+        using var selector=HeadlessNativeApi.UseSelector(new LegalSelector());
         executed.Clear();
         harmony.Patch(HarmonyLib.AccessTools.Method(typeof(JigsawRun), nameof(JigsawRun.Take)), prefix:new HarmonyLib.HarmonyMethod(typeof(JigsawNetworkTests),nameof(ObserveTake)));
         var tree=(SceneTree)Engine.GetMainLoop();
@@ -137,10 +157,9 @@ internal static class JigsawNetworkTests
                     var start=new ProcessStartInfo(OS.GetExecutablePath()){UseShellExecute=false,CreateNoWindow=true,RedirectStandardOutput=true,RedirectStandardError=true};
                     foreach(var arg in new[]{"--headless","--path",ProjectSettings.GlobalizePath("res://"),"--",Name})start.ArgumentList.Add(arg);
                     start.Environment["JIGSAW_NET_ROLE"]=childRole;start.Environment["JIGSAW_NET_DIR"]=directory;start.Environment["JIGSAW_NET_PORT"]=port.ToString();
-                    var process=Process.Start(start)!;children.Add(process);
-                    process.OutputDataReceived+=(_,e)=>{if(e.Data!=null)File.AppendAllText(Path.Combine(directory,childRole+".log"),e.Data+Environment.NewLine);};
-                    process.ErrorDataReceived+=(_,e)=>{if(e.Data!=null)File.AppendAllText(Path.Combine(directory,childRole+".err"),e.Data+Environment.NewLine);};
-                    process.BeginOutputReadLine();process.BeginErrorReadLine();
+                    var output = new HeadlessProcessOutput(start);
+                    children.Add(output.Process);
+                    childOutputs.Add((output, childRole));
                 }
                 await Until(()=>host.ConnectedPeers.Count==2,"native authenticated clients");
             }
@@ -159,15 +178,29 @@ internal static class JigsawNetworkTests
             // Same native lobby entry as character selection; the listener substitutes NGame's scene host.
             JigsawPreferences.Enabled=host!=null;
             var listener=new JigsawActivationTests.NewRunListener{ShouldSave=true};
-            var lobby=new MegaCrit.Sts2.Core.Multiplayer.Game.Lobby.StartRunLobby(GameMode.Standard,net,listener,3);
+            var lobby=new MegaCrit.Sts2.Core.Multiplayer.Game.Lobby.StartRunLobby(GameMode.Standard,
+#if !STS2_PUBLIC
+                false,
+#endif
+                net,listener,3);
             listener.Lobby=lobby;
-            if(host!=null)lobby.AddLocalHostPlayer(UnlockState.all,0);
+            if(host!=null)lobby.AddLocalHostPlayer(UnlockState.all,0
+#if !STS2_PUBLIC
+                ,0
+#endif
+            );
             File.WriteAllText(Path.Combine(directory,role+".constructed"),"ready");
             await Until(()=>new[]{"host","2","3"}.All(r=>File.Exists(Path.Combine(directory,r+".constructed"))),"all lobby handlers installed");
             if(host==null)
             {
                 net.RegisterMessageHandler<MegaCrit.Sts2.Core.Multiplayer.Messages.Lobby.ClientLobbyJoinResponseMessage>((message,_)=>lobby.InitializeFromMessage(message));
-                net.SendMessage(new MegaCrit.Sts2.Core.Multiplayer.Messages.Lobby.ClientLobbyJoinRequestMessage{unlockState=UnlockState.all.ToSerializable(),maxAscensionUnlocked=0});
+                net.SendMessage(new MegaCrit.Sts2.Core.Multiplayer.Messages.Lobby.ClientLobbyJoinRequestMessage{unlockState=UnlockState.all.ToSerializable(),
+#if STS2_PUBLIC
+                    maxAscensionUnlocked=0
+#else
+                    maxStandardAscension=0,maxBlitzAscension=0
+#endif
+                });
             }
             await Until(()=>lobby.Players.Count==3,"native lobby roster");
             File.WriteAllText(Path.Combine(directory,role+".lobby"),"ready");
@@ -190,7 +223,7 @@ internal static class JigsawNetworkTests
             if(session.Map!.Holdings.Count!=1)throw new Exception("Contending native actions must accept exactly one shared holding.");
             var winner=session.Map!.Holdings.Keys.Single();
             File.WriteAllText(Path.Combine(directory,role+".winner.tmp"),winner+":"+string.Join(",",executed));
-            File.Move(Path.Combine(directory,role+".winner.tmp"),Path.Combine(directory,role+".winner"));
+            await PublishWinnerEvidence(Path.Combine(directory,role+".winner.tmp"),Path.Combine(directory,role+".winner"));
             await Until(()=>new[]{"host","2","3"}.All(r=>File.Exists(Path.Combine(directory,r+".winner"))),"all callbacks");
             if(new[]{"host","2","3"}.Select(r=>File.ReadAllText(Path.Combine(directory,r+".winner"))).Distinct().Count()!=1)throw new Exception("Native peers disagree on shared piece owner.");
             Console.WriteLine($"ENET ACCEPTED role={role} sender={net.NetId} winner={winner} holdings={session.Map.Holdings.Count} callbacks={string.Join(",",executed)}");
@@ -520,10 +553,17 @@ internal static class JigsawNetworkTests
         }
         finally
         {
-            foreach(var child in children){if(!child.HasExited)child.Kill(true);child.Dispose();}
-            harmony.UnpatchAll(harmony.Id);
-            isolatedSaveManager=null;
-            RunManager.Instance.CleanUp(false);
+            try
+            {
+                await Task.WhenAll(childOutputs.Select(child => child.Output.Finish(
+                    Path.Combine(directory, child.Role + ".log"), Path.Combine(directory, child.Role + ".err"))));
+            }
+            finally
+            {
+                harmony.UnpatchAll(harmony.Id);
+                isolatedSaveManager=null;
+                RunManager.Instance.CleanUp(false);
+            }
         }
     }
 }

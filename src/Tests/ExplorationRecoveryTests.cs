@@ -56,7 +56,7 @@ public static class ExplorationRecoveryTests
         Ok(run.Drop(player, new(x, y)));
     }
 
-    [Fact(DisplayName = "Create exploration state snapshot from valid JigsawSave")]
+    [Fact(DisplayName = "Production checkpoint reader loads exploration fields from valid JigsawSave")]
     public static void CreateSnapshotFromSave()
     {
         // Arrange
@@ -73,7 +73,7 @@ public static class ExplorationRecoveryTests
 
         // Act
         var save = run.CreateSave();
-        var snapshot = CreateExplorationSnapshotFromSave(save);
+        var snapshot = ReadCheckpointSnapshot(save);
 
         // Assert
         Assert.NotNull(snapshot);
@@ -180,35 +180,19 @@ public static class ExplorationRecoveryTests
         Assert.Equal(run.RemainingSteps, restored.RemainingSteps);
     }
 
-    [Fact(DisplayName = "Exploration recovery detects hunting phase")]
+    [Fact(DisplayName = "Production checkpoint reader reports the independent hunting phase")]
     public static void DetectHuntingPhase()
     {
-        // Arrange: Create a save with steps exceeding budget
-        var run = ReadyMinimalLayout(seed: 22222, budget: 5, doubleBoss: false);
-
-        // Progress through multiple rooms to exceed budget
-        for (int i = 0; i < 7; i++)
-        {
-            var dest = run.AvailableDestinations.FirstOrDefault();
-            if (dest == 0) break;
-
-            var attempt = run.BeginEnter(dest);
-            if (attempt != null)
-            {
-                run.ConfirmEnter(attempt.Id);
-                run.CompleteRoom(attempt.Id);
-            }
-        }
-
-        var save = run.CreateSave();
-
-        // Act - Create snapshot and check hunting state
-        var snapshot = CreateExplorationSnapshotFromSave(save);
-        bool isHunting = snapshot.Steps > snapshot.Budget;
-
-        // Assert
-        Assert.True(isHunting);
-        Assert.True(snapshot.Steps > save.Budget);
+        var run = ReadyMinimalLayout(seed: 22222, budget: 15);
+        Ok(run.SetRemainingSteps(1));
+        var entry = run.BeginEnter(run.AvailableDestinations.First())!;
+        Ok(run.ConfirmEnter(entry.Id));
+        Assert.False(run.HuntingActive);
+        Ok(run.CompleteRoom(entry.Id));
+        var snapshot = ReadCheckpointSnapshot(run.CreateSave());
+        Assert.True(snapshot.HuntingActive);
+        Assert.Equal(0, snapshot.RemainingSteps);
+        Assert.True(snapshot.Steps < snapshot.Budget);
     }
 
     [Fact(DisplayName = "Multi-player exploration state remains independent")]
@@ -257,6 +241,7 @@ public static class ExplorationRecoveryTests
         Ok(run.CompleteAncient(1UL));
         Ok(run.Continue(1UL));
 
+        Ok(run.SetRemainingSteps(1));
         var shop = run.Nodes.First(node => node.Room == JigsawRoom.Shop).Id;
         // Walk the reachable map through the public entry API, preferring the shop so
         // steps keep climbing after every other room has been visited.
@@ -277,27 +262,23 @@ public static class ExplorationRecoveryTests
         var save = run.CreateSave();
         var restored = JigsawRun.Restore(save);
 
-        Assert.True(restored.Steps > restored.Budget, "Hunting (Steps > Budget) must survive CreateSave + Restore.");
+        Assert.True(restored.HuntingActive, "The authoritative hunting lifecycle survives CreateSave + Restore.");
         Assert.Equal(0, restored.RemainingSteps);
         Assert.Equal(run.Visited.OrderBy(id => id), restored.Visited.OrderBy(id => id));
 
-        var snapshot = CreateExplorationSnapshotFromSave(save);
-        Assert.True(snapshot.Steps > snapshot.Budget, "The recovery snapshot must report the hunting phase.");
-        Assert.Equal(0, Math.Max(0, snapshot.Budget - snapshot.Steps));
+        var snapshot = ReadCheckpointSnapshot(save);
+        Assert.True(snapshot.HuntingActive, "The recovery snapshot must report the hunting phase.");
+        Assert.Equal(0, snapshot.RemainingSteps);
     }
 
-    // Helper: Create exploration snapshot from JigsawSave (mimics ExplorationStateRecovery logic)
-    internal static ExplorationStateRecovery.ExplorationSnapshot CreateExplorationSnapshotFromSave(JigsawSave save)
+    // Uses the actual checkpoint slot and production reader, without an attached native session.
+    internal static ExplorationStateRecovery.ExplorationSnapshot ReadCheckpointSnapshot(JigsawSave save)
     {
-        return new ExplorationStateRecovery.ExplorationSnapshot
-        {
-            VisitedNodes = [.. save.Visited],
-            CompletedNodes = [.. save.Completed],
-            CurrentNode = save.CurrentNode,
-            Steps = save.Steps,
-            FirstProgress = save.FirstProgress,
-            Phase = save.Phase,
-            Budget = save.Budget
-        };
+        var player = MegaCrit.Sts2.Core.Entities.Players.Player.CreateForNewRun<MegaCrit.Sts2.Core.Models.Characters.Ironclad>(MegaCrit.Sts2.Core.Unlocks.UnlockState.all, 1);
+        var native = MegaCrit.Sts2.Core.Runs.RunState.CreateForTest(players: [player], acts: [], seed: "RECOVERY_READER");
+        JigsawCheckpoint.Slot.Set(native, new() { Version = 2, Act = 0, Map = save });
+        var reader = ExplorationStateRecovery.GetOrCreate(native)!;
+        Assert.True(reader.InitializeFromCheckpoint());
+        return reader.GetSnapshot()!;
     }
 }

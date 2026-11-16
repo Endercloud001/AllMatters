@@ -1,4 +1,4 @@
-﻿using MegaCrit.Sts2.Core.Commands;
+using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Characters;
@@ -25,6 +25,7 @@ internal static class NativeEventTests
         ("Native events Bugslayer rest heals 25 percent only its owner and finishes once", Rest),
         ("Native events Toric Toughness gives 15 now and 7 next turn with upgrade removing Exhaust", Toric),
         ("Native events Peck removes at most 15 block before its three or four hits", PeckBlock),
+        ("Native events Peck bilingual deck and upgrade previews resolve damage and hit count", PeckDescriptions),
         ("Native events Big Mushroom adds 40 Max HP and keeps opening hand penalty", BigMushroomPickup),
         ("Native events Fragrant Mushroom loses 15 HP and upgrades the chosen cards", FragrantPickup),
         ("Native events treasury shows and grants the same one or two curse gold combination", Treasury),
@@ -115,6 +116,37 @@ internal static class NativeEventTests
         }
     }
 
+    private static Task PeckDescriptions()
+    {
+        try
+        {
+            foreach (string language in new[] { "eng", "zhs" })
+            {
+                LocManager.Instance.SetLanguage(language);
+                var card = ModelDb.Card<Peck>().ToMutable();
+                foreach (bool upgraded in new[] { false, true })
+                {
+                    if (upgraded) { card.UpgradeInternal(); card.FinalizeUpgradeInternal(); }
+                    foreach (var (description, hits) in new[]
+                    {
+                        (card.GetDescriptionForPile(PileType.Deck), upgraded ? 4 : 3),
+                        // Native upgrade descriptions format this card's current dynamic vars;
+                        // the preview caller must supply an upgraded card to show four hits.
+                        (card.GetDescriptionForUpgradePreview(), upgraded ? 4 : 3),
+                    })
+                    {
+                        Check(!description.Contains('{') && !description.Contains('}'), $"Peck must resolve every native variable ({language}): {description}");
+                        string plain = System.Text.RegularExpressions.Regex.Replace(description, @"\[[^\]]*\]", "");
+                        string damage = language == "eng" ? $"2 damage {hits} times" : $"2点伤害{hits}次";
+                        Check(plain.Contains("15") && plain.Contains(damage), $"Peck preview must show block removal and actual damage/hits ({language}): {description}");
+                    }
+                }
+            }
+        }
+        finally { LocManager.Instance.SetLanguage("eng"); }
+        return Task.CompletedTask;
+    }
+
     private static async Task BigMushroomPickup()
     {
         var (p, _) = Combat();
@@ -136,7 +168,7 @@ internal static class NativeEventTests
         var e = await Begin<HungryForMushrooms>(p);
         Check(e.CurrentOptions[1].Description.GetFormattedText().Contains("choose", StringComparison.OrdinalIgnoreCase)
             && !e.CurrentOptions[1].Description.GetFormattedText().Contains("random", StringComparison.OrdinalIgnoreCase), "Event describes chosen upgrades rather than random upgrades.");
-        using (CardSelectCmd.UseSelector(new Select(selected))) await e.CurrentOptions[1].Chosen();
+        using (HeadlessNativeApi.UseSelector(p.RunState, new Select(selected))) await e.CurrentOptions[1].Chosen();
         Check(p.Relics.OfType<FragrantMushroom>().Count() == 1, "Event obtains the native relic that owns the pickup effect.");
         Check(p.Creature.CurrentHp == hp - 15, "Fragrant mushroom pays 15 HP.");
         Check(selected.All(c => c.IsUpgraded) && p.Deck.Cards.Except(selected).All(c => !c.IsUpgraded), "Upgrade only the two chosen cards.");

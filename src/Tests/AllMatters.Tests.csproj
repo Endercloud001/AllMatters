@@ -10,10 +10,10 @@
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <NoWarn>$(NoWarn);MSB3270</NoWarn>
-    <RitsuLibDir Condition="'$(RitsuLibDir)' == ''">$(MSBuildProjectDirectory)/../../.local/dependencies/RitsuLib-0.6.7</RitsuLibDir>
+    <RitsuLibDir Condition="'$(RitsuLibDir)' == ''">$(MSBuildProjectDirectory)/../../.local/dependencies/RitsuLib-0.6.11</RitsuLibDir>
     <RitsuLibReferenceTarget Condition="'$(GameBranch)' == 'public'">0.107.1</RitsuLibReferenceTarget>
     <DefineConstants Condition="'$(GameBranch)' == 'public'">$(DefineConstants);STS2_PUBLIC</DefineConstants>
-    <RitsuLibReferenceTarget Condition="'$(GameBranch)' == 'public-beta'">0.111.0</RitsuLibReferenceTarget>
+    <RitsuLibReferenceTarget Condition="'$(GameBranch)' == 'public-beta'">0.113.0</RitsuLibReferenceTarget>
   </PropertyGroup>
   <Import Project="$(RitsuLibDir)/RitsuLib.References.props" />
   <ItemGroup>
@@ -28,8 +28,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
-    <AssemblyMetadata Include="DependencyDirectory" Value="$(BetaGameDataDir)" />
-    <AssemblyMetadata Include="GameResourcePack" Value="$(BetaGameDataDir)/../SlayTheSpire2.pck" />
+    <AssemblyMetadata Include="DependencyDirectory" Value="$(GameDataDir)" />
+    <AssemblyMetadata Include="GameResourcePack" Value="$(GameDataDir)/../SlayTheSpire2.pck" />
     <AssemblyMetadata Include="ModResourcePack" Value="$(MSBuildProjectDirectory)/../../dist/AllMatters.pck" />
     <AssemblyMetadata Include="RitsuLibDirectory" Value="$(RitsuLibDir)" />
     <AssemblyMetadata Include="RitsuLibTarget" Value="$(RitsuLibReferenceTarget)" />

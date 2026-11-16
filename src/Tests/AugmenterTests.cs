@@ -71,7 +71,7 @@ internal static class AugmenterTests
         var teammates = other.Deck.Cards.ToArray();
         var model = await Begin(player);
         var option = model.CurrentOptions.Single(option => option.TextKey.EndsWith(".TRANSFORM"));
-        using (CardSelectCmd.UseSelector(new SelectTwo(old))) await option.Chosen();
+        using (HeadlessNativeApi.UseSelector(player.RunState, new SelectTwo(old))) await option.Chosen();
         var added = player.Deck.Cards.Except(keep).ToArray();
         Check(model.IsFinished && added.Length == 2 && added.All(card => card.IsUpgraded && card.Owner == player), "Exactly two new owned cards must be upgraded.");
         Check(old.All(card => !player.Deck.Cards.Contains(card) && !card.IsUpgraded), "Replaced objects must not be upgraded.");
@@ -142,7 +142,7 @@ internal static class AugmenterTests
                 Check(originals.Length == 2, "Prepare two transformation sources.");
                 foreach (var card in originals) player.Deck.AddInternal(card);
                 var model = await Begin(player);
-                using (CardSelectCmd.UseSelector(new SelectTwo(originals)))
+                using (HeadlessNativeApi.UseSelector(player.RunState, new SelectTwo(originals)))
                     await model.CurrentOptions.Single(option => option.TextKey.EndsWith(".TRANSFORM")).Chosen();
                 var results = player.Deck.Cards;
                 var legal = character.CardPool.GetUnlockedCards(player.UnlockState, player.RunState.CardMultiplayerConstraint).Select(card => card.Id).ToHashSet();

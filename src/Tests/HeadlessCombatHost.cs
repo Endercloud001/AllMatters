@@ -90,7 +90,7 @@ internal static class HeadlessTestSetup
         public CombatState Combat { get; }
         public MonsterModel Monster { get; }
 
-        internal EncounterCombatScope(RunState run, EncounterModel encounter)
+        internal EncounterCombatScope(RunState run, EncounterModel encounter, bool setUpMonster = true)
         {
             Run = run;
             Combat = new CombatState(encounter, run) { RoundNumber = 1 };
@@ -109,7 +109,7 @@ internal static class HeadlessTestSetup
                 var (monster, slot) = encounter.MonstersWithSlots.Single();
                 Monster = monster;
                 Combat.AddCreature(Combat.CreateCreature(monster, CombatSide.Enemy, slot));
-                monster.SetUpForCombat();
+                if (setUpMonster) monster.SetUpForCombat();
             }
             catch { Dispose(); throw; }
         }

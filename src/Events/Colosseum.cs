@@ -17,6 +17,11 @@ public sealed class Colosseum : ModEventTemplate
     private enum Stage { Initial, Awake, FirstCombat, Intermission, SecondCombat, Finished }
     private Stage _stage;
 
+    internal void RestoreCombatPhase(bool resumesParent)
+    {
+        _stage = resumesParent ? Stage.FirstCombat : Stage.SecondCombat;
+    }
+
     public override bool IsShared => true;
     public override bool IsAllowed(IRunState runState) => runState.CurrentActIndex == 2;
     public override EventAssetProfile AssetProfile => new(InitialPortraitPath: "res://AllMatters/images/events/colosseum.png");
@@ -27,6 +32,18 @@ public sealed class Colosseum : ModEventTemplate
         {
             _stage = Stage.Finished;
             SetEventFinished(PageDescription("FLEE"));
+            return;
+        }
+        // Native terminal reward saves reconstruct this parent before the
+        // completed second battle. Its accepted history cannot become another
+        // intermission with a fresh Fight/Flee choice.
+        if (Owner!.RunState.CurrentMapPointHistoryEntry?.Rooms.Any(room =>
+                room.ModelId == ModelDb.Encounter<DecimillipedeElite>().Id ||
+                room.ModelId == ModelDb.Encounter<EntomancerElite>().Id ||
+                room.ModelId == ModelDb.Encounter<InfestedPrismsElite>().Id) == true)
+        {
+            ShowIntermission();
+            RestoreCombatPhase(false);
             return;
         }
         // Native victory saves retain the parent event and room history, not the

@@ -25,7 +25,7 @@ internal static class NativeCandleTests
         var e = await NativeEventTests.Begin<RoomFullOfCheese>(p);
         ((RunState)p.RunState).AppendToMapPointHistory(MegaCrit.Sts2.Core.Map.MapPointType.Unknown, MegaCrit.Sts2.Core.Rooms.RoomType.Event, e.Id);
         int count = p.Deck.Cards.Count;
-        using (CardSelectCmd.UseSelector(new Choose())) await e.CurrentOptions[0].Chosen();
+        using (HeadlessNativeApi.UseSelector(p.RunState, new Choose())) await e.CurrentOptions[0].Chosen();
         NativeEventTests.Check(e.IsFinished && p.Deck.Cards.Count == count + 2, "Add exactly the two selected cards and finish.");
     }
 

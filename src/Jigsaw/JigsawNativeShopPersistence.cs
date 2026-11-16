@@ -42,6 +42,17 @@ public sealed record JigsawNativeShopStock(
 // when rebuilding an existing item; they are only for creating new shop stock.
 internal static class JigsawNativeShopPersistence
 {
+    internal static List<MerchantInventory> Inventories(MegaCrit.Sts2.Core.Rooms.MerchantRoom room)
+    {
+#if STS2_PUBLIC
+        return room.Inventories;
+#else
+        var synchronizer = MegaCrit.Sts2.Core.Runs.RunManager.Instance.MerchantSynchronizer;
+        var run = MegaCrit.Sts2.Core.Runs.RunManager.Instance.DebugOnlyGetState()
+            ?? throw new InvalidOperationException("The native shop run is missing.");
+        return run.Players.Select(synchronizer.GetInventoryFor).ToList();
+#endif
+    }
     private static int Cost(MerchantEntry entry) => (int)AccessTools.Field(typeof(MerchantEntry), "_cost").GetValue(entry)!;
 
     internal static JigsawShopInventory Capture(MerchantInventory inventory)
@@ -99,8 +110,15 @@ internal static class JigsawNativeShopPersistence
             Require(value.Slot == index && value.Cost >= 0 && value.Pool != null &&
                 value.Type.HasValue != value.Rarity.HasValue && (value.Original != null || value.Modified == null), "卡牌槽位数据无效。");
             var pool = value.Pool!.Select(id => ModelDb.GetById<CardModel>(id)).ToArray();
-            var entry = value.Type is { } type ? new MerchantCardEntry(player, inventory, pool, type)
-                : new MerchantCardEntry(player, inventory, pool, value.Rarity!.Value);
+            var entry = value.Type is { } type ? new MerchantCardEntry(player,
+#if STS2_PUBLIC
+                inventory,
+#endif
+                pool, type) : new MerchantCardEntry(player,
+#if STS2_PUBLIC
+                inventory,
+#endif
+                pool, value.Rarity!.Value);
             CardCreationResult? creation = null;
             if (value.Original is { } original)
             {
@@ -142,7 +160,11 @@ internal static class JigsawNativeShopPersistence
                 ValidateRelic(value.Model);
             Set(entry, nameof(MerchantRelicEntry.Model), value.Model == null ? null : RelicModel.FromSerializable(value.Model));
             SetCost(entry, value.Cost);
+#if STS2_PUBLIC
             inventory.AddRelicEntry(entry);
+#else
+            ((List<MerchantRelicEntry>)AccessTools.Field(typeof(MerchantInventory), "_relicEntries").GetValue(inventory)!).Add(entry);
+#endif
         }
         var potions = (List<MerchantPotionEntry>)AccessTools.Field(typeof(MerchantInventory), "_potionEntries").GetValue(inventory)!;
         foreach (var (value, index) in stock.Potions.Select((value, index) => (value, index)))
@@ -172,8 +194,14 @@ internal static class JigsawNativeShopPersistence
         }
         var update = AccessTools.Method(typeof(MerchantInventory), "UpdateEntries")
             .CreateDelegate<Action<PurchaseStatus, MerchantEntry>>(inventory);
-        foreach (var entry in inventory.AllEntries)
+        foreach (var (entry, index) in inventory.AllEntries.Select((entry, index) => (entry, index)))
+        {
+#if !STS2_PUBLIC
+            // Setup also populates cards and rolls sales; restored stock already has both.
+            entry.Id = (uint)index;
+#endif
             entry.PurchaseCompleted += update;
+        }
         return inventory;
     }
 
@@ -181,7 +209,7 @@ internal static class JigsawNativeShopPersistence
     {
         if (current.Player.RunState.CurrentRoom is not MegaCrit.Sts2.Core.Rooms.MerchantRoom room)
             throw new InvalidOperationException("The native shop is no longer active.");
-        int index = room.Inventories.IndexOf(current);
+        int index = Inventories(room).IndexOf(current);
         if (index < 0)
             throw new InvalidOperationException("The current native shop inventory is missing.");
         var replacement = Restore(current.Player, saved);
@@ -191,7 +219,11 @@ internal static class JigsawNativeShopPersistence
             if (!current.Player.Deck.Cards.Contains(card) && current.Player.RunState.ContainsCard(card))
                 current.Player.RunState.RemoveCard(card);
         }
+#if STS2_PUBLIC
         room.Inventories[index] = replacement;
+#else
+        MegaCrit.Sts2.Core.Runs.RunManager.Instance.MerchantSynchronizer.SetMerchantInventory(current.Player, replacement);
+#endif
     }
 
     private static void ValidateCard(SerializableCard card)

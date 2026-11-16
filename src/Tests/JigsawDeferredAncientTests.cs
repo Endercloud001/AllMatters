@@ -80,20 +80,21 @@ internal static class JigsawDeferredAncientTests
             var selected = ancient.CurrentOptions.Select((option, index) => (option, index))
                 .FirstOrDefault(value => value.option.Relic?.Id.Entry == "GOLDEN_PEARL");
             int index = selected.option == null ? 0 : selected.index;
-            using (MegaCrit.Sts2.Core.Commands.CardSelectCmd.UseSelector(new NativeEventTests.Select(native.Players[0].Deck.Cards.First())))
+            using (global::HeadlessNativeApi.UseSelector(native, new AncientSelector()))
             {
                 RunManager.Instance.EventSynchronizer.ChooseLocalOption(index);
                 await RunManager.Instance.EventSynchronizer.AwaitPendingOptionTasks();
             }
+            string rewardRng = JsonSerializer.Serialize(native.Rng.ToSerializable());
             await session.Continue();
             Require(session.BeforeAncient == null && session.AncientReady && native.CurrentRoom is MapRoom,
                 "The real choice completes debt and returns to the preserved exploration map.");
             Require(native.Players.Skip(1).Select(PlayerState).SequenceEqual(completedPlayers), "Completed owners retain their entire native player DTOs.");
             Require(session.Map!.CreateSave().AncientCompleted.Order().SequenceEqual(new ulong[] { 1, 2, 3 }) &&
                 session.Map.Steps == 0 && session.Map.FirstProgress == 0 &&
-                JsonSerializer.Serialize(native.Rng.ToSerializable()) == JsonSerializer.Serialize(point.SerializableRng) &&
+                JsonSerializer.Serialize(native.Rng.ToSerializable()) == rewardRng &&
                 native.VisitedMapCoords.SequenceEqual(point.VisitedMapCoords),
-                "Debt completion retains map progression, run RNG and chronological coordinates.");
+                "Debt continuation retains map progression, the completed reward RNG and chronological coordinates.");
             finished = RunManager.Instance.ToSave(null);
             JigsawSaveSource.CaptureDocument(finished, native);
         }
@@ -105,6 +106,17 @@ internal static class JigsawDeferredAncientTests
             Require(session.Native.Players.Select(PlayerState).SequenceEqual(finished.Players.Select(p => JsonSerializer.Serialize(p))),
                 "Every native player persists after debt is completed once.");
         }
+    }
+
+    private sealed class AncientSelector : MegaCrit.Sts2.Core.TestSupport.ICardSelector
+    {
+        public Task<IEnumerable<CardModel>> GetSelectedCards(IEnumerable<CardModel> options, int minSelect, int maxSelect) =>
+            Task.FromResult(options.Take(minSelect));
+
+        public MegaCrit.Sts2.Core.TestSupport.CardRewardSelection GetSelectedCardReward(
+            IReadOnlyList<MegaCrit.Sts2.Core.Entities.Cards.CardCreationResult> options,
+            IReadOnlyList<MegaCrit.Sts2.Core.Entities.CardRewardAlternatives.CardRewardAlternative> alternatives) =>
+            new() { card = options[0].Card };
     }
 
     private static string PlayerState(Player player) => JsonSerializer.Serialize(player.ToSerializable());

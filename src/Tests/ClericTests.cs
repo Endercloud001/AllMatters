@@ -120,7 +120,7 @@ internal static class ClericTests
         foreach (var card in new[] { keep, selected, eternal }) player.Deck.AddInternal(card);
         EventModel model = await Begin(player);
         var option = model.CurrentOptions.Single(option => option.TextKey.EndsWith(".PURIFY"));
-        using (CardSelectCmd.UseSelector(new SelectCard(selected))) await option.Chosen();
+        using (HeadlessNativeApi.UseSelector(player.RunState, new SelectCard(selected))) await option.Chosen();
         Check(model.IsFinished && player.Gold == 5, "Purification must charge 75 and finish.");
         Check(player.Deck.Cards.SequenceEqual(new[] { keep, eternal }), "Only the chosen removable card must be removed.");
         Check(other.Gold == 100 && other.Deck.Cards.Count == otherCards, "A personal choice must not alter the other player.");

@@ -44,10 +44,10 @@ internal static class JigsawNativeShopPersistenceTests
         {
             await RunManager.Instance.EnterRoom(new MerchantRoom());
             player.Gold = 20000;
-            var original = ((MerchantRoom)native.CurrentRoom!).Inventories.Single();
+            var original = ((MerchantRoom)native.CurrentRoom!).Inventories().Single();
             CardCmd.Upgrade(original.CardEntries.ElementAt(1).CreationResult!.Card);
             CardCmd.Enchant<Sharp>(original.CardEntries.ElementAt(1).CreationResult!.Card, 1);
-            await original.CardEntries.First().OnTryPurchaseWrapper(original);
+            await original.CardEntries.First().PurchaseUnsynchronized(original);
             string expected = Stock(original);
             ulong rng = HeadlessTestSetup.RngPosition(player.PlayerRng.Shops);
             var saved = JsonSerializer.Deserialize<JigsawShopInventory>(JsonSerializer.Serialize(JigsawNativeShopPersistence.Capture(original)))!;
@@ -64,18 +64,18 @@ internal static class JigsawNativeShopPersistenceTests
             foreach (string clock in new[] { "save_time", "run_time" })
                 runAfterInvalid[clock] = runBeforeInvalid[clock]!.DeepClone();
             Require(rejectedInvalid && JsonNode.DeepEquals(runAfterInvalid, runBeforeInvalid) &&
-                ReferenceEquals(((MerchantRoom)native.CurrentRoom!).Inventories.Single(), original),
+                ReferenceEquals(((MerchantRoom)native.CurrentRoom!).Inventories().Single(), original),
                 "A rejected late shop slot leaves no restored stock cards or replaced inventory.");
             var restored = JigsawNativeShopPersistence.Restore(player, saved);
             Require(Stock(restored) == expected && HeadlessTestSetup.RngPosition(player.PlayerRng.Shops) == rng,
                 "Rebuilding actual native stock retains all serialized properties without drawing new stock or prices.");
-            Require(await restored.CardEntries.ElementAt(1).OnTryPurchaseWrapper(restored),
+            Require(await restored.CardEntries.ElementAt(1).PurchaseUnsynchronized(restored),
                 "A rebuilt native entry supports an actual card purchase and original update callbacks.");
             var synchronized = JigsawNativeShopPersistence.Capture(restored);
             ulong beforeApply = HeadlessTestSetup.RngPosition(player.PlayerRng.Shops);
             var replacedStockCard = original.CardEntries.ElementAt(1).CreationResult!.Card;
             JigsawNativeShopPersistence.Apply(original, synchronized);
-            Require(Stock(((MerchantRoom)native.CurrentRoom!).Inventories.Single()) == Stock(restored) &&
+            Require(Stock(((MerchantRoom)native.CurrentRoom!).Inventories().Single()) == Stock(restored) &&
                 HeadlessTestSetup.RngPosition(player.PlayerRng.Shops) == beforeApply &&
                 !native.ContainsCard(replacedStockCard),
                 "Applying an owner's completed native purchase replaces remote stock without another shop roll or orphan card.");
@@ -121,7 +121,7 @@ internal static class JigsawNativeShopPersistenceTests
             await RelicCmd.Obtain(ModelDb.Relic<MembershipCard>().ToMutable(), player);
             await session.Enter(1);
             Require(native.CurrentRoom is MerchantRoom, "The logical shop enters a real native MerchantRoom.");
-            var inventory = ((MerchantRoom)native.CurrentRoom).Inventories.Single();
+            var inventory = ((MerchantRoom)native.CurrentRoom).Inventories().Single();
             var cards = inventory.CardEntries.ToArray();
             if (fault == "failed-request")
             {
@@ -130,7 +130,7 @@ internal static class JigsawNativeShopPersistenceTests
                 JigsawNativeShopSync.RequestOverride = message => { update = message; return false; };
                 try
                 {
-                    try { await cards[0].OnTryPurchaseWrapper(inventory); }
+                    try { await cards[0].PurchaseUnsynchronized(inventory); }
                     catch (InvalidOperationException) { }
                     Require(player.Gold < goldBefore && player.Deck.Cards.Count == deckBefore + 1 &&
                         !cards[0].IsStocked && update != null,
@@ -153,8 +153,8 @@ internal static class JigsawNativeShopPersistenceTests
             CardCmd.Upgrade(cards[1].CreationResult!.Card);
             CardCmd.Enchant<Sharp>(cards[1].CreationResult!.Card, 1);
             inventory.RelicEntries[0].Model!.FloorAddedToDeck = 17;
-            Require(await cards[0].OnTryPurchaseWrapper(inventory), "Complete an actual native card purchase.");
-            Require(await inventory.PotionEntries[0].OnTryPurchaseWrapper(inventory), "Complete an actual native potion purchase.");
+            Require(await cards[0].PurchaseUnsynchronized(inventory), "Complete an actual native card purchase.");
+            Require(await inventory.PotionEntries[0].PurchaseUnsynchronized(inventory), "Complete an actual native potion purchase.");
             Require(!cards[0].IsStocked, "The native transaction clears its purchased slot.");
             string expected = Stock(inventory);
             int gold = player.Gold, deck = player.Deck.Cards.Count;
@@ -206,7 +206,7 @@ internal static class JigsawNativeShopPersistenceTests
                 "The native player restores the actual gold and purchased card from the same point.");
             ulong shops = HeadlessTestSetup.RngPosition(restoredPlayer.PlayerRng.Shops);
             await recovered.Enter(1);
-            var revisited = ((MerchantRoom)restored.CurrentRoom!).Inventories.Single();
+            var revisited = ((MerchantRoom)restored.CurrentRoom!).Inventories().Single();
             Require(!revisited.CardEntries.First().IsStocked, "A purchased card slot remains sold out after native loading and revisiting.");
             Require(!revisited.PotionEntries[0].IsStocked, "A purchased potion slot remains sold out.");
             if (Stock(revisited) != expected && Environment.GetEnvironmentVariable("JIGSAW_SHOP_EVIDENCE") is { } evidence)
@@ -222,7 +222,7 @@ internal static class JigsawNativeShopPersistenceTests
             var upgraded = revisited.CardEntries.ElementAt(1);
             var purchasedCard = upgraded.CreationResult!.Card;
             var cardState = purchasedCard.ToSerializable();
-            Require(await upgraded.OnTryPurchaseWrapper(revisited) && !upgraded.IsStocked,
+            Require(await upgraded.PurchaseUnsynchronized(revisited) && !upgraded.IsStocked,
                 "A reconstructed entry completes another real native transaction.");
             // Native deck insertion records the acquisition floor on this same card.
             cardState.FloorAddedToDeck = purchasedCard.FloorAddedToDeck;

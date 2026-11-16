@@ -1,35 +1,28 @@
 # 参考源码
 
-下载日期：2026-10-20。所有路径相对仓库根目录。源码仅供阅读，不是已安装的运行时 Mod；未执行这些仓库的项目脚本。
+以下为来源与重新获取入口，**不是当前树已安装内容清单**。历史采集日期为2026-10-20；读取前核本机目录与实际revision，移植前核具体文件许可。参考源码仅供阅读，不执行上游构建/部署脚本，不提交游戏方法体或上游整包。
 
-| 来源 | 本地目录 | 用途 | 下载方式与声明 |
-| --- | --- | --- | --- |
-| [STS2-Balance-MOD](https://github.com/MT-SUPER-POWER/STS2-Balance-MOD) | .local/references/STS2-Balance-MOD | 事件、遗物、战斗与资源的主要移植来源 | main 浅克隆；本地 LICENSE 为 GPLv3 |
-| [ActsFromThePast](https://github.com/Cany0udance/ActsFromThePast) | .local/references/ActsFromThePast | STS1 原版事件、怪物与移植结构对照 | GitHub 默认分支源码归档；未发现仓库根 LICENSE，使用具体素材或代码前核对来源声明 |
-| [ModTemplate-StS2](https://github.com/Alchyr/ModTemplate-StS2) | .local/references/ModTemplate-StS2 | 游戏加载入口、manifest、程序集与 Godot 项目结构参考 | master 浅克隆；未发现根 LICENSE，不直接复制模板实现 |
-| [STS2-RitsuLib](https://github.com/BAKAOLC/STS2-RitsuLib) | .local/references/STS2-RitsuLib | 上游模型自动注册和 API 适配依赖研究 | GitHub 默认分支源码归档；根 LICENSE 为 MIT |
-| [sts2-ref-assemblies](https://github.com/BSchneppe/sts2-ref-assemblies) | .local/api/0.107.1/ 与 .local/api/0.111.0-beta-41cef1ea/ | 两版 API 签名与编译参考 | 从对应 NuGet 版本下载，只有引用，不含方法实现 |
-| [sts2-mod-dev](https://github.com/iryuko/sts2-mod-dev/tree/main/references/game-dlls) | .local/api/public-github-0.107.1/ | public 实际方法体与编译参考 | 只下载 sts2、0Harmony、GodotSharp 和版本元数据；构建提交号与 v0.107.1 元数据一致；不提交或分发 |
+|来源|本机资料建议位置|用途及来源边界|
+|---|---|---|
+|[STS2-Balance-MOD](https://github.com/MT-SUPER-POWER/STS2-Balance-MOD)|`.local/references/STS2-Balance-MOD`|事件/遗物/战斗/资源移植来源；GPLv3。已使用素材的固定revision/路径见[追猎素材来源](issues-82-88-asset-sources.md)与根目录NOTICE|
+|[ActsFromThePast](https://github.com/Cany0udance/ActsFromThePast)|`.local/references/ActsFromThePast`|STS1事件/怪物与转换结构对照；历史未发现根LICENSE，逐文件核来源，不从可加载推出可分发|
+|[ModTemplate-StS2](https://github.com/Alchyr/ModTemplate-StS2)|`.local/references/ModTemplate-StS2`|加载入口/manifest/Godot结构参考；历史未发现根LICENSE，不直接复制模板实现|
+|[STS2-RitsuLib](https://github.com/BAKAOLC/STS2-RitsuLib)|`.local/references/STS2-RitsuLib`|模型注册/API适配研究，MIT；运行依赖独立安装，当前目标及完整variant-pack见[开发入口](development.md#当前开发目标2026-11-13)|
+|[sts2-ref-assemblies](https://github.com/BSchneppe/sts2-ref-assemblies)|`.local/api/`下分版本保存|NuGet引用包只有签名、没有方法实现；旧beta0.111材料不代表当前beta0.113|
+|[sts2-mod-dev game-dlls](https://github.com/iryuko/sts2-mod-dev/tree/main/references/game-dlls)|历史`.local/api/public-github-0.107.1/`|public实际程序集及元数据曾用于比对，不提交或分发。当前宿主使用匹配目标的完整资源，不能凭旧DLL目录当安装环境|
 
-两份归档因 git 网络连接失败而使用 GitHub API zipball 下载；没有 .git。另两份可用 `git -C <目录> log -1` 查看版本，或 `git -C <目录> pull --ff-only` 更新。参考代码不提交本仓库；换机器可按上表重新下载到 .local/references/。不递归拉取上游的其他子模块，避免下载无关内容。
+按上游链接将资料取到目标树`.local/`；带`.git`的副本用`git -C <目录> log -1`核revision，归档副本没有提交历史，应记录来源版本。不要自动更新已固定的素材来源，也不递归获取无关子模块。
 
-Balance MOD 的自定义 Relics 目录不包括原生 RedMask；事件直接引用游戏 RedMask。不要因为目录缺少对应文件就再次注册一个同名遗物。
+## 读取与移植
 
-牧师实现已移植 Balance 的事件逻辑、中英文文本和 cleric.png（上游指南说明为重制图）。整体采用 GPL-3.0-only，许可证见根目录 LICENSE，文件来源与修改见 THIRD_PARTY_NOTICES.md。未复制 ActsFromThePast 或游戏自带素材；RitsuLib 作为独立 MIT 依赖安装，不打包其程序集。
+玩法从目标Issue和适用范围文档读取；原始规范来源见[验证地图](issues-82-88-verification-map.md#规范与历史依据)。Balance源码以`Sts2BalanceModCode/Events/`为事件入口，沿`Relics/Cards/Powers/Encounters/Monsters/Patches/Events`追消费者，再逐项核对本地化和资源路径，不假定另有本仓库`docs/events.md`。
 
-## 读取入口
+Balance自定义Relics目录不包含原生RedMask；事件引用游戏模型，不能因上游缺同名自定义文件而重复注册。牧师等已移植内容的实际来源、修改和分发声明在根目录`THIRD_PARTY_NOTICES.md`；原游戏美术权属不由本项目GPL重新许可。
 
-- 主来源 `docs/events.md`：需求展示。
-- `Sts2BalanceModCode/Events/`：事件实际行为，含手册之外的事件，按范围筛选。
-- `Sts2BalanceModCode/Abstract/`、`Relics/`、`Cards/`、`Powers/`、`Encounters/`、`Monsters/`、`Patches/Events/`：追踪实际依赖。
-- `Sts2BalanceMod/localization/`、`images/` 和相应资源：逐项查找，移植时使用 AllMatters 路径。
-- RitsuLib 文档和源码：先检查能否支持两套目标游戏 API，再确定包版本与注册方式。
+Harmony目标先核**当前两版实际方法体**，工具和输出目录统一见[API查询](development.md#api-查询)。参考签名可辅助定位，不能代替所选版本的方法实现或正式资源/游戏验收。
 
-## 官方版本来源
+## 版本与本机目录
 
-- [Steam 分支元数据查询](https://api.steamcmd.net/v1/info/2868840)，供参考；游戏本地 release_info.json 与 appmanifest 是实际安装版本的依据。
-- [公开版 v0.107.1 官方公告](https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1835871199305790)，上游文档保存在 docs/official-news/2026-06-19-major-update-2-v0-107-1/original.md。
+实际版本以所选目标本地`release_info.json`、程序集元数据及安装manifest为准；[Steam分支元数据查询](https://api.steamcmd.net/v1/info/2868840)仅作外部参考。当前目标、匹配资源与本机路径见[开发环境](development.md)，不再引用未跟踪的旧公告或调查路径作为必需入口。
 
-默认公开分支已补齐 GitHub 来源的实际程序集和双版本引用包；来源核对、API 差异及编译证据见 双分支 API 调查（本地记录：`docs/research/dual-branch-api.md`，不随仓库分发）。仍未准备完整 public 游戏环境，也未进行游戏内兼容验证。
-
-当前本机资料已迁至仓库根目录的 `.local/`，旧 `docs/local/` 与 `docs/references/` 仅保留兼容入口。后续下载和工具配置使用新路径，使资料不随文档 junction 的切换而失联。
+各树`docs`可能是普通目录或junction，访问前核实际属性；`.local/`依赖、API、工具和日志与文档独立。新clone不承诺存在旧`docs/local/`、`docs/references/`或同级研究目录；历史材料从Git固定来源恢复，不自动改目录结构。

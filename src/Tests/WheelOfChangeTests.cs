@@ -114,7 +114,7 @@ internal static class WheelOfChangeTests
             Check(claim.TextKey.EndsWith("." + results[outcome]), "Each seeded uniform 0..5 draw must display its own result.");
             Check(player.Gold == gold && player.Creature.CurrentHp == 40 && player.Deck.Cards.Count == cards && player.Relics.Count == relics,
                 "Displaying a result must not yet apply it.");
-            using (CardSelectCmd.UseSelector(new SelectCard(selected))) await claim.Chosen();
+            using (HeadlessNativeApi.UseSelector(player.RunState, new SelectCard(selected))) await claim.Chosen();
             await claim.Chosen();
             Check(model.IsFinished && model.CurrentOptions.Count == 0, "Each result finishes after a single claim.");
             Check(player.Gold == gold + (outcome == 0 ? 100 : 0), "Only gold changes gold.");
@@ -233,7 +233,7 @@ internal static class WheelOfChangeTests
             Check(new EventRoom(room).CanonicalEvent.Id == Canonical.Id, "Native room serialization retains the event identity.");
             await model.CurrentOptions.Single().Chosen();
             string result = model.CurrentOptions.Single().TextKey;
-            using (CardSelectCmd.UseSelector(new SelectCard(player.Deck.Cards.First(card => card.IsRemovable))))
+            using (HeadlessNativeApi.UseSelector(player.RunState, new SelectCard(player.Deck.Cards.First(card => card.IsRemovable))))
                 await model.CurrentOptions.Single().Chosen();
             var completed = Player.FromSerializable(player.ToSerializable());
             Check(completed.Gold == player.Gold && completed.Creature.CurrentHp == player.Creature.CurrentHp && completed.Deck.Cards.Count == player.Deck.Cards.Count
@@ -244,7 +244,7 @@ internal static class WheelOfChangeTests
             var restarted = await Begin(loaded);
             await restarted.CurrentOptions.Single().Chosen();
             Check(restarted.CurrentOptions.Single().TextKey == result, "Reloading the supported entry snapshot must reproduce the determined result.");
-            using (CardSelectCmd.UseSelector(new SelectCard(loaded.Deck.Cards.First(card => card.IsRemovable))))
+            using (HeadlessNativeApi.UseSelector(loaded.RunState, new SelectCard(loaded.Deck.Cards.First(card => card.IsRemovable))))
                 await restarted.CurrentOptions.Single().Chosen();
             Check(loaded.Gold == player.Gold && loaded.Creature.CurrentHp == player.Creature.CurrentHp && loaded.Deck.Cards.Select(card => card.Id).SequenceEqual(player.Deck.Cards.Select(card => card.Id))
                 && loaded.Relics.Select(relic => relic.Id).SequenceEqual(player.Relics.Select(relic => relic.Id)), "Replaying from entry produces exactly one effect, without stacking the interrupted branch.");

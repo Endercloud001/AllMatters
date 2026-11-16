@@ -252,7 +252,7 @@ internal static class JigsawNativeTests
                     RunManager.Instance.SetUpNewSingleplayer(native,false);
                     Require((JigsawNativeSession.Current!=null)==enabled,"New single-player run reads the current mod setting without a character-selection switch.");
                     bool boots=ModelDb.Relic<MegaCrit.Sts2.Core.Models.Relics.WingedBoots>().IsAllowedAtNeow(native.Players[0]);
-                    Require(boots!=enabled,"Winged Boots remains available at ordinary Neow, but is excluded for jigsaw Neow.");
+                    Require(boots,"Winged Boots remains eligible at Neow in both modes.");
                 }
                 finally {RunManager.Instance.CleanUp(false);}
             }
@@ -269,7 +269,7 @@ internal static class JigsawNativeTests
       ("Jigsaw native lobby canonicalization and response preserve checkpoint", ()=>CanonicalLobby()),
       ("Jigsaw native lobby rejects a substituted saved player", ()=>CanonicalLobby(true,true)),
       ("Jigsaw native two-player lobby canonicalization preserves full save", ()=>CanonicalLobby(true)),
-      ("Jigsaw native settings own new runs and exclude Neow boots", SettingsAndNeow),
+      ("Jigsaw native settings own new runs and retain Neow boots", SettingsAndNeow),
       ("Jigsaw native profile and progress schemas stay independent", IndependentSaveSchemas),
       ("Jigsaw native saves serialize pending native writes and exit waits latest", SerializedWrites),
       ("Jigsaw native queued successful save recovers prior write failure", ()=>SerializedWrites(true)),
@@ -278,6 +278,9 @@ internal static class JigsawNativeTests
       ("Jigsaw native successful native retry supersedes failed editor save", ()=>CoalescedEdits(false, failFirst:true, nativeRetry:true)),
       ("Jigsaw native old pending edits cannot save a replacement run", ()=>CoalescedEdits(true)),
       ("Jigsaw native checkpoint recovery fault matrix", CheckpointFaultMatrix),
+#if !STS2_PUBLIC
+      ("Jigsaw native valid JSON with invalid schema retains primary without reading backup", CheckpointSchemaRejected),
+#endif
       ("Jigsaw native backup restores the exact pool and native player from one source", BackupSource),
       ("Jigsaw native act enters real map room before Ancient rewards", EditingBeforeAncient),
       ("Jigsaw native automatic enters actual Ancient from saved authorized operation", Automatic),
@@ -688,6 +691,7 @@ internal static class JigsawNativeTests
         {
             var console=new MegaCrit.Sts2.Core.DevConsole.DevConsole(shouldAllowDebugCommands:true);
             Require(console.GetCompletionResults("am_jigsaw_reset").Candidates.Contains("am_jigsaw_reset"),"Actual native console discovery includes the mod reset command.");
+            Require(console.GetCompletionResults("am_steps").Candidates.Contains("am_steps"),"Actual native console discovery includes the remaining-steps command as well.");
         }
         finally { JigsawConsoleHistoryHost.Suppress=false; mods.Remove(loadedMod); cache.SetValue(null,previousCache); }
         var native=RunState.CreateForTest(players:[MegaCrit.Sts2.Core.Entities.Players.Player.CreateForNewRun(
@@ -773,6 +777,17 @@ internal static class JigsawNativeTests
         finally { RunManager.Instance.CleanUp(false); }
     }
 
+    private sealed class FirstRoomRewardSelector : MegaCrit.Sts2.Core.TestSupport.ICardSelector
+    {
+        public Task<IEnumerable<CardModel>> GetSelectedCards(IEnumerable<CardModel> options, int minSelect, int maxSelect) =>
+            Task.FromResult(options.Take(minSelect));
+
+        public MegaCrit.Sts2.Core.TestSupport.CardRewardSelection GetSelectedCardReward(
+            IReadOnlyList<MegaCrit.Sts2.Core.Entities.Cards.CardCreationResult> options,
+            IReadOnlyList<MegaCrit.Sts2.Core.Entities.CardRewardAlternatives.CardRewardAlternative> alternatives) =>
+            new() { card = options[0].Card };
+    }
+
     private static async Task FirstRoomFlow(bool completeTreasure,bool partialAncient=false,bool finishedAncient=false,bool actualPartial=false,EntryFailureKind entryFailure=EntryFailureKind.None,bool transition=false,bool legacyAncient=false,bool preview=false,bool laggedAncient=false)
     {
         using var atlases=HeadlessTestSetup.LoadAtlases("card_atlas","relic_atlas");
@@ -807,7 +822,7 @@ internal static class JigsawNativeTests
                 $"Manual success enters the real native Ancient reward room. Actual room={native.CurrentRoom?.GetType().Name}, phase={map.Phase}, ready={session.AncientReady}, eventFinished={RunManager.Instance.EventSynchronizer.GetLocalEvent()?.IsFinished}, options={RunManager.Instance.EventSynchronizer.GetLocalEvent()?.CurrentOptions.Count}.");
             var ancient=RunManager.Instance.EventSynchronizer.GetLocalEvent();
             Require(ancient is AncientEventModel && ancient.CurrentOptions.Count>0,"Native Ancient exposes real personal reward options.");
-            Require(ancient.CurrentOptions.All(o=>o.Relic is not MegaCrit.Sts2.Core.Models.Relics.WingedBoots),"Actual jigsaw Ancient reward options exclude Winged Boots before selection.");
+            Require(ModelDb.Relic<MegaCrit.Sts2.Core.Models.Relics.WingedBoots>().IsAllowedAtNeow(native.Players[0]),"Winged Boots remains eligible during the real jigsaw Ancient reward room.");
             Console.WriteLine("JIGSAW Ancient options: "+string.Join(",",ancient.CurrentOptions.Select(o=>o.Relic?.Id.Entry ?? o.TextKey)));
             if(partialAncient)
             {
@@ -845,6 +860,8 @@ internal static class JigsawNativeTests
             }
             if(preview) await PreviewRoom(session);
             string beforeReward = System.Text.Json.JsonSerializer.Serialize(native.Players[0].ToSerializable());
+            var beforeRewardCards = native.Players[0].Deck.Cards.ToArray();
+            string beforeRewardRunRng = System.Text.Json.JsonSerializer.Serialize(native.Rng.ToSerializable());
             MegaCrit.Sts2.Core.Saves.SerializableRun? interrupted = null;
             if (actualPartial) JigsawAncientRewardBoundaryHost.BeforeDone = current =>
             {
@@ -852,16 +869,14 @@ internal static class JigsawNativeTests
                 Require(!current.IsFinished && !session.AncientReady &&
                     System.Text.Json.JsonSerializer.Serialize(native.Players[0].ToSerializable()) != beforeReward,
                     "The actual native option has applied effects before event completion.");
+                var addedCards = native.Players[0].Deck.Cards.Except(beforeRewardCards).ToArray();
+                Require(addedCards.Length == 1 && addedCards[0].Rarity == MegaCrit.Sts2.Core.Entities.Cards.CardRarity.Rare &&
+                    beforeRewardCards.All(native.Players[0].Deck.Cards.Contains),
+                    "The actual Arcane Scroll option adds one native rare card before Done.");
                 interrupted = RunManager.Instance.ToSave(null);
             };
-            var option=ancient.CurrentOptions.Single(o=>o.Relic?.Id.Entry==
-#if STS2_PUBLIC
-                "PRECISE_SCISSORS"
-#else
-                "POMANDER"
-#endif
-            );
-            using(MegaCrit.Sts2.Core.Commands.CardSelectCmd.UseSelector(new NativeEventTests.Select(native.Players[0].Deck.Cards.First()))) await option.Chosen();
+            var option=ancient.CurrentOptions.Single(o=>o.Relic?.Id.Entry=="ARCANE_SCROLL");
+            using(global::HeadlessNativeApi.UseSelector(native, new FirstRoomRewardSelector())) await option.Chosen();
             JigsawAncientRewardBoundaryHost.BeforeDone = null;
             Require(ancient.IsFinished && session.AncientReady && map.Phase==JigsawPhase.Exploring,"Real native option completion directly begins exploration without a Continue click.");
             if(laggedAncient)
@@ -875,6 +890,7 @@ internal static class JigsawNativeTests
             {
                 Require(interrupted != null, "The real Ancient Done callback exposes the partial reward checkpoint.");
                 string completeReward = System.Text.Json.JsonSerializer.Serialize(native.Players[0].ToSerializable());
+                string completeRewardRunRng = System.Text.Json.JsonSerializer.Serialize(native.Rng.ToSerializable());
                 string choice = option.Relic!.Id.Entry;
                 await manager.SaveRun(interrupted!, false);
                 var partial = manager.LoadRunSave();
@@ -882,6 +898,8 @@ internal static class JigsawNativeTests
                 var rollback = RunState.FromSerializable(partial.SaveData!);
                 Require(System.Text.Json.JsonSerializer.Serialize(rollback.Players[0].ToSerializable()) == beforeReward,
                     "Actual option relic and card side effects roll back to the complete prereward player.");
+                Require(System.Text.Json.JsonSerializer.Serialize(rollback.Rng.ToSerializable()) == beforeRewardRunRng,
+                    "Actual native option rollback restores every run RNG stream to the prereward point.");
                 await RunManager.Instance.SetUpSavedSingleplayer(rollback, partial.SaveData!);
                 MegaCrit.Sts2.Core.Context.LocalContext.NetId = rollback.Players[0].NetId;
                 await RunManager.Instance.GenerateMap(); await RunManager.Instance.LoadIntoLatestMapCoord(null);
@@ -889,7 +907,7 @@ internal static class JigsawNativeTests
                 Require(recovered.Map!.Placements.SequenceEqual(map.Placements) && !recovered.AncientReady,
                     "Native reload preserves the accepted map and reopens the unfinished Ancient choice.");
                 var restoredAncient = RunManager.Instance.EventSynchronizer.GetLocalEvent();
-                using (MegaCrit.Sts2.Core.Commands.CardSelectCmd.UseSelector(new NativeEventTests.Select(rollback.Players[0].Deck.Cards.First())))
+                using (global::HeadlessNativeApi.UseSelector(rollback, new FirstRoomRewardSelector()))
                     await restoredAncient.CurrentOptions.Single(o => o.Relic?.Id.Entry == choice).Chosen();
                 var actualPlayer = System.Text.Json.JsonSerializer.Serialize(rollback.Players[0].ToSerializable());
                 var expected = JsonNode.Parse(completeReward)!.AsObject(); var actual = JsonNode.Parse(actualPlayer)!.AsObject();
@@ -899,6 +917,8 @@ internal static class JigsawNativeTests
                 Require(MegaCrit.Sts2.Core.Saves.SaveManager.Instance.IsRelicSeen(option.Relic!), "Native profile discovery survives reward rollback.");
                 Require(recovered.AncientReady && recovered.Map!.Phase==JigsawPhase.Exploring && JsonNode.DeepEquals(expected, actual),
                     "Replaying the real choice applies all remaining native player effects exactly once.");
+                Require(System.Text.Json.JsonSerializer.Serialize(rollback.Rng.ToSerializable()) == completeRewardRunRng,
+                    "Replaying the real choice restores the complete reward run RNG state without extra draws.");
                 return;
             }
             if(finishedAncient)
@@ -1093,7 +1113,7 @@ internal static class JigsawNativeTests
                 var skip=new MegaCrit.Sts2.Core.GameActions.PickRelicAction(restored.Players[0],null);
                 skip.OnEnqueued(_=>{},1);
                 await skip.Execute();
-                await RunManager.Instance.ProceedFromTerminalRewardsScreen();
+                await HeadlessNativeApi.Proceed(RunManager.Instance);
                 mapScreen.Open();
                 Require(resumedMap.CurrentNode==null && resumedMap.Completed.Contains(1) && resumedMap.Steps==1,"Native skip/proceed/map completion marks the first room complete without another step.");
                 await resumed.WaitForSave();
@@ -1162,11 +1182,15 @@ internal static class JigsawNativeTests
         finally {view.Free();nativeMap.Free();}
     }
 
-    private static async Task CheckpointFaultMatrix()
+    private static Task CheckpointFaultMatrix() => CheckpointFaultMatrix(false);
+#if !STS2_PUBLIC
+    private static Task CheckpointSchemaRejected() => CheckpointFaultMatrix(true);
+#endif
+    private static async Task CheckpointFaultMatrix(bool schemaObjectOnly)
     {
         foreach (bool multiplayer in new[] { false, true })
         foreach (bool synchronous in new[] { false, true })
-        foreach (string scenario in new[] { "normal", "missing", "corrupt", "rename-fails", "write-fails" })
+        foreach (string scenario in schemaObjectOnly ? new[] { "schema-object" } : new[] { "normal", "missing", "corrupt", "rename-fails", "write-fails" })
         {
             var native = (RunState)HeadlessTestSetup.PlayerWithRun("CHECKPOINT_76").RunState;
             RunManager.Instance.SetUpTest(native, new NetSingleplayerGameService());
@@ -1185,11 +1209,16 @@ internal static class JigsawNativeTests
                 await manager.SaveRun(RunManager.Instance.ToSave(null), multiplayer);
                 string main = io.ReadFile(path), backup = io.ReadFile(path + ".backup");
                 if (scenario == "missing") io.DeleteFile(path);
-                if (scenario is "corrupt" or "rename-fails")
+                if (scenario is "corrupt" or "rename-fails" or "schema-object")
                 {
                     var invalid = JsonNode.Parse(main)!;
                     invalid["schema_version"] = new JsonObject { ["invalid"] = true };
+#if STS2_PUBLIC
                     io.SetFileContent(path, invalid.ToJsonString());
+#else
+                    // Malformed JSON exercises backup selection; parsed schema failures are retained.
+                    io.SetFileContent(path, scenario == "schema-object" ? invalid.ToJsonString() : "{\"schema_version\":");
+#endif
                     if (scenario == "rename-fails") io.RenameFileAction = (_, _) => throw new IOException("Injected preservation failure");
                 }
                 if (scenario == "write-fails")
@@ -1206,8 +1235,34 @@ internal static class JigsawNativeTests
                     Require(rejected && saved == 0 && io.ReadFile(path) == main && io.ReadFile(path + ".backup") == backup,
                         "Failed native write cannot signal success or change either complete checkpoint.");
                 }
+                io.Calls.Clear();
                 var loaded = multiplayer ? manager.LoadMultiplayerRunSave() : manager.LoadRunSave();
+#if !STS2_PUBLIC
+                if (scenario == "schema-object")
+                {
+                    Require(!loaded.Success && loaded.SaveData == null && loaded.Status == MegaCrit.Sts2.Core.Saves.ReadSaveStatus.Unrecoverable,
+                        "Valid JSON with an invalid schema value is an unrecoverable primary, not a backup recovery trigger.");
+                    Require(!io.Calls.Any(call => call.Method is "ReadFile" or "ReadFileAsync" && Equals(call.Args[0], path + ".backup")) &&
+                        !io.Calls.Any(call => call.Method == "RenameFile"),
+                        "An unrecoverable parsed primary neither reads its backup nor renames the cloud-managed run file.");
+                    var invalid = JsonNode.Parse(main)!;
+                    invalid["schema_version"] = new JsonObject { ["invalid"] = true };
+                    Require(io.ReadFile(path) == invalid.ToJsonString() && io.ReadFile(path + ".backup") == backup,
+                        "The rejected schema leaves the primary and backup bytes unchanged.");
+                    Console.WriteLine($"CHECKPOINT_76 scenario={scenario}; multiplayerPath={multiplayer}; synchronous={synchronous}; status={loaded.Status}; backupRead=False; rename=False; host=isolated-IO");
+                    continue;
+                }
+#endif
                 Require(loaded.Success && loaded.SaveData != null, "Native recovery must return an actual parsed object.");
+#if !STS2_PUBLIC
+                if (scenario == "rename-fails")
+                {
+                    Require(!io.Calls.Any(call => call.Method == "RenameFile") &&
+                        io.ReadFile(path) == "{\"schema_version\":" && io.ReadFile(path + ".backup") == backup,
+                        "Native run recovery leaves both files in place without attempting the injected rename failure.");
+                    Console.WriteLine("CHECKPOINT_76 runFilePolicy=leave-in-place; renameAttempts=0; injectedRenameFailure=unexercised");
+                }
+#endif
                 var restored = RunState.FromSerializable(loaded.SaveData!);
                 bool fromBackup = scenario is "missing" or "corrupt" or "rename-fails";
                 var expected = fromBackup ? first : second;
@@ -1360,9 +1415,13 @@ internal static class JigsawNativeTests
             JigsawCheckpoint.Slot.TryGet(native, out var secondPoint);
             secondPoint.RevisitedHistoryIndices = new() { [0] = [2] };
             await manager.SaveRun(RunManager.Instance.ToSave(null), false);
+#if STS2_PUBLIC
             var corrupt = JsonNode.Parse(io.ReadFile(path))!.AsObject();
             corrupt["schema_version"] = new JsonObject { ["invalid"] = true };
             io.SetFileContent(path, corrupt.ToJsonString());
+#else
+            io.SetFileContent(path, "{\"schema_version\":");
+#endif
             var loaded = manager.LoadRunSave();
             Require(loaded.Success && loaded.SaveData != null, "Native backup must load.");
             var restored = RunState.FromSerializable(loaded.SaveData!);

@@ -132,7 +132,11 @@ public sealed class WheelOfChange : ModEventTemplate
         // remains eligible when those are exhausted. Probe in random order through
         // the public draw API, filtering to one exact ID AND rarity: automatic
         // escalation cannot return a Rare, event relic, or Circlet compensation.
+#if STS2_PUBLIC
         Rng.Shuffle(tier);
+#else
+        tier = MegaCrit.Sts2.Core.Extensions.ListExtensions.UnstableShuffle(tier.ToList(), Rng).ToArray();
+#endif
         foreach (var candidate in tier)
         {
             var relic = owner.RelicGrabBag.PullFromFront(rarity,

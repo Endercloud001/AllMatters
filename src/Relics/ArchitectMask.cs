@@ -1,0 +1,23 @@
+using MegaCrit.Sts2.Core.Entities.Relics;
+using MegaCrit.Sts2.Core.Models.RelicPools;
+using MegaCrit.Sts2.Core.Runs;
+using STS2RitsuLib.Interop.AutoRegistration;
+using STS2RitsuLib.Scaffolding.Content;
+
+namespace AllMatters.Relics;
+
+[RegisterRelic(typeof(EventRelicPool), FullPublicEntry = "ALL_MATTERS_ARCHITECT_MASK")]
+public sealed class ArchitectMask : ModRelicTemplate
+{
+    public override RelicRarity Rarity => RelicRarity.Event;
+#if STS2_PUBLIC
+    public override bool IsAllowed(IRunState runState) => false;
+#else
+    protected override bool IsAllowedInternal(IRunState runState) => false;
+#endif
+    public override bool IsAllowedInShops => false;
+    public override RelicAssetProfile AssetProfile => new(
+        IconPath: "res://AllMatters/images/relics/architect_mask_icon.tres",
+        IconOutlinePath: "res://AllMatters/images/relics/architect_mask_icon.tres",
+        BigIconPath: "res://AllMatters/images/relics/architect_mask.png");
+}
