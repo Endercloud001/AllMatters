@@ -1,6 +1,6 @@
 # #82–#88 当前调度看板
 
-更新：2026-11-17。集成树：`AllMatters/.claude/worktrees/hunting-20261112`；分支：`integration/issues-82-88-20261112`；当前源码：`969d245`。仅集成主控维护。
+更新：2026-11-17。集成树：`AllMatters/.claude/worktrees/hunting-20261112`；分支：`integration/issues-82-88-20261112`；当前源码：`6dbb686`。仅集成主控维护。
 
 ## 当前工作：#88 兼容验证与统一交付
 
@@ -42,7 +42,7 @@
 
 ## 交付与验收边界
 
-统一包在本树`dist/batch-6-integration/AllMatters-public/`与`AllMatters-public-beta/`，每目标五文件；DLL均`0.1.1+969d245c3922b6051ef6ff9ad05d12b2d6596ae9`，逐文件核对通过。上一轮包备份在`.local/issue88-drawing-toolbar/previous-delivery/`。
+统一包在本树`dist/batch-6-integration/AllMatters-public/`与`AllMatters-public-beta/`，每目标五文件；DLL均`0.1.1+6dbb6861e411c0ebc80e6944b886ef449e460351`，逐文件核对通过。上一轮包备份在`.local/issue88-drawing-offset/previous-delivery/`。
 
 第五轮用户确认上一轮问题均通过，第四轮宝箱存退/放弃/地图继续、Mystic呈现和博物馆回报据此更新。保留反馈原有版本/人数范围。面具新尺寸及红字待新包实机查看。
 
