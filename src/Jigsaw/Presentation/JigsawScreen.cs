@@ -28,6 +28,7 @@ public partial class JigsawScreen : Control
     private readonly HBoxContainer manualVoters = new(), autoVoters = new();
     private readonly HBoxContainer continueVoters = new() { Name = "ContinueVoters" };
     private readonly Dictionary<int, HBoxContainer> destinationVoters = [];
+    private readonly Dictionary<int, Control> pingAnchors = [];
     private JigsawMultiplayerHud? multiplayerHud;
     private int helpIndex;
     private readonly Theme adaptiveTheme = new();
@@ -187,12 +188,18 @@ public partial class JigsawScreen : Control
         top.Alignment = BoxContainer.AlignmentMode.End;
         top.AddChild(steps);
         steps.SizeFlagsHorizontal = SizeFlags.ExpandFill;
-        main.AddChild(explorationNotice);
         help.Text = L("帮助");
         help.Pressed += OpenHelp;
         top.AddChild(help);
         paper = new JigsawPaper { Art = art, SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill, MouseFilter = MouseFilterEnum.Ignore };
         main.AddChild(paper);
+        AddChild(explorationNotice);
+        explorationNotice.MouseFilter = MouseFilterEnum.Ignore;
+        explorationNotice.SetAnchorsAndOffsetsPreset(LayoutPreset.BottomWide);
+        explorationNotice.OffsetLeft = 20;
+        explorationNotice.OffsetRight = -20;
+        explorationNotice.OffsetTop = -90;
+        explorationNotice.OffsetBottom = -20;
         canvas = new JigsawCanvas { OwnerScreen = this, FocusMode = FocusModeEnum.All, ClipContents = true, MouseFilter = MouseFilterEnum.Stop };
         paper.AddChild(canvas);
         canvas.AnchorLeft = .12f;
@@ -432,11 +439,9 @@ public partial class JigsawScreen : Control
             return L("你的愿望实现了...");
         if (map.Phase == JigsawPhase.Exploring)
         {
-            if (map.HuntingActive || map.BossReachedOnTime || map.IsEndgame)
+            if (map.HuntingActive || map.BossReachedOnTime || map.IsEndgame || map.RemainingSteps > 1)
                 return "";
-            var text = new MegaCrit.Sts2.Core.Localization.LocString("static_hover_tips", JigsawStepCounter.DescriptionKey(map));
-            text.Add("Remaining", map.RemainingSteps);
-            return text.GetFormattedText();
+            return new MegaCrit.Sts2.Core.Localization.LocString("static_hover_tips", JigsawStepCounter.DescriptionKey(map)).GetFormattedText();
         }
         return L(map.Holdings.ContainsKey(player) ? "放置碎块，旋转，返回取消，或归还碎块。" : "从左侧拿取碎块，或选择两端连线／拆线。");
     }
@@ -736,6 +741,9 @@ public partial class JigsawScreen : Control
             return;
         if (MegaCrit.Sts2.Core.Nodes.NRun.Instance?.GlobalUi.SubmenuStack.Stack?.SubmenusOpen == true)
             return;
+        if (MegaCrit.Sts2.Core.Nodes.Screens.Capstones.NCapstoneContainer.Instance?.InUse == true ||
+            (MegaCrit.Sts2.Core.Nodes.Screens.Overlays.NOverlayStack.Instance?.Peek() as Control)?.IsVisibleInTree() == true)
+            return;
         if (NModalContainer.Instance?.OpenModal != null)
             return;
         if (CanReturnToRoom && ev.IsActionPressed(MegaInput.viewMap))
@@ -846,6 +854,14 @@ public partial class JigsawScreen : Control
     }
     internal void DrawMarkers(CanvasItem target)
     {
+        foreach (var (node, anchor) in pingAnchors)
+        {
+            if (map.Nodes.FirstOrDefault(candidate => candidate.Id == node) is not { } point)
+                continue;
+            var size = Vector2.One * Cell * (point.Radius * 2 + 1);
+            anchor.Position = GridToCanvas(point.Center) - size / 2;
+            anchor.Size = size;
+        }
         foreach (var (node, row) in destinationVoters)
         {
             var at = GridToCanvas(map.Nodes.Single(candidate => candidate.Id == node).Center);
@@ -861,6 +877,28 @@ public partial class JigsawScreen : Control
         DrawHolding(target, HeldPreview(), player);
         foreach (var holding in map.Holdings.Where(h => h.Key != player))
             DrawHolding(target, map.Nodes.Where(n => n.PieceId == holding.Value.PieceId).ToArray(), holding.Key);
+    }
+    internal void PingNode(int node, Color color)
+    {
+        if (!IsInsideTree() || !map.Nodes.Any(candidate => candidate.Id == node))
+            return;
+        if (!pingAnchors.TryGetValue(node, out var anchor))
+        {
+            anchor = new Control { MouseFilter = MouseFilterEnum.Ignore };
+            canvas.AddChild(anchor);
+            pingAnchors.Add(node, anchor);
+        }
+        var point = map.Nodes.Single(candidate => candidate.Id == node);
+        anchor.Size = Vector2.One * Cell * (point.Radius * 2 + 1);
+        anchor.Position = GridToCanvas(point.Center) - anchor.Size / 2;
+        var ripple = MegaCrit.Sts2.Core.Nodes.Vfx.NMapPingVfx.Create();
+        if (ripple == null)
+            return;
+        ripple.Modulate = color;
+        anchor.AddChild(ripple);
+        ripple.Position = Vector2.Zero;
+        ripple.Size *= anchor.Size.X / 64f;
+        ripple.PivotOffset = ripple.Size / 2;
     }
     private void DrawHolding(CanvasItem target, JigsawNode[] nodes, ulong holder)
     {

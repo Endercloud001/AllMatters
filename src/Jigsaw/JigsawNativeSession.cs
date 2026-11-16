@@ -338,6 +338,11 @@ public sealed class JigsawNativeSession
     {
         if (Current != this)
             return JigsawResult.Reject("拼图会话已结束。");
+        if (Map?.DestinationVotes.TryGetValue(RunManager.Instance.NetService.NetId, out var previous) == true && previous == node)
+        {
+            RunManager.Instance.FlavorSynchronizer.SendMapPing(new MapCoord(node, 0));
+            return JigsawResult.Ok;
+        }
         if (Map?.CurrentNode != null && Map.VotingDestinations.Contains(node) && CanLeaveMerchant)
         {
             JigsawNativeExploration.MerchantExited(this);
@@ -352,6 +357,18 @@ public sealed class JigsawNativeSession
     {
         if (GodotObject.IsInstanceValid(screen) && screen!.IsInsideTree())
             screen.Refresh();
+    }
+    internal void PingMapNode(MegaCrit.Sts2.Core.Entities.Players.Player player, MapCoord coord)
+    {
+        if (!ReferenceEquals(player.RunState, Native) || Map?.Phase != JigsawPhase.Exploring ||
+            !Map.Nodes.Any(node => node.Id == coord.col))
+            return;
+        screen?.PingNode(coord.col, player.Character.MapDrawingColor);
+        if (!TestMode.IsOn)
+        {
+            NRun.Instance?.GlobalUi.MultiplayerPlayerContainer.FlashPlayerReady(player);
+            MegaCrit.Sts2.Core.Audio.Debug.NDebugAudioManager.Instance?.Play("map_ping.mp3", 1f, MegaCrit.Sts2.Core.Audio.Debug.PitchVariance.Medium);
+        }
     }
     internal void EditorResult(ulong issuer, JigsawEditorOperation operation, JigsawResult result)
     {

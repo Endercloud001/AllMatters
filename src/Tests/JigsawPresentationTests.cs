@@ -13,6 +13,8 @@ internal static class JigsawPresentationTests
   ..JigsawFeedbackPresentationTests.Cases,
   ..JigsawTranslatedButtonTests.Cases,
   ("Jigsaw presentation top bar step badge and hover", StepBadge),
+  ("Jigsaw presentation native capstone preserves card clicks above the map", CapstoneInput),
+  ("Jigsaw presentation native map ping reuses the logical node anchor", MapPing),
   ("Jigsaw presentation exploration visit ring and visible pulse", ExplorationVisuals),
   ("Jigsaw presentation real viewport buttons and Escape", ViewportAndEscape),
   ("Jigsaw presentation approved editor controls and help wheel isolation", ApprovedControls),
@@ -37,6 +39,74 @@ internal static class JigsawPresentationTests
   return JigsawScreen.Create(map,1,()=>{},()=>Task.CompletedTask,()=>Task.CompletedTask,_=>Task.CompletedTask,pause??(()=>{}),profile);
  }
  private static HoverTip? capturedStepTip;
+ private static Task MapPing()=>JigsawHuntingTreasureTests.WithTreasure(false,async(session,room)=>
+ {
+  using var ui=new JigsawNativeMapUiHost();var view=await ui.Open(session);
+  var nativeMap=new MegaCrit.Sts2.Core.Nodes.Screens.Map.NMapScreen();
+  var point=session.Map!.Nodes.First(node=>node.Id!=0);
+  var owner=session.Native.Players[0];
+  var method=AccessTools.Method(nativeMap.GetType(),"PingMapCoord");
+  object[] args=
+#if STS2_PUBLIC
+   [new MegaCrit.Sts2.Core.Map.MapCoord(point.Id,0),owner];
+#else
+   [owner,new MegaCrit.Sts2.Core.Map.MapCoord(point.Id,0)];
+#endif
+  try
+  {
+   long entry=session.Map.CreateSave().NextEntry;int steps=session.Map.Steps;
+   method.Invoke(nativeMap,args);method.Invoke(nativeMap,args);
+   var anchors=(Dictionary<int,Control>)AccessTools.Field(typeof(JigsawScreen),"pingAnchors").GetValue(view)!;
+   Require(anchors.Count==1&&anchors.ContainsKey(point.Id),"Repeated native ping dispatch resolves the same logical node instead of a native projection coordinate.");
+   Require(anchors[point.Id].GetRect().GetCenter().DistanceTo(view.GridToCanvas(point.Center))<.01f,"The ping anchor is centered on the rendered puzzle node.");
+   Require(session.Map.Steps==steps&&session.Map.CreateSave().NextEntry==entry&&session.Map.DestinationVotes.Count==0,"A native ping does not cast a vote or consume an entry.");
+   bool testing=MegaCrit.Sts2.Core.TestSupport.TestMode.IsOn;
+   var color=new Color(.2f,.7f,.9f);
+   try
+   {
+    MegaCrit.Sts2.Core.TestSupport.TestMode.IsOn=false;
+    view.PingNode(point.Id,color);
+    var ripple=anchors[point.Id].GetChildren().OfType<MegaCrit.Sts2.Core.Nodes.Vfx.NMapPingVfx>().Single();
+    Require(ripple.Modulate==color&&ripple.PivotOffset==ripple.Size/2,"The real native ripple carries the issuing player's color and centered animation pivot.");
+   }
+   finally {MegaCrit.Sts2.Core.TestSupport.TestMode.IsOn=testing;}
+   var tree=(SceneTree)Engine.GetMainLoop();
+   await tree.ToSignal(tree.CreateTimer(.9),SceneTreeTimer.SignalName.Timeout);
+   Require(anchors[point.Id].GetChildCount()==0,"Native ripple completion releases the visual without leaving an input control.");
+  }
+  finally {nativeMap.Free();}
+ });
+ private static Task CapstoneInput()=>JigsawHuntingTreasureTests.WithTreasure(false,async(session,room)=>
+ {
+  using var ui=new JigsawNativeMapUiHost();
+  var view=await ui.Open(session);
+  var global=MegaCrit.Sts2.Core.Nodes.NRun.Instance!.GlobalUi;
+  var previous=global.CapstoneContainer;
+  var capstone=new MegaCrit.Sts2.Core.Nodes.Screens.Capstones.NCapstoneContainer();
+  var deck=new MegaCrit.Sts2.Core.Nodes.Screens.NDeckViewScreen();
+  var button=new Button {Text="Card",Size=new(160,80)};
+  int cards=0,votes=0;button.Pressed+=()=>cards++;
+  view.VoteRequested=_=>{votes++;return JigsawResult.Ok;};
+  try
+  {
+   AccessTools.Property(global.GetType(),nameof(global.CapstoneContainer)).SetValue(global,capstone);
+   AccessTools.Property(capstone.GetType(),"CurrentCapstoneScreen").SetValue(capstone,deck);
+   await HeadlessUiHost.Mount(button);
+   button.Position=view.MapControl.GetGlobalRect().GetCenter()-button.Size/2;
+   var tree=(SceneTree)Engine.GetMainLoop();var at=button.GetGlobalRect().GetCenter();
+   tree.Root.PushInput(new InputEventMouseButton{Position=at,GlobalPosition=at,ButtonIndex=MouseButton.Left,Pressed=true},true);
+   await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
+   tree.Root.PushInput(new InputEventMouseButton{Position=at,GlobalPosition=at,ButtonIndex=MouseButton.Left,Pressed=false},true);
+   await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
+   Require(cards==1&&votes==0,"An engine card click reaches the foreground control without voting on the map below the native deck capstone.");
+  }
+  finally
+  {
+   AccessTools.Property(capstone.GetType(),"CurrentCapstoneScreen").SetValue(capstone,null);
+   AccessTools.Property(global.GetType(),nameof(global.CapstoneContainer)).SetValue(global,previous);
+   button.Free();deck.Free();capstone.Free();
+  }
+ });
  private static bool CaptureStepTip(Control owner,IHoverTip hoverTip,ref NHoverTipSet? __result)
  {
   if(owner is not JigsawStepCounter)return true;
@@ -97,6 +167,9 @@ internal static class JigsawPresentationTests
    var attempt=map.BeginEnter(map.AvailableDestinations.First())!;map.ConfirmEnter(attempt.Id);map.CompleteRoom(attempt.Id);
    await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
    Require(badge.GetChild<Label>(1).Text=="14"&&capturedStepTip?.Description=="You can travel 14 more steps.","Step number and hover text update together after confirmed entry.");
+   var notice=(Label)AccessTools.Field(typeof(JigsawScreen),"explorationNotice").GetValue(view)!;
+   Require(notice.Text.Length==0,"Ordinary remaining-step text is absent from the map.");
+   Require(notice.GetGlobalRect().Position.Y>view.Size.Y*.8f,"Map notices occupy the lower edge, clear of relics.");
    Require(map.SetRemainingSteps(1).Success,"Prepare the approved last-step HUD.");
    await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);
    Require(((Label)AccessTools.Field(typeof(JigsawScreen),"explorationNotice").GetValue(view)!).Text == new LocString("static_hover_tips","AM_JIGSAW_LAST_STEP").GetFormattedText(),"The visible exploration map notice carries the approved last-step sentence.");
