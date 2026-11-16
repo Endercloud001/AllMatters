@@ -1,46 +1,44 @@
-# AllMatters
+# AllMatters · 事无巨细
 
-《杀戮尖塔 2》模组 · **v0.1.1** · 作者：Endercloud001
+《杀戮尖塔 2》模组，由 Endercloud001 开发。扩展二代事件，带回部分一代卡牌、遗物与遭遇，并在 v0.1.2 加入可单人或联机游玩的拼图模式。
 
-为大部分二代事件加入更多选项，并带回了部分一代事件、遗物和卡牌
+## v0.1.2 拼图更新
 
-## 主要内容
+在 AllMatters 模组设置中打开「局内默认启用拼图模式」，再开始新局。拼图适用于标准模式和支持该模式的 public-beta 恐惧模式。每日挑战、极速和自定义沿用各自的原版地图流程。
 
-- **二代事件扩展**：增加新的交易、选牌、离开与战斗分支，并调整部分原有选项。例如垃圾堆带回一代卡牌与遗物，圆桌茶会可以挑战第一勇士，人形洞穴之地可能遭遇倏忽魔。
-- **一代事件回归**：带回牧师、诅咒书本、心灵绽放、大图书馆、竞技场等 11 个事件，以及相关遗物和卡牌；部分效果按二代环境重新设计。事件清单与具体规则见 [v0.1 范围](docs/v0.1-scope.md#一代事件回归与调整)。
+- **拼出自己的路线。** 每幕开始时可摆放、旋转并连接地图碎片，再选「由先古之民审视」。也可选「令先古之民决定」，让游戏生成地图。联机时可以一起编辑，全员同意后才开始审视或生成。
+- **探索与续局。** 从已探索区域前往相邻的新房间，也可以沿已探索路线折返商店。联机探索沿用按玩家票决定目的地的规则。保存后通过原生跑局大厅继续，地图和房间状态随检查点恢复。
+- **建筑师追猎。** 每幕有有限的步数。耗尽后仍能探索，后续适用房间进入追猎。密林、暗港、巢穴和荣耀会改变怪物阵容、行动或首领机制。追猎期间商店停办交易，休息处保留可用的治疗，普通宝箱奖励暂停。击败当幕最后一场首领后移除建筑师面具。
+- **地图卡牌与遗物。** 羽翼之靴或黄金罗盘在拾取当幕为全队增加 3 步，同幕只触发一次。第二幕可用藏宝图标记宝箱，抵达后按每位玩家持有的张数结算。皮草大衣标记普通或精英战斗，标记战中出现的敌人当前生命降至 1 点。
+- **地图绘画。** 左下角可画笔标注、擦除或清空。当前幕笔迹可随存档恢复，右下角「分享」可导出包含涂鸦的地图全景。
 
-模组提供简体中文和英文文本。详细效果以本模组范围文档为准，与一代原版或参考模组可能不同。
+## 事件、遗物与卡牌
 
-## 安装与更新
+二代事件新增交易、选牌、离开和战斗分支。例如垃圾堆可带回一代卡牌与遗物，圆桌茶会可挑战第一勇士。牧师、诅咒书本、心灵绽放、大图书馆和竞技场等一代事件亦回归，部分规则针对二代重做。public-beta 的酷刑博物馆可取得展示遗物并获得一张愧疚，或扣除 10 点当前生命离开。模组提供简体中文和英文。[事件清单](docs/v0.1-scope.md#一代事件回归与调整)
 
-从 [GitHub Releases](https://github.com/Endercloud001/AllMatters/releases/tag/v0.1.1-preview.1) 下载 **v0.1.1 预览版**。普通玩家无需下载源码或安装开发工具；GitHub 自动生成的 “Source code” 压缩包不是可安装模组。
+## 下载与安装
 
-| 游戏分支 / 已验证的目标版本 | 安装包 |
+v0.1.2 的开发验证目标为 **public 0.107.1** 和 **public-beta 0.113.1**，使用 [RitsuLib 0.6.11 完整 variant-pack](https://github.com/BAKAOLC/STS2-RitsuLib/releases/download/v0.6.11/STS2-RitsuLib.0.6.11.variant-pack.zip)。联机玩家应使用相同的游戏分支与兼容模组组合。[v0.1.2 实现与验收记录](docs/issues-82-88-implementation.md)
+
+GitHub Releases 当前提供 **v0.1.1 预览版**，其下载包和依赖对应以下版本。v0.1.2 可按下文从源码构建。当前构建的模组清单仍显示 v0.1.1。
+
+| 游戏分支 | v0.1.1 预览安装包 |
 | --- | --- |
 | public / 0.107.1 | [AllMatters-v0.1.1-public.zip](https://github.com/Endercloud001/AllMatters/releases/download/v0.1.1-preview.1/AllMatters-v0.1.1-public.zip) |
 | public-beta / 0.111.0 | [AllMatters-v0.1.1-public-beta.zip](https://github.com/Endercloud001/AllMatters/releases/download/v0.1.1-preview.1/AllMatters-v0.1.1-public-beta.zip) |
 
-上表是构建与自动化测试的目标版本，游戏更新后请先核对兼容性。需要游戏本体，以及独立安装的 [RitsuLib 0.6.7 完整 variant-pack](https://github.com/BAKAOLC/STS2-RitsuLib/releases/download/v0.6.7/STS2-RitsuLib.0.6.7.variant-pack.zip)。不要下载 NuGet 包或单个 compat DLL 代替完整依赖。来源见 [参考与依赖记录](docs/references.md)。
-
-1. 退出游戏，下载与游戏分支对应的 AllMatters 包并解压。解压后应直接得到 `AllMatters/` 文件夹；自行构建时，输出为 `dist/<branch>/AllMatters/`。
-2. 从 Steam 的游戏“管理 → 浏览本地文件”找到安装目录；若没有 `mods/`，先创建它。将整个 `AllMatters` 目录复制到 `mods/`，确保路径为 `mods/AllMatters/AllMatters.json`，避免多套一层文件夹。更新时替换旧版对应文件，并保留 DLL、JSON、PCK、许可证及来源声明。
-3. 将完整 RitsuLib 包安装到 `mods/STS2-RitsuLib/`，保留 `compat`、`shared`、`assets.zip` 等内容，不要仅复制单个 DLL。
-4. 通过 Steam 启动游戏，在模组列表中启用 RitsuLib 与 AllMatters。
-
-上面的预览发布包保留原有 **public 0.107.1 / public-beta 0.111.0** 验证范围。2026-11-13 起，#82–#88 的接续开发按用户确认迁移至 **public 0.107.1 / public-beta 0.113.0**，开发依赖改为 [RitsuLib 0.6.11 完整 variant-pack](https://github.com/BAKAOLC/STS2-RitsuLib/releases/download/v0.6.11/STS2-RitsuLib.0.6.11.variant-pack.zip)。迁移状态与实际验证范围见 [实施索引](docs/issues-82-88-implementation.md)；这不表示旧发布包已获得新版兼容验证。匹配 public 开发资源已备齐；正式游戏端、设备与整批组合验证仍有缺项。
+1. 退出游戏，解压对应游戏分支的 AllMatters 安装包。预览版依赖 [RitsuLib 0.6.7 完整 variant-pack](https://github.com/BAKAOLC/STS2-RitsuLib/releases/download/v0.6.7/STS2-RitsuLib.0.6.7.variant-pack.zip)。
+2. 在 Steam 的游戏「管理 → 浏览本地文件」打开安装目录。放入解压后的模组，确保清单位于 `mods/AllMatters/AllMatters.json`。
+3. 把解压后的完整 RitsuLib 安装到 `mods/STS2-RitsuLib/`，保留原有目录结构及 `assets.zip`。
+4. 启动游戏，在模组列表中启用 RitsuLib 与 AllMatters。
 
 ## 从源码构建
 
-准备 .NET 9 SDK、Godot 4.5.1 mono、目标分支的游戏程序集和完整 RitsuLib 包。在仓库根目录首次配置本机路径后构建：
+准备 .NET 9 SDK、Godot 4.5.1 mono、对应分支的游戏文件和完整 RitsuLib 包。首次配置时复制 `Paths.example.props` 为 `Paths.local.props`，再按开发指南填写本机路径。
 
 ```powershell
-Copy-Item Paths.example.props Paths.local.props
-# 编辑 Paths.local.props，填写游戏、Godot 和 RitsuLib 路径
-./tools/Build.ps1 -Branch public-beta
-# 使用 public 对应的游戏程序集构建另一目标
 ./tools/Build.ps1 -Branch public
+./tools/Build.ps1 -Branch public-beta
 ```
 
-已有 `Paths.local.props` 时直接编辑，避免覆盖本机配置。构建产物位于 `dist/<branch>/AllMatters/`，由用户手动安装。
-
-运行 `./tools/Check.ps1` 可执行脚本检查、双目标行为测试和开发包构建。完整环境配置、单项测试命令及实机验收流程见 [开发指南](docs/development.md)。
+构建输出位于 `dist/<branch>/AllMatters/`。运行 `./tools/Check.ps1 -Branch All` 可执行完整双版自动检查。[开发指南](docs/development.md) · [第三方来源](THIRD_PARTY_NOTICES.md)
