@@ -178,3 +178,7 @@ Mystic正式节点+协调器+真实牌视觉链在0.6.14最终strict通过，归
 第六轮问题经用户实测通过。拼图探索复用唯一一层原生 NMapDrawings 与其画笔、擦除、清空、网络和原生序列化。一键清空后同帧存档也会移除待销毁笔迹。战前检查点回退保留当前幕新笔迹，恢复层按原生归一化坐标换算，保存并退出时补写当前绘画。beta 使用原版分享，public 0.107.1 使用 Godot 导出全景 PNG。
 
 源码 fbc47fc8f1f2000d54032bfd12168f33b13b43fd 两版绘画1、保存3、地图UI22均严格通过。归档 drawing-final-tools-20261117-010002324-419570e46db54fa0aaf16efc1f6f8615、drawing-exit-20261117-005905206-3dd9bbe785c349a29b9d5a882d9831ee、drawing-presentation-20261117-010018053-f095e724a7554b119e0de06f7adf3e2b。public OpenGL 宿主导出含笔迹的1280×720全景图，证据在 .local/issue88-drawing/public-panorama.png。双版构建和五文件统一交付核对通过。beta平台服务写入及真实多人绘画按复测指南验收。
+
+### 绘画工具栏左侧裁切
+
+实机截图中画笔及悬停说明越过左缘。拼图地图现在按三个原生按钮和悬停提示锚点的实际边界定位于左下。回归在 1280×720 模拟画笔伸出工具组左侧 96 像素，断言三个按钮完整进入地图视口。双版各1严格通过，归档 drawing-toolbar-20261117-011021578-68c2c63afc73413ab2acb70082d0310f。双版构建与五文件校验通过，源码 969d245，旧包备份在 .local/issue88-drawing-toolbar/previous-delivery/。
