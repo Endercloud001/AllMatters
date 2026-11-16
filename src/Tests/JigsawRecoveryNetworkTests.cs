@@ -211,11 +211,11 @@ internal static class JigsawRecoveryNetworkTests
             ModelDb.AllEncounters.Select(encounter => encounter.Id), 100) : UnlockState.all;
         var players = Enumerable.Range(1, 3).Select(id => Player.CreateForNewRun(
             ModelDb.Character<Ironclad>(), unlocks, (ulong)id)).ToArray();
-        var native = phase is "event-holes-lag" or "event-holes-reward" or "event-holes-completed" ? JigsawHuntingHolesMultiownerTests.CreateFixtureRun(players) : RunState.CreateForTest(players: players, acts: phase == "shop-lag" ? new ActModel[] { ModelDb.Act<Overgrowth>(), ModelDb.Act<Hive>() } : [ModelDb.Act<Overgrowth>()], seed: "RECOVERY_81");
+        var native = phase is "event-holes-lag" or "event-holes-reward" or "event-holes-completed" ? JigsawHuntingHolesMultiownerTests.CreateFixtureRun(players) : RunState.CreateForTest(players: players, acts: phase is "shop-lag" or "treasure-hunting" ? new ActModel[] { ModelDb.Act<Overgrowth>(), ModelDb.Act<Hive>() } : [ModelDb.Act<Overgrowth>()], seed: "RECOVERY_81");
         RunManager.Instance.SetUpTest(native, new NetSingleplayerGameService());
         try
         {
-            if (phase == "shop-lag") native.CurrentActIndex = 1;
+            if (phase is "shop-lag" or "treasure-hunting") native.CurrentActIndex = 1;
             RunManager.Instance.GenerateRooms();
             await RunManager.Instance.GenerateMap();
             if (phase is "exploring" or "visited" or "pending" || phase.StartsWith("treasure-", StringComparison.Ordinal) || phase.StartsWith("combat-", StringComparison.Ordinal) || phase.StartsWith("deferred", StringComparison.Ordinal) || phase.StartsWith("shop-", StringComparison.Ordinal) || phase.StartsWith("entry-", StringComparison.Ordinal))
@@ -242,6 +242,13 @@ internal static class JigsawRecoveryNetworkTests
                 Require(map.Take(1, 0).Success && map.Drop(1, new(3, 0)).Success && map.AddEdge(1, 0, 1).Success, "Failure fixture has a real reachable destination.");
                 foreach (var player in players) Require(map.ChooseEnd(player.NetId, EndChoice.Manual).Success, "The fault fixture uses genuine manual consensus.");
                 Require(map.Inspect().Success, "The fault fixture passes production validation.");
+                if (treasure)
+                {
+                    var owner = players.Single(player => player.NetId == 2);
+                    owner.Deck.AddInternal(native.CreateCard<MegaCrit.Sts2.Core.Models.Cards.SpoilsMap>(owner));
+                    Require(!map.FinalizeSpoils(true, native.CurrentActIndex) && map.SpoilsNode == 1,
+                        "The second-act fixture saves its sole logical marked chest before entry.");
+                }
                 foreach (var player in players) Require(map.CompleteAncient(player.NetId).Success, "Fault fixture owners have completed Ancient.");
                 foreach (var player in players) Require(map.Continue(player.NetId).Success, "Fault fixture owners continue exploration.");
                 if (phase is "shop-hunting" or "shop-hunting-completed") Require(map.SetRemainingSteps(1).Success, "Prepare the true last safe shop entry.");
@@ -620,10 +627,7 @@ internal static class JigsawRecoveryNetworkTests
                     "Both real endpoints enter the same authoritative hunted treasure root.");
                 var room = (TreasureRoom)native.CurrentRoom!;
                 var owner = native.Players.Single(player => player.NetId == 2);
-                var quest = native.CreateCard<MegaCrit.Sts2.Core.Models.Cards.SpoilsMap>(owner);
-                owner.Deck.AddInternal(quest); quest.SpoilsActIndex = native.CurrentActIndex;
-                HarmonyLib.AccessTools.Property(quest.GetType(), nameof(quest.SpoilsCoord)).SetValue(quest, native.CurrentMapCoord);
-                native.CurrentMapPoint!.AddQuest(quest);
+                var quest = owner.Deck.Cards.OfType<MegaCrit.Sts2.Core.Models.Cards.SpoilsMap>().Single();
                 var gold = native.Players.ToDictionary(player => player.NetId, player => player.Gold);
                 var absent = JsonSerializer.Serialize(native.Players.Single(player => player.NetId == 3).ToSerializable());
                 RunManager.Instance.ActionExecutor.Unpause();
@@ -649,9 +653,9 @@ internal static class JigsawRecoveryNetworkTests
                 await opening;
                 if (net.NetId == 1) Complete(1);
                 await Until(() => map.RoomCompletedPlayers.Count == 2, "both owners complete before destination ballots exist");
-                Require(native.Players.All(player => player.Gold == gold[player.NetId]) && !owner.Deck.Cards.Contains(quest) &&
-                    !native.CurrentMapPoint.Quests.Contains(quest) && native.CurrentMapPointHistoryEntry!.GetEntry(2).CompletedQuests.Count(id => id == quest.Id) == 1,
-                    "Both real sources grant zero reward and complete each actual quest exactly once.");
+                Require(native.Players.All(player => player.Gold == gold[player.NetId] + (player.NetId == 2 ? 600 : 0)) && !owner.Deck.Cards.Contains(quest) &&
+                    native.CurrentMapPointHistoryEntry!.GetEntry(2).CompletedQuests.Count(id => id == quest.Id) == 1,
+                    "The marked quest pays only its owner, once, while hunting still suppresses ordinary gold.");
                 Require(JsonSerializer.Serialize(native.Players.Single(player => player.NetId == 3).ToSerializable()) == absent,
                     "The absent original owner receives no invented native chest work.");
                 await saves.SaveRun(RunManager.Instance.ToSave(null), true);
