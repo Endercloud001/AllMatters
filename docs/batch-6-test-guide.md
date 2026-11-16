@@ -1,16 +1,16 @@
 # 批次4–6集中人工验收：#82–#88
 
-第一批人工反馈已记录，修复统一包已就绪，源码提交`226c4e9879c50165c24913e31bde8f0f95154b98`。本候选`Check.ps1 -Branch All`退出0：beta0.113.1通过661项、public0.107.1通过663项，双版构建/宿主退出码均0；各有26条既有已分类引擎诊断、Metadata0。下方复测顺序保留完整入场/领奖/跨幕实机缺口，#88未据此整票关闭。
+两批人工通过项均已记录，第二批修复统一包已就绪，源码提交`14c935188d43aa7cb0082b7e6235e001bf27372b`。本候选`Check.ps1 -Branch All`退出0：beta0.113.1通过669项、public0.107.1通过671项，双版构建/宿主退出码均0；各有26条既有已分类引擎诊断、Metadata0。神秘术士施法回血仍未定位，仅增加动作日志；旧卡局、完整入场/领奖/跨幕实机缺口保留，#88未据此整票关闭。
 
 ## 批次与版本
 
 批次4为#82/#83，批次5为#84–#87，批次6为#88组合兼容；每个游戏目标使用一个统一包，不逐票更换。目标public0.107.1、beta0.113.1，依赖完整RitsuLib0.6.11 variant-pack；此前beta0.113.0自动日志保留历史归属，新目标必须另有实际证据。#93/#94既有人工通过继续有效，以下只补新增行为及尚未细分的环境范围。
 
-实际统一包为本集成树`dist/batch-6-integration/AllMatters-public/`及`AllMatters-public-beta/`。两版DLL产品版本均为`0.1.1+226c4e9879c50165c24913e31bde8f0f95154b98`；每目录仅包含`AllMatters.dll`、`AllMatters.pck`、`AllMatters.json`、`LICENSE`、`THIRD_PARTY_NOTICES.md`。最终PCK实际409条资源、113条导入资源，右Torch marker已核为1320/695。
+实际统一包为本集成树`dist/batch-6-integration/AllMatters-public/`及`AllMatters-public-beta/`。两版DLL产品版本均为`0.1.1+14c935188d43aa7cb0082b7e6235e001bf27372b`；每目录仅包含`AllMatters.dll`、`AllMatters.pck`、`AllMatters.json`、`LICENSE`、`THIRD_PARTY_NOTICES.md`。PCK与前批已核资源字节一致，409条资源、113条导入资源及右Torch marker1320/695的证据保留；绿色火焰由生产代码附加。
 
 ## 安装
 
-由用户退出游戏，保留原Mod和测试存档，再将对应目标的五文件复制到`mods/AllMatters/`，不要将两目标叠放。完整依赖位于主仓`AllMatters/.local/dependencies/RitsuLib-0.6.11/`，另装到`mods/STS2-RitsuLib/`，保留bootstrap、compat、shared、viewer、assets.zip及manifest原布局；单个compat DLL不能代替完整包。最新实机日志实际加载Workshop 0.6.13并覆盖本地0.6.7；本轮自动宿主仍使用隔离0.6.11。安装后保留实际加载版本，区分包与第三方Mod组合。
+由用户退出游戏，保留原Mod和测试存档，再将对应目标的五文件复制到`mods/AllMatters/`，不要将两目标叠放。完整依赖位于主仓`AllMatters/.local/dependencies/RitsuLib-0.6.11/`，另装到`mods/STS2-RitsuLib/`，保留bootstrap、compat、shared、viewer、assets.zip及manifest原布局；单个compat DLL不能代替完整包。第二批实机实际加载Workshop0.6.14；本轮完整自动宿主使用隔离0.6.11，另以0.6.14快照窄验预载、切战、实验体完整恢复及Mystic行为，不扩签该依赖的全量兼容。安装后保留实际加载版本，区分包与第三方Mod组合。
 
 通过Steam启动对应版本，所有参与端使用同一目标包及依赖。每组记下游戏版本、源码SHA、人数、Host/Client、输入设备、保存阶段和日志；public与beta分别记录，四角色宿主不是四个真实游戏端。
 
@@ -71,3 +71,22 @@ Queen重燃后重点看720p的右火炬血条与女王目标：两者应保持�
 5. 光与暗的门扉中确认光之门显示“随机升级2张牌”，效果沿用原选择规则；已通过的商店/休息/宝箱及原精英/Boss清单继续保留，不要求逐票重装。
 
 若仍出现Continue异常，保留对应本次日志：此前另见BaseLib清理回调NullReference；一次闪退还记录D3D12设备丢失。上述两种栈没有被此次AllMatters修复签为消失，详见[实施索引](issues-82-88-implementation.md#第一批人工反馈修复2026-11-16)。
+
+## 第二批人工反馈（2026-11-16）
+
+通过项：暗港追猎普通战斗站位；帝皇蟹与无厌沙虫追猎改动；荣耀三精英；女王与永世沙漏Boss战逻辑。截图显示beta0.113.1，本次未扩签public/多人或其他未反馈场景。
+
+|卡片 / 优先级|用户实际结果 / 修复要求|待实机复测的可观察结果|
+|---|---|---|
+|M88-2-flow / 严重|实验体追猎Boss入场失败，重进黑屏/卡档；日志2997为MultiClawDamage预载读未绑定Creature|正式节点入房及旧跑局恢复能完成预载、挂载战斗与开局|
+|M88-2-flow / 高|帝皇蟹战斗中fight KNOWLEDGE_DEMON_BOSS提示成功但未切战，后续win提示非战斗；日志1430为SlapDamage预载读未绑定Creature|真实fight完成切战并进入活动战斗，后续win识别该战斗|
+|M88-2-rules / 高|巢穴普通追猎仅给Weak1，要求所有玩家Weak1/Frail1/Vulnerable1|开场后所有存活玩家真实持有三种各1，回合开始时不误扣后两种|
+|M88-2-rules / 高|Mystic施法意图正确，实际像治疗；要求弃牌堆每次加六选一等概率状态牌|真实意图→执行链施法仅加一张Dazed/Burn/Void/Toxic/Beckon/Slimed，治疗分支仍独立|
+|M88-2-glory / 中|荣耀普通追猎队列偏屏幕中央|按原版相同数量站位参考，保留血条/意图与输入可用|
+|M88-2-torch / 低|女王火炬头缺少头部绿色火焰；附原作参考图|召唤后头笼内升起绿色火焰，跟随动画，不遮挡原意图/血条；Boss逻辑不变|
+
+第二批截图1/2为暗港已通过站位，3为巢穴开场，4为fight未切战，5为荣耀队形，6为无绿焰火炬头，7为永世沙漏已通过逻辑，8为原作绿焰参考。火炬视觉低优先级，不阻塞严重预载/切战修复。
+
+第二批复测先进入实验体Boss，再从帝皇蟹战中执行原`fight KNOWLEDGE_DEMON_BOSS`并确认新战斗可用`win`；旧黑屏跑局单独记录恢复结果。随后检查巢穴开场三种负面、荣耀普通队形和女王火炬头。暗港普通队形及上方已通过Boss逻辑保留原签收。
+
+**神秘术士仍未签修复。** 用户已确认施法时敌人HP确实上升；隔离RitsuLib0.6.14的自然动作、正式回合协调器及真实节点三层测试未复现。候选加入`[AllMatters][MysticAction]`日志：复现后保留当前游戏日志和对应截图，对齐CAST的begin/generated/end与HEAL的healed记录，核对实际NextMove、敌人HP及弃牌变化；end本身不表示动作成功。不要因自动用例只加牌不回血，就把用户实机现象改写成动画误认。

@@ -86,3 +86,25 @@ flow树 `issue88-legacy-compatible-green-20261116-000502050-d5333ca6938a4df981ce
 未签收：真实游戏连续精英、事件入场、fight、Boss奖励按钮后跨幕及旧档恢复后领奖出口，均须对修复包实机复测；自动投影/预载/Overlay验证不冒签完整游戏流程。另日志 `godot2026-11-15T22.53.36.log:785` 的Continue异常落在BaseLib.CustomMessageWrapper.Unregister→RunManager.CleanUp，`godot2026-11-15T19.58.20.log:30310` 为D3D12设备丢失；现有栈没有证明本Mod重复清理或事件逻辑致错，两项未宣称修复。
 
 统一包已按五文件白名单更新到本树 `dist/batch-6-integration/AllMatters-public/` 与 `AllMatters-public-beta/`；两版DLL ProductVersion均为 `0.1.1+226c4e9879c50165c24913e31bde8f0f95154b98`，各5文件，PCK各85,203,232字节且与此前已检查资源包字节完全一致，原409资源/113导入及Queen右Torch1320/695证据继续适用。LICENSE/THIRD_PARTY_NOTICES与仓库原件一致，依赖manifest仍为STS2-RitsuLib。旧统一包5文件保留在 `.local/issue88-manual-feedback/previous-delivery/`。Agent没有安装、启动游戏/Steam、写mods或真实存档；按[修复包复测顺序](batch-6-test-guide.md#本轮修复包复测顺序)完成用户实机确认。
+
+## 第二批反馈修复（2026-11-16）
+
+`b3f0a49`已集成TestSubject/Knowledge攻击getter正式预载guard、Hive同entry确认后继续三负面，并补真实帝皇蟹fight→Knowledge开局→win回归；正常hooks与两轴审查通过，集成树双版Hive各2、console各1 strict及双版构建通过。flow树合法mutable TestSubject用例曾恢复旧guard再次red，避免误用原生不支持的canonical入口；实际旧存档恢复仍由用户复测，未证存档格式损坏。
+
+flow树 `.local/tests/archives/` 的 `manual2-flow-complete-1-20261116-054343830-8447dd16c9f34dee9d496fe0d201e16d`双版预载/绑定7、`manual2-flow-complete-2-20261116-054359922-3921289026f24b69ba0491f26a76eb46`双版Boss7、`manual2-flow-complete-3-20261116-054430815-4b55f04125d4459f8cba29760696751c`双版完整console1、`manual2-flow-complete-4-20261116-054448323-5f0c6ead9599483cbb2ee6f2b659fd83`双版原CrabFresh1均strict通过。RitsuLib0.6.14独立snapshot额外验证beta预载7、console1、TestSubjectFresh1，见同树 `manual2-flow-ritsu0614-{1,2,3}` 归档；源安装只读，未更改游戏依赖。
+
+Hive修复前pending确认red见rules树 `manual2-rules-red-1-20261116-053414857-e0a946c46db34b4086be451fd818c476`；修复后双版各2及原stale边界各2见 `manual2-hive-green-1-20261116-053927297-71d6d13d7b6341a29a1a43765bc858af` / `manual2-hive-green-2-20261116-053944441-2dba66925bd64b4ab0994bf26a77c0c8`。
+
+Mystic用户已明确“敌人HP确实上升”，问题仍在诊断。源安装DLL已核为226c4e9；实机库为Workshop0.6.14。受伤敌人自然动作和0.6.14全组8例均通过；正式无节点协调器四轮也未复现（rules树 `manual2-mystic-coordinator0614-20261116-055054892-bf24a5e46229490a8e3e5d78f8d8e6f6`）。这不是修复证明；真节点用例依次补齐NCard池、纯表现ScreenShake与墙钟等待夹具后继续，不把准备失败算用户Bug。
+
+`a464e66`将荣耀普通自动布局转发已验暗港算法（暗港本体仅private→internal），用户TurretOperatorWeak场景12先独立原生中心断言red；修复后双版各1、完整荣耀普通12+精英3双版各15 strict通过（glory树归档`manual2-glory-layout-all-20261116-060830212-0548e517b54e46cfaac50a1488348cd5`）。集成窄核与双版构建亦通过，正常hooks/双轴独立审查完成。
+
+Mystic正式节点+协调器+真实牌视觉链在0.6.14最终strict通过，归档rules树`manual2-mystic-ui-wallclock0614-20261116-062140580-a8cf528951f141daa425468f21628a30`：屏幕缓存Status/Heal/Buff/Status与实际动作吻合，两次CAST只加Burn/Slimed各1、敌HP不变，HEAL回12。准备阶段的NCard池/ScreenShake/300帧等待失败已分开归类；大诊断补丁归档集成树`.local/issue88-manual2/mystic-ui-diagnostic.patch`，不合入正式全量宿主。
+
+用户确认实机敌人HP上升仍未解释，不能按未复现签修。`00dfbd6`只添加`[AllMatters][MysticAction]`动作begin/end、实际NextMove、敌HP/玩家弃牌、CAST生成牌与HEAL目标前后HP快照，不含玩家个人标识、不增加RNG或await，日志错误不干扰原动作异常；两轴增量审查通过，主控双版各8及beta/Ritsu0.6.14各8 strict行为回归通过（`manual2-mystic-trace-regression-20261116-102129865-7537888ee6be4fc6a7ea0c270a5bc117` / `manual2-mystic-trace0614-20261116-102156313-8183024b4bcd4665a7d6ee449d5950bb`）。恢复诊断条件为修复包实机复现后的上述动作日志，暂停期间不重复碰绿扩测。
+
+`14c9351`恢复TorchHead生产视觉的独立绿色粒子，跟随原生fireslot全局坐标，不改Queen规则或IntentPos；双版匹配扩展已实测骨骼移动增量，不叠乘全局变换。原始生产工厂无emitter断言red；双版节点窄核各2 strict见torch树`manual2-torch-native-corrected-20261116-104550528-af1e80cd0a684eeba1831410dc24694c`。首次真实GL截图仅小绿点并在原点残留，未按绿色像素初断言签收；取消预热、先定位后启动并调整密度/尺寸后，真实OpenGL双版各1通过，图为torch树`.local/torch-flame-beta-v2.png`（1938绿像素、extent301,176..360,249）与`torch-flame-public.png`（1578、302,173..360,249），均由主控及Spec独立看图确认头笼内升焰、左上无残留。生产死亡停止发射有源码依据，独立截图不代签真实Queen召唤/缩放/遮挡；生命周期测试的重入只断言Visible，不扩大为死亡行为已验。正常hooks与独立双轴审查通过，未启动正式游戏或Steam；GL导入器改写的实施树`.import`未集成。
+
+最终同一源码`14c935188d43aa7cb0082b7e6235e001bf27372b`的`Check.ps1 -Branch All`已退出0，资源、脚本、空白、双版完整宿主及Release构建均PASS，进程已结束。beta669（Build/Host0，Engine26，Metadata0）归档`run-20261116-105950642-199a7d0e4d1141f391fa1993568d0876`；public671（同为0/0、26/0）归档`run-20261116-113834407-29d4c94cc5914de58159cef3809cf1cb`，均在集成树`.local/tests/archives/`。完整控制台`.local/issue88-manual2/full-check-14c9351.log`。beta诊断逐条与前批相同，public仅故意坏档负例的隔离文件时间戳不同，归一后无差异；不称零诊断。完整执行涵盖新增Torch各2、真实Crab→Knowledge控制台、Hive三负面、荣耀15与原暗港14、Queen/实验体布局及恢复消费者；没有因窄核绿灯省略既有完整交付要求。
+
+统一交付两目标目录各5文件，DLL ProductVersion均`0.1.1+14c935188d43aa7cb0082b7e6235e001bf27372b`（public1,077,760字节，beta1,074,176字节），PCK各85,203,232字节并与前批已核资源逐字节一致；LICENSE/THIRD_PARTY_NOTICES与仓库原件一致，manifest仍声明STS2-RitsuLib。替换前的226c4e9五文件分别备份在`.local/issue88-manual2/previous-delivery/AllMatters-{public,public-beta}/`，未动更早备份和用户handoff文档。完整宿主依赖0.6.11，0.6.14仅按上文窄证据记载。实机安装、旧黑屏跑局恢复、连续精英/事件、跨幕、暗滤镜及新外观仍由用户按指南复测；Mystic回血待带动作快照的新日志，不因本包重新签为通过。

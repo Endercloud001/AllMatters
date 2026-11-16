@@ -1,49 +1,49 @@
 # #82–#88 当前调度看板
 
-更新：2026-11-16。集成树：`AllMatters/.claude/worktrees/hunting-20261112`；分支：`integration/issues-82-88-20261112`；修复源码：`226c4e9`。本板仅由集成主控维护，整票状态不从切片通过推定。
+更新：2026-11-16。集成树：`AllMatters/.claude/worktrees/hunting-20261112`；分支：`integration/issues-82-88-20261112`；当前源码：`14c9351`。仅集成主控维护。
 
 ## 当前工作：#88 兼容验证与统一交付
 
-**自动在制0/2，Ready0，技术诊断暂停2；第一批修复包已就绪，等待复测。** 完整`Check.ps1 -Branch All`退出0，脚本、空白、资源、两版宿主及构建全部PASS；正常hooks及独立双轴审查完成，检查/构建进程已结束。
+**第二批修复已集成，完整Check与统一交付包核对完成，待用户实机复测。** 在制0/2，Ready0，技术诊断暂停3；Mystic回血未签修复，#88未整票完成。
 
-|目标|通过数|Build / Host|Engine / Metadata|实际归档（本树 `.local/tests/archives/`）|
-|---|---:|---|---|---|
-|public-beta 0.113.1|661|0 / 0|26 / 0|`run-20261116-030906107-4209ff762559452b8bc709b5c604e663`|
-|public 0.107.1|663|0 / 0|26 / 0|`run-20261116-034551760-6cfa4d088f874547b9a3047209b70ec7`|
+|目标|当前完整验证 / 实际归档（本树`.local/tests/archives/`）|Build / Host|Engine / Metadata|
+|---|---|---|---|
+|public-beta 0.113.1|669通过；`run-20261116-105950642-199a7d0e4d1141f391fa1993568d0876`|0 / 0|26 / 0|
+|public 0.107.1|671通过；`run-20261116-113834407-29d4c94cc5914de58159cef3809cf1cb`|0 / 0|26 / 0|
 
-完整控制台：`.local/issue88-manual-feedback/full-check-226c4e9.log`。26条为既有负例/宿主诊断，不称零错误；分类和历史从[实施索引](issues-82-88-implementation.md)进入。
+本次控制台：`.local/issue88-manual2/full-check-14c9351.log`，完整Check退出0，双版Release及全部步骤PASS；26条仍为既有负例/宿主诊断。第一批226c4e9的661/663与历史归档见[实施索引](issues-82-88-implementation.md#第一批人工反馈修复2026-11-16)。
 
-## 第一批人工反馈
+## 人工已通过
 
-已通过且保留：追猎商店/休息/宝箱；暗港三精英及乐加维林族母/灵魂异鱼；密林三精英/三Boss及普通站位。用户未逐项注明版本，不扩签双版或完整终局。
+第一批：追猎商店/休息/宝箱；暗港三精英与乐加维林族母/灵魂异鱼；密林普通站位、三精英/三Boss。第二批：暗港普通站位；帝皇蟹/无厌沙虫；荣耀三精英；女王/永世沙漏Boss逻辑。保留用户实际反馈范围，不扩签双版、多人或完整终局。
 
-原始失败、修改要求及操作清单见[第一批反馈](batch-6-test-guide.md#第一批人工反馈2026-11-15)与[修复包复测顺序](batch-6-test-guide.md#本轮修复包复测顺序)；已通过项目不要求逐票重装。
+## 第二批卡片
 
-## 最近集成：第一批反馈修复
-
-|卡片 / 归属|状态 / 实施树|行为与已证范围|
+|卡片|状态 / 源码|已证与剩余|
 |---|---|---|
-|M88-flow / #88|Integrated；`issue88-flow-20261115`|三怪未绑定Creature预载guard、Boss特殊点及旧档迁移、入场对话隐藏、地图/奖励Overlay信号配对。预载、实际SavedMaps加载、真实ESC等窄双版及完整Check通过。|
-|M88-combat / #84/#85/#88|Integrated；`issue88-combat-20261115`|暗港自动队列对齐原生同数量采样，五虫落地0.8缩放，Waterfall爆发动作后清全部负面并固定Artifact3；双版整组/恢复及完整Check通过。|
-|M88-copy / #88|Integrated；主控|光门改为“随机升级2张牌”，效果不变；双版既有升级行为各1及完整Check通过。|
+|M88-2-flow|Integrated / `b3f0a49`|TestSubject/Knowledge合法预载guard、绑定效果、真实fight→新战斗→win与原Crab恢复双版strict；0.6.14窄核通过，旧黑屏跑局待实机。|
+|M88-2-rules|Hive Integrated / `b3f0a49`|同entry确认后继续Weak/Frail/Vulnerable各1，双版pending确认及stale回归通过。|
+|M88-2-glory|Integrated / `a464e66`|独立原生采样red→green，荣耀普通12+精英3双版strict；复用暗港算法，本体未改。|
+|M88-2-torch|Integrated / `14c9351`；低优先级|生产工厂附绿焰，双版真实GL图已看；无原点残留，不改Queen规则/IntentPos，正式召唤外观待实机。|
+|M88-2-mystic|Paused / `00dfbd6`|用户确认敌HP上升；三层0.6.14未复现，只合动作快照；收到实机MysticAction日志再恢复，未签修复。|
 
-各片red/green、审查增量与完整证据见[修复记录](issues-82-88-implementation.md#第一批人工反馈修复2026-11-16)。Queen右Torch等此前切片历史仍在实施索引，不复制旧在制卡。
+第二批原始失败、通过清单与复测操作见[验收指南](batch-6-test-guide.md#第二批人工反馈2026-11-16)；独立审查及精确归档见[第二批实施](issues-82-88-implementation.md#第二批反馈修复2026-11-16)。
 
-## 暂停的技术诊断
+## 第一批修复保留
 
-|卡片 / issue|当前事实|恢复条件与证据|
+`226c4e9`：未绑定怪物预载guard、Boss特殊节点与旧图迁移、地图Opened/Closed配对、移除入场对话；暗港原生同数量中心、五虫地面0.8缩放、Waterfall爆发后清负面+Artifact3、光门文案。完整Check/双轴审查/hooks通过，原实机出口仍按[复测顺序](batch-6-test-guide.md#本轮修复包复测顺序)保留。
+
+## 其他暂停诊断
+
+|卡片|当前事实|恢复条件 / 证据|
 |---|---|---|
-|T-beta-art-binding / #88|历史ENet地图绘制GCHandle fatal未定位；强持有实验已撤回，当前完整Check未复现，不签修复。|出现资源绑定重建/实际Dispose新证据再恢复；`.local/enet-art-binding-20261115/first-beta-fatal`，实验树`map-art-lifetime-20261115`。|
-|P87-boss / #87|历史后台HP订阅偶发失败未定位，探针已撤回；后续通过不改签根因修复。|有区分假说的新失败/观测再恢复；保留`boss-warmed-callback-20261113`及主仓`.local/main-control-20261113-resume/boss-warmed-callback-current-diagnosis.md`。|
+|T-beta-art-binding / #88|历史ENet地图GCHandle fatal未定位，实验已撤，不签修复。|资源绑定/Dispose新证据；`.local/enet-art-binding-20261115/first-beta-fatal`，树`map-art-lifetime-20261115`。|
+|P87-boss / #87|后台HP订阅间歇失败未定位，探针已撤。|新失败/可区分观测；`boss-warmed-callback-20261113`及主仓`.local/main-control-20261113-resume/boss-warmed-callback-current-diagnosis.md`。|
 
-## 交付与人工验收边界
+## 交付与验收边界
 
-统一包：本树`dist/batch-6-integration/AllMatters-public/`与`AllMatters-public-beta/`，每目标仅五文件。DLL产品版本均`0.1.1+226c4e9879c50165c24913e31bde8f0f95154b98`，PCK/NOTICE/依赖说明已核；旧包备份在`.local/issue88-manual-feedback/previous-delivery/`。
+统一包在本树`dist/batch-6-integration/AllMatters-public/`与`AllMatters-public-beta/`，每目标仅五文件；DLL均`0.1.1+14c935188d43aa7cb0082b7e6235e001bf27372b`，PCK/许可/manifest已核。前批包保存在`.local/issue88-manual2/previous-delivery/`，更早包保留原处。
 
-自动宿主使用完整RitsuLib0.6.11；最新实机日志实际加载Workshop0.6.13并覆盖本地0.6.7，两个组合分开记证。Agent不启动游戏/Steam、不写真实mods或存档。
+完整自动宿主使用RitsuLib0.6.11；第二批实机为Workshop0.6.14，并另做相关0.6.14窄核。Agent不启动游戏/Steam、不写真实mods或存档。真实连续精英/事件、旧卡局、奖励后跨幕/暗滤镜与新外观仍由用户复测；BaseLib Continue清理异常及D3D12设备丢失未签修复。
 
-待实机：连续精英/事件入场及fight、旧卡局恢复、Boss奖励继续后跨幕、地图暗滤镜和改后队形/文字。已修诊断链不等于所有黑屏/闪退消失；日志另有BaseLib Continue清理异常与D3D12设备丢失，均未签修复。
-
-批次4为#82/#83、批次5为#84–#87、批次6为#88；真实多端/设备/终局等责任仍见[验证地图](issues-82-88-verification-map.md)。#93/#94既有用户签收保留，#88未因本包自动关闭，未推送或正式发布。
-
-调度继续遵循[批次流程](agents/batch-flow.md)：最多两片在制、唯一执行者、独立双轴、正常hooks，每次重跑有变化/新证据或既有交付要求。
+真实多端/设备/终局责任见[验证地图](issues-82-88-verification-map.md)。#93/#94既有签收保留，#88未自动关闭；未推送或正式发布。调度遵循[批次流程](agents/batch-flow.md)：最多两片在制、唯一执行者、独立双轴、正常hooks。
