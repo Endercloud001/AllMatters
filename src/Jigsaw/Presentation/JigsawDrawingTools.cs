@@ -22,6 +22,7 @@ internal sealed class JigsawDrawingTools : IDisposable
     private readonly Control tools;
     private readonly NMapDrawButton drawButton;
     private readonly NMapEraseButton eraseButton;
+    private readonly NMapClearButton clearButton;
     private readonly Node drawingsParent;
     private readonly Node toolsParent;
     private readonly Vector2 toolsPosition;
@@ -64,6 +65,7 @@ internal sealed class JigsawDrawingTools : IDisposable
         drawings = native.Drawings;
         drawButton = native.GetNode<NMapDrawButton>("%DrawButton");
         eraseButton = native.GetNode<NMapEraseButton>("%EraseButton");
+        clearButton = native.GetNode<NMapClearButton>("%ClearButton");
         drawingsParent = drawings.GetParent();
         toolsParent = tools.GetParent();
         toolsPosition = tools.Position;
@@ -74,8 +76,6 @@ internal sealed class JigsawDrawingTools : IDisposable
         Move(drawings, canvas);
         drawings.MouseFilter = Control.MouseFilterEnum.Ignore;
         tools.Reparent(screen, false);
-        tools.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.BottomLeft);
-        tools.Position = new(20, screen.Size.Y - tools.Size.Y - 20);
 #if !STS2_PUBLIC
         var button = native.GetNode<NMapShareButton>("%ShareButton");
         RememberOwners(button);
@@ -100,7 +100,7 @@ internal sealed class JigsawDrawingTools : IDisposable
         drawings.Visible = exploring;
         if (!exploring)
         { Stop(); return; }
-        tools.Position = new(20, screen.Size.Y - tools.Size.Y - 20);
+        PositionToolbar();
         share.Position = new(screen.Size.X - share.Size.X - 24, screen.Size.Y - share.Size.Y - 24);
         var nextBounds = screen.DrawingBounds.Grow(2);
         if (bounds != nextBounds)
@@ -111,6 +111,21 @@ internal sealed class JigsawDrawingTools : IDisposable
         }
         drawings.Scale = Vector2.One * screen.DrawingCell / 64;
         drawings.Position = screen.DrawingOrigin + bounds.Position * screen.DrawingCell;
+    }
+
+    private void PositionToolbar()
+    {
+        // The native toolbar can center its children around a zero-width holder.
+        // Include the holders because the native hover tips are anchored to them.
+        var bounds = new Rect2(tools.GlobalPosition, Vector2.Zero);
+        foreach (var button in new Control[] { drawButton, eraseButton, clearButton })
+        {
+            bounds = bounds.Merge(button.GetGlobalRect());
+            if (button.GetParent() is Control holder)
+                bounds = bounds.Expand(holder.GlobalPosition);
+        }
+        var origin = tools.GlobalPosition - bounds.Position;
+        tools.GlobalPosition = screen.GlobalPosition + origin + new Vector2(32, screen.Size.Y - bounds.Size.Y - 20);
     }
 
     private void ResizeDrawingCoordinates(Vector2 size)

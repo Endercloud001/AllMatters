@@ -26,12 +26,14 @@ internal static class JigsawDrawingToolsTests
             if (!InputMap.HasAction(action)) InputMap.AddAction(action);
         using var ui = new JigsawNativeMapUiHost();
         var screen = await ui.Open(session);
+        screen.Size = new(1280, 720);
         using var peripheral = new HarmonyScope();
         var map = new NMapScreen();
         var drawings = new NMapDrawings { Size = new(960, 1200) };
         var tools = new Control { Name = "DrawingTools", Size = new(180, 60) };
-        var draw = new NMapDrawButton { Name = "DrawButton" };
-        var erase = new NMapEraseButton { Name = "EraseButton" };
+        var draw = new NMapDrawButton { Name = "DrawButton", Position = new(-96, 0), Size = new(48, 48) };
+        var erase = new NMapEraseButton { Name = "EraseButton", Position = new(-40, 0), Size = new(48, 48) };
+        var clear = new NMapClearButton { Name = "ClearButton", Position = new(16, 0), Size = new(48, 48) };
         var owner = ResourceLoader.Load<PackedScene>("res://scenes/screens/map/map_drawing.tscn").Instantiate<Control>();
         var viewport = owner.GetNode<SubViewport>("DrawViewport");
         var texture = owner.GetNode<TextureRect>("DrawViewportTextureRect");
@@ -42,6 +44,8 @@ internal static class JigsawDrawingToolsTests
             tools.Owner = map; tools.UniqueNameInOwner = true;
             tools.AddChild(draw); draw.Owner = map; draw.UniqueNameInOwner = true;
             tools.AddChild(erase); erase.Owner = map; erase.UniqueNameInOwner = true;
+            peripheral.SkipReady(typeof(NMapClearButton));
+            tools.AddChild(clear); clear.Owner = map; clear.UniqueNameInOwner = true;
             var drawIcon = new TextureRect(); draw.AddChild(drawIcon); Set(draw, "_icon", drawIcon);
             var eraseIcon = new TextureRect(); erase.AddChild(eraseIcon); Set(erase, "_icon", eraseIcon);
 #if !STS2_PUBLIC
@@ -80,8 +84,15 @@ internal static class JigsawDrawingToolsTests
             Check(drawings.GetSerializableMapDrawings().drawings.Single().lines.Single().mapPoints.SequenceEqual(playerDrawing.lines.Single().mapPoints),
                 "A fresh native layer loaded before puzzle attachment retains its saved normalized coordinates after expansion.");
             drawings.ClearAllLines();
-            Check(drawings.GetParent() == screen.MapControl && tools.GetParent() == screen && tools.Position.X == 20,
-                "The actual native layer moves into the map while the toolbar stays at the screen's lower left.");
+            Check(drawings.GetParent() == screen.MapControl && tools.GetParent() == screen,
+                "The native drawing layer and toolbar move to the puzzle map.");
+            var screenRect = screen.GetGlobalRect();
+            foreach (var button in new Control[] { draw, erase, clear })
+                Check(screenRect.Grow(-16).Encloses(button.GetGlobalRect()),
+                    $"Native button {button.Name} at {button.GetGlobalRect()} must fit inside the map {screenRect}.");
+            Check(draw.GetGlobalRect().Position.X - screenRect.Position.X == 32 &&
+                clear.GetGlobalRect().End.Y >= screenRect.End.Y - 24,
+                "The drawing tools stay at the screen's lower left.");
             Check(viewport.Size == (Vector2I)(drawings.Size / 2) && texture.Size == drawings.Size,
                 "Native half-resolution strokes cover the entire expanded puzzle canvas.");
             var point = new Vector2(80, 120);
