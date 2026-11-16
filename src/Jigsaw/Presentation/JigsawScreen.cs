@@ -30,6 +30,15 @@ public partial class JigsawScreen : Control
     private readonly Dictionary<int, HBoxContainer> destinationVoters = [];
     private readonly Dictionary<int, Control> pingAnchors = [];
     private JigsawMultiplayerHud? multiplayerHud;
+    private JigsawDrawingTools? drawingTools;
+    private bool drawingCapture;
+    internal Rect2 DrawingBounds => ContentBounds;
+    internal float DrawingCell => Cell;
+    internal Vector2 DrawingOrigin => MapOrigin;
+    internal void AttachDrawingTools(MegaCrit.Sts2.Core.Nodes.Screens.Map.NMapScreen native) =>
+        drawingTools ??= JigsawDrawingTools.Attach(this, canvas, paper, native);
+    internal void BeginDrawingCapture() => drawingCapture = true;
+    internal void EndDrawingCapture() => drawingCapture = false;
     private int helpIndex;
     private readonly Theme adaptiveTheme = new();
     private JigsawNativeArt art = null!;
@@ -588,6 +597,9 @@ public partial class JigsawScreen : Control
         if (!IsVisibleInTree() || tutorialPaused)
             return;
         AdvanceTime(delta);
+        drawingTools?.Update(map.Phase == JigsawPhase.Exploring);
+        explorationNotice.OffsetBottom = drawingTools == null ? -20 : -90;
+        explorationNotice.OffsetTop = explorationNotice.OffsetBottom - 70;
         explorationNotice.Visible = map.Phase == JigsawPhase.Exploring;
         explorationNotice.Text = errorRemaining > 0 ? dialog.Text : CurrentInstruction();
         hints.Visible = false;
@@ -700,8 +712,8 @@ public partial class JigsawScreen : Control
             return new Rect2(min, max - min);
         }
     }
-    private float Cell => Math.Max(40 * Math.Max(.75f, Size.Y / 1080f), Math.Min(26 * Math.Max(1, Size.Y / 720), Math.Min(Math.Max(1, canvas.Size.X - 48) / ContentBounds.Size.X, Math.Max(1, canvas.Size.Y - 48) / ContentBounds.Size.Y))) * zoom;
-    private Vector2 MapOrigin => canvas.Size / 2 + pan - ContentBounds.GetCenter() * Cell;
+    private float Cell => drawingCapture ? 48 : Math.Max(40 * Math.Max(.75f, Size.Y / 1080f), Math.Min(26 * Math.Max(1, Size.Y / 720), Math.Min(Math.Max(1, canvas.Size.X - 48) / ContentBounds.Size.X, Math.Max(1, canvas.Size.Y - 48) / ContentBounds.Size.Y))) * zoom;
+    private Vector2 MapOrigin => canvas.Size / 2 + (drawingCapture ? Vector2.Zero : pan) - ContentBounds.GetCenter() * Cell;
     public Vector2 GridToCanvas(GridPoint p) => MapOrigin + new Vector2(p.X, -p.Y) * Cell;
     private GridPoint CanvasToGrid(Vector2 p) => GridPoint.Snap((p.X - MapOrigin.X) / Cell, -(p.Y - MapOrigin.Y) / Cell);
     private JigsawNode? Hit(Vector2 p) => map.Nodes.OrderBy(n => (GridToCanvas(n.Center) - p).LengthSquared()).FirstOrDefault(n => Math.Abs(GridToCanvas(n.Center).X - p.X) <= Cell * (n.Radius + .55f) && Math.Abs(GridToCanvas(n.Center).Y - p.Y) <= Cell * (n.Radius + .55f));
@@ -745,6 +757,15 @@ public partial class JigsawScreen : Control
             (MegaCrit.Sts2.Core.Nodes.Screens.Overlays.NOverlayStack.Instance?.Peek() as Control)?.IsVisibleInTree() == true)
             return;
         if (NModalContainer.Instance?.OpenModal != null)
+            return;
+        if (drawingTools?.IsSharing == true)
+        { GetViewport()?.SetInputAsHandled(); return; }
+        if (drawingTools?.IsDrawing == true &&
+            (ev.IsActionPressed(MegaInput.viewMap) || ev.IsActionPressed(MegaInput.cancel) ||
+             ev.IsActionPressed(MegaInput.pauseAndBack) ||
+             ev is InputEventKey { Pressed: true, PhysicalKeycode: Key.Escape }))
+            drawingTools.Stop();
+        if (drawingTools?.IsDrawing == true)
             return;
         if (CanReturnToRoom && ev.IsActionPressed(MegaInput.viewMap))
         { returnToRoom!(); GetViewport()?.SetInputAsHandled(); return; }

@@ -25,6 +25,13 @@ internal static class JigsawWaitForSafeExit
         {
             await session.WaitForSave();
             await JigsawTreasureExitDrain.Wait(session, menu);
+            if (RunManager.Instance.ShouldSave && !RunManager.Instance.IsAbandoned &&
+                JigsawMapDrawingSave.CurrentDrawings()?.GetSerializableMapDrawings().drawings.Count > 0)
+            {
+                // A stroke or clear may be the only change since the last room save.
+                await SaveManager.Instance.SaveRun(session.Native.CurrentRoom is { IsPreFinished: true } finished ? finished : null);
+                await session.WaitForSave();
+            }
         }
         catch (Exception)
         {

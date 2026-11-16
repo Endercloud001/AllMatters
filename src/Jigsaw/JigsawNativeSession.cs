@@ -306,6 +306,8 @@ public sealed class JigsawNativeSession
             screen.TreeExiting += ReleaseHotkeys;
         }
         screen.SetMap(Map, Native.Act);
+        if (NMapScreen.Instance is { } drawingMap)
+            screen.AttachDrawingTools(drawingMap);
         screen.SetRoomPreview(Map.CurrentNode != null || Map.Phase == JigsawPhase.Ancient && !AncientReady && Native.CurrentRoom is EventRoom ? HideMap : null);
         if (!blockingHotkeys)
         {
@@ -1319,6 +1321,7 @@ public sealed class JigsawNativeSession
     private static async Task LoadCheckpoint(SerializableRun checkpoint, RunState restored,
         IReadOnlyCollection<ulong>? active = null, long round = 0)
     {
+        JigsawMapDrawingSave.PreserveForRecovery(checkpoint, restored);
         if (SaveSession is { } previous)
             await JigsawNativeExploration.DrainTreasureTasks(previous);
         if (active != null)

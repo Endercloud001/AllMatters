@@ -86,6 +86,8 @@ internal static class HelloWorldTests
                 .Concat(NativeMuseumOfTortureTests.Cases)
 #endif
                 .Concat(JigsawHuntingRestRelicTests.Cases)
+                .Concat(JigsawMapDrawingSaveTests.Cases)
+                .Concat(JigsawDrawingToolsTests.Cases)
                 .Concat(JigsawHuntingActTwoTests.Cases)
                 .Concat(JigsawHuntingHiveRecoveryTests.Cases)
                 .Concat(JigsawKnowledgeUiTests.Cases)
