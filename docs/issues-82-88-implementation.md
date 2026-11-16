@@ -108,3 +108,23 @@ Mystic正式节点+协调器+真实牌视觉链在0.6.14最终strict通过，归
 最终同一源码`14c935188d43aa7cb0082b7e6235e001bf27372b`的`Check.ps1 -Branch All`已退出0，资源、脚本、空白、双版完整宿主及Release构建均PASS，进程已结束。beta669（Build/Host0，Engine26，Metadata0）归档`run-20261116-105950642-199a7d0e4d1141f391fa1993568d0876`；public671（同为0/0、26/0）归档`run-20261116-113834407-29d4c94cc5914de58159cef3809cf1cb`，均在集成树`.local/tests/archives/`。完整控制台`.local/issue88-manual2/full-check-14c9351.log`。beta诊断逐条与前批相同，public仅故意坏档负例的隔离文件时间戳不同，归一后无差异；不称零诊断。完整执行涵盖新增Torch各2、真实Crab→Knowledge控制台、Hive三负面、荣耀15与原暗港14、Queen/实验体布局及恢复消费者；没有因窄核绿灯省略既有完整交付要求。
 
 统一交付两目标目录各5文件，DLL ProductVersion均`0.1.1+14c935188d43aa7cb0082b7e6235e001bf27372b`（public1,077,760字节，beta1,074,176字节），PCK各85,203,232字节并与前批已核资源逐字节一致；LICENSE/THIRD_PARTY_NOTICES与仓库原件一致，manifest仍声明STS2-RitsuLib。替换前的226c4e9五文件分别备份在`.local/issue88-manual2/previous-delivery/AllMatters-{public,public-beta}/`，未动更早备份和用户handoff文档。完整宿主依赖0.6.11，0.6.14仅按上文窄证据记载。实机安装、旧黑屏跑局恢复、连续精英/事件、跨幕、暗滤镜及新外观仍由用户按指南复测；Mystic回血待带动作快照的新日志，不因本包重新签为通过。
+
+## 第三批反馈实施（2026-11-16）
+
+已按用户确认规则实施，见[第三批计划](plans/2026-11-16-issue88-manual3.md)及[人工反馈](batch-6-test-guide.md#第三批人工反馈与确认规则2026-11-16)。
+
+`6f8d463` 启用目标beta标准/恐惧，保留每日、极速和自定义原生流程。靴/罗盘回到先古候选，首次拾取当幕全队上限与余额同时加3，保留已激活追猎，恢复保留当幕已加标记。独立双轴审查发现命令可设 int.MaxValue，首次拾取的余额加法已封顶并核双版边界。模式树 `.local/tests/archives/manual3-mode-*` 归档包含行为red、双版4例、实际ENet启动矩阵、先古候选与恢复。
+
+`34cd003` 第二幕合法手拼或自动采纳时产生共享藏宝图标箱；无箱原生可见移卡，晚取卡不补标；标箱按各owner抵达时牌数走原生每张600，追猎只跳过原普通收入，保留整份进房前恢复点。皮草每幕全队一次按版本取7/8，开场和召唤只设当前HP。两版标记树 `.local/tests/archives/manual3-final-*` 严格验证7个新增用例和11个旧宝箱用例。图标从原生场景属性读取，避免实例化原生节点造成测试宿主脚本装载诊断；集成双版真实纹理断言见 `manual3-merged-icon-state-20261116-150721561-b9e982785024453a831b1a356695e895`。正式地图上图标观感与无箱提示画面待实机。
+
+同提交 Mystic CAST 使用原STS1普攻的前冲表现（治疗抬杖），向原生预览提交实际进入弃牌堆的卡；用户已确认旧塞牌正确，清除临时诊断。两版Mystic各8 strict含真实弃牌结果/预览对象/RNG验证，见集成归档 `manual3-mystic-20261116-150315222-842219b86375412bb53becfd4690d24d`。细看两条中文描述改为指定文案。前冲和卡牌提示画面仍交实机核对。
+
+联机宝箱旧夹具原在第一幕入房后硬写原生任务坐标，与第三批规格冲突。第一次全量已主动停止；`d223dda` 把夹具迁为第二幕进房前有正式逻辑标箱的保存，保留真 ENet 两端等待、卡牌移除及重载检查，断言只给持牌者600且不支付追猎的普通金币。双版严格各1通过，见 `manual3-merged-treasure-enet-20261116-151027074-f3b0ff2d74a34120a2cbc76079a3c918`。最终完整检查按 `d223dda` 重启，控制台 `.local/issue88-manual3/full-check-d223dda.log`。
+
+候选d223dda的beta完整680通过，public在deferred Ancient旧测试夹具失败。新候选恢复先古池后抽到原生万花筒，旧夹具仅支持牌组选卡，并把真实奖励消耗RNG误列为继续流程错误。夹具现支持原生奖励选卡并在奖励完成后采样RNG，继续后核对其保持；地图步骤/历史与已完成玩家DTO及下一次原生重载断言均保留。双版该用例strict各1通过，归档 `manual3-deferred-reward-rng-20261116-160026598-9f023b74c62049ada4f9803854ff439d`。失败完整归档 public `run-20261116-155127269-43651927a3e04693bfc973056b464e14`，beta `run-20261116-151215712-d1f76fc0a9ee4eb8b76c1e7ca9384638`，不得将此轮记为完整PASS。
+
+候选dbd52fc完整beta680再次通过，public已过deferred Ancient后在FirstRoomFlow旧夹具强选PRECISE_SCISSORS失败。日志实际可选FISHING_ROD/ARCANE_SCROLL/SILKEN_TRESS，现统一选择两版都有的ARCANE_SCROLL，验证实际新增一张原生Rare、原卡保留，完整DTO/RNG回滚与重放断言保留。双版实际奖励回调strict各1通过（manual3-actual-reward-scroll-20261116-165103956-167174dbdab64c1482a731b986efc8dc）。网络deferred的强选是已显式ForceReward注入，核后保留。此轮完整失败归档不能代签最终通过。
+
+最终源码 `3f2059377a9281b0d0bbadff4658f0f429c1077d` 完成两版全量。原 `full-check-3f20593.log` 归档 beta 680通过（`run-20261116-165328286-a2a9c25d4cad4b72afd76bf39774fa21`），public在帝皇蟹布局期间进程中断、无完成摘要。以相同提交重跑 `Check.ps1 -Branch public`，全部步骤PASS，public 682通过（`run-20261116-175745206-5569e9f4fad4477ba22e36c791bf96da`）。随后以相同提交及新导出PCK执行beta构建，成功完成。两版测试构建/宿主0/0、Engine26、Metadata0；诊断与前批相同类别，public两条中文输出仅控制台编码不同。恢复检查、beta构建和交付核对日志分别为 `public-resume-3f20593.log`、`beta-build-3f20593.log`、`package-result.log`，均在 `.local/issue88-manual3/`。构建使用项目默认Debug配置。
+
+第三批统一目录每目标五文件。两版DLL产品版本皆 `0.1.1+3f2059377a9281b0d0bbadff4658f0f429c1077d`，public DLL 1,091,584字节、beta DLL 1,088,512字节，两版PCK均85,203,520字节；已逐文件核对构建输出与交付副本、manifest依赖及许可证原件。第二批包已备份到 `.local/issue88-manual3/previous-delivery/`。实机按指南确认新模式、当幕步数、地图标记和战斗反馈。
