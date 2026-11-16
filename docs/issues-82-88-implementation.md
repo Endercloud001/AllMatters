@@ -172,3 +172,9 @@ Mystic正式节点+协调器+真实牌视觉链在0.6.14最终strict通过，归
 两轴独立只读审查通过。双版地图UI各22 strict通过，归档manual6-ui-merged-20261116-234852677-93e486b6c5c04b868e51829a49f828be，包含Capstone打开时真实引擎卡牌按钮点击不投地图票、左下提示位置及实际原生波纹颜色/中心/释放。Peck双语普通/升级描述及攻击结算各2 strict通过，归档manual6-peck-final-20261116-234028892-cf63339b7b9044edb4bceacfc0d7c171。两版Engine/Metadata均0/0。UI夹具使用前景按钮代表卡牌，实际完整牌组界面和真实多人音效/广播按第六轮指南复验。原生卡牌未升级时调用升级预览API仍显示其当前3次，测试按实际动态变量状态断言，升级卡为4次。
 
 双版默认Debug构建通过，日志.local/issue88-manual6/build-{beta,public}.log。统一交付五文件已逐项核对，版本0.1.1+f4ea117c86e140372e9a13a627ec23ce0e1c1493，第五轮包保存于.local/issue88-manual6/previous-delivery/。
+
+## 地图绘画恢复（2026-11-17）
+
+第六轮问题经用户实测通过。拼图探索复用唯一一层原生 NMapDrawings 与其画笔、擦除、清空、网络和原生序列化。一键清空后同帧存档也会移除待销毁笔迹。战前检查点回退保留当前幕新笔迹，恢复层按原生归一化坐标换算，保存并退出时补写当前绘画。beta 使用原版分享，public 0.107.1 使用 Godot 导出全景 PNG。
+
+源码 fbc47fc8f1f2000d54032bfd12168f33b13b43fd 两版绘画1、保存3、地图UI22均严格通过。归档 drawing-final-tools-20261117-010002324-419570e46db54fa0aaf16efc1f6f8615、drawing-exit-20261117-005905206-3dd9bbe785c349a29b9d5a882d9831ee、drawing-presentation-20261117-010018053-f095e724a7554b119e0de06f7adf3e2b。public OpenGL 宿主导出含笔迹的1280×720全景图，证据在 .local/issue88-drawing/public-panorama.png。双版构建和五文件统一交付核对通过。beta平台服务写入及真实多人绘画按复测指南验收。
