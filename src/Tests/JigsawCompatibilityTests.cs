@@ -11,7 +11,7 @@ using MegaCrit.Sts2.Core.Unlocks;
 internal static class JigsawCompatibilityTests
 {
     internal static readonly (string Name, Func<Task> Test)[] Cases =
-    [ ("Jigsaw compatibility Ancient excludes Compass before three native draws and preserves ordinary offers", Ancient) ];
+    [ ("Jigsaw compatibility Ancient retains Boots Compass candidates and native draws", Ancient) ];
 
     private sealed record Offer(string[] Choices, string[] Candidates, ulong Random, bool Boots, bool Compass);
 
@@ -55,13 +55,13 @@ internal static class JigsawCompatibilityTests
             NativeEventTests.Check(ordinary.Choices.SequenceEqual(ordinaryAgain.Choices) &&
                 ordinary.Candidates.SequenceEqual(ordinaryAgain.Candidates) && ordinary.Random == ordinaryAgain.Random,
                 "Entering and leaving jigsaw cannot change ordinary Ancient offers or their random state.");
-            NativeEventTests.Check(jigsaw.Candidates.SequenceEqual(ordinary.Candidates.Where(id => id != "GOLDEN_COMPASS")),
-                "Only Golden Compass is removed from the real Ancient candidates, preserving every other candidate's order.");
-            NativeEventTests.Check(!jigsaw.Choices.Contains("GOLDEN_COMPASS") &&
+            NativeEventTests.Check(jigsaw.Candidates.SequenceEqual(ordinary.Candidates),
+                "Golden Compass remains in the real Ancient candidates in original order.");
+            NativeEventTests.Check(jigsaw.Choices.SequenceEqual(ordinary.Choices) &&
                 jigsaw.Choices.Take(2).SequenceEqual(ordinary.Choices.Take(2)) && jigsaw.Random == ordinary.Random,
                 "The other two pools and the native three draws stay unchanged, without a Compass reroll.");
-            NativeEventTests.Check(ordinary.Boots && !jigsaw.Boots && !jigsaw.Compass,
-                "Both prohibited relics are excluded before Neow selection only in jigsaw.");
+            NativeEventTests.Check(ordinary.Boots && jigsaw.Boots && jigsaw.Compass,
+                "Both relics remain eligible before native Neow selection.");
         }
         NativeEventTests.Check(ordinaryCompass, "The fixed ordinary inputs really include a Golden Compass offer.");
     }

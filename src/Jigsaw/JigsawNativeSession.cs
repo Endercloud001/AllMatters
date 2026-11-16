@@ -203,17 +203,37 @@ public sealed class JigsawNativeSession
         { OnEdited(); RefreshEditor(); }
     }
 #endif
+    internal void ApplyStepRelicPickup()
+    {
+        EnsureActMap();
+        if (Map!.ApplyStepRelicBonus())
+        {
+            JigsawCheckpoint.Capture(Native, Map);
+            Changed?.Invoke();
+        }
+    }
+
+    private bool actMasksPending;
+    private bool EnsureActMap()
+    {
+        if (act == Native.CurrentActIndex && Map != null)
+            return false;
+        act = Native.CurrentActIndex;
+        int seed = unchecked((int)Native.Rng.Seed);
+        Map = JigsawRun.Create(unchecked(seed + act * 7919), 15 - Math.Min(2, act),
+            act == 2 && Native.AscensionLevel >= 10, ActivePlayerIds, Native.Players.Select(p => p.NetId));
+        actMasksPending = true;
+        return true;
+    }
+
     public async Task StartAct()
     {
         AttachLobby();
-        if (act != Native.CurrentActIndex || Map == null)
+        EnsureActMap();
+        if (actMasksPending)
         {
-            act = Native.CurrentActIndex;
-            // Own deterministic stream: observing/using native content RNG is unnecessary.
-            int seed = unchecked((int)Native.Rng.Seed);
-            Map = JigsawRun.Create(unchecked(seed + act * 7919), 15 - Math.Min(2, act),
-                act == 2 && Native.AscensionLevel >= 10, ActivePlayerIds, Native.Players.Select(p => p.NetId));
             await JigsawHuntingNative.SynchronizeMasks(this);
+            actMasksPending = false;
         }
         SyncActivePlayers();
         if (Native.CurrentRoom is not MapRoom)
@@ -1490,11 +1510,13 @@ internal static class JigsawEnableNewRun
 {
     private static void Postfix(RunState state, DateTimeOffset? dailyTime)
     {
-        if (JigsawPreferences.Enabled && dailyTime == null && state.GameMode == GameMode.Standard
-#if !STS2_PUBLIC
-            && !state.IsCustomGame
+        if (JigsawPreferences.Enabled && JigsawNewRunMode.IsEligible(state.GameMode, dailyTime,
+#if STS2_PUBLIC
+            false
+#else
+            state.IsCustomGame
 #endif
-            )
+        ))
             JigsawNativeSession.Enable(state);
     }
 }

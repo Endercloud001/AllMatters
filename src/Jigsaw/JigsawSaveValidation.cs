@@ -6,6 +6,7 @@ internal static class JigsawSaveValidation
     {
         void Require(bool condition, string reason)
         { if (!condition) throw new ArgumentException(reason, nameof(save)); }
+        Require(save.StepRelicBonus is 0 or 3 && save.Budget >= save.StepRelicBonus, "Invalid step relic bonus.");
         Require(Enum.IsDefined(save.Phase), "Unknown phase.");
         Require(save.Hunting is { RemainingSteps: >= 0 }, "Missing or invalid hunting state.");
         Require(save.Hunting!.RootHunted == false || save.CurrentNode != null, "Punished root requires a current room.");

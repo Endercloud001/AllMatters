@@ -252,7 +252,7 @@ internal static class JigsawNativeTests
                     RunManager.Instance.SetUpNewSingleplayer(native,false);
                     Require((JigsawNativeSession.Current!=null)==enabled,"New single-player run reads the current mod setting without a character-selection switch.");
                     bool boots=ModelDb.Relic<MegaCrit.Sts2.Core.Models.Relics.WingedBoots>().IsAllowedAtNeow(native.Players[0]);
-                    Require(boots!=enabled,"Winged Boots remains available at ordinary Neow, but is excluded for jigsaw Neow.");
+                    Require(boots,"Winged Boots remains eligible at Neow in both modes.");
                 }
                 finally {RunManager.Instance.CleanUp(false);}
             }
@@ -269,7 +269,7 @@ internal static class JigsawNativeTests
       ("Jigsaw native lobby canonicalization and response preserve checkpoint", ()=>CanonicalLobby()),
       ("Jigsaw native lobby rejects a substituted saved player", ()=>CanonicalLobby(true,true)),
       ("Jigsaw native two-player lobby canonicalization preserves full save", ()=>CanonicalLobby(true)),
-      ("Jigsaw native settings own new runs and exclude Neow boots", SettingsAndNeow),
+      ("Jigsaw native settings own new runs and retain Neow boots", SettingsAndNeow),
       ("Jigsaw native profile and progress schemas stay independent", IndependentSaveSchemas),
       ("Jigsaw native saves serialize pending native writes and exit waits latest", SerializedWrites),
       ("Jigsaw native queued successful save recovers prior write failure", ()=>SerializedWrites(true)),
@@ -811,7 +811,7 @@ internal static class JigsawNativeTests
                 $"Manual success enters the real native Ancient reward room. Actual room={native.CurrentRoom?.GetType().Name}, phase={map.Phase}, ready={session.AncientReady}, eventFinished={RunManager.Instance.EventSynchronizer.GetLocalEvent()?.IsFinished}, options={RunManager.Instance.EventSynchronizer.GetLocalEvent()?.CurrentOptions.Count}.");
             var ancient=RunManager.Instance.EventSynchronizer.GetLocalEvent();
             Require(ancient is AncientEventModel && ancient.CurrentOptions.Count>0,"Native Ancient exposes real personal reward options.");
-            Require(ancient.CurrentOptions.All(o=>o.Relic is not MegaCrit.Sts2.Core.Models.Relics.WingedBoots),"Actual jigsaw Ancient reward options exclude Winged Boots before selection.");
+            Require(ModelDb.Relic<MegaCrit.Sts2.Core.Models.Relics.WingedBoots>().IsAllowedAtNeow(native.Players[0]),"Winged Boots remains eligible during the real jigsaw Ancient reward room.");
             Console.WriteLine("JIGSAW Ancient options: "+string.Join(",",ancient.CurrentOptions.Select(o=>o.Relic?.Id.Entry ?? o.TextKey)));
             if(partialAncient)
             {
