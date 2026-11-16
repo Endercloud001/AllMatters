@@ -1,4 +1,5 @@
 using Godot;
+using AllMatters.Vfx;
 using MegaCrit.Sts2.Core.Animation;
 using MegaCrit.Sts2.Core.Bindings.MegaSpine;
 using MegaCrit.Sts2.Core.Commands;
@@ -21,8 +22,13 @@ public sealed class TorchHead : ModMonsterTemplate
     public override int MinInitialHp => 50;
     public override int MaxInitialHp => 50;
     public override MonsterAssetProfile AssetProfile => new("res://AllMatters/monsters/torch_head/torch_head.tscn");
-    protected override NCreatureVisuals? TryCreateCreatureVisuals() =>
-        RitsuGodotNodeFactories.CreateFromScene<NCreatureVisuals>(ResourceLoader.Load<PackedScene>(CustomVisualsPath!));
+    protected override NCreatureVisuals? TryCreateCreatureVisuals()
+    {
+        var visuals = RitsuGodotNodeFactories.CreateFromScene<NCreatureVisuals>(ResourceLoader.Load<PackedScene>(CustomVisualsPath!));
+        if (visuals != null)
+            TorchHeadFlame.Attach(visuals);
+        return visuals;
+    }
 
     public override async Task AfterAddedToRoom()
     {
