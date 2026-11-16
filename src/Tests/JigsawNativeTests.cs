@@ -777,6 +777,17 @@ internal static class JigsawNativeTests
         finally { RunManager.Instance.CleanUp(false); }
     }
 
+    private sealed class FirstRoomRewardSelector : MegaCrit.Sts2.Core.TestSupport.ICardSelector
+    {
+        public Task<IEnumerable<CardModel>> GetSelectedCards(IEnumerable<CardModel> options, int minSelect, int maxSelect) =>
+            Task.FromResult(options.Take(minSelect));
+
+        public MegaCrit.Sts2.Core.TestSupport.CardRewardSelection GetSelectedCardReward(
+            IReadOnlyList<MegaCrit.Sts2.Core.Entities.Cards.CardCreationResult> options,
+            IReadOnlyList<MegaCrit.Sts2.Core.Entities.CardRewardAlternatives.CardRewardAlternative> alternatives) =>
+            new() { card = options[0].Card };
+    }
+
     private static async Task FirstRoomFlow(bool completeTreasure,bool partialAncient=false,bool finishedAncient=false,bool actualPartial=false,EntryFailureKind entryFailure=EntryFailureKind.None,bool transition=false,bool legacyAncient=false,bool preview=false,bool laggedAncient=false)
     {
         using var atlases=HeadlessTestSetup.LoadAtlases("card_atlas","relic_atlas");
@@ -858,24 +869,14 @@ internal static class JigsawNativeTests
                 Require(!current.IsFinished && !session.AncientReady &&
                     System.Text.Json.JsonSerializer.Serialize(native.Players[0].ToSerializable()) != beforeReward,
                     "The actual native option has applied effects before event completion.");
-#if STS2_PUBLIC
-                Require(!native.Players[0].Deck.Cards.Contains(beforeRewardCards[0]),
-                    "The actual Precise Scissors option removes the selected card before Done.");
-#else
                 var addedCards = native.Players[0].Deck.Cards.Except(beforeRewardCards).ToArray();
-                Require(addedCards.Length == 1 && addedCards[0].Rarity == MegaCrit.Sts2.Core.Entities.Cards.CardRarity.Rare,
+                Require(addedCards.Length == 1 && addedCards[0].Rarity == MegaCrit.Sts2.Core.Entities.Cards.CardRarity.Rare &&
+                    beforeRewardCards.All(native.Players[0].Deck.Cards.Contains),
                     "The actual Arcane Scroll option adds one native rare card before Done.");
-#endif
                 interrupted = RunManager.Instance.ToSave(null);
             };
-            var option=ancient.CurrentOptions.Single(o=>o.Relic?.Id.Entry==
-#if STS2_PUBLIC
-                "PRECISE_SCISSORS"
-#else
-                "ARCANE_SCROLL"
-#endif
-            );
-            using(global::HeadlessNativeApi.UseSelector(new NativeEventTests.Select(native.Players[0].Deck.Cards.First()))) await option.Chosen();
+            var option=ancient.CurrentOptions.Single(o=>o.Relic?.Id.Entry=="ARCANE_SCROLL");
+            using(global::HeadlessNativeApi.UseSelector(native, new FirstRoomRewardSelector())) await option.Chosen();
             JigsawAncientRewardBoundaryHost.BeforeDone = null;
             Require(ancient.IsFinished && session.AncientReady && map.Phase==JigsawPhase.Exploring,"Real native option completion directly begins exploration without a Continue click.");
             if(laggedAncient)
@@ -906,7 +907,7 @@ internal static class JigsawNativeTests
                 Require(recovered.Map!.Placements.SequenceEqual(map.Placements) && !recovered.AncientReady,
                     "Native reload preserves the accepted map and reopens the unfinished Ancient choice.");
                 var restoredAncient = RunManager.Instance.EventSynchronizer.GetLocalEvent();
-                using (global::HeadlessNativeApi.UseSelector(new NativeEventTests.Select(rollback.Players[0].Deck.Cards.First())))
+                using (global::HeadlessNativeApi.UseSelector(rollback, new FirstRoomRewardSelector()))
                     await restoredAncient.CurrentOptions.Single(o => o.Relic?.Id.Entry == choice).Chosen();
                 var actualPlayer = System.Text.Json.JsonSerializer.Serialize(rollback.Players[0].ToSerializable());
                 var expected = JsonNode.Parse(completeReward)!.AsObject(); var actual = JsonNode.Parse(actualPlayer)!.AsObject();
