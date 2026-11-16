@@ -499,7 +499,7 @@ public sealed partial class JigsawRun
     {
         CompleteMapBossVictory();
     }
-    public JigsawSave CreateSave() => new(Pool.Select(p => p with { Nodes = p.Nodes.ToArray(), InternalEdges = p.InternalEdges.ToArray() }).ToArray(), placements.Values.ToArray(), external.ToArray(), Phase, Budget, players.ToArray(), Steps, FirstProgress, visited.ToArray(), completed.ToArray(), CurrentNode, PendingEntry, nextEntry, ancientCompleted.ToArray()) { OriginalPlayers = originalPlayers.ToArray(), StepRelicBonus = StepRelicBonus, Hunting = SaveHunting(), AutomaticWitness = AutomaticWitness is { } witness ? new(witness.Placements.ToArray(), witness.Edges.ToArray()) : null, AutomaticOperation = AutomaticOperation is { } operation ? operation with { CandidateOrder = operation.CandidateOrder.ToArray() } : null, GenerationRandomState = generationRandomState, DestinationRandomState = destinationRandomState, ResolvedRooms = resolvedRooms.Count == 0 ? null : new(resolvedRooms), ShopStates = shopInventories.Count > 0 ? shopInventories.ToDictionary(kv => $"{kv.Key.nodeId}_{kv.Key.playerId}", kv => (object)kv.Value) : null };
+    public JigsawSave CreateSave() => new(Pool.Select(p => p with { Nodes = p.Nodes.ToArray(), InternalEdges = p.InternalEdges.ToArray() }).ToArray(), placements.Values.ToArray(), external.ToArray(), Phase, Budget, players.ToArray(), Steps, FirstProgress, visited.ToArray(), completed.ToArray(), CurrentNode, PendingEntry, nextEntry, ancientCompleted.ToArray()) { OriginalPlayers = originalPlayers.ToArray(), StepRelicBonus = StepRelicBonus, Hunting = SaveHunting(), QuestMarkers = SaveQuestMarkers(), AutomaticWitness = AutomaticWitness is { } witness ? new(witness.Placements.ToArray(), witness.Edges.ToArray()) : null, AutomaticOperation = AutomaticOperation is { } operation ? operation with { CandidateOrder = operation.CandidateOrder.ToArray() } : null, GenerationRandomState = generationRandomState, DestinationRandomState = destinationRandomState, ResolvedRooms = resolvedRooms.Count == 0 ? null : new(resolvedRooms), ShopStates = shopInventories.Count > 0 ? shopInventories.ToDictionary(kv => $"{kv.Key.nodeId}_{kv.Key.playerId}", kv => (object)kv.Value) : null };
     public static JigsawRun Restore(JigsawSave save, IEnumerable<ulong>? activePlayers = null)
         => RestoreCore(save, activePlayers, allowDeferredAncient: false);
 
@@ -513,6 +513,7 @@ public sealed partial class JigsawRun
         var run = new JigsawRun(save.Pool, save.Budget, save.OriginalPlayers ?? save.Players) { StepRelicBonus = save.StepRelicBonus, Phase = save.Phase, Steps = save.Steps, FirstProgress = save.FirstProgress, CurrentNode = save.CurrentNode, PendingEntry = save.PendingEntry, nextEntry = save.NextEntry, currentEntry = save.CurrentNode == null ? null : save.NextEntry };
         run.players.IntersectWith(save.Players);
         run.RestoreHunting(save.Hunting!);
+        run.RestoreQuestMarkers(save.QuestMarkers);
         foreach (var p in save.Placements)
             run.placements.Add(p.PieceId, p);
         run.external.AddRange(save.ExternalEdges);

@@ -31,6 +31,24 @@ internal sealed class JigsawNativeArt(ActModel? act)
          _ => "map_unknown"
      }) + ".tres");
     internal static Texture2D Load(string path) => ResourceLoader.Load<Texture2D>("res://images/" + path);
+    private static Texture2D? questMarker;
+    internal static Texture2D QuestMarker()
+    {
+        if (questMarker != null)
+            return questMarker;
+        var scene = ResourceLoader.Load<PackedScene>(MegaCrit.Sts2.Core.Helpers.SceneHelper.GetScenePath("/ui/normal_map_point"));
+        var state = scene.GetState();
+        for (int node = 0; node < state.GetNodeCount(); node++)
+        {
+            if (state.GetNodeName(node) != "QuestIcon")
+                continue;
+            for (int property = 0; property < state.GetNodePropertyCount(node); property++)
+                if (state.GetNodePropertyName(node, property) == "texture" &&
+                    state.GetNodePropertyValue(node, property).AsGodotObject() is Texture2D texture)
+                    return questMarker = texture;
+        }
+        throw new InvalidOperationException("The native map point scene has no QuestIcon texture.");
+    }
     internal static Texture2D MapDecoration(string name) => Load(
 #if STS2_PUBLIC
         "atlases/compressed.sprites/map/"

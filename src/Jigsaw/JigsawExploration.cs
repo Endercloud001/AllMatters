@@ -141,8 +141,9 @@ internal static class JigsawNativeExploration
         TreasureSource(session, player).TrySetResult();
     }
 
-    private static bool IsHuntedTreasure(JigsawNativeSession session) =>
-        session.Map is { CurrentRoomHunted: true, CurrentNode: not null } && session.Native.CurrentRoom is TreasureRoom;
+    internal static bool IsTrackedTreasure(JigsawNativeSession session) =>
+        session.Map is { CurrentNode: not null } map && (map.CurrentRoomHunted || map.IsSpoilsDestination) &&
+        session.Native.CurrentRoom is TreasureRoom;
     internal static void TreasureTaskBegan(JigsawNativeSession session, ulong player, Task task)
     {
         var key = (Entry(session), player);
@@ -162,7 +163,7 @@ internal static class JigsawNativeExploration
 
     internal static void StopNewTreasureTasks(JigsawNativeSession session)
     {
-        if (IsHuntedTreasure(session))
+        if (IsTrackedTreasure(session))
             State(session).DrainingTreasure = true;
     }
 
@@ -238,7 +239,7 @@ internal static class JigsawNativeExploration
         {
             if (State(session).RewardSelections.TryGetValue((entry, player), out var selections))
                 await Task.WhenAll(selections.Where(task => !task.IsCompleted).ToArray()).WaitAsync(session.ClosedToken);
-            if (IsHuntedTreasure(session))
+            if (IsTrackedTreasure(session))
                 await TreasureSource(session, player).Task.WaitAsync(session.ClosedToken);
             Task[] observed;
             do
@@ -286,7 +287,7 @@ internal static class JigsawNativeExploration
         var nativePlayer = session.Native.Players.FirstOrDefault(candidate => candidate.NetId == player);
         if (nativePlayer == null)
             return false;
-        if (checkRewards && (IsHuntedTreasure(session) && !TreasureSource(session, player).Task.IsCompletedSuccessfully ||
+        if (checkRewards && (IsTrackedTreasure(session) && !TreasureSource(session, player).Task.IsCompletedSuccessfully ||
             TreasureTasks(session, player).Any(task => !task.IsCompletedSuccessfully)))
             return false;
         if (checkRewards && State(session).RewardSets.TryGetValue((Entry(session), player), out var ids) &&

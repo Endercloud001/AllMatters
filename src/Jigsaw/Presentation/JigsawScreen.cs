@@ -925,6 +925,8 @@ public partial class JigsawScreen : Control
             var ring = icon.GetChild<Sprite2D>(0);
             ring.Visible = !preview && map.Visited.Contains(n.Id) && n.Room is not (JigsawRoom.Shop or JigsawRoom.Ancient);
             ring.Scale = Vector2.One * (Math.Max(icon.Texture.GetWidth(), icon.Texture.GetHeight()) * 1.4f / Math.Max(ring.Texture.GetWidth(), ring.Texture.GetHeight()));
+            if (!preview && (map.SpoilsNode == n.Id || map.HasFurMarker(n.Id)))
+                target.DrawTextureRect(JigsawNativeArt.QuestMarker(), new Rect2(at + new Vector2(size * .15f, -size * .65f), Vector2.One * size * .55f), false);
         }
 
     }

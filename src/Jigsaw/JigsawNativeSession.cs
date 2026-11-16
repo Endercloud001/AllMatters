@@ -418,6 +418,7 @@ public sealed class JigsawNativeSession
     {
         if (Map == null)
             return;
+        JigsawNativeQuestMarkers.Prepare(this);
         // Reading help during a live room is not a new complete native point.
         // Keep native's pre-roll checkpoint until a native reward save or completion.
         if (Map.CurrentNode != null || Map.PendingEntry != null)
@@ -438,10 +439,17 @@ public sealed class JigsawNativeSession
             while (pendingEditSave && Current == this)
             {
                 pendingEditSave = false;
-                if (!RunManager.Instance.ShouldSave)
-                    continue;
                 try
                 {
+                    var map = Map;
+                    bool removalPending = map?.NoChestRemovalPending == true;
+                    await JigsawNativeQuestMarkers.Drain(this);
+                    if (Current != this || !ReferenceEquals(Map, map))
+                        continue;
+                    if (removalPending && map is { CurrentNode: null, PendingEntry: null })
+                        JigsawCheckpoint.Capture(Native, map);
+                    if (!RunManager.Instance.ShouldSave)
+                        continue;
                     await SaveManager.Instance.SaveRun(Native.CurrentRoom is { IsPreFinished: true } finished ? finished : null);
                 }
                 catch (Exception error) { saveFailure = error; }
@@ -626,6 +634,8 @@ public sealed class JigsawNativeSession
             return JigsawResult.Reject("旧自动任务不能提交。");
         automaticApplied ??= new(TaskCreationOptions.RunContinuationsAsynchronously);
         var accepted = map.FinishAutomatic(operation, layout);
+        if (accepted.Success)
+            JigsawNativeQuestMarkers.FinalizeMap(this);
         if (GodotObject.IsInstanceValid(screen))
         {
             screen?.SetGenerating(false);
@@ -641,6 +651,8 @@ public sealed class JigsawNativeSession
         if (Map == null)
             return;
         var result = Map.Inspect();
+        if (result.Success)
+            JigsawNativeQuestMarkers.FinalizeMap(this);
         screen?.ShowResult(result, manual: true);
         OnEdited();
         await WaitForSave();
@@ -654,6 +666,11 @@ public sealed class JigsawNativeSession
     {
         if (Map?.Phase != JigsawPhase.Ancient)
             return;
+        if (Map.NoChestRemovalPending)
+        {
+            OnEdited();
+            await WaitForSave();
+        }
         if (AncientReady)
         { ShowMap(); return; }
         BeforeAncient ??= JigsawSaveSource.Copy(RunManager.Instance.ToSave(null));
@@ -1212,7 +1229,7 @@ public sealed class JigsawNativeSession
 
     private void RetainRoomCheckpoint()
     {
-        if (Map is { CurrentRoomHunted: true } map && Native.CurrentRoom is TreasureRoom && entryCheckpoint != null)
+        if (Map is { } map && (map.CurrentRoomHunted || map.SpoilsNode == map.CurrentNode && map.SpoilsNode != null) && Native.CurrentRoom is TreasureRoom && entryCheckpoint != null)
         {
             treasureCheckpoint = JigsawSaveSource.Copy(entryCheckpoint);
             treasureCheckpointEntry = map.CreateSave().NextEntry;
@@ -1233,7 +1250,7 @@ public sealed class JigsawNativeSession
         Map is { CurrentNode: not null } map && Native.CurrentRoom is TreasureRoom &&
         map.CreateSave().NextEntry == treasureCheckpointEntry && !CompletedTreasureRoot ? treasureCheckpoint : null;
 
-    private bool CompletedTreasureRoot => treasureCheckpoint != null && Map is { CurrentNode: not null, CurrentRoomHunted: true } map && Native.CurrentRoom is TreasureRoom &&
+    private bool CompletedTreasureRoot => treasureCheckpoint != null && Map is { CurrentNode: not null } map && (map.CurrentRoomHunted || map.SpoilsNode == map.CurrentNode) && Native.CurrentRoom is TreasureRoom &&
         map.ActivePlayers.All(map.RoomCompletedPlayers.Contains) && JigsawNativeExploration.TreasureTasksFinished(this);
 
     private bool CompletedHolesRoot => ReferenceEquals(Current, this) && !ClosedToken.IsCancellationRequested && Map is { CurrentNode: not null, CurrentRoomHunted: true } map &&
@@ -1477,7 +1494,7 @@ internal static class JigsawTreasureOpenSignal
     }
     private static void Postfix(Task __result)
     {
-        if (JigsawNativeSession.Current is { Map.CurrentRoomHunted: true } session)
+        if (JigsawNativeSession.Current is { } session && JigsawNativeExploration.IsTrackedTreasure(session))
             JigsawNativeExploration.TreasureTaskBegan(session, RunManager.Instance.NetService.NetId, __result);
     }
 }

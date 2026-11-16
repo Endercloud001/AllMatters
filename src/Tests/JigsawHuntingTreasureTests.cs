@@ -33,11 +33,15 @@ using MegaCrit.Sts2.Core.Settings;
 using MegaCrit.Sts2.Core.ControllerInput;
 using MegaCrit.Sts2.Core.Nodes.Cards;
 using MegaCrit.Sts2.Core.Nodes.Pooling;
+using MegaCrit.Sts2.Core.Multiplayer.Game;
+using MegaCrit.Sts2.Core.Multiplayer.Messages.Lobby;
+using MegaCrit.Sts2.Core.Multiplayer.Transport.ENet;
+using MegaCrit.Sts2.Core.Platform;
 
 internal static class JigsawHuntingTreasureTests
 {
     internal static readonly (string Name, Func<Task> Test)[] Cases =
-    [ ("Jigsaw hunting treasure opens without gold while consuming Face and completing Spoils", Spoils),
+    [ ("Jigsaw hunting treasure pays marked Spoils while consuming Face", Spoils),
       ("Jigsaw hunting treasure without Face cancels native gold and shared relics only in punished roots", NativeRewards),
       ("Jigsaw hunting treasure waits for asynchronous extra reward hooks and preserves nonreward work", Extras),
       ("Jigsaw hunting treasure saves the whole before-open point while quest removal is suspended", Checkpoint),
@@ -52,18 +56,20 @@ internal static class JigsawHuntingTreasureTests
     private static void Check(bool value, string reason) => NativeEventTests.Check(value, reason);
     private static void Ok(JigsawResult result) => Check(result.Success, result.Reason);
 
-    private static JigsawRun Ready(bool hunted)
+    private static JigsawRun Ready(bool hunted, IEnumerable<ulong>? owners = null)
     {
-        var map = Enumerable.Range(0, 100).Select(seed => JigsawRun.Create(seed))
-            .First(run => run.Pool[0].Nodes[0].Room == JigsawRoom.Treasure);
+        var map = Enumerable.Range(0, 100).Select(seed => JigsawRun.Create(seed, players: owners))
+            .First(run => run.Pool[0].Nodes[0].Room == JigsawRoom.Treasure && run.Pool[0].Nodes.Count(n => n.Room == JigsawRoom.Treasure) == 1);
         Ok(map.Take(1, 0)); Ok(map.Drop(1, new(3, 0))); Ok(map.AddEdge(1, 0, 1));
-        Ok(map.ChooseEnd(1, EndChoice.Manual)); Ok(map.Inspect());
-        Ok(map.CompleteAncient(1)); Ok(map.Continue(1));
+        foreach (ulong owner in map.ActivePlayers) Ok(map.ChooseEnd(owner, EndChoice.Manual));
+        Ok(map.Inspect());
+        foreach (ulong owner in map.ActivePlayers) Ok(map.CompleteAncient(owner));
+        foreach (ulong owner in map.ActivePlayers) Ok(map.Continue(owner));
         if (hunted) Ok(map.SetRemainingSteps(0));
         return map;
     }
 
-    private static async Task WithTreasure(bool hunted, Func<JigsawNativeSession, TreasureRoom, Task> test, bool face = true, Action<RunState>? beforeEntry = null, bool shouldSave = false)
+    internal static async Task WithTreasure(bool hunted, Func<JigsawNativeSession, TreasureRoom, Task> test, bool face = true, Action<RunState>? beforeEntry = null, bool shouldSave = false, bool questAtFinalization = false, int owners = 1, bool secondAct = false)
     {
         JigsawHuntingNativeTests.RegisterScripts();
         using var atlases = HeadlessTestSetup.LoadAtlases("card_atlas", "relic_atlas", "ui_atlas", "compressed");
@@ -76,20 +82,72 @@ internal static class JigsawHuntingTreasureTests
         var previousSave = JigsawNativeSaveHost.Save;
         JigsawNativeSaveHost.Save = room => SaveTreasurePoint(hostSaves, "entry/setup", room);
         var player = Player.CreateForNewRun(ModelDb.Character<Ironclad>(), UnlockState.all, 1);
-        var native = RunState.CreateForTest([player], acts: [ModelDb.Act<Overgrowth>()], seed: "HUNTING_TREASURE_83");
-        RunManager.Instance.SetUpTest(native, new NetSingleplayerGameService(), shouldSave: shouldSave);
-        MegaCrit.Sts2.Core.Context.LocalContext.NetId = 1;
+        var players = new List<Player> { player };
+        for (int i = 1; i < owners; i++) players.Add(Player.CreateForNewRun(ModelDb.Character<Ironclad>(), UnlockState.all, (ulong)i + 1));
+        var native = RunState.CreateForTest(players, acts: [ModelDb.Act<Overgrowth>(), ModelDb.Act<Hive>()], seed: "HUNTING_TREASURE_83");
+        if (questAtFinalization || secondAct) native.CurrentActIndex = 1;
+        NetHostGameService? host = null;
+        NetClientGameService? client = null;
         try
         {
+            INetGameService service = new NetSingleplayerGameService();
+            if (owners > 1)
+            {
+                MegaCrit.Sts2.Core.Multiplayer.Serialization.MessageTypes.Initialize();
+#if STS2_PUBLIC
+                host = new NetHostGameService();
+                client = new NetClientGameService();
+#else
+                host = new NetHostGameService(PeerVersionInfo.LocalDefault());
+                client = new NetClientGameService(PeerVersionInfo.LocalDefault());
+#endif
+                using var socket = new System.Net.Sockets.UdpClient(0);
+                ushort port = (ushort)((System.Net.IPEndPoint)socket.Client.LocalEndPoint!).Port;
+                socket.Close();
+                Check(!host.StartENetHost(port, 1).HasValue, "The two native owners authenticate on a loopback host.");
+                host.ClientConnected += id => host.SetPeerReadyForBroadcasting(id);
+                var transport = new ENetClient(client);
+                client.Initialize(transport, PlatformType.None);
+                client.RegisterMessageHandler<InitialGameInfoMessage>((_, _) => { });
+                using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+                var connect = transport.ConnectToHost(2, "127.0.0.1", port, timeout.Token);
+                var tree = (SceneTree)Engine.GetMainLoop();
+                while (!timeout.IsCancellationRequested && (!connect.IsCompleted || host.ConnectedPeers.Count != 1 || !client.IsConnected))
+                {
+                    host.Update();
+                    client.Update();
+                    await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
+                }
+                Check(!timeout.IsCancellationRequested && !(await connect).HasValue &&
+                    host.NetId == 1 && host.ConnectedPeers.Single().peerId == 2, "Both original native owners are connected.");
+                service = host;
+            }
+            RunManager.Instance.SetUpTest(native, service, shouldSave: shouldSave);
+            MegaCrit.Sts2.Core.Context.LocalContext.NetId = 1;
             RunManager.Instance.GenerateRooms(); await RunManager.Instance.GenerateMap();
             native.AppendToMapPointHistory(MegaCrit.Sts2.Core.Map.MapPointType.Ancient, RoomType.Event, null);
             native.AddVisitedMapCoord(native.Map.StartingMapPoint.coord);
-            JigsawCheckpoint.Capture(native, Ready(hunted));
+            beforeEntry?.Invoke(native);
+            if (questAtFinalization && !player.Deck.Cards.OfType<SpoilsMap>().Any())
+                player.Deck.AddInternal(native.CreateCard<SpoilsMap>(player));
+            JigsawCheckpoint.Capture(native, Ready(hunted, native.Players.Select(p => p.NetId)));
             JigsawNativeSession.Restore(native);
             var session = JigsawNativeSession.Current!;
+            JigsawNativeQuestMarkers.FinalizeMap(session);
+            JigsawNativeQuestMarkers.Prepare(session);
+            JigsawCheckpoint.Capture(native, session.Map!);
             if (face) await RelicCmd.Obtain<NlothsHungryFace>(player);
-            beforeEntry?.Invoke(native);
-            await session.Enter(1);
+            if (owners == 1)
+                await session.Enter(1);
+            else
+            {
+                // The room is shared, while this host fixture runs native payments
+                // for both owners with no second RunManager in this process.
+                var entry = session.Map!.BeginEnter(1)!;
+                Ok(session.Map.ConfirmEnter(entry.Id));
+                native.AppendToMapPointHistory(MegaCrit.Sts2.Core.Map.MapPointType.Treasure, RoomType.Treasure, null);
+                native.PushRoom(new TreasureRoom(0));
+            }
             Check(native.CurrentRoom is TreasureRoom && session.Map!.CurrentRoomHunted == hunted,
                 "The native exploration entry confirms the real treasure room and its authoritative punishment snapshot.");
             await test(session, (TreasureRoom)native.CurrentRoom!);
@@ -97,6 +155,8 @@ internal static class JigsawHuntingTreasureTests
         finally
         {
             MegaCrit.Sts2.Core.Combat.CombatManager.Instance.Reset(true); RunManager.Instance.CleanUp(false);
+            if (client?.IsConnected == true) client.Disconnect(NetError.Quit);
+            if (host?.IsConnected == true) host.Disconnect(NetError.Quit);
             JigsawNativeSaveHost.Save = previousSave;
             persistence.UnpatchAll(persistence.Id);
         }
@@ -206,8 +266,6 @@ internal static class JigsawHuntingTreasureTests
         await WithTreasure(true, async (session, room) =>
         {
             var native = session.Native; var player = native.Players[0];
-            AccessTools.Property(typeof(SpoilsMap), nameof(SpoilsMap.SpoilsCoord)).SetValue(quest!, native.CurrentMapCoord);
-            native.CurrentMapPoint!.AddQuest(quest!);
             removing = quest; releaseRemoval = new(TaskCreationOptions.RunContinuationsAsynchronously);
             var fixture = new Harmony("AllMatters.Tests.HuntingTreasureRemoval");
             fixture.Patch(AccessTools.Method(typeof(Hook), nameof(Hook.BeforeCardRemoved)), postfix: new HarmonyMethod(typeof(JigsawHuntingTreasureTests), nameof(SuspendRemoval)));
@@ -234,7 +292,7 @@ internal static class JigsawHuntingTreasureTests
                 releaseRemoval.TrySetResult(); if (opening != null) await opening;
                 removing = null; releaseRemoval = null; fixture.UnpatchAll(fixture.Id);
             }
-        }, beforeEntry: native =>
+        }, questAtFinalization: true, beforeEntry: native =>
         {
             quest = native.CreateCard<SpoilsMap>(native.Players[0]); quest.SpoilsActIndex = native.CurrentActIndex;
             native.Players[0].Deck.AddInternal(quest);
@@ -244,10 +302,8 @@ internal static class JigsawHuntingTreasureTests
     private static Task Completion() => WithTreasure(true, async (session, room) =>
     {
         var player = session.Native.Players[0];
-        removing = session.Native.CreateCard<SpoilsMap>(player); player.Deck.AddInternal(removing);
+        removing = player.Deck.Cards.OfType<SpoilsMap>().Single();
         removing.SpoilsActIndex = session.Native.CurrentActIndex;
-        AccessTools.Property(typeof(SpoilsMap), nameof(SpoilsMap.SpoilsCoord)).SetValue(removing, session.Native.CurrentMapCoord);
-        session.Native.CurrentMapPoint!.AddQuest(removing);
         releaseRemoval = new(TaskCreationOptions.RunContinuationsAsynchronously);
         var fixture = new Harmony("AllMatters.Tests.HuntingTreasureCompletion");
         fixture.Patch(AccessTools.Method(typeof(Hook), nameof(Hook.BeforeCardRemoved)), postfix: new HarmonyMethod(typeof(JigsawHuntingTreasureTests), nameof(SuspendRemoval)));
@@ -262,7 +318,7 @@ internal static class JigsawHuntingTreasureTests
             Check(await completed && !player.Deck.Cards.Contains(removing), "After the real quest task finishes, the same completion request can proceed without a second click.");
         }
         finally { releaseRemoval.TrySetResult(); if (opening != null) await opening; removing = null; releaseRemoval = null; fixture.UnpatchAll(fixture.Id); }
-    });
+    }, questAtFinalization: true);
 
     private static Task SourceNotStarted() => WithTreasure(true, async (session, room) =>
     {
@@ -276,10 +332,8 @@ internal static class JigsawHuntingTreasureTests
     private static Task RecoveryDrain() => WithTreasure(true, async (session, room) =>
     {
         var native = session.Native; var player = native.Players[0];
-        removing = native.CreateCard<SpoilsMap>(player); player.Deck.AddInternal(removing);
+        removing = player.Deck.Cards.OfType<SpoilsMap>().Single();
         removing.SpoilsActIndex = native.CurrentActIndex;
-        AccessTools.Property(typeof(SpoilsMap), nameof(SpoilsMap.SpoilsCoord)).SetValue(removing, native.CurrentMapCoord);
-        native.CurrentMapPoint!.AddQuest(removing);
         releaseRemoval = new(TaskCreationOptions.RunContinuationsAsynchronously);
         var fixture = new Harmony("AllMatters.Tests.HuntingTreasureDrain");
         fixture.Patch(AccessTools.Method(typeof(Hook), nameof(Hook.BeforeCardRemoved)), postfix: new HarmonyMethod(typeof(JigsawHuntingTreasureTests), nameof(SuspendRemoval)));
@@ -306,7 +360,7 @@ internal static class JigsawHuntingTreasureTests
             if (reload != null) await reload;
             removing = null; releaseRemoval = null; extraSet = null; removalRunAfterResume = null; fixture.UnpatchAll(fixture.Id);
         }
-    });
+    }, questAtFinalization: true);
 
     private static void FailExtra(ref Task __result)
     {
@@ -360,10 +414,8 @@ internal static class JigsawHuntingTreasureTests
             await WithTreasure(true, async (session, room) =>
             {
                 var native = session.Native; var player = native.Players[0];
-                removing = native.CreateCard<SpoilsMap>(player); player.Deck.AddInternal(removing);
+                removing = player.Deck.Cards.OfType<SpoilsMap>().Single();
                 removing.SpoilsActIndex = native.CurrentActIndex;
-                AccessTools.Property(typeof(SpoilsMap), nameof(SpoilsMap.SpoilsCoord)).SetValue(removing, native.CurrentMapCoord);
-                native.CurrentMapPoint!.AddQuest(removing);
                 releaseRemoval = new(TaskCreationOptions.RunContinuationsAsynchronously);
                 var fixture = new Harmony("AllMatters.Tests.TreasureMenuDrain");
                 fixture.Patch(AccessTools.Method(typeof(Hook), nameof(Hook.BeforeCardRemoved)), postfix: new HarmonyMethod(typeof(JigsawHuntingTreasureTests), nameof(SuspendRemoval)));
@@ -393,7 +445,7 @@ internal static class JigsawHuntingTreasureTests
                     removing = null; releaseRemoval = null; removalRunAfterResume = null; fixture.UnpatchAll(fixture.Id);
                     menu.Free();
                 }
-            });
+            }, questAtFinalization: true);
     }
 
     private static bool SkipHost() => false;
@@ -603,11 +655,8 @@ internal static class JigsawHuntingTreasureTests
             await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
             Check(ReferenceEquals(ActiveScreenContext.Instance.GetCurrentScreen(), root), "The native room owner makes the actual chest the active screen, including beta skip-delay checks.");
             var player = session.Native.Players[0];
-            var spoils = session.Native.CreateCard<SpoilsMap>(player);
-            player.Deck.AddInternal(spoils);
+            var spoils = player.Deck.Cards.OfType<SpoilsMap>().Single();
             spoils.SpoilsActIndex = session.Native.CurrentActIndex;
-            AccessTools.Property(typeof(SpoilsMap), nameof(SpoilsMap.SpoilsCoord)).SetValue(spoils, session.Native.CurrentMapCoord);
-            session.Native.CurrentMapPoint!.AddQuest(spoils);
             int gold = player.Gold;
             var collection = root.GetNode<NTreasureRoomRelicCollection>("%RelicCollection");
             observedCollection = collection;
@@ -653,10 +702,10 @@ internal static class JigsawHuntingTreasureTests
             MegaCrit.Sts2.Core.Saves.SaveManager.Instance.PrefsSave.FastMode = previousFastMode;
             Check(finished.IsCompletedSuccessfully && root.ProceedButton.IsEnabled,
                 "The native Tween emits empty completion and enables the actual Proceed button.");
-            Check(player.Gold == gold && player.Relics.OfType<NlothsHungryFace>().Single().Spent &&
-                !player.Deck.Cards.Contains(spoils) && !session.Native.CurrentMapPoint.Quests.Contains(spoils) &&
+            Check(player.Gold == gold + 600 && player.Relics.OfType<NlothsHungryFace>().Single().Spent &&
+                !player.Deck.Cards.Contains(spoils) &&
                 session.Native.CurrentMapPointHistoryEntry!.GetEntry(player.NetId).CompletedQuests.Count(id => id == spoils.Id) == 1,
-                "The one input-driven chest consumes Face and completes the actual Spoils quest without paying gold.");
+                "The one input-driven chest consumes Face and completes the actual Spoils quest with exactly 600 Spoils gold.");
             await tree.ToSignal(tree.CreateTimer(0.55), SceneTreeTimer.SignalName.Timeout);
             saveStage = "native Proceed input";
             await ClickTreasureControl(root.ProceedButton);
@@ -696,7 +745,8 @@ internal static class JigsawHuntingTreasureTests
                 var restoredPlayer = restored.Players.Single();
                 Check(restored.CurrentRoom is MapRoom && JigsawNativeSession.Current!.Map is { CurrentNode: null, PendingEntry: null, Steps: 1 } recovered && recovered.Completed.Contains(1),
                     "The actual new lobby and native saved-run entry restore exploration without reopening the chest or charging another step.");
-                Check(nativeChestOpens == 1 && restoredPlayer.Gold == gold && restoredPlayer.Relics.OfType<NlothsHungryFace>().Single().Spent &&
+                Check(nativeChestOpens == 1 && restoredPlayer.Gold == gold + 600 && restoredPlayer.Relics.OfType<NlothsHungryFace>().Single().Spent &&
+                    JigsawNativeSession.Current!.Map!.CreateSave().QuestMarkers is { SpoilsNode: 1, PaidOwners: [1UL] } &&
                     !restoredPlayer.Deck.Cards.OfType<SpoilsMap>().Any() &&
                     restored.CurrentMapPointHistoryEntry!.GetEntry(restoredPlayer.NetId).CompletedQuests.Count(id => id == spoils.Id) == 1,
                     "Lobby restore retains consumed Face and exactly one Spoils completion with no second native chest opening.");
@@ -740,7 +790,7 @@ internal static class JigsawHuntingTreasureTests
                 }
             }
         }
-    }, shouldSave: true);
+    }, shouldSave: true, questAtFinalization: true);
 
     private static Task CompletedCheckpoint() => WithTreasure(true, async (session, room) =>
     {
@@ -765,18 +815,15 @@ internal static class JigsawHuntingTreasureTests
         await WithTreasure(true, async (session, room) =>
         {
             var native = session.Native; var player = native.Players[0];
-            var card = native.CreateCard<SpoilsMap>(player);
-            player.Deck.AddInternal(card);
+            var card = player.Deck.Cards.OfType<SpoilsMap>().Single();
             card.SpoilsActIndex = native.CurrentActIndex;
-            AccessTools.Property(typeof(SpoilsMap), nameof(SpoilsMap.SpoilsCoord)).SetValue(card, native.CurrentMapCoord);
-            native.CurrentMapPoint!.AddQuest(card);
             int gold = player.Gold;
             int particles = await room.DoNormalRewards();
-            Check(particles == 0 && player.Gold == gold, "A hunted chest grants neither native chest nor Spoils gold.");
+            Check(particles == 600 && player.Gold == gold + 600, "A hunted marked chest pays Spoils while suppressing ordinary chest gold.");
             Check(player.Relics.OfType<NlothsHungryFace>().Single().Spent, "The real room-entered hook consumes Face normally.");
-            Check(!player.Deck.Cards.Contains(card) && !native.CurrentMapPoint.Quests.Contains(card) &&
+            Check(!player.Deck.Cards.Contains(card) &&
                 native.CurrentMapPointHistoryEntry!.GetEntry(player.NetId).CompletedQuests.Count(id => id == card.Id) == 1,
-                "The actual chest source completes Spoils history, removes its real card, and removes the map quest once.");
-        });
+                "The actual chest source completes Spoils history, and removes its real card once.");
+        }, questAtFinalization: true);
     }
 }

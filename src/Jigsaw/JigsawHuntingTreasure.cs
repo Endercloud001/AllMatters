@@ -1,8 +1,6 @@
 using HarmonyLib;
-using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Hooks;
-using MegaCrit.Sts2.Core.Models.Cards;
 using MegaCrit.Sts2.Core.Multiplayer.Game;
 using MegaCrit.Sts2.Core.Rooms;
 using MegaCrit.Sts2.Core.Rewards;
@@ -15,7 +13,6 @@ internal static class JigsawHuntingTreasure
     internal static bool IsBlocked(Player player) => JigsawHuntingNative.RootIsHunted(player) &&
         player.RunState.CurrentRoom is TreasureRoom && player.RunState.CurrentRoomCount == 1;
 }
-
 [HarmonyPatch(typeof(Hook), nameof(Hook.ShouldGenerateTreasure))]
 internal static class JigsawHuntingChestRelics
 {
@@ -60,9 +57,7 @@ internal static class JigsawHuntingChestExtras
 [HarmonyPatch(typeof(OneOffSynchronizer), "DoTreasureRoomRewards", [typeof(Player)])]
 internal static class JigsawHuntingChestPayment
 {
-    private static readonly System.Reflection.MethodInfo spoils = AccessTools.Method(typeof(OneOffSynchronizer), "TryHandleSpoilsMap", [typeof(Player)]);
-
-    private static bool Prefix(OneOffSynchronizer __instance, Player player, ref Task<int> __result)
+    private static bool Prefix(Player player, ref Task<int> __result)
     {
         if (JigsawNativeExploration.RejectTreasureTask(player))
         {
@@ -71,38 +66,27 @@ internal static class JigsawHuntingChestPayment
         }
         if (!JigsawHuntingTreasure.IsBlocked(player))
             return true;
-        __result = FinishTasks(__instance, player);
+        __result = Task.FromResult(0);
         return false;
     }
 
-    private static void Postfix(Player player, Task<int> __result)
+    private static void Postfix(Player player, ref Task<int> __result)
     {
-        if (JigsawHuntingTreasure.IsBlocked(player) && JigsawNativeSession.TryGet((RunState)player.RunState) is { } session)
+        if (player.RunState is not RunState native || JigsawNativeSession.TryGet(native) is not { Map: { } map } session)
+            return;
+        bool marked = native.CurrentRoom is TreasureRoom && map.IsSpoilsDestination;
+        if (marked && !JigsawNativeExploration.RejectTreasureTask(player))
+            __result = PayAfter(__result, player, session, map);
+        if (JigsawHuntingTreasure.IsBlocked(player) || marked)
             JigsawNativeExploration.TreasureSourceBegan(session, player.NetId, __result);
     }
 
-    private static async Task<int> FinishTasks(OneOffSynchronizer synchronizer, Player player)
+    private static async Task<int> PayAfter(Task<int> original, Player player, JigsawNativeSession session, JigsawRun map)
     {
-        await (Task<int>)spoils.Invoke(synchronizer, [player])!;
-        return 0;
-    }
-}
-
-[HarmonyPatch(typeof(SpoilsMap), nameof(SpoilsMap.OnQuestComplete))]
-internal static class JigsawHuntingSpoilsPayment
-{
-    private static bool Prefix(SpoilsMap __instance, ref Task<int> __result)
-    {
-        if (!JigsawHuntingTreasure.IsBlocked(__instance.Owner))
-            return true;
-        __result = Complete(__instance);
-        return false;
-    }
-
-    private static async Task<int> Complete(SpoilsMap card)
-    {
-        PlayerCmd.CompleteQuest(card);
-        await CardPileCmd.RemoveFromDeck(card);
-        return 0;
+        var room = session.Native.CurrentRoom;
+        int gold = await original;
+        if (JigsawNativeSession.Current != session || !ReferenceEquals(session.Map, map) || !ReferenceEquals(session.Native.CurrentRoom, room))
+            throw new OperationCanceledException("藏宝图宝箱已改变。");
+        return gold + await JigsawNativeQuestMarkers.Pay(player, session, map, room);
     }
 }

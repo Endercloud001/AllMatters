@@ -207,7 +207,13 @@ internal static class JigsawMysticTests
                 var hp = battle.Combat.Enemies.Select(enemy => enemy.CurrentHp).ToArray();
                 var expected = Clone(mystic.Rng);
                 var cards = battle.Players.Select(_ => StatusIds[expected.NextInt(6)]).ToArray();
-                await Perform(mystic);
+                var previews = new List<CardPileAddResult>();
+                EventFeedbackPreviewObserver.Results = previews;
+                try { await Perform(mystic); }
+                finally { EventFeedbackPreviewObserver.Results = null; }
+                Check(previews.Count == count && previews.Select((preview, index) =>
+                    preview.success && ReferenceEquals(preview.cardAdded, battle.Players[index].PlayerCombatState!.DiscardPile.Cards.Last())).All(value => value),
+                    "CAST sends the exact generated discard cards to the native preview command.");
                 Check(battle.Combat.Enemies.Select(enemy => enemy.CurrentHp).SequenceEqual(hp) &&
                     battle.Players.Select((player, index) => player.PlayerCombatState!.DiscardPile.Cards is var pile &&
                         pile.Count == cast + 1 && pile.Last().Id == cards[index] && ReferenceEquals(pile.Last().Owner, player)).All(value => value) &&

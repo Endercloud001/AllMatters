@@ -37,7 +37,7 @@
   "ALL_MATTERS_WEIGHTED.title": "沉重",
   "ALL_MATTERS_WEIGHTED.description": "打出这张牌时，失去1点能量。",
   "ALL_MATTERS_POWER_SCRUTINY_POWER.title": "细看",
-  "ALL_MATTERS_POWER_SCRUTINY_POWER.description": "本玩家方回合内，玩家无法额外抽牌。起手抽牌及直接加入手牌的牌不受影响。",
-  "ALL_MATTERS_POWER_SCRUTINY_POWER.smartDescription": "本玩家方回合内，玩家无法额外抽牌。起手抽牌及直接加入手牌的牌不受影响。",
+  "ALL_MATTERS_POWER_SCRUTINY_POWER.description": "玩家在本回合无法额外抽牌。",
+  "ALL_MATTERS_POWER_SCRUTINY_POWER.smartDescription": "玩家在本回合无法额外抽牌。",
   "AM_HUNTED_AEONGLASS.description": "你每打出[blue]12[/blue]张牌，将[gold]{Wound}[/gold]、[gold]{Burn}[/gold]、[gold]{Void}[/gold]、[gold]{Dazed}[/gold]和[gold]{Wither}[/gold]各一张加入你的[gold]手牌[/gold]。还需打出[blue]{CardsLeft}[/blue]张牌。"
 }
