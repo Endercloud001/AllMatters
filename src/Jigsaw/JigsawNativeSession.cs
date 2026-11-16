@@ -1495,7 +1495,38 @@ internal static class JigsawTreasureOpenSignal
     private static void Postfix(Task __result)
     {
         if (JigsawNativeSession.Current is { } session && JigsawNativeExploration.IsTrackedTreasure(session))
-            JigsawNativeExploration.TreasureTaskBegan(session, RunManager.Instance.NetService.NetId, __result);
+        {
+            // OpenChest also awaits interactive relic selection. It gates room
+            // completion but cannot be a prerequisite for leaving the run.
+            JigsawNativeExploration.TreasureOpenBegan(session, __result);
+        }
+    }
+}
+
+[HarmonyPatch(typeof(MegaCrit.Sts2.Core.Nodes.Rooms.NTreasureRoom), "EnableSkipAfterDelay")]
+internal static class JigsawCancelTreasureSkipOnExit
+{
+    private static void Prefix(CancellationTokenSource ____cts, ref CancellationToken token, out CancellationTokenSource? __state)
+    {
+        __state = null;
+        if (JigsawNativeSession.Current is not { } session || !JigsawNativeExploration.IsTrackedTreasure(session))
+            return;
+        // Opening has a separate token for skipping. Link it to the room so
+        // backing out before making a choice cannot enable a freed button.
+        __state = CancellationTokenSource.CreateLinkedTokenSource(token, ____cts.Token);
+        token = __state.Token;
+    }
+
+    private static void Postfix(CancellationTokenSource? __state, ref Task __result)
+    {
+        if (__state != null)
+            __result = Release(__result, __state);
+    }
+
+    private static async Task Release(Task original, CancellationTokenSource linked)
+    {
+        using (linked)
+            await original;
     }
 }
 

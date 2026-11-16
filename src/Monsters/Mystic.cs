@@ -6,13 +6,17 @@ using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+using MegaCrit.Sts2.Core.Helpers;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Cards;
 using MegaCrit.Sts2.Core.Models.Powers;
 using MegaCrit.Sts2.Core.MonsterMoves.Intents;
 using MegaCrit.Sts2.Core.MonsterMoves.MonsterMoveStateMachine;
+using MegaCrit.Sts2.Core.Nodes;
 using MegaCrit.Sts2.Core.Nodes.Combat;
-using MegaCrit.Sts2.Core.Nodes.Rooms;
+using MegaCrit.Sts2.Core.Nodes.Vfx;
+using MegaCrit.Sts2.Core.Nodes.Vfx.Cards;
+using MegaCrit.Sts2.Core.TestSupport;
 using STS2RitsuLib.Content;
 using STS2RitsuLib.Interop.AutoRegistration;
 using STS2RitsuLib.Scaffolding.Content;
@@ -27,6 +31,7 @@ public sealed class Mystic : ModMonsterTemplate
     public override int MinInitialHp => 56;
     public override int MaxInitialHp => 56;
     public override MonsterAssetProfile AssetProfile => new("res://AllMatters/monsters/mystic/mystic.tscn");
+    public override IEnumerable<string> AssetPaths => base.AssetPaths.Concat(NNightmareHandsVfx.AssetPaths);
     protected override NCreatureVisuals? TryCreateCreatureVisuals() =>
         RitsuGodotNodeFactories.CreateFromScene<NCreatureVisuals>(ResourceLoader.Load<PackedScene>(CustomVisualsPath!));
 
@@ -47,7 +52,13 @@ public sealed class Mystic : ModMonsterTemplate
     private async Task Cast(IReadOnlyList<Creature> targets)
     {
         var combat = CombatState;
-        PlayCastLunge();
+        await CreatureCmd.TriggerAnim(Creature, "Attack", 0f);
+        if (TestMode.IsOff && NGame.Instance?.CurrentRunNode?.GlobalUi is { } ui)
+        {
+            ui.AddChildSafely(NSmokyVignetteVfx.Create(new Color(0.8f, 0.3f, 0.8f, 0.66f), new Color(0f, 0f, 4f, 0.33f)));
+            ui.AddChildSafely(NNightmareHandsVfx.Create());
+            await Cmd.CustomScaledWait(0.1f, 0.25f);
+        }
         CardModel[] statuses = [ModelDb.Card<Dazed>(), ModelDb.Card<Burn>(), ModelDb.Card<VoidCard>(),
             ModelDb.Card<Toxic>(), ModelDb.Card<Beckon>(), ModelDb.Card<Slimed>()];
         bool added = false;
@@ -66,18 +77,6 @@ public sealed class Mystic : ModMonsterTemplate
         }
         if (added)
             await Cmd.Wait(1f);
-    }
-
-    private void PlayCastLunge()
-    {
-        // The original Mystic lunges for her attack and raises her staff to heal.
-        var visual = NCombatRoom.Instance?.GetCreatureNode(Creature)?.Visuals?.GetNodeOrNull<Node2D>("Visuals");
-        if (visual == null || !visual.IsInsideTree())
-            return;
-        var origin = visual.Position;
-        var motion = visual.CreateTween();
-        motion.TweenProperty(visual, "position", origin + Vector2.Left * 48f, 0.17);
-        motion.TweenProperty(visual, "position", origin, 0.33);
     }
 
     private async Task Heal(IReadOnlyList<Creature> targets)

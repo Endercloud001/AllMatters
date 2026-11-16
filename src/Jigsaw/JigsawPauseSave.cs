@@ -1,6 +1,8 @@
 using HarmonyLib;
 using Godot;
 using MegaCrit.Sts2.Core.Nodes.Screens.PauseMenu;
+using MegaCrit.Sts2.Core.Runs;
+using MegaCrit.Sts2.Core.Saves;
 using MegaCrit.Sts2.Core.TestSupport;
 
 namespace AllMatters.Jigsaw;
@@ -56,9 +58,10 @@ internal static class JigsawTreasureExitDrain
         JigsawNativeExploration.StopNewTreasureTasks(session);
         try
         {
-            if (MegaCrit.Sts2.Core.Runs.RunManager.Instance.ShouldSave)
+            var runManager = RunManager.Instance;
+            if (runManager.ShouldSave && !runManager.IsAbandoned)
             {
-                await MegaCrit.Sts2.Core.Saves.SaveManager.Instance.SaveRun(null);
+                await SaveManager.Instance.SaveRun(null);
                 await session.WaitForSave();
             }
         }

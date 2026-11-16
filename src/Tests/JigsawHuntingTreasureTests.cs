@@ -51,6 +51,8 @@ internal static class JigsawHuntingTreasureTests
       ("Jigsaw hunting treasure direct third party payments are a concrete unsupported boundary", DirectPayments),
       ("Jigsaw hunting treasure actual pause and closed session menu entries drain native work", MenuDrain),
       ("Jigsaw hunting treasure native empty Tween finishes before proceeding", EmptyTween),
+      ("Jigsaw marked treasure can save and exit while the native relic choice is still open", MarkedExitBeforeRelic),
+      ("Jigsaw marked treasure native Skip returns to the map and restores once", MarkedSkip),
       ("Jigsaw hunting treasure completed owners checkpoint does not replay the chest", CompletedCheckpoint) ];
 
     private static void Check(bool value, string reason) => NativeEventTests.Check(value, reason);
@@ -461,7 +463,7 @@ internal static class JigsawHuntingTreasureTests
     private static Task? nativeChestOpening;
     private static int nativeChestOpens;
     private static NTreasureRoomRelicCollection? observedCollection;
-    private static TaskCompletionSource? emptyAnimationStarted;
+    private static TaskCompletionSource? relicAnimationStarted;
     private static int nativeProceedInputs;
     private static int nativeMapOpens;
     private static Task? nativeTerminalProceed;
@@ -470,9 +472,9 @@ internal static class JigsawHuntingTreasureTests
         nativeChestOpens++;
         if (ReferenceEquals(__instance, observedChest)) nativeChestOpening = __result;
     }
-    private static void ObserveEmptyAnimation(NTreasureRoomRelicCollection __instance)
+    private static void ObserveRelicAnimation(NTreasureRoomRelicCollection __instance)
     {
-        if (ReferenceEquals(__instance, observedCollection)) emptyAnimationStarted!.TrySetResult();
+        if (ReferenceEquals(__instance, observedCollection)) relicAnimationStarted!.TrySetResult();
     }
     private static void ObserveProceedInput(NTreasureRoom __instance)
     {
@@ -526,7 +528,13 @@ internal static class JigsawHuntingTreasureTests
         public Task<bool> ShouldAllowRunToBegin() => Task.FromResult(true);
     }
 
-    private static Task EmptyTween() => WithTreasure(true, async (session, room) =>
+    private static Task EmptyTween() => NativeOpening(hunted: true);
+
+    private static Task MarkedExitBeforeRelic() => NativeOpening(hunted: false, exitBeforeRelic: true);
+
+    private static Task MarkedSkip() => NativeOpening(hunted: false);
+
+    private static Task NativeOpening(bool hunted, bool exitBeforeRelic = false) => WithTreasure(hunted, async (session, room) =>
     {
         var tree = (SceneTree)Engine.GetMainLoop();
         Vector2I previousSize = tree.Root.Size;
@@ -615,7 +623,7 @@ internal static class JigsawHuntingTreasureTests
             host.Patch(AccessTools.Method(typeof(NTreasureRoom), "OpenChest"),
                 postfix: new HarmonyMethod(typeof(JigsawHuntingTreasureTests), nameof(ObserveChestOpening)) { priority = Priority.Last });
             host.Patch(AccessTools.Method(typeof(NTreasureRoomRelicCollection), "AnimIn"),
-                postfix: new HarmonyMethod(typeof(JigsawHuntingTreasureTests), nameof(ObserveEmptyAnimation)));
+                postfix: new HarmonyMethod(typeof(JigsawHuntingTreasureTests), nameof(ObserveRelicAnimation)));
             host.Patch(AccessTools.Method(typeof(NTreasureRoom),
 #if STS2_PUBLIC
                 "OnProceedButtonPressed"
@@ -634,7 +642,7 @@ internal static class JigsawHuntingTreasureTests
                 ), postfix: new HarmonyMethod(typeof(JigsawHuntingTreasureTests), nameof(ObserveTerminalProceed)) { priority = Priority.Last });
             observedChest = root; nativeChestOpening = null; nativeChestOpens = 0;
             nativeProceedInputs = nativeMapOpens = 0; nativeTerminalProceed = null;
-            emptyAnimationStarted = new();
+            relicAnimationStarted = new();
             var io = new MockGodotFileIo("hunting-completed-treasure-input-83");
             var saves = new RunSaveManager(83, io, new MigrationManager(io), forceSynchronous: true);
             int completionSaves = 0;
@@ -669,46 +677,84 @@ internal static class JigsawHuntingTreasureTests
             Check(nativeChestOpens == 1 && nativeChestOpening != null, "Engine chest input invokes the original native OpenChest exactly once.");
             Task open = nativeChestOpening!;
             if (open.IsFaulted) await open;
-            await Task.WhenAny(emptyAnimationStarted.Task, open).WaitAsync(TimeSpan.FromSeconds(10));
+            await Task.WhenAny(relicAnimationStarted.Task, open).WaitAsync(TimeSpan.FromSeconds(10));
             if (open.IsFaulted) await open;
-            Check(emptyAnimationStarted.Task.IsCompletedSuccessfully, "The original collection AnimIn has actually created its empty Tween before the pending-input checks begin.");
-            saveStage = "original empty Tween";
-            Check(!finished.IsCompleted && !open.IsCompleted,
-                $"The actual native open starts with unfinished empty collection notifications: collection={finished.Status}, open={open.Status}.");
-            await tree.ToSignal(tree.CreateTimer(0.15), SceneTreeTimer.SignalName.Timeout);
-            Check(!finished.IsCompleted && !open.IsCompleted, "The empty chest cannot finish before its real delayed Tween callback.");
-            Check(!JigsawNativeExploration.NativeFlowFinished(session, 1) && session.Map!.CurrentNode == 1 && !session.Map.Completed.Contains(1),
-                "The actual pending OpenChest task keeps its puzzle root incomplete during the real Tween.");
-            Check(!root.ProceedButton.IsEnabled, "Normal native waits keep Skip disabled until after the empty Tween, rather than exposing the noninteractive zero-delay branch.");
-            int beforeEarlyInput = completionSaves;
-            // The disabled native button slides outside the viewport and removes
-            // its accept binding. Send the real engine accept action to that path.
-            StringName proceedAction =
+            Check(relicAnimationStarted.Task.IsCompletedSuccessfully, "The original collection AnimIn has started before the pending-input checks.");
+            if (!hunted)
+            {
+                Check(RunManager.Instance.TreasureRoomRelicSynchronizer.CurrentRelics?.Count > 0 && !open.IsCompleted &&
+                    player.Gold >= gold + 600 && !player.Deck.Cards.Contains(spoils),
+                    "The real marked chest has paid the quest and still awaits a native relic choice.");
+                Check(!JigsawNativeExploration.HasUnsettledTreasureTasks(session),
+                    "An unmade relic choice is not a pending reward write that can delay Save and Exit.");
+                Check(session.UnfinishedTreasureCheckpoint != null && !JigsawNativeExploration.NativeFlowFinished(session, player.NetId),
+                    "The current room keeps its before-open save and cannot complete until the relic is picked or skipped.");
+            }
+            if (exitBeforeRelic)
+            {
+                var menu = new MegaCrit.Sts2.Core.Nodes.Screens.PauseMenu.NPauseMenu();
+                var close = AccessTools.Method(menu.GetType(), "CloseToMenu");
+                host.Patch(close, prefix: new HarmonyMethod(typeof(JigsawHuntingTreasureTests), nameof(NativeMenuExit)) { priority = Priority.Last });
+                nativeExits = 0;
+                try
+                {
+                    await ((Task)close.Invoke(menu, null)!).WaitAsync(TimeSpan.FromSeconds(10));
+                    Check(nativeExits == 1 && !open.IsCompleted && RunManager.Instance.DebugOnlyGetState() == null,
+                        "Save and Exit reaches native cleanup without a relic click behind the pause menu.");
+                }
+                finally { menu.Free(); }
+                return;
+            }
+            if (hunted)
+            {
+                saveStage = "original empty Tween";
+                Check(!finished.IsCompleted && !open.IsCompleted,
+                    $"The actual native open starts with unfinished empty collection notifications: collection={finished.Status}, open={open.Status}.");
+                await tree.ToSignal(tree.CreateTimer(0.15), SceneTreeTimer.SignalName.Timeout);
+                Check(!finished.IsCompleted && !open.IsCompleted, "The empty chest cannot finish before its real delayed Tween callback.");
+                Check(!JigsawNativeExploration.NativeFlowFinished(session, 1) && session.Map!.CurrentNode == 1 && !session.Map.Completed.Contains(1),
+                    "The actual pending OpenChest task keeps its puzzle root incomplete during the real Tween.");
+                Check(!root.ProceedButton.IsEnabled, "Normal native waits keep Skip disabled until after the empty Tween, rather than exposing the noninteractive zero-delay branch.");
+                int beforeEarlyInput = completionSaves;
+                // The disabled native button slides outside the viewport and removes
+                // its accept binding. Send the real engine accept action to that path.
+                StringName proceedAction =
 #if STS2_PUBLIC
-                MegaInput.accept;
+                    MegaInput.accept;
 #else
-                MegaInput.confirm;
+                    MegaInput.confirm;
 #endif
-            tree.Root.PushInput(new InputEventAction { Action = proceedAction, Pressed = true }, true);
-            await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
-            tree.Root.PushInput(new InputEventAction { Action = proceedAction, Pressed = false }, true);
-            await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
-            Check(!finished.IsCompleted && !open.IsCompleted && session.Map!.CurrentNode == 1 &&
-                !session.Map.Completed.Contains(1) && completionSaves == beforeEarlyInput,
-                "A real early Proceed action cannot complete the root or write a completion save while the original empty Tween remains pending.");
+                tree.Root.PushInput(new InputEventAction { Action = proceedAction, Pressed = true }, true);
+                await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
+                tree.Root.PushInput(new InputEventAction { Action = proceedAction, Pressed = false }, true);
+                await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
+                Check(!finished.IsCompleted && !open.IsCompleted && session.Map!.CurrentNode == 1 &&
+                    !session.Map.Completed.Contains(1) && completionSaves == beforeEarlyInput,
+                    "A real early Proceed action cannot complete the root or write a completion save while the original empty Tween remains pending.");
+            }
+            else
+            {
+                using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+                while (!root.ProceedButton.IsEnabled && !timeout.IsCancellationRequested)
+                    await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
+                Check(root.ProceedButton.IsEnabled && !open.IsCompleted, "The native Skip becomes available with the relic still unchosen.");
+                await tree.ToSignal(tree.CreateTimer(0.55), SceneTreeTimer.SignalName.Timeout);
+                await ClickTreasureControl(root.ProceedButton);
+            }
             await open.WaitAsync(TimeSpan.FromSeconds(10));
             TestMode.IsOn = previousTesting;
             NonInteractiveMode.AutoSlayerCheck = previousAutoSlayer;
             MegaCrit.Sts2.Core.Saves.SaveManager.Instance.PrefsSave.FastMode = previousFastMode;
             Check(finished.IsCompletedSuccessfully && root.ProceedButton.IsEnabled,
-                "The native Tween emits empty completion and enables the actual Proceed button.");
-            Check(player.Gold == gold + 600 && player.Relics.OfType<NlothsHungryFace>().Single().Spent &&
+                "The native relic flow finishes and enables the actual Proceed button.");
+            Check((hunted ? player.Gold == gold + 600 && player.Relics.OfType<NlothsHungryFace>().Single().Spent : player.Gold > gold + 600) &&
                 !player.Deck.Cards.Contains(spoils) &&
                 session.Native.CurrentMapPointHistoryEntry!.GetEntry(player.NetId).CompletedQuests.Count(id => id == spoils.Id) == 1,
-                "The one input-driven chest consumes Face and completes the actual Spoils quest with exactly 600 Spoils gold.");
+                "The native chest completes Spoils once, with ordinary gold only in a safe room.");
             await tree.ToSignal(tree.CreateTimer(0.55), SceneTreeTimer.SignalName.Timeout);
             saveStage = "native Proceed input";
-            await ClickTreasureControl(root.ProceedButton);
+            if (hunted)
+                await ClickTreasureControl(root.ProceedButton);
             Check(nativeProceedInputs == 1 && nativeMapOpens > 0 && nativeTerminalProceed != null,
                 $"Engine Proceed input reaches the original room callback, native map consumer and terminal task: callbacks={nativeProceedInputs}, mapOpens={nativeMapOpens}, terminal={nativeTerminalProceed?.Status}.");
             await nativeTerminalProceed!.WaitAsync(TimeSpan.FromSeconds(10));
@@ -745,11 +791,11 @@ internal static class JigsawHuntingTreasureTests
                 var restoredPlayer = restored.Players.Single();
                 Check(restored.CurrentRoom is MapRoom && JigsawNativeSession.Current!.Map is { CurrentNode: null, PendingEntry: null, Steps: 1 } recovered && recovered.Completed.Contains(1),
                     "The actual new lobby and native saved-run entry restore exploration without reopening the chest or charging another step.");
-                Check(nativeChestOpens == 1 && restoredPlayer.Gold == gold + 600 && restoredPlayer.Relics.OfType<NlothsHungryFace>().Single().Spent &&
+                Check(nativeChestOpens == 1 && restoredPlayer.Gold == player.Gold && (!hunted || restoredPlayer.Relics.OfType<NlothsHungryFace>().Single().Spent) &&
                     JigsawNativeSession.Current!.Map!.CreateSave().QuestMarkers is { SpoilsNode: 1, PaidOwners: [1UL] } &&
                     !restoredPlayer.Deck.Cards.OfType<SpoilsMap>().Any() &&
                     restored.CurrentMapPointHistoryEntry!.GetEntry(restoredPlayer.NetId).CompletedQuests.Count(id => id == spoils.Id) == 1,
-                    "Lobby restore retains consumed Face and exactly one Spoils completion with no second native chest opening.");
+                    "Lobby restore retains the completed rewards and exactly one Spoils completion, without opening the chest again.");
             }
             finally { lobby.CleanUp(disconnectSession: false); }
         }
@@ -779,7 +825,7 @@ internal static class JigsawHuntingTreasureTests
                 }
                 JigsawNativeSaveHost.Save = previousSave;
                 observedChest = null; nativeChestOpening = null;
-                observedCollection = null; emptyAnimationStarted = null; nativeTerminalProceed = null;
+                observedCollection = null; relicAnimationStarted = null; nativeTerminalProceed = null;
                 treasureMap = null;
                 consoleField.SetValue(null, previousConsole);
                 try { ui?.Dispose(); }
@@ -790,7 +836,7 @@ internal static class JigsawHuntingTreasureTests
                 }
             }
         }
-    }, shouldSave: true, questAtFinalization: true);
+    }, face: hunted, shouldSave: true, questAtFinalization: true);
 
     private static Task CompletedCheckpoint() => WithTreasure(true, async (session, room) =>
     {
@@ -824,6 +870,6 @@ internal static class JigsawHuntingTreasureTests
             Check(!player.Deck.Cards.Contains(card) &&
                 native.CurrentMapPointHistoryEntry!.GetEntry(player.NetId).CompletedQuests.Count(id => id == card.Id) == 1,
                 "The actual chest source completes Spoils history, and removes its real card once.");
-        }, questAtFinalization: true);
+    }, questAtFinalization: true);
     }
 }

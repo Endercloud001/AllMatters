@@ -1,6 +1,7 @@
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Hooks;
+using MegaCrit.Sts2.Core.Nodes.Screens.TreasureRoomRelic;
 using MegaCrit.Sts2.Core.Multiplayer.Game;
 using MegaCrit.Sts2.Core.Rooms;
 using MegaCrit.Sts2.Core.Rewards;
@@ -36,11 +37,14 @@ internal static class JigsawHuntingChestExtras
     }
     private static void Postfix(RewardsSet __instance, ref Task __result)
     {
-        if (__instance.Room is TreasureRoom room && JigsawHuntingTreasure.IsBlocked(__instance.Player) &&
+        if (__instance.Room is TreasureRoom room &&
             ReferenceEquals(room, __instance.Player.RunState.CurrentRoom) &&
-            JigsawNativeSession.TryGet((RunState)__instance.Player.RunState) is { Map: { } map } session)
+            __instance.Player.RunState is RunState native &&
+            JigsawNativeSession.TryGet(native) is { Map: { } map } session &&
+            JigsawNativeExploration.IsTrackedTreasure(session))
         {
-            __result = Finish(__result, __instance, session, map, map.CreateSave().NextEntry);
+            if (JigsawHuntingTreasure.IsBlocked(__instance.Player))
+                __result = Finish(__result, __instance, session, map, map.CreateSave().NextEntry);
             JigsawNativeExploration.TreasureTaskBegan(session, __instance.Player.NetId, __result);
         }
     }
@@ -51,6 +55,33 @@ internal static class JigsawHuntingChestExtras
         if (JigsawNativeSession.Current != session || !ReferenceEquals(session.Map, map) || map.CreateSave().NextEntry != entry)
             throw new OperationCanceledException("宝箱所属会话或房间已改变。");
         set.Rewards.Clear();
+    }
+}
+
+[HarmonyPatch(typeof(NTreasureRoomRelicCollection), "AnimateRelicAwards")]
+internal static class JigsawObserveTreasureRelicAwards
+{
+    private static void Postfix(Task __result)
+    {
+        // The animation starts only after a native award, and issues the relic
+        // commands itself. Waiting for it does not require a fresh relic click.
+        if (JigsawNativeSession.SaveSession is { } session && JigsawNativeExploration.IsTrackedTreasure(session))
+            JigsawNativeExploration.TreasureTaskBegan(session, RunManager.Instance.NetService.NetId, __result);
+    }
+}
+
+[HarmonyPatch(typeof(TreasureRoomRelicSynchronizer), nameof(TreasureRoomRelicSynchronizer.OnPicked))]
+internal static class JigsawCompleteSkippedTreasure
+{
+    private static void Postfix(TreasureRoomRelicSynchronizer __instance, Player player, int? index)
+    {
+        // Native singleplayer Skip exits the room with the relic waiter open.
+        // The puzzle keeps that room mounted until its reward lifecycle finishes.
+        if (index == null && __instance.CurrentRelics is { Count: > 0 } &&
+            player.RunState is RunState { Players.Count: 1 } native &&
+            JigsawNativeSession.TryGet(native) is { } session &&
+            JigsawNativeExploration.IsTrackedTreasure(session))
+            __instance.CompleteWithNoRelics();
     }
 }
 
