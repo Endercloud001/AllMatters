@@ -26,6 +26,9 @@ internal static class JigsawDrawingToolsTests
             if (!InputMap.HasAction(action)) InputMap.AddAction(action);
         using var ui = new JigsawNativeMapUiHost();
         var screen = await ui.Open(session);
+        var window = (Window)screen.GetViewport();
+        var previousWindowSize = window.Size;
+        window.Size = new(1280, 720);
         screen.Size = new(1280, 720);
         using var peripheral = new HarmonyScope();
         var map = new NMapScreen();
@@ -112,13 +115,16 @@ internal static class JigsawDrawingToolsTests
             var previousController = controllerProperty.GetValue(NGame.Instance.InputManager);
             var controller = (Node)Activator.CreateInstance(controllerProperty.PropertyType)!;
             controllerProperty.SetValue(NGame.Instance.InputManager, controller);
+            var inputTree = (SceneTree)Engine.GetMainLoop();
+            var previousCanvas = inputTree.Root.CanvasTransform;
             try
             {
+                inputTree.Root.CanvasTransform = new Transform2D(0, new Vector2(45, 34));
+                Set(screen, "pan", new Vector2(75, -31)); Set(screen, "zoom", 1.7f); adapter.Update(true);
                 adapter.Toggle(DrawingMode.Drawing);
                 int votes = 0;
                 screen.VoteRequested = _ => { votes++; return JigsawResult.Ok; };
                 var at = screen.MapControl.GetGlobalTransformWithCanvas() * screen.GridToCanvas(new(3, 0));
-                var inputTree = (SceneTree)Engine.GetMainLoop();
                 inputTree.Root.PushInput(new InputEventMouseButton { Position = at, GlobalPosition = at, ButtonIndex = MouseButton.Left, Pressed = true }, true);
                 await inputTree.ToSignal(inputTree, SceneTree.SignalName.ProcessFrame);
                 inputTree.Root.PushInput(new InputEventMouseMotion { Position = at + new Vector2(20, 0), GlobalPosition = at + new Vector2(20, 0) }, true);
@@ -126,10 +132,17 @@ internal static class JigsawDrawingToolsTests
                 await inputTree.ToSignal(inputTree, SceneTree.SignalName.ProcessFrame);
                 Check(viewport.GetChildren().OfType<Line2D>().Count() == 3 && votes == 0,
                     "Engine painting creates a native line while leaving map votes untouched.");
+                var stroke = viewport.GetChildren().OfType<Line2D>().Last();
+                Vector2 ToScreen(Vector2 point) =>
+                    texture.GetGlobalTransformWithCanvas() * (point * texture.Size / (Vector2)viewport.Size);
+                Check(ToScreen(stroke.Points[0]).DistanceTo(at) < 2 &&
+                    ToScreen(stroke.Points[^1]).DistanceTo(at + new Vector2(20, 0)) < 2,
+                    "Press and drag track the mouse under a scaled and translated map.");
                 adapter.Toggle(DrawingMode.Drawing);
             }
             finally
             {
+                inputTree.Root.CanvasTransform = previousCanvas;
                 controllerProperty.SetValue(NGame.Instance.InputManager, previousController);
                 controller.Free();
             }
@@ -167,7 +180,7 @@ internal static class JigsawDrawingToolsTests
             await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
             await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
         }
-        finally { adapter?.Dispose(); map.Free(); }
+        finally { adapter?.Dispose(); map.Free(); window.Size = previousWindowSize; }
     });
 
     // Only absent scene startup and peripheral cursor refresh are suppressed; stroke creation stays native.

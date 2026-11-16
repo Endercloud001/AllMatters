@@ -38,6 +38,7 @@ internal sealed class JigsawDrawingTools : IDisposable
     internal bool IsDrawing => input != null;
     internal bool IsSharing => sharing;
     internal static bool IsMoving(NMapDrawings layer) => moving > 0 && layers.TryGetValue(layer, out _);
+    internal static bool UsesLayer(NMapDrawings layer) => layers.TryGetValue(layer, out _);
     private static void Move(Node node, Node parent)
     {
         moving++;
@@ -334,6 +335,32 @@ internal static class JigsawNativeDrawingButtons
 internal static class JigsawResizeNativeDrawing
 {
     private static void Postfix(NMapDrawings __instance) => JigsawDrawingTools.OnPlayerLayer(__instance);
+}
+
+[HarmonyPatch(typeof(NMouseModeMapDrawingInput), nameof(NMouseModeMapDrawingInput._Input))]
+internal static class JigsawDrawingMouseCoordinates
+{
+    private static bool Prefix(NMouseModeMapDrawingInput __instance, NMapDrawings ____drawings, InputEvent inputEvent)
+    {
+        if (!JigsawDrawingTools.UsesLayer(____drawings) || !__instance.IsVisibleInTree())
+            return true;
+        // Native mouse input uses Inverse(), which assumes an orthonormal basis.
+        // Puzzle strokes need the full inverse of the scaled drawing layer.
+        if (inputEvent is InputEventMouseButton { ButtonIndex: MouseButton.Left } button)
+        {
+            if (button.Pressed && !____drawings.IsLocalDrawing())
+                ____drawings.BeginLineLocal(____drawings.GetGlobalTransformWithCanvas().AffineInverse() * button.Position, null);
+            else if (!button.Pressed && ____drawings.IsLocalDrawing())
+                ____drawings.StopLineLocal();
+            return false;
+        }
+        if (inputEvent is InputEventMouseMotion motion && ____drawings.IsLocalDrawing())
+        {
+            ____drawings.UpdateCurrentLinePositionLocal(____drawings.GetGlobalTransformWithCanvas().AffineInverse() * motion.Position);
+            return false;
+        }
+        return true;
+    }
 }
 
 #if STS2_PUBLIC
