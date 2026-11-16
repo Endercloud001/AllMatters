@@ -1,0 +1,8 @@
+[gd_resource type="AtlasTexture" load_steps=2 format=3]
+
+[ext_resource type="Texture2D" path="res://AllMatters/images/relics/architect_mask.png" id="1_mask"]
+
+[resource]
+atlas = ExtResource("1_mask")
+region = Rect2(128, 32, 1104, 1136)
+filter_clip = true

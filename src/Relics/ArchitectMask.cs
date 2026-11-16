@@ -17,7 +17,7 @@ public sealed class ArchitectMask : ModRelicTemplate
 #endif
     public override bool IsAllowedInShops => false;
     public override RelicAssetProfile AssetProfile => new(
-        IconPath: "res://AllMatters/images/relics/architect_mask.png",
-        IconOutlinePath: "res://AllMatters/images/relics/architect_mask.png",
+        IconPath: "res://AllMatters/images/relics/architect_mask_icon.tres",
+        IconOutlinePath: "res://AllMatters/images/relics/architect_mask_icon.tres",
         BigIconPath: "res://AllMatters/images/relics/architect_mask.png");
 }

@@ -122,6 +122,9 @@ internal static class JigsawHuntingNativeTests
             await JigsawHuntingNative.SynchronizeMasks(session);
             Require(session.Native.Players.All(p => p.Relics.OfType<ArchitectMask>().Count() == 1), "Each original role, including an absent role, receives exactly one mask.");
             var mask = player.Relics.OfType<ArchitectMask>().Single();
+            Require(mask.Icon is AtlasTexture { Region: var region } && region == new Rect2(128, 32, 1104, 1136) &&
+                mask.IconOutline.GetSize() == mask.Icon.GetSize(),
+                "The inventory mask uses the trimmed native texture region with matching outline dimensions.");
             Require(!mask.IsTradable && !mask.IsAllowed(session.Native) && !mask.IsAllowedInShops, "The mask is neither tradable nor obtainable from normal pools or shops.");
             RegisterScripts();
             HeadlessUiHost.EnsureInputActions();
