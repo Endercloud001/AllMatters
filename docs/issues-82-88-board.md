@@ -1,23 +1,16 @@
 # #82–#88 当前调度看板
 
-更新：2026-11-16。集成树：`AllMatters/.claude/worktrees/hunting-20261112`；分支：`integration/issues-82-88-20261112`；当前源码：`3f20593`。仅集成主控维护。
+更新：2026-11-16。集成树：`AllMatters/.claude/worktrees/hunting-20261112`；分支：`integration/issues-82-88-20261112`；当前源码：`f25de54`。仅集成主控维护。
 
 ## 当前工作：#88 兼容验证与统一交付
 
-**第三批双版交付已完成。** 第三批通过项已记录，技术诊断暂停2，#88尚待新行为实机复测。
-
-|目标|第三批完整验证 / 实际归档（本树`.local/tests/archives/`）|Build / Host|Engine / Metadata|
-|---|---|---|---|
-|public-beta 0.113.1|680通过；`run-20261116-165328286-a2a9c25d4cad4b72afd76bf39774fa21`|0 / 0|26 / 0|
-|public 0.107.1|682通过；`run-20261116-175745206-5569e9f4fad4477ba22e36c791bf96da`|0 / 0|26 / 0|
-
-同一提交3f20593完成两版全量及构建。原public进程中断后独立重跑完整public检查，通过后构建beta并更新两版包。控制台位于 `.local/issue88-manual3/`，详见[实施索引](issues-82-88-implementation.md#第三批反馈实施2026-11-16)。
+**第四批双版本全量及交付完成。** public-beta / public 各684通过，Build/Host 各0/0，Engine/Metadata 各26/0。源码 `f25de54`，准确归档见[第四批实施](issues-82-88-implementation.md#第四批反馈实施2026-11-16)。
 
 ## 人工已通过
 
-第三批：五虫、暗港/荣耀普通站位均符合预期；指南其余操作序列通过，Mystic塞牌逻辑正确、呈现待改。第一批：追猎商店/休息/宝箱；暗港三精英与乐加维林族母/灵魂异鱼；密林普通站位、三精英/三Boss。第二批：暗港普通站位；帝皇蟹/无厌沙虫；荣耀三精英；女王/永世沙漏Boss逻辑。保留用户实际反馈范围，不扩签双版、多人或完整终局。
+第四批：标准与恐惧模式准入、羽翼之靴、黄金罗盘、皮草大衣、“细看”文案及第二幕标记宝箱的藏宝图金币和移卡通过。第四批退出和地图故障单独跟踪。第三批：五虫、暗港/荣耀普通站位、指南其余操作序列和Mystic塞牌逻辑通过。首两批已通过场景见[验收指南](batch-6-test-guide.md#第一批人工反馈2026-11-15)。
 
-## 当前卡片（第二批已集成，第三批在制）
+## 当前卡片
 
 |卡片|状态 / 源码|已证与剩余|
 |---|---|---|
@@ -28,6 +21,9 @@
 |M88-3-marks|Integrated / `34cd003`|第二幕共享藏宝图、全队一次皮草，定稿/入房/召唤/保存恢复及原生素材。|
 |M88-3-mode|Integrated / `6f8d463`|Standard+Dread准入，靴子/罗盘当幕共享+3不叠加，保留原生非拼图行为。|
 |M88-3-presentation|Integrated / `34cd003`|Mystic塞牌提示及区别治疗的原动作、细看文案，清除临时诊断。|
+|M88-4-chest|集成 / `f25de54`|双版实际跳过→地图→重载及待选遗物时退出各2 strict。|
+|M88-4-mystic|集成 / 同上|挥杖与原版夜魇特效，保留弃牌预览。双版行为各8通过。|
+|M73-4-museum|集成 / 同上|仅 beta，两个选项宿主测试通过。[规格评论](https://github.com/Endercloud001/AllMatters/issues/73#issuecomment-6914847082)|
 
 第二批原始失败、通过清单与复测操作见[验收指南](batch-6-test-guide.md#第二批人工反馈2026-11-16)；独立审查及精确归档见[第二批实施](issues-82-88-implementation.md#第二批反馈修复2026-11-16)。
 
@@ -44,8 +40,8 @@
 
 ## 交付与验收边界
 
-统一包在本树`dist/batch-6-integration/AllMatters-public/`与`AllMatters-public-beta/`，每目标仅五文件；DLL均`0.1.1+3f2059377a9281b0d0bbadff4658f0f429c1077d`，PCK/许可/manifest已核。第二批包保存在`.local/issue88-manual3/previous-delivery/`，更早包保留原处。
+统一包在本树`dist/batch-6-integration/AllMatters-public/`与`AllMatters-public-beta/`，每目标五文件；DLL均`0.1.1+f25de547bcd5444a4221cccb87c7f081302c11c7`，PCK/许可/manifest已核。第三批包备份在`.local/issue88-manual4/previous-delivery/`。
 
-完整自动宿主使用RitsuLib0.6.11；第二批实机为Workshop0.6.14，并另做相关0.6.14窄核。Agent不启动游戏/Steam、不写真实mods或存档。第三批回报保留已通过的既有操作序列；新模式、步数与标记、施法提示和前冲仍待新包实机。BaseLib Continue清理异常及D3D12设备丢失未签修复。
+完整自动宿主使用RitsuLib0.6.11；第二批实机为Workshop0.6.14，并另做相关0.6.14窄核。第四批新行为按[验收指南](batch-6-test-guide.md#第四批人工反馈2026-11-16)实机复测。BaseLib Continue清理异常及D3D12设备丢失仍在诊断记录中。
 
 真实多端/设备/终局责任见[验证地图](issues-82-88-verification-map.md)。#93/#94既有签收保留，#88未自动关闭；未推送或正式发布。调度遵循[批次流程](agents/batch-flow.md)：最多两片在制、唯一执行者、独立双轴、正常hooks。

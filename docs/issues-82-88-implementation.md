@@ -128,3 +128,17 @@ Mystic正式节点+协调器+真实牌视觉链在0.6.14最终strict通过，归
 最终源码 `3f2059377a9281b0d0bbadff4658f0f429c1077d` 完成两版全量。原 `full-check-3f20593.log` 归档 beta 680通过（`run-20261116-165328286-a2a9c25d4cad4b72afd76bf39774fa21`），public在帝皇蟹布局期间进程中断、无完成摘要。以相同提交重跑 `Check.ps1 -Branch public`，全部步骤PASS，public 682通过（`run-20261116-175745206-5569e9f4fad4477ba22e36c791bf96da`）。随后以相同提交及新导出PCK执行beta构建，成功完成。两版测试构建/宿主0/0、Engine26、Metadata0；诊断与前批相同类别，public两条中文输出仅控制台编码不同。恢复检查、beta构建和交付核对日志分别为 `public-resume-3f20593.log`、`beta-build-3f20593.log`、`package-result.log`，均在 `.local/issue88-manual3/`。构建使用项目默认Debug配置。
 
 第三批统一目录每目标五文件。两版DLL产品版本皆 `0.1.1+3f2059377a9281b0d0bbadff4658f0f429c1077d`，public DLL 1,091,584字节、beta DLL 1,088,512字节，两版PCK均85,203,520字节；已逐文件核对构建输出与交付副本、manifest依赖及许可证原件。第二批包已备份到 `.local/issue88-manual3/previous-delivery/`。实机按指南确认新模式、当幕步数、地图标记和战斗反馈。
+
+## 第四批反馈实施（2026-11-16）
+
+用户实机通过的模式准入、三个遗物、“细看”及藏宝图金币和移卡已记入[看板](issues-82-88-board.md#人工已通过)。开箱后曾触发等待弹框，返回地图无法继续。暂停存退、继续、放弃与重载各有复测步骤。
+
+原生单人跳过遗物只标记跳过并立即推进，开箱任务仍等待遗物完成事件。拼图在推进与退出中都等待该任务，导致真实 Skip 输入后终端推进卡住。beta 宿主旧行为在 `.local/issue88-manual4/marked-native.log` 复现超时。修复在已确认跳过后复用原生空奖励完成通知，房间推进继续等待开箱自身，退出等待已启动的源奖励和原生遗物分配。不同幕的同编号房间独立记录，放弃跑局时跳过额外的退出前保存。原版跳过按钮计时跟随场景销毁，避免退出后尝试启用已销毁的按钮。
+
+神秘术士施法复用治疗的挥杖动作，以及原版夜魇使用的雾幕和手影节点，仍按玩家生成状态牌、加入弃牌堆并播出原生预览。酷刑博物馆仅 beta 生效，复用原版展示遗物和结尾，拿走加一张可悬停查看的红字愧疚，逃出扣当前生命10点。规格已补记于 [#73 评论](https://github.com/Endercloud001/AllMatters/issues/73#issuecomment-6914847082)。
+
+独立规格与标准审查覆盖暂存差异和增量。宝箱真实输入两版各2，严格诊断为0，见 `manual4-marked-final-20261116-193711579-8dca48bc89404c898f527c9afaa9dddd`。用例覆盖金币和移卡已结算时经过原生暂停退出入口，以及实际 Skip → 拼图地图 → 同进程新大厅恢复和唯一结算。退出用例替换原生主菜单场景切换，由实机继续核验完整存退和放弃。Mystic 双版各8，见 `manual4-mystic-20261116-192841360-004d33cc9f714c01938fe7fd81599599`，画面留待实机。博物馆 beta 两例见实施树 `manual4-museum-20261116-192135702-369a87283e3e4beb8cd4430ef8eb596e`。候选 `f25de547bcd5444a4221cccb87c7f081302c11c7` 通过正常提交钩子。
+
+同一源码 `f25de547bcd5444a4221cccb87c7f081302c11c7` 的 `Check.ps1 -Branch All` 已完整退出通过，包含资源、脚本、双版本完整宿主和构建。public-beta 684通过，归档 `run-20261116-193945663-8f8d39877202420b804ad00fb30d227c`；public 684通过，归档 `run-20261116-201901712-de64bd66dcd24aae94d78d48d620da61`，都在本树 `.local/tests/archives/`。两版 Build/Host 各0/0，Engine26、Metadata0。完整控制台及交付核对在 `.local/issue88-manual4/full-check-f25de54.log` 和 `package-result.log`，完成标记为 `delivery-complete.txt`。
+
+双版本统一包各五文件，DLL ProductVersion 均为 `0.1.1+f25de547bcd5444a4221cccb87c7f081302c11c7`。public DLL 1,095,168字节，beta DLL 1,096,192字节，PCK各85,203,520字节。交付脚本逐文件核对构建副本、manifest依赖和许可证，第三批包保存于 `.local/issue88-manual4/previous-delivery/`。新的夜魇呈现和完整存退/放弃操作仍按第四批复测指南进行实机验收。
