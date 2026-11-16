@@ -1,10 +1,10 @@
 # #82–#88 当前调度看板
 
-更新：2026-11-16。集成树：`AllMatters/.claude/worktrees/hunting-20261112`；分支：`integration/issues-82-88-20261112`；当前源码：`448e8f7`。仅集成主控维护。
+更新：2026-11-16。集成树：`AllMatters/.claude/worktrees/hunting-20261112`；分支：`integration/issues-82-88-20261112`；当前源码：`f4ea117`。仅集成主控维护。
 
 ## 当前工作：#88 兼容验证与统一交付
 
-**第五轮人工反馈已通过上一轮事项。** 第四批双版全量各684通过、Build/Host各0/0、Engine/Metadata各26/0。issue评论已补齐。面具图标与红字448e8f7双版窄核各1 strict通过、构建及包更新完成。
+**第六轮修复及双版包更新完成。** 地图UI各22、啄击各2 strict通过，Engine/Metadata各0/0，双版构建通过；第四批双版各684全量继续作为既有基线。
 
 ## 人工已通过
 
@@ -24,6 +24,7 @@
 |M88-4-chest|集成 / `f25de54`|双版实际跳过→地图→重载及待选遗物时退出各2 strict。|
 |M88-4-mystic|集成 / 同上|挥杖与原版夜魇特效，保留弃牌预览。双版行为各8通过。|
 |M73-4-museum|集成 / 同上|仅 beta，两个选项宿主测试通过。[规格评论](https://github.com/Endercloud001/AllMatters/issues/73#issuecomment-6914847082)|
+|M88-6-ui / Peck|集成 / `f4ea117`|双版UI22、Peck2通过，含真实原生波纹；联机音效/广播及完整牌组点击待新包实机。|
 
 第二批原始失败、通过清单与复测操作见[验收指南](batch-6-test-guide.md#第二批人工反馈2026-11-16)；独立审查及精确归档见[第二批实施](issues-82-88-implementation.md#第二批反馈修复2026-11-16)。
 
@@ -40,7 +41,7 @@
 
 ## 交付与验收边界
 
-统一包在本树`dist/batch-6-integration/AllMatters-public/`与`AllMatters-public-beta/`，每目标五文件；DLL均`0.1.1+448e8f7cb3b176ca8fe591bdaeb093eda05da0f9`，PCK/许可/manifest已核。第四批包备份在`.local/issue88-manual5/previous-delivery/`。
+统一包在本树`dist/batch-6-integration/AllMatters-public/`与`AllMatters-public-beta/`，每目标五文件；DLL均`0.1.1+f4ea117c86e140372e9a13a627ec23ce0e1c1493`，逐文件核对通过。第五轮包备份在`.local/issue88-manual6/previous-delivery/`。
 
 第五轮用户确认上一轮问题均通过，第四轮宝箱存退/放弃/地图继续、Mystic呈现和博物馆回报据此更新。保留反馈原有版本/人数范围。面具新尺寸及红字待新包实机查看。
 

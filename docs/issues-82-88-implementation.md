@@ -162,3 +162,13 @@ Mystic正式节点+协调器+真实牌视觉链在0.6.14最终strict通过，归
 - [#88 实现或规格补记](https://github.com/Endercloud001/AllMatters/issues/88#issuecomment-6918024658)
 
 最终面具提交448e8f7cb3b176ca8fe591bdaeb093eda05da0f9通过正常hooks和独立只读审查。最终双版受影响用例各1 strict通过，Engine/Metadata各0/0，归档manual5-mask-final-20261116-214158318-77c3d3d2cb4a4d598a3cf642dad05e3e。两版构建通过，统一五文件包更新且逐文件核对，DLL产品版本为0.1.1+该完整SHA；第四批包保存在.local/issue88-manual5/previous-delivery/。展示微调未重跑684全量，沿第四批全量加本轮受影响窄核与构建记录。
+
+## 第六轮反馈修复（2026-11-16）
+
+源码f4ea117c86e140372e9a13a627ec23ce0e1c1493修复四项反馈。探索中的普通“还可前行N步”句不再显示，最后一步/额度耗尽和操作反馈移至屏幕左下；原生顶栏步数与悬停仍可用。地图_Input在原生Capstone及可见Overlay打开时交还输入，避免查看本人或队友牌组时触发地图。beta Peck动态变量实际为HitCount，public为Repeat，现按版本插入描述，伤害与去格挡实际行为沿既有实现。
+
+重复已投票节点调用原生FlavorSynchronizer.SendMapPing，沿原消息广播和200ms节流；两版原生PingMapCoord接收转到拼图逻辑节点，以原生NMapPingVfx、玩家MapDrawingColor、头像闪烁及map_ping.mp3呈现。原生参数顺序分别为public(coord,player)、beta(player,coord)，Harmony按名称绑定。锚点随平移缩放更新，特效生命周期由原生播放结束释放。
+
+两轴独立只读审查通过。双版地图UI各22 strict通过，归档manual6-ui-merged-20261116-234852677-93e486b6c5c04b868e51829a49f828be，包含Capstone打开时真实引擎卡牌按钮点击不投地图票、左下提示位置及实际原生波纹颜色/中心/释放。Peck双语普通/升级描述及攻击结算各2 strict通过，归档manual6-peck-final-20261116-234028892-cf63339b7b9044edb4bceacfc0d7c171。两版Engine/Metadata均0/0。UI夹具使用前景按钮代表卡牌，实际完整牌组界面和真实多人音效/广播按第六轮指南复验。原生卡牌未升级时调用升级预览API仍显示其当前3次，测试按实际动态变量状态断言，升级卡为4次。
+
+双版默认Debug构建通过，日志.local/issue88-manual6/build-{beta,public}.log。统一交付五文件已逐项核对，版本0.1.1+f4ea117c86e140372e9a13a627ec23ce0e1c1493，第五轮包保存于.local/issue88-manual6/previous-delivery/。
