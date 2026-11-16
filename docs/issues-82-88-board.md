@@ -1,10 +1,10 @@
 # #82–#88 当前调度看板
 
-更新：2026-11-16。集成树：`AllMatters/.claude/worktrees/hunting-20261112`；分支：`integration/issues-82-88-20261112`；当前源码：`f25de54`。仅集成主控维护。
+更新：2026-11-16。集成树：`AllMatters/.claude/worktrees/hunting-20261112`；分支：`integration/issues-82-88-20261112`；当前源码：`448e8f7`。仅集成主控维护。
 
 ## 当前工作：#88 兼容验证与统一交付
 
-**第四批双版本全量及交付完成。** public-beta / public 各684通过，Build/Host 各0/0，Engine/Metadata 各26/0。源码 `f25de54`，准确归档见[第四批实施](issues-82-88-implementation.md#第四批反馈实施2026-11-16)。
+**第五轮人工反馈已通过上一轮事项。** 第四批双版全量各684通过、Build/Host各0/0、Engine/Metadata各26/0。issue评论已补齐。面具图标与红字448e8f7双版窄核各1 strict通过、构建及包更新完成。
 
 ## 人工已通过
 
@@ -40,8 +40,8 @@
 
 ## 交付与验收边界
 
-统一包在本树`dist/batch-6-integration/AllMatters-public/`与`AllMatters-public-beta/`，每目标五文件；DLL均`0.1.1+f25de547bcd5444a4221cccb87c7f081302c11c7`，PCK/许可/manifest已核。第三批包备份在`.local/issue88-manual4/previous-delivery/`。
+统一包在本树`dist/batch-6-integration/AllMatters-public/`与`AllMatters-public-beta/`，每目标五文件；DLL均`0.1.1+448e8f7cb3b176ca8fe591bdaeb093eda05da0f9`，PCK/许可/manifest已核。第四批包备份在`.local/issue88-manual5/previous-delivery/`。
 
-完整自动宿主使用RitsuLib0.6.11；第二批实机为Workshop0.6.14，并另做相关0.6.14窄核。第四批新行为按[验收指南](batch-6-test-guide.md#第四批人工反馈2026-11-16)实机复测。BaseLib Continue清理异常及D3D12设备丢失仍在诊断记录中。
+第五轮用户确认上一轮问题均通过，第四轮宝箱存退/放弃/地图继续、Mystic呈现和博物馆回报据此更新。保留反馈原有版本/人数范围。面具新尺寸及红字待新包实机查看。
 
 真实多端/设备/终局责任见[验证地图](issues-82-88-verification-map.md)。#93/#94既有签收保留，#88未自动关闭；未推送或正式发布。调度遵循[批次流程](agents/batch-flow.md)：最多两片在制、唯一执行者、独立双轴、正常hooks。

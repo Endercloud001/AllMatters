@@ -142,3 +142,23 @@ Mystic正式节点+协调器+真实牌视觉链在0.6.14最终strict通过，归
 同一源码 `f25de547bcd5444a4221cccb87c7f081302c11c7` 的 `Check.ps1 -Branch All` 已完整退出通过，包含资源、脚本、双版本完整宿主和构建。public-beta 684通过，归档 `run-20261116-193945663-8f8d39877202420b804ad00fb30d227c`；public 684通过，归档 `run-20261116-201901712-de64bd66dcd24aae94d78d48d620da61`，都在本树 `.local/tests/archives/`。两版 Build/Host 各0/0，Engine26、Metadata0。完整控制台及交付核对在 `.local/issue88-manual4/full-check-f25de54.log` 和 `package-result.log`，完成标记为 `delivery-complete.txt`。
 
 双版本统一包各五文件，DLL ProductVersion 均为 `0.1.1+f25de547bcd5444a4221cccb87c7f081302c11c7`。public DLL 1,095,168字节，beta DLL 1,096,192字节，PCK各85,203,520字节。交付脚本逐文件核对构建副本、manifest依赖和许可证，第三批包保存于 `.local/issue88-manual4/previous-delivery/`。新的夜魇呈现和完整存退/放弃操作仍按第四批复测指南进行实机验收。
+
+## 第五轮反馈与issue补记（2026-11-16）
+
+用户已确认第四轮问题全部通过。追加建筑师面具栏图标裁掉原图多余透明留白，使用Godot AtlasTexture区域(128,32,1104,1136)，原始图保留用于大图。中文首句使用指定“建筑师的目光盯上了你。”并标红，英文对应首句同步标红。
+
+双版既有商店/面具用例各1通过，新增断言验证真实Icon加载为AtlasTexture及轮廓一致，归档manual5-mask-20261116-213245403-b84b1ca347c94d1c88f0bfec06ffc553。此轮展示小改动沿用第四批684完整验证作为基线，受影响窄核和双版构建另记。
+
+已按用户授权发布以下评论，逐票保留本地源码、真实宿主与人工反馈的证据范围。
+
+- [#73 实现或规格补记](https://github.com/Endercloud001/AllMatters/issues/73#issuecomment-6917999528)
+- [#81 实现或规格补记](https://github.com/Endercloud001/AllMatters/issues/81#issuecomment-6918021041)
+- [#82 实现或规格补记](https://github.com/Endercloud001/AllMatters/issues/82#issuecomment-6918021580)
+- [#83 实现或规格补记](https://github.com/Endercloud001/AllMatters/issues/83#issuecomment-6918022070)
+- [#84 实现或规格补记](https://github.com/Endercloud001/AllMatters/issues/84#issuecomment-6918022521)
+- [#85 实现或规格补记](https://github.com/Endercloud001/AllMatters/issues/85#issuecomment-6918023083)
+- [#86 实现或规格补记](https://github.com/Endercloud001/AllMatters/issues/86#issuecomment-6918023625)
+- [#87 实现或规格补记](https://github.com/Endercloud001/AllMatters/issues/87#issuecomment-6918024148)
+- [#88 实现或规格补记](https://github.com/Endercloud001/AllMatters/issues/88#issuecomment-6918024658)
+
+最终面具提交448e8f7cb3b176ca8fe591bdaeb093eda05da0f9通过正常hooks和独立只读审查。最终双版受影响用例各1 strict通过，Engine/Metadata各0/0，归档manual5-mask-final-20261116-214158318-77c3d3d2cb4a4d598a3cf642dad05e3e。两版构建通过，统一五文件包更新且逐文件核对，DLL产品版本为0.1.1+该完整SHA；第四批包保存在.local/issue88-manual5/previous-delivery/。展示微调未重跑684全量，沿第四批全量加本轮受影响窄核与构建记录。
