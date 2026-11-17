@@ -11,6 +11,7 @@ using MegaCrit.Sts2.Core.Multiplayer;
 using MegaCrit.Sts2.Core.Multiplayer.Game.Lobby;
 using MegaCrit.Sts2.Core.Nodes;
 using MegaCrit.Sts2.Core.Nodes.Screens.Map;
+using MegaCrit.Sts2.Core.Nodes.Screens.Overlays;
 using MegaCrit.Sts2.Core.Nodes.Screens;
 using MegaCrit.Sts2.Core.Nodes.Screens.PauseMenu;
 using MegaCrit.Sts2.Core.Nodes.CommonUi;
@@ -308,7 +309,7 @@ public sealed class JigsawNativeSession
         screen.SetMap(Map, Native.Act);
         if (NMapScreen.Instance is { } drawingMap)
             screen.AttachDrawingTools(drawingMap);
-        screen.SetRoomPreview(Map.CurrentNode != null || Map.Phase == JigsawPhase.Ancient && !AncientReady && Native.CurrentRoom is EventRoom ? HideMap : null);
+        screen.SetRoomPreview(Map.CurrentNode != null || Map.Phase == JigsawPhase.Ancient && Native.CurrentRoom is EventRoom ? HideMap : null);
         if (!blockingHotkeys)
         {
             NHotkeyManager.Instance?.AddBlockingScreen(screen);
@@ -318,6 +319,8 @@ public sealed class JigsawNativeSession
         if (presentedNativeMap == null && NMapScreen.Instance is { } nativeMap)
         {
             presentedNativeMap = nativeMap;
+            var overlay = NOverlayStack.Instance?.Peek();
+            screen.CoveredRewardOverlay = overlay?.ScreenType == NetScreenType.Rewards ? overlay : null;
             nativeMap.EmitSignal(NMapScreen.SignalName.Opened);
         }
     }
@@ -333,6 +336,7 @@ public sealed class JigsawNativeSession
         screen.ChoiceRequested = choice => JigsawEditorAction.Submit(this, JigsawEditorOperation.ChooseEnd, choice: choice);
         screen.CanVoteRequested = () => Map?.RoomCompletedPlayers.Contains(LocalPlayerId) == true || CanLeaveMerchant;
         screen.VoteRequested = VoteDestination;
+        screen.EntryHasFailed = () => entryFailed;
         return screen;
     }
     private bool CanLeaveMerchant => Native.CurrentRoom is MerchantRoom && NMapScreen.Instance?.IsTravelEnabled == true;
@@ -404,7 +408,10 @@ public sealed class JigsawNativeSession
     {
         ReleaseHotkeys();
         if (GodotObject.IsInstanceValid(screen))
-            screen?.Hide();
+        {
+            screen!.CoveredRewardOverlay = null;
+            screen.Hide();
+        }
         var nativeMap = presentedNativeMap;
         presentedNativeMap = null;
         if (GodotObject.IsInstanceValid(nativeMap))
@@ -715,6 +722,7 @@ public sealed class JigsawNativeSession
     }
 
     private bool settlingAncientOptions;
+    private JigsawRun? acknowledgedAncientMap;
     private bool HasUnfinishedChosenAncient() => RunManager.Instance.EventSynchronizer.Events
         .OfType<AncientEventModel>().Any(e => !e.IsFinished && e.CurrentOptions.Any(option => option.WasChosen));
 
@@ -752,17 +760,37 @@ public sealed class JigsawNativeSession
         if (Native.CurrentRoom is EventRoom room)
             room.MarkPreFinished();
         BeforeAncient = null;
-        BeginExploration();
+        if (netService is NetSingleplayerGameService)
+            BeginExploration();
+        else if (Map.Phase == JigsawPhase.Ancient && !ReferenceEquals(acknowledgedAncientMap, Map))
+        {
+            // Every endpoint acknowledges only after its local native effects settle.
+            // Keep the shared phase transition on the ordered action stream.
+            acknowledgedAncientMap = Map;
+            var submitted = JigsawEditorAction.Submit(this, JigsawEditorOperation.ContinueAncient);
+            if (!submitted.Success)
+            {
+                acknowledgedAncientMap = null;
+                screen?.ShowResult(submitted);
+            }
+        }
+        RefreshAncientPreview();
         JigsawCheckpoint.Capture(Native, Map);
         OnEdited();
+    }
+
+    internal void RefreshAncientPreview()
+    {
+        if (BeforeAncient == null && Map is { Phase: JigsawPhase.Exploring, CurrentNode: null } &&
+            GodotObject.IsInstanceValid(screen) && screen!.CanReturnToRoom)
+            screen.SetRoomPreview(null);
     }
 
     // Native reward completion owns this transition so its normal save already
     // contains exploration. Also accepts completed Ancient saves from older builds.
     private void BeginExploration()
     {
-        if (Map?.Phase == JigsawPhase.Ancient && AncientReady && Map.ActivePlayers.Count == 1)
-            Map.Continue(LocalPlayerId);
+        Map?.BeginExplorationAfterAncient();
     }
 
     public async Task Continue()
@@ -782,12 +810,6 @@ public sealed class JigsawNativeSession
             await EnterAncient();
             return;
         }
-        if (Map == null)
-            return;
-        var submitted = JigsawEditorAction.Submit(this, JigsawEditorOperation.ContinueAncient);
-        if (!submitted.Success)
-            screen?.ShowResult(submitted);
-        await Task.CompletedTask;
     }
 
     public Task Enter(int node)
@@ -1097,7 +1119,7 @@ public sealed class JigsawNativeSession
         catch (Exception error)
         {
             failure = error;
-            if (!nativeStarted && Current == this && Map.PendingEntry?.Id == attempt.Id && netService is not NetSingleplayerGameService)
+            if (!nativeStarted && Current == this && Map.PendingEntry?.Id == attempt.Id)
             {
                 // Before fade readiness, no native state has changed. Preparation
                 // failures after readiness already retain their before-entry point.
@@ -1105,10 +1127,13 @@ public sealed class JigsawNativeSession
                 if (!entryFailed)
                 {
                     entryFailed = true;
-                    entryFadeDecision?.TrySetResult(false);
-                    RunManager.Instance.RunLocationTargetedBuffer.OnLocationChanged(Native.RunLocation);
-                    JigsawEditorAction.Submit(this, JigsawEditorOperation.EntryFailed, completedOwner: LocalPlayerId);
-                    RunManager.Instance.ActionExecutor.Unpause();
+                    if (netService is not NetSingleplayerGameService)
+                    {
+                        entryFadeDecision?.TrySetResult(false);
+                        RunManager.Instance.RunLocationTargetedBuffer.OnLocationChanged(Native.RunLocation);
+                        JigsawEditorAction.Submit(this, JigsawEditorOperation.EntryFailed, completedOwner: LocalPlayerId);
+                        RunManager.Instance.ActionExecutor.Unpause();
+                    }
                 }
             }
             if (Current == this && (transition?.IsCurrent == true || NGame.Instance?.Transition == null))

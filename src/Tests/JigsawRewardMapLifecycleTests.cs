@@ -35,6 +35,8 @@ internal static class JigsawRewardMapLifecycleTests
             if (!InputMap.HasAction(action)) InputMap.AddAction(action);
         var context = new Harmony("AllMatters.Tests.RewardMapContext");
         NOverlayStack? ownedOverlays = null;
+        var viewport = ((SceneTree)Engine.GetMainLoop()).Root;
+        var originalSize = viewport.Size;
         try
         {
             manager.GenerateRooms(); await manager.GenerateMap();
@@ -75,7 +77,20 @@ internal static class JigsawRewardMapLifecycleTests
                 "The next map key restores the same native reward overlay exactly once.");
             session.HideMap();
             Check(reward.Shown == shown + 1, "Repeated hide cannot restore a reward screen twice.");
+            reward.LeaveRootVisible = true;
             mapScreen.Open(true);
+            Check(reward.IsVisibleInTree(), "Native rewards fade their contents but can keep the overlay root visible.");
+            var readyMap = session.Map!;
+            Check(readyMap.RecordRoomCompletion(1).Success, "Prepare the current room's settled completion.");
+            int next = readyMap.VotingDestinations.First();
+            int? clicked = null;
+            view.VoteRequested = node => { clicked = node; return JigsawResult.Ok; };
+            viewport.Size = new(1280, 720);
+            await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
+            var point = view.MapControl.GetGlobalTransformWithCanvas() * view.GridToCanvas(readyMap.Nodes.Single(n => n.Id == next).Center);
+            Input.ParseInputEvent(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true, Position = point, GlobalPosition = point });
+            await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
+            Check(clicked == next, "A covered native reward overlay must not swallow the next map click.");
             Input.ParseInputEvent(new InputEventKey { Keycode = Key.Escape, Pressed = true });
             await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
             Check(!view.Visible && reward.Hidden == 2 && reward.Shown == shown + 2,
@@ -83,6 +98,7 @@ internal static class JigsawRewardMapLifecycleTests
         }
         finally
         {
+            viewport.Size = originalSize;
             ownedOverlays?.Clear();
             manager.CleanUp(false);
             context.UnpatchAll(context.Id); active = null;
@@ -98,11 +114,12 @@ internal static class JigsawRewardMapLifecycleTests
 internal partial class JigsawRewardOverlayProbe : Control, IOverlayScreen
 {
     internal int Shown, Hidden;
+    internal bool LeaveRootVisible;
     public NetScreenType ScreenType => NetScreenType.Rewards;
     public bool UseSharedBackstop => true;
     public Control DefaultFocusedControl => this;
     public void AfterOverlayOpened() { }
     public void AfterOverlayClosed() { }
     public void AfterOverlayShown() { Shown++; Show(); }
-    public void AfterOverlayHidden() { Hidden++; Hide(); }
+    public void AfterOverlayHidden() { Hidden++; if (!LeaveRootVisible) Hide(); }
 }

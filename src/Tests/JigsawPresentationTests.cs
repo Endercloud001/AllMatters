@@ -434,13 +434,15 @@ internal static class JigsawPresentationTests
   map.CompleteAncient(1); map.Continue(1); map.BeginEnter(1);
   HeadlessUiHost.EnsureInputActions(); int retries=0, abandons=0;
   var view=JigsawScreen.Create(map,1,()=>{},()=>Task.CompletedTask,()=>Task.CompletedTask,node=>{Require(node==1,"Retry preserves destination.");retries++;return Task.CompletedTask;},()=>{},new MemoryJigsawTutorialProfile{Sentence=6},abandonRequested:()=>{Require(map.AbandonEntry(map.PendingEntry!.Id).Success,"The domain accepts abandon.");abandons++;return Task.CompletedTask;});
+  view.EntryHasFailed=()=>true;
+  view.Refresh();
   var probe=new JigsawUnhandledInputProbe(); var tree=(SceneTree)Engine.GetMainLoop();
   try
   {
    await HeadlessUiHost.Mount(probe,view);
-   Require(!view.DialogControl.IsVisibleInTree(),"A pending node entry keeps recovery buttons without reviving the Ancient dialogue bubble.");
+   Require(!view.DialogControl.IsVisibleInTree(),"A failed node entry keeps recovery buttons without reviving the Ancient dialogue bubble.");
    var button=view.DecisionControl.GetChildren().OfType<Button>().SingleOrDefault(b=>b.Text==(abandon?"放弃进入":"重试进入"));
-   Require(button is { Visible:true, Disabled:false },"A pending entry exposes the formal retry action.");
+   Require(button is { Visible:true, Disabled:false },"A failed entry exposes the selected recovery action.");
    view.SwitchZone(1); view.SwitchZone(1); button!.GrabFocus();
    Input.ParseInputEvent(new InputEventAction{Action=MegaInput.select,Pressed=true});
    await tree.ToSignal(tree,SceneTree.SignalName.ProcessFrame);

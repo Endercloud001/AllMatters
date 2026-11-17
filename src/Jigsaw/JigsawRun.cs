@@ -361,6 +361,12 @@ public sealed partial class JigsawRun
             Phase = JigsawPhase.Exploring;
         return JigsawResult.Ok;
     }
+    internal void BeginExplorationAfterAncient()
+    {
+        if (Phase == JigsawPhase.Ancient && players.Count > 0 && players.All(ancientCompleted.Contains))
+            Phase = JigsawPhase.Exploring;
+    }
+
     public bool HasDeferredAncient => Phase == JigsawPhase.Exploring && players.Any(player => !ancientCompleted.Contains(player));
     public IReadOnlyCollection<int> AvailableDestinations
     {

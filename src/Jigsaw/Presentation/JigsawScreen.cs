@@ -1,6 +1,7 @@
 using Godot;
 using MegaCrit.Sts2.Core.ControllerInput;
 using MegaCrit.Sts2.Core.Nodes.CommonUi;
+using MegaCrit.Sts2.Core.Nodes.Screens.Overlays;
 namespace AllMatters.Jigsaw.Presentation;
 
 /// <summary>A local input/read surface. All accepted map decisions belong to JigsawRun.</summary>
@@ -23,6 +24,8 @@ public partial class JigsawScreen : Control
     internal Func<EndChoice, JigsawResult>? ChoiceRequested { get; set; }
     internal Func<int, JigsawResult>? VoteRequested { get; set; }
     internal Func<bool>? CanVoteRequested { get; set; }
+    internal Func<bool>? EntryHasFailed { get; set; }
+    internal IOverlayScreen? CoveredRewardOverlay { get; set; }
     private Func<ulong, Texture2D?>? avatar;
     private Func<ulong, Color>? playerColor;
     private readonly HBoxContainer manualVoters = new(), autoVoters = new();
@@ -385,7 +388,8 @@ public partial class JigsawScreen : Control
         steps.Text = L("剩余步数") + "  " + map.RemainingSteps + " / " + map.Budget;
         steps.Visible = false;
         dialogueRow.Visible = map.Phase != JigsawPhase.Exploring;
-        bottom.Visible = !CanReturnToRoom && (map.Phase != JigsawPhase.Exploring || map.PendingEntry != null);
+        bool showRecovery = map.PendingEntry != null && EntryHasFailed?.Invoke() == true;
+        bottom.Visible = !CanReturnToRoom && (map.Phase != JigsawPhase.Exploring || showRecovery);
         manual.Visible = automatic.Visible = map.Phase is JigsawPhase.Editing or JigsawPhase.Inspecting or JigsawPhase.Generating;
         manual.Disabled = automatic.Disabled = Reading || map.Phase != JigsawPhase.Editing;
         manual.Text = L("由先古之民审视");
@@ -393,10 +397,10 @@ public partial class JigsawScreen : Control
         UpdateVoters(manualVoters, EndChoice.Manual);
         UpdateVoters(autoVoters, EndChoice.Automatic);
         UpdateVoters(continueVoters, map.Phase == JigsawPhase.Ancient ? map.ContinuedPlayers : []);
-        resume.Visible = map.Phase == JigsawPhase.Ancient || map.PendingEntry != null;
+        resume.Visible = map.Phase == JigsawPhase.Ancient || showRecovery;
         resume.Disabled = Reading;
         resume.Text = L(map.PendingEntry != null ? "重试进入" : "继续前行");
-        abandon.Visible = map.PendingEntry != null && abandonRequested != null;
+        abandon.Visible = showRecovery && abandonRequested != null;
         abandon.Disabled = Reading;
         next.Visible = (!tutorialPaused && profile.Sentence < Opening.Length) || replay != null;
         if (next.Visible)
@@ -753,8 +757,10 @@ public partial class JigsawScreen : Control
             return;
         if (MegaCrit.Sts2.Core.Nodes.NRun.Instance?.GlobalUi.SubmenuStack.Stack?.SubmenusOpen == true)
             return;
+        var overlay = NOverlayStack.Instance?.Peek();
+        // The native rewards overlay fades its contents without hiding its root.
         if (MegaCrit.Sts2.Core.Nodes.Screens.Capstones.NCapstoneContainer.Instance?.InUse == true ||
-            (MegaCrit.Sts2.Core.Nodes.Screens.Overlays.NOverlayStack.Instance?.Peek() as Control)?.IsVisibleInTree() == true)
+            overlay is Control { } overlayControl && overlayControl.IsVisibleInTree() && !ReferenceEquals(overlay, CoveredRewardOverlay))
             return;
         if (NModalContainer.Instance?.OpenModal != null)
             return;

@@ -75,8 +75,10 @@ internal static class JigsawEditorAction
                     if (!result.Success || message.Operation != JigsawEditorOperation.SelectEndpoint || input.Endpoint == null)
                         input.Blank = false;
                 }
-                if (result.Success && context.Message.Operation == JigsawEditorOperation.CompleteAncient)
+                if (result.Success && message.Operation == JigsawEditorOperation.CompleteAncient)
                     session.OnAncientCompleted();
+                if (result.Success && message.Operation == JigsawEditorOperation.ContinueAncient)
+                    session.RefreshAncientPreview();
                 if (result.Success && message.Operation is JigsawEditorOperation.CompleteRoom or JigsawEditorOperation.Disconnect or JigsawEditorOperation.FinalizeDestination)
                     await JigsawHuntingNative.CompleteRoom(session, wasHunting);
                 if (result.Success && !entry)

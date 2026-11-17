@@ -320,6 +320,16 @@ param($TaskName)
 Add-Content (Join-Path $PSScriptRoot 'calls.txt') $TaskName
 if ($TaskName -eq 'pre-commit' -and (Get-Content (Join-Path $PSScriptRoot 'failure.txt')) -eq 'format') { exit 7 }
 '@
+# The push hook sets repository-local environment variables in linked worktrees.
+# Keep the fixture's git init and hooks away from the real repository.
+$repositoryEnvironment = @{}
+foreach ($name in (git rev-parse --local-env-vars)) {
+    $value = [Environment]::GetEnvironmentVariable($name, 'Process')
+    if ($null -ne $value) {
+        $repositoryEnvironment[$name] = $value
+        Remove-Item -LiteralPath "Env:$name"
+    }
+}
 Push-Location $fixture
 try {
     & git init --quiet
@@ -349,6 +359,9 @@ try {
     }
 } finally {
     Pop-Location
+    foreach ($name in $repositoryEnvironment.Keys) {
+        [Environment]::SetEnvironmentVariable($name, $repositoryEnvironment[$name], 'Process')
+    }
 }
 
 $requiresRoot = if ($env:ALLMATTERS_REQUIRES_ROOT) { $env:ALLMATTERS_REQUIRES_ROOT } else { Join-Path $repoDir 'tools' }
