@@ -1,5 +1,5 @@
 {
-  "AM_JIGSAW_STEP_RELIC.description": "玩家在本幕的步数上限增加3。",
+  "AM_JIGSAW_STEP_RELIC.description": "玩家在本幕的步数上限增加[blue]3[/blue]。",
   "AM_JIGSAW_FUR_COAT.description": "拾起时，至多标记{Combats}处战斗。这些战斗中的敌人将只有1点生命。",
   "ALL_MATTERS_MUTAGENIC_STRENGTH.title": "突变之力",
   "ALL_MATTERS_MUTAGENIC_STRENGTH.description": "每场战斗开始时，获得 [blue]{StrengthPower}[/blue] 点[gold]力量[/gold]并受到[red]突变衰退[/red]。在你的第三个回合结束时，失去 [blue]{StrengthPower}[/blue] 点[gold]力量[/gold]。",

@@ -1138,8 +1138,8 @@ internal static class JigsawRecoveryNetworkTests
                 RunManager.Instance.EventSynchronizer.ChooseLocalOption(option);
                 await Until(() => session.AncientReady && session.BeforeAncient == null, "all current owners finish real native rewards");
                 await RunManager.Instance.EventSynchronizer.AwaitPendingOptionTasks();
-                await session.Continue();
-                await Until(() => map.Phase == JigsawPhase.Exploring, "new-session continue votes finish and expose exploration");
+                await HeadlessNativeApi.Proceed(RunManager.Instance);
+                await Until(() => map.Phase == JigsawPhase.Exploring, "the original Continue needs no second round of puzzle votes");
                 session.ShowMap();
                 RunManager.Instance.ActionExecutor.Unpause();
                 await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);

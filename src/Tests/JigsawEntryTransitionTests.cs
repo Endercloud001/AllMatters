@@ -107,6 +107,8 @@ internal static class JigsawEntryTransitionTests
             var entering = session.Enter(1);
             Check(outs == 1 && !entering.IsCompleted && nativeSaves == 0 && native.VisitedMapCoords.Count == visited && session.Map!.Steps == 0,
                 "Ordinary production entry must await room fade-out before native save/projection/entry.");
+            Check(!view.DecisionControl.IsVisibleInTree(),
+                "A pending destination during the normal fade must hide the recovery buttons.");
             Check(ReferenceEquals(session.Enter(1), entering), "Repeated entry during the fade shares the one native operation.");
             if (mode is "closed" or "attempt")
             {
@@ -145,7 +147,9 @@ internal static class JigsawEntryTransitionTests
                 Check(failed && view.Visible && view.IsProcessingInput() && view.CanProcess() && session.Map!.Steps == 0 && ins == 1,
                     "Native entry failure must reveal the restored uncharged map with input enabled.");
                 var retry = view.DecisionControl.GetChildren().OfType<Button>().Single(button => button.Text == "重试进入");
-                Check(retry.IsVisibleInTree() && !retry.Disabled, "The failed entry exposes the production retry button.");
+                var abandon = view.DecisionControl.GetChildren().OfType<Button>().Single(button => button.Text == "放弃进入");
+                Check(retry.IsVisibleInTree() && !retry.Disabled && abandon.IsVisibleInTree() && !abandon.Disabled,
+                    "The failed entry exposes both recovery buttons.");
                 view.SwitchZone(1); view.SwitchZone(1); retry.GrabFocus();
                 Input.ParseInputEvent(new InputEventAction { Action = MegaCrit.Sts2.Core.ControllerInput.MegaInput.select, Pressed = true });
                 for (int i = 0; i < 30 && JigsawNativeSession.Current == session; i++)

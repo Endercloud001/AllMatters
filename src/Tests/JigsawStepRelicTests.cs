@@ -7,6 +7,7 @@ using MegaCrit.Sts2.Core.Models.Relics;
 using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Unlocks;
 using MegaCrit.Sts2.Core.Commands;
+using MegaCrit.Sts2.Core.Localization;
 
 internal static class JigsawStepRelicTests
 {
@@ -36,6 +37,19 @@ internal static class JigsawStepRelicTests
             NativeEventTests.Check(map.Budget == 18 && map.RemainingSteps == 18 && !boots.ShouldAllowFreeTravel(), "Native Boots pickup replaces free travel with +3 shared budget and balance before Ancient completion.");
             var compass = await RelicCmd.Obtain<GoldenCompass>(player);
             NativeEventTests.Check(map.Budget == 18 && map.RemainingSteps == 18 && ReferenceEquals(native.Map, nativeMap) && compass.GoldenPathAct == -1, "A second relic cannot stack or regenerate the map through native AfterObtained.");
+            string previousLanguage = LocManager.Instance.Language;
+            try
+            {
+                foreach (string language in new[] { "eng", "zhs" })
+                {
+                    LocManager.Instance.SetLanguage(language);
+                    foreach (RelicModel relic in new RelicModel[] { boots, compass })
+                        NativeEventTests.Check(relic.DynamicDescription.GetFormattedText().Contains("[blue]3[/blue]") &&
+                            relic.DynamicEventDescription.GetFormattedText().Contains("[blue]3[/blue]"),
+                            $"{relic.Id} highlights the puzzle step bonus in {language} in both descriptions.");
+                }
+            }
+            finally { LocManager.Instance.SetLanguage(previousLanguage); }
             var saved = System.Text.Json.JsonSerializer.Deserialize<JigsawSave>(System.Text.Json.JsonSerializer.Serialize(map.CreateSave()))!;
             var restored = JigsawRun.Restore(saved);
             NativeEventTests.Check(restored.Budget == 18 && restored.RemainingSteps == 18, "Restoring preserves both 18 values rather than silently resetting to 15.");

@@ -292,6 +292,7 @@ internal static class JigsawNativeTests
       ("Jigsaw native authorized process producer", AuthorizedProducer),
       ("Jigsaw native authorized process consumer", AuthorizedConsumer),
       ("Jigsaw native manual map reaches actual Ancient and first room checkpoint", FullFirstRoom),
+      ("Jigsaw native single-piece map accepts a first click after Ancient", ()=>FirstRoomFlow(false, clickAfterAncient:true)),
       ("Jigsaw native treasure rewards complete before map checkpoint", CompletedTreasure),
       ("Jigsaw native partial Ancient restores complete prereward player and map", PartialAncient),
       ("Jigsaw native delayed Ancient effect releases checkpoint after accepted Continue", ()=>FirstRoomFlow(false,laggedAncient:true)),
@@ -788,7 +789,7 @@ internal static class JigsawNativeTests
             new() { card = options[0].Card };
     }
 
-    private static async Task FirstRoomFlow(bool completeTreasure,bool partialAncient=false,bool finishedAncient=false,bool actualPartial=false,EntryFailureKind entryFailure=EntryFailureKind.None,bool transition=false,bool legacyAncient=false,bool preview=false,bool laggedAncient=false)
+    private static async Task FirstRoomFlow(bool completeTreasure,bool partialAncient=false,bool finishedAncient=false,bool actualPartial=false,EntryFailureKind entryFailure=EntryFailureKind.None,bool transition=false,bool legacyAncient=false,bool preview=false,bool laggedAncient=false,bool clickAfterAncient=false)
     {
         using var atlases=HeadlessTestSetup.LoadAtlases("card_atlas","relic_atlas");
         using var eventScope=HeadlessCombatInProgress.EnterEvent();
@@ -807,6 +808,10 @@ internal static class JigsawNativeTests
         // The real EventRoom completion requests SaveManager directly. Redirect only
         // filesystem ownership to an isolated native manager; serialization stays real.
         JigsawNativeSaveHost.Save=room=>manager.SaveRun(RunManager.Instance.ToSave(room),false);
+        AllMatters.Jigsaw.Presentation.JigsawScreen? clickView = null;
+        MegaCrit.Sts2.Core.Nodes.Screens.Map.NMapScreen? clickMap = null;
+        var viewport = ((Godot.SceneTree)Godot.Engine.GetMainLoop()).Root;
+        var originalSize = viewport.Size;
         try
         {
             native.ExtraFields.StartedWithNeow=true;
@@ -859,6 +864,17 @@ internal static class JigsawNativeTests
                 Require(map.PendingEntry==null && ReferenceEquals(native.CurrentRoom,roomBefore) && map.Steps==stepsBefore && HeadlessTestSetup.RngPosition(native.Rng.Niche)==rngBefore,"Lagging Ancient effects block entry without changing room, steps, RNG or pending entry.");
             }
             if(preview) await PreviewRoom(session);
+            using var uiAtlasesAfterAncient = clickAfterAncient ? HeadlessTestSetup.LoadAtlases("ui_atlas", "compressed") : null;
+            if (clickAfterAncient)
+            {
+                viewport.Size = new(1280, 720);
+                HeadlessUiHost.EnsureInputActions();
+                clickView = session.CreateScreen(new AllMatters.Jigsaw.Presentation.MemoryJigsawTutorialProfile { Sentence = 6 });
+                clickMap = new MegaCrit.Sts2.Core.Nodes.Screens.Map.NMapScreen { Name = "JigsawPreviewHost" };
+                await HeadlessUiHost.Mount(clickView);
+                clickMap.Open(false);
+                Require(clickView.CanReturnToRoom, "Opening the map before the local Ancient choice finishes starts a room preview.");
+            }
             string beforeReward = System.Text.Json.JsonSerializer.Serialize(native.Players[0].ToSerializable());
             var beforeRewardCards = native.Players[0].Deck.Cards.ToArray();
             string beforeRewardRunRng = System.Text.Json.JsonSerializer.Serialize(native.Rng.ToSerializable());
@@ -879,6 +895,22 @@ internal static class JigsawNativeTests
             using(global::HeadlessNativeApi.UseSelector(native, new FirstRoomRewardSelector())) await option.Chosen();
             JigsawAncientRewardBoundaryHost.BeforeDone = null;
             Require(ancient.IsFinished && session.AncientReady && map.Phase==JigsawPhase.Exploring,"Real native option completion directly begins exploration without a Continue click.");
+            if (clickView != null)
+            {
+                Require(session.BeforeAncient == null && map.Placements.Count == 1, "The native reward has settled on the live single-piece map.");
+                int destination = map.AvailableDestinations.Single();
+                var tree = (Godot.SceneTree)Godot.Engine.GetMainLoop();
+                await tree.ToSignal(tree, Godot.SceneTree.SignalName.ProcessFrame);
+                var center = map.Nodes.Single(node => node.Id == destination).Center;
+                var point = clickView.MapControl.GetGlobalTransformWithCanvas() * clickView.GridToCanvas(center);
+                Godot.Input.ParseInputEvent(new Godot.InputEventMouseButton
+                    { Position = point, GlobalPosition = point, ButtonIndex = Godot.MouseButton.Left, Pressed = true });
+                for (int frame = 0; frame < 30 && map.CurrentNode != destination; frame++)
+                    await tree.ToSignal(tree, Godot.SceneTree.SignalName.ProcessFrame);
+                Require(map.CurrentNode == destination && map.Steps == 1,
+                    $"A single click enters the first node without reloading. Preview={clickView.CanReturnToRoom}, votes={map.DestinationVotes.Count}, pending={map.PendingEntry}, room={native.CurrentRoom?.GetType().Name}, processing={clickView.IsProcessingInput()}, canvas={clickView.MapControl.GetGlobalRect()}, click={point}, paused={RunManager.Instance.ActionExecutor.IsPaused}.");
+                return;
+            }
             if(laggedAncient)
             {
                 Require(session.BeforeAncient==null,"Late actual native completion releases the prereward checkpoint after logical Exploring.");
@@ -1146,7 +1178,16 @@ internal static class JigsawNativeTests
                 }
             }
         }
-        finally { JigsawEntryFailureHost.Reset(); JigsawAncientRewardBoundaryHost.BeforeDone = null; JigsawNativeSaveHost.Save=null; RunManager.Instance.CleanUp(false); }
+        finally
+        {
+            clickView?.Free();
+            clickMap?.Free();
+            if (clickAfterAncient) viewport.Size = originalSize;
+            JigsawEntryFailureHost.Reset();
+            JigsawAncientRewardBoundaryHost.BeforeDone = null;
+            JigsawNativeSaveHost.Save = null;
+            RunManager.Instance.CleanUp(false);
+        }
     }
 
     private static async Task PreviewRoom(JigsawNativeSession session)

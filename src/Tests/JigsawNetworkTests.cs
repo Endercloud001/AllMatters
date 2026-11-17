@@ -452,8 +452,7 @@ internal static class JigsawNetworkTests
             }
             if(pendingAncient)
             {
-                await session.Continue();
-                await Until(()=>session.Map.Phase==JigsawPhase.Exploring,"active owners continue while original native effects remain pending");
+                await Until(()=>session.AncientReady,"active Ancient completions converge while original native effects remain pending");
                 if(session.BeforeAncient==null)throw new Exception("Running absent native reward must retain whole prereward checkpoint.");
                 await saves.SaveRun(RunManager.Instance.ToSave(null),true);
                 if(!JsonNode.DeepEquals(completeBefore,JsonNode.Parse(io.ReadFile(partialPath)!)))throw new Exception("Running absent native reward must save WHOLE prereward native and Ritsu document.");
@@ -508,8 +507,7 @@ internal static class JigsawNetworkTests
                 Console.WriteLine("ENET ABSENT Ancient original=3 active=2 untouched=3 completed=1,2 final whole save role="+role);
             }
             if(!session.AncientReady)throw new Exception("Every connected player must finish their own Ancient reward before shared continuation.");
-            await session.Continue();
-            await Until(()=>session.Map.Phase==JigsawPhase.Exploring,"all-player continuation consensus enters exploration");
+            await Until(()=>session.Map.Phase==JigsawPhase.Exploring,"settled Ancient rewards enter exploration without a mod Continue vote");
             if (!absentAncient)
             {
                 HeadlessUiHost.EnsureInputActions();
