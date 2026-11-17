@@ -13,6 +13,7 @@ public static class ModEntry
 
     public static void Initialize()
     {
+        Feedback.FeedbackUi.Initialize();
         Jigsaw.JigsawCheckpoint.Initialize();
         Jigsaw.JigsawEditorAction.Initialize();
         Jigsaw.JigsawNativeShopSync.Initialize();
