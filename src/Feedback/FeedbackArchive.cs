@@ -145,13 +145,11 @@ internal static class FeedbackArchive
                         catch (Exception exception) { record["status"] = "unavailable"; record["reason"] = exception.Message; continue; }
                         WriteText(archive, file.Entry, text);
                     }
-                    var screenshot = Record("attachments/screenshot.png", snapshot.Screenshot == null ? "missing" : "collected",
-                        snapshot.Screenshot == null ? "Native feedback screen has no screenshot." : null);
-                    snapshot.Collection.Add(screenshot);
                     if (snapshot.Screenshot != null)
                     {
                         using var image = archive.CreateEntry("attachments/screenshot.png").Open();
                         image.Write(snapshot.Screenshot);
+                        snapshot.Collection.Add(Record("attachments/screenshot.png", "collected"));
                     }
                     WriteJson(archive, "collection.json", snapshot.Collection);
                 }

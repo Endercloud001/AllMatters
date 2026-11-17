@@ -92,7 +92,12 @@ internal static class FeedbackCapture
         {
             collection.Add(FeedbackArchive.Record("context", "not_applicable", "No run is in progress; all run-specific fields are unavailable."));
             collection.Add(FeedbackArchive.Record("attachments/current_run.save", "not_applicable", "No run is in progress."));
+            screenshot = null;
         }
+        if (screenshot == null)
+            collection.Add(run == null
+                ? FeedbackArchive.Record("attachments/screenshot.png", "not_applicable", "No run is in progress.")
+                : FeedbackArchive.Record("attachments/screenshot.png", "missing", "Native feedback screen has no screenshot."));
         if (environment["allmatters"]?["version"] == null)
             collection.Add(FeedbackArchive.Record("environment.allmatters.version", "unavailable", "No loaded AllMatters manifest version is available."));
         if (run != null)

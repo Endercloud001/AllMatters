@@ -3,12 +3,15 @@ using System.IO.Compression;
 using System.Text.Json.Nodes;
 using AllMatters.Feedback;
 using MegaCrit.Sts2.Core.Logging;
+using MegaCrit.Sts2.Core.Multiplayer;
+using MegaCrit.Sts2.Core.Runs;
 
 internal static class FeedbackArchiveTests
 {
     internal static readonly (string Name, Func<Task> Test)[] Cases =
     [
         ("Feedback export sanitizes archive JSON and preserves numeric save IDs", Contents),
+        ("Feedback export includes a screenshot only during a run", ScreenshotScope),
         ("Feedback export selects current and latest native archive excluding mod logs", Logs),
         ("Feedback export records missing unreadable logs without fake entries", Missing),
         ("Feedback export collision preserves existing report and cleans partial files", Collision),
@@ -56,6 +59,45 @@ internal static class FeedbackArchiveTests
             foreach (string entry in new[] { "feedback.txt", "environment.json", "context.json" })
                 Check(collected.Any(node => node!["entry"]!.GetValue<string>() == entry && node["status"]!.GetValue<string>() == "collected"), "Required text entries have explicit successful collection records.");
             Check(!Directory.EnumerateFiles(directory, "*.partial").Any(), "Published archives leave no partial.");
+        }
+        finally { Directory.Delete(directory, true); }
+        return Task.CompletedTask;
+    }
+
+    private static Task ScreenshotScope()
+    {
+        string directory = Temporary();
+        byte[] screenshot = Convert.FromBase64String(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jM1sAAAAASUVORK5CYII=");
+        try
+        {
+            var menu = FeedbackCapture.Capture("", screenshot) with { OutputDirectory = directory };
+            var menuResult = FeedbackArchive.Export(menu);
+            Check(menuResult.Path != null, menuResult.Error ?? "Menu feedback export failed.");
+            using (var archive = ZipFile.OpenRead(menuResult.Path!))
+                Check(!archive.Entries.Any(entry => entry.FullName.StartsWith("attachments/", StringComparison.Ordinal)),
+                    "Menu feedback has no attachment payload, even when the native screen supplies a screenshot.");
+
+            var player = HeadlessTestSetup.PlayerWithRun("FEEDBACK_SCREENSHOT");
+            RunManager.Instance.SetUpTest((RunState)player.RunState, new NetSingleplayerGameService());
+            try
+            {
+                var run = FeedbackCapture.Capture("", screenshot) with
+                {
+                    OutputDirectory = directory,
+                    Started = menu.Started.AddSeconds(1)
+                };
+                var runResult = FeedbackArchive.Export(run);
+                Check(runResult.Path != null, runResult.Error ?? "In-run feedback export failed.");
+                using var archive = ZipFile.OpenRead(runResult.Path!);
+                var entry = archive.GetEntry("attachments/screenshot.png");
+                Check(entry != null, "In-run feedback preserves the native screenshot.");
+                using var actual = entry!.Open();
+                using var bytes = new MemoryStream();
+                actual.CopyTo(bytes);
+                Check(bytes.ToArray().SequenceEqual(screenshot), "In-run feedback preserves the screenshot bytes.");
+            }
+            finally { RunManager.Instance.CleanUp(false); }
         }
         finally { Directory.Delete(directory, true); }
         return Task.CompletedTask;
