@@ -2,6 +2,7 @@ using System.Globalization;
 using System.IO.Compression;
 using System.Text.Json.Nodes;
 using AllMatters.Feedback;
+using MegaCrit.Sts2.Core.Context;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Multiplayer;
 using MegaCrit.Sts2.Core.Runs;
@@ -79,6 +80,7 @@ internal static class FeedbackArchiveTests
                     "Menu feedback has no attachment payload, even when the native screen supplies a screenshot.");
 
             var player = HeadlessTestSetup.PlayerWithRun("FEEDBACK_SCREENSHOT");
+            var previousNetId = LocalContext.NetId;
             RunManager.Instance.SetUpTest((RunState)player.RunState, new NetSingleplayerGameService());
             try
             {
@@ -97,7 +99,12 @@ internal static class FeedbackArchiveTests
                 actual.CopyTo(bytes);
                 Check(bytes.ToArray().SequenceEqual(screenshot), "In-run feedback preserves the screenshot bytes.");
             }
-            finally { RunManager.Instance.CleanUp(false); }
+            finally
+            {
+                try { RunManager.Instance.CleanUp(false); }
+                finally { LocalContext.NetId = previousNetId; }
+            }
+            Check(LocalContext.NetId == previousNetId, "Feedback run cleanup preserves the host's local player.");
         }
         finally { Directory.Delete(directory, true); }
         return Task.CompletedTask;
