@@ -722,6 +722,7 @@ public sealed class JigsawNativeSession
     }
 
     private bool settlingAncientOptions;
+    private JigsawRun? acknowledgedAncientMap;
     private bool HasUnfinishedChosenAncient() => RunManager.Instance.EventSynchronizer.Events
         .OfType<AncientEventModel>().Any(e => !e.IsFinished && e.CurrentOptions.Any(option => option.WasChosen));
 
@@ -759,12 +760,30 @@ public sealed class JigsawNativeSession
         if (Native.CurrentRoom is EventRoom room)
             room.MarkPreFinished();
         BeforeAncient = null;
-        BeginExploration();
-        // A map opened during the reward can remain visible across this transition.
-        if (Map.CurrentNode == null && GodotObject.IsInstanceValid(screen) && screen!.CanReturnToRoom)
-            screen.SetRoomPreview(null);
+        if (netService is NetSingleplayerGameService)
+            BeginExploration();
+        else if (Map.Phase == JigsawPhase.Ancient && !ReferenceEquals(acknowledgedAncientMap, Map))
+        {
+            // Every endpoint acknowledges only after its local native effects settle.
+            // Keep the shared phase transition on the ordered action stream.
+            acknowledgedAncientMap = Map;
+            var submitted = JigsawEditorAction.Submit(this, JigsawEditorOperation.ContinueAncient);
+            if (!submitted.Success)
+            {
+                acknowledgedAncientMap = null;
+                screen?.ShowResult(submitted);
+            }
+        }
+        RefreshAncientPreview();
         JigsawCheckpoint.Capture(Native, Map);
         OnEdited();
+    }
+
+    internal void RefreshAncientPreview()
+    {
+        if (BeforeAncient == null && Map is { Phase: JigsawPhase.Exploring, CurrentNode: null } &&
+            GodotObject.IsInstanceValid(screen) && screen!.CanReturnToRoom)
+            screen.SetRoomPreview(null);
     }
 
     // Native reward completion owns this transition so its normal save already

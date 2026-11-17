@@ -453,7 +453,8 @@ internal static class JigsawNetworkTests
             if(pendingAncient)
             {
                 await Until(()=>session.AncientReady,"active Ancient completions converge while original native effects remain pending");
-                if(session.BeforeAncient==null)throw new Exception("Running absent native reward must retain whole prereward checkpoint.");
+                if(session.BeforeAncient==null || session.Map.Phase!=JigsawPhase.Ancient || session.Map.ContinuedPlayers.Count!=0)
+                    throw new Exception("Running absent native reward must retain the whole prereward checkpoint and withhold the ordered exploration acknowledgement.");
                 await saves.SaveRun(RunManager.Instance.ToSave(null),true);
                 if(!JsonNode.DeepEquals(completeBefore,JsonNode.Parse(io.ReadFile(partialPath)!)))throw new Exception("Running absent native reward must save WHOLE prereward native and Ritsu document.");
                 if(Environment.GetEnvironmentVariable("JIGSAW_PENDING_ANCIENT_FAULT")=="1")
