@@ -6,4 +6,4 @@
 
 旧 `RecoveryStrategies`/`MultiplayerRecoveryOrchestrator` 仅返回阶段标志，从未接入生产，已由原生加载链路及 `JigsawRecoveryNetworkTests` 的实际 ENet 多端恢复测试替代。没有第二套存档文件或恢复编排状态。
 
-自动宿主、共享 beta 资源、正式 public 安装和用户真实三端验收分别记录，详见 `docs/batch-3-test-guide.md`。
+自动宿主、共享 beta 资源、正式 public 安装和用户真实三端验收分别记录，见[批次 3 验收记录](https://github.com/Endercloud001/AllMatters/blob/9619b8f5bfaccb559ae69440fac9a948d5bf1788/docs/batch-3-test-guide.md)。

@@ -4,7 +4,7 @@
 
 |来源|本机资料建议位置|用途及来源边界|
 |---|---|---|
-|[STS2-Balance-MOD](https://github.com/MT-SUPER-POWER/STS2-Balance-MOD)|`.local/references/STS2-Balance-MOD`|事件/遗物/战斗/资源移植来源；GPLv3。已使用素材的固定revision/路径见[追猎素材来源](issues-82-88-asset-sources.md)与根目录NOTICE|
+|[STS2-Balance-MOD](https://github.com/MT-SUPER-POWER/STS2-Balance-MOD)|`.local/references/STS2-Balance-MOD`|事件/遗物/战斗/资源移植来源；GPLv3。已使用素材的固定 revision 和路径见[第三方素材来源与许可](../THIRD_PARTY_NOTICES.md)|
 |[ActsFromThePast](https://github.com/Cany0udance/ActsFromThePast)|`.local/references/ActsFromThePast`|STS1事件/怪物与转换结构对照；历史未发现根LICENSE，逐文件核来源，不从可加载推出可分发|
 |[ModTemplate-StS2](https://github.com/Alchyr/ModTemplate-StS2)|`.local/references/ModTemplate-StS2`|加载入口/manifest/Godot结构参考；历史未发现根LICENSE，不直接复制模板实现|
 |[STS2-RitsuLib](https://github.com/BAKAOLC/STS2-RitsuLib)|`.local/references/STS2-RitsuLib`|模型注册/API适配研究，MIT；运行依赖独立安装，当前目标及完整variant-pack见[开发入口](development.md#当前开发目标2026-11-13)|
@@ -15,7 +15,7 @@
 
 ## 读取与移植
 
-玩法从目标Issue和适用范围文档读取；原始规范来源见[验证地图](issues-82-88-verification-map.md#规范与历史依据)。Balance源码以`Sts2BalanceModCode/Events/`为事件入口，沿`Relics/Cards/Powers/Encounters/Monsters/Patches/Events`追消费者，再逐项核对本地化和资源路径，不假定另有本仓库`docs/events.md`。
+玩法从目标Issue和适用范围文档读取。Balance源码以`Sts2BalanceModCode/Events/`为事件入口，沿`Relics/Cards/Powers/Encounters/Monsters/Patches/Events`追消费者，再逐项核对本地化和资源路径，不假定另有本仓库`docs/events.md`。
 
 Balance自定义Relics目录不包含原生RedMask；事件引用游戏模型，不能因上游缺同名自定义文件而重复注册。牧师等已移植内容的实际来源、修改和分发声明在根目录`THIRD_PARTY_NOTICES.md`；原游戏美术权属不由本项目GPL重新许可。
 

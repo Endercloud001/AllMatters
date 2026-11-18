@@ -18,7 +18,7 @@
 
 ## 下载与安装
 
-v0.1.2 的开发验证目标为 **public 0.107.1** 和 **public-beta 0.113.1**，使用 [RitsuLib 0.6.11 完整 variant-pack](https://github.com/BAKAOLC/STS2-RitsuLib/releases/download/v0.6.11/STS2-RitsuLib.0.6.11.variant-pack.zip)。联机玩家应使用相同的游戏分支与兼容模组组合。[v0.1.2 实现与验收记录](docs/issues-82-88-implementation.md)
+v0.1.2 的开发验证目标为 **public 0.107.1** 和 **public-beta 0.113.1**，使用 [RitsuLib 0.6.11 完整 variant-pack](https://github.com/BAKAOLC/STS2-RitsuLib/releases/download/v0.6.11/STS2-RitsuLib.0.6.11.variant-pack.zip)。联机玩家应使用相同的游戏分支与兼容模组组合。
 
 GitHub Releases 当前提供 **v0.1.1 预览版**，其下载包和依赖对应以下版本。v0.1.2 可按下文从源码构建。当前构建的模组清单仍显示 v0.1.1。
 
