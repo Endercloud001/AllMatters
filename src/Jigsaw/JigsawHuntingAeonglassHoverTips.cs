@@ -20,6 +20,7 @@ internal static class JigsawHuntingAeonglassHoverTips
         // Keep the original Wither preview (including its native upgrade count)
         // and keyword tips. Only this targeted power's rule description changes.
         var description = new LocString("powers", "AM_HUNTED_AEONGLASS.description");
+        description.Add("CardsPerTrigger", JigsawHuntingBosses.AeonglassCardsPerTrigger);
         description.Add("CardsLeft", presence.DynamicVars["CardsLeft"].IntValue);
         description.Add("Wound", ModelDb.Card<Wound>().Title);
         description.Add("Burn", ModelDb.Card<Burn>().Title);

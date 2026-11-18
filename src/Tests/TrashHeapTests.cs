@@ -1,3 +1,4 @@
+using AllMatters.Encounters;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Models.Powers;
@@ -17,6 +18,7 @@ using MegaCrit.Sts2.Core.Entities.Relics;
 using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Factories;
 using MegaCrit.Sts2.Core.Unlocks;
+using MegaCrit.Sts2.Core.Rooms;
 using MegaCrit.Sts2.Core.Runs;
 
 internal static class TrashHeapTests
@@ -173,6 +175,25 @@ internal static class TrashHeapTests
             var reward = RelicFactory.PullNextRelicFromFront(player, RelicRarity.Common, r => r.Id == relic.Id);
             NativeEventTests.Check(reward.Id == relic.Id && relic.Icon != null && relic.IconOutline != null && relic.BigIcon != null,
                 "The real reward bag yields the migrated relic and its original artwork loads.");
+        }
+        var bank = ModelDb.Relic<MawBank>();
+        NativeEventTests.Check(!bank.IsAllowedInShops && ModelDb.Relic<TheBoot>().IsAllowedInShops,
+            "The merchant eligibility filter rejects Maw Bank and still permits The Boot.");
+        foreach (int act in new[] { 1, 2 })
+        {
+            var player = NativeEventTests.Player();
+            var run = (RunState)player.RunState;
+            run.CurrentActIndex = act;
+            player.RelicGrabBag.Populate(player, run.Rng.UpFront);
+            run.PushRoom(new CombatRoom(ModelDb.Encounter<JungleMazeEncounter>().ToMutable(), run));
+            var reward = RelicFactory.PullNextRelicFromFront(player, RelicRarity.Common, relic => relic is MawBank);
+            NativeEventTests.Check((reward is MawBank) == (act == 1), "Maw Bank can drop in act two combat and is filtered in act three.");
+            if (act == 2)
+            {
+                run.PopCurrentRoom();
+                NativeEventTests.Check(RelicFactory.PullNextRelicFromFront(player, RelicRarity.Common, relic => relic is MawBank) is MawBank,
+                    "Filtering a combat drop leaves Maw Bank available to noncombat sources.");
+            }
         }
         return Task.CompletedTask;
     }

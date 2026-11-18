@@ -5,6 +5,7 @@ using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.Merchant;
 using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.Models.Relics;
 using MegaCrit.Sts2.Core.Saves.Runs;
 
 namespace AllMatters.Jigsaw;
@@ -158,7 +159,9 @@ internal static class JigsawNativeShopPersistence
             var entry = Empty<MerchantRelicEntry>(player);
             if (value.Model != null)
                 ValidateRelic(value.Model);
-            Set(entry, nameof(MerchantRelicEntry.Model), value.Model == null ? null : RelicModel.FromSerializable(value.Model));
+            var relic = value.Model == null ? null : RelicModel.FromSerializable(value.Model);
+            // Old checkpoints can contain a Maw Bank offer. Preserve the slot without rerolling stock.
+            Set(entry, nameof(MerchantRelicEntry.Model), relic is MawBank ? null : relic);
             SetCost(entry, value.Cost);
 #if STS2_PUBLIC
             inventory.AddRelicEntry(entry);

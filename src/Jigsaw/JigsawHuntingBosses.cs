@@ -21,6 +21,8 @@ namespace AllMatters.Jigsaw;
 
 internal static class JigsawHuntingBosses
 {
+    internal const int AeonglassCardsPerTrigger = 12;
+
     private sealed class PhaseTwoGrant;
     private static readonly ConditionalWeakTable<SkittishPower, PhaseTwoGrant> fixedSkittish = new();
     private sealed class PhaseThreeClock { internal int FullTurns; }
@@ -67,7 +69,7 @@ internal static class JigsawHuntingBosses
             presence.Target = opponent;
             // Set the display source before the instance is applied/presented.
             // Amount remains the original six; it is not the per-owner counter.
-            presence.DynamicVars["CardsLeft"].BaseValue = 12;
+            presence.DynamicVars["CardsLeft"].BaseValue = AeonglassCardsPerTrigger;
             await PowerCmd.Apply(new ThrowingPlayerChoiceContext(), presence, monster.Creature, 6, monster.Creature, null);
         }
     }
@@ -211,18 +213,24 @@ internal static class JigsawHuntingAeonglassTwelfth
     private static bool IsHunted(WitheringPresencePower presence) => presence.Owner.Monster is Aeonglass monster &&
         JigsawHuntingBosses.IsHuntedBoss(monster);
 
-    private static int Reset(int original, WitheringPresencePower presence) => IsHunted(presence) ? 12 : original;
+    private static int Reset(int original, WitheringPresencePower presence) => IsHunted(presence) ? JigsawHuntingBosses.AeonglassCardsPerTrigger : original;
 
     private static async Task AddStatuses(Creature target, PileType pile, int count, Player? creator,
         CardPilePosition position, WitheringPresencePower presence)
     {
-        if (IsHunted(presence))
+        bool hunted = IsHunted(presence);
+        if (hunted)
         {
             await CardPileCmd.AddToCombatAndPreview<Wound>(target, pile, count, creator, position);
             await CardPileCmd.AddToCombatAndPreview<Burn>(target, pile, count, creator, position);
-            await CardPileCmd.AddToCombatAndPreview<MegaCrit.Sts2.Core.Models.Cards.Void>(target, pile, count, creator, position);
-            await CardPileCmd.AddToCombatAndPreview<Dazed>(target, pile, count, creator, position);
         }
+
         await CardPileCmd.AddToCombatAndPreview<Wither>(target, pile, count, creator, position);
+        if (hunted && target.Player is { Creature.IsAlive: true } player && target.CombatState is { } combat)
+        {
+            await CardPileCmd.AddGeneratedCardToCombat(combat.CreateCard<MegaCrit.Sts2.Core.Models.Cards.Void>(player),
+                PileType.Draw, creator, position);
+            await CardPileCmd.AddGeneratedCardToCombat(combat.CreateCard<Dazed>(player), PileType.Discard, creator, position);
+        }
     }
 }

@@ -87,6 +87,17 @@ internal static class JigsawNativeShopPersistenceTests
             var used = JigsawNativeShopPersistence.Restore(player, JigsawNativeShopPersistence.Capture(original));
             Require(used.CardRemovalEntry!.Used && !used.CardRemovalEntry.IsStocked,
                 "A consumed removal service remains consumed when its stock is reconstructed.");
+
+            var legacyRelics = saved.NativeStock.Relics.ToArray();
+            legacyRelics[0] = legacyRelics[0] with { Model = ModelDb.Relic<MawBank>().ToMutable().ToSerializable() };
+            ulong beforeLegacyRestore = HeadlessTestSetup.RngPosition(player.PlayerRng.Shops);
+            var legacy = JigsawNativeShopPersistence.Restore(player, saved with
+                { NativeStock = saved.NativeStock with { Relics = legacyRelics } });
+            Require(!legacy.RelicEntries.First().IsStocked &&
+                legacy.RelicEntries.Skip(1).Select(entry => entry.Model?.Id).SequenceEqual(
+                    restored.RelicEntries.Skip(1).Select(entry => entry.Model?.Id)) &&
+                HeadlessTestSetup.RngPosition(player.PlayerRng.Shops) == beforeLegacyRestore,
+                "A legacy Maw Bank offer leaves an empty slot without changing the other offers or shop RNG.");
         }
         finally { RunManager.Instance.CleanUp(false); }
     }

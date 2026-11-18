@@ -26,7 +26,7 @@ internal static class TrashHeapRelicTests
         ("Trash Heap relics Omamori removes two added curses and saves exhausted uses", Omamori),
         ("Trash Heap relics Inserter retains own turn remainder across restored combats", Inserter),
         ("Trash Heap relics insect strips Artifact then shrinks actual elite units only", Insect),
-        ("Trash Heap relics sword counts defeated units and restores native progress", Sword),
+        ("Trash Heap relics sword counts elite and boss victories and restores native progress", Sword),
         ("Trash Heap relics native Bandages and Ashes retain their effects", NativeEffects),
     ];
     private static Task Candidates()
@@ -148,20 +148,22 @@ internal static class TrashHeapRelicTests
             var ordinary = Add(combat, ModelDb.Monster<LivingFog>(), "ordinary");
             var escaped = Add(combat, ModelDb.Monster<AllMatters.Monsters.Sentry>(), "escaped");
             // Keep one living creature so the native host does not end combat midassertion.
-            var boss = Add(combat, ModelDb.Monster<KinPriest>(), "boss");
+            Add(combat, ModelDb.Monster<KinPriest>(), "boss");
             var summon = Add(combat, ModelDb.Monster<AllMatters.Monsters.Sentry>(), "summon");
             await PowerCmd.Apply<MinionPower>(new ThrowingPlayerChoiceContext(), summon, 1, summon, null);
             await CreatureCmd.Kill(summon);
             await CreatureCmd.Escape(escaped);
             await CreatureCmd.Kill(ordinary); await CreatureCmd.Kill(a); await CreatureCmd.Kill(b);
-            NativeEventTests.Check(sword.ElitesDefeated == 2, "Two defeated Sentries count two; ordinary and escape count zero.");
+            NativeEventTests.Check(sword.ElitesDefeated == 0, "Defeating individual enemies adds no progress before victory.");
+            await sword.AfterCombatVictory(new CombatRoom(ModelDb.Encounter<ColosseumFirstEncounter>().ToMutable(), p.RunState));
+            NativeEventTests.Check(sword.ElitesDefeated == 0, "Normal combat victory adds no progress.");
             await sword.AfterCombatVictory(new CombatRoom(ModelDb.Encounter<JungleMazeEncounter>().ToMutable(), p.RunState));
-            NativeEventTests.Check(sword.ElitesDefeated == 2, "Room victory adds no extra unit.");
+            NativeEventTests.Check(sword.ElitesDefeated == 1, "Victory over two elite Sentries adds one battle.");
             var restored = Player.FromSerializable(p.ToSerializable());
-            NativeEventTests.Check(restored.Relics.OfType<SwordOfStone>().Single().ElitesDefeated == 2, "Native saved property retains unit progress.");
+            NativeEventTests.Check(restored.Relics.OfType<SwordOfStone>().Single().ElitesDefeated == 1, "Native saved property retains battle progress.");
             sword.ElitesDefeated = 4;
-            await CreatureCmd.Kill(boss);
-            NativeEventTests.Check(!p.Relics.Contains(sword) && p.Relics.Count(r => r is SwordOfJade) == 1, "Fifth unit transforms once into unchanged native Sword of Jade.");
+            await sword.AfterCombatVictory(new CombatRoom(ModelDb.Encounter<MegaCrit.Sts2.Core.Models.Encounters.AeonglassBoss>().ToMutable(), p.RunState));
+            NativeEventTests.Check(!p.Relics.Contains(sword) && p.Relics.Count(r => r is SwordOfJade) == 1, "Fifth victory, here a Boss, transforms once into native Sword of Jade.");
         }
         finally { CombatManager.Instance.Reset(true); RunManager.Instance.CleanUp(false); MegaCrit.Sts2.Core.Context.LocalContext.NetId = previousNetId; }
     }

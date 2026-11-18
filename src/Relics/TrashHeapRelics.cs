@@ -93,28 +93,22 @@ public sealed class Inserter : ModRelicTemplate
 }
 
 [HarmonyPatch(typeof(SwordOfStone), nameof(SwordOfStone.AfterCombatVictory))]
-internal static class SwordOfStoneStopRoomCount
+internal static class SwordOfStoneBattleCount
 {
-    private static bool Prefix(ref Task __result) { __result = Task.CompletedTask; return false; }
-}
+    private static bool Prefix(SwordOfStone __instance, CombatRoom room, ref Task __result)
+    {
+        if (room.RoomType != RoomType.Boss)
+            return true;
 
-[HarmonyPatch(typeof(AbstractModel), nameof(AbstractModel.AfterDeath))]
-internal static class SwordOfStoneUnitCount
-{
-    private static void Postfix(AbstractModel __instance, Creature creature, bool wasRemovalPrevented, ref Task __result)
-    {
-        if (__instance is SwordOfStone sword && !wasRemovalPrevented && creature.IsDead
-            && EnemyIdentity.Kind(creature) is RoomType.Elite or RoomType.Boss)
-            __result = Count(__result, sword);
+        __result = CountBossVictory(__instance);
+        return false;
     }
-    private static async Task Count(Task native, SwordOfStone sword)
+
+    private static async Task CountBossVictory(SwordOfStone sword)
     {
-        await native;
-        if (!sword.Owner.Relics.Contains(sword))
-            return;
         sword.ElitesDefeated++;
         sword.Flash();
-        if (sword.ElitesDefeated >= 5)
+        if (sword.ElitesDefeated >= sword.DynamicVars["Elites"].BaseValue)
             await RelicCmd.Replace(sword, ModelDb.Relic<SwordOfJade>().ToMutable());
     }
 }

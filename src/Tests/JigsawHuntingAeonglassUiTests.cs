@@ -128,14 +128,17 @@ internal static class JigsawHuntingAeonglassUiTests
             {
                 var hand = PileType.Hand.GetPile(local).Cards;
                 var statuses = hand.Concat(PileType.Discard.GetPile(local).Cards)
+                    .Concat(PileType.Draw.GetPile(local).Cards)
                     .Where(card => card is Wound or Burn or MegaCrit.Sts2.Core.Models.Cards.Void or Dazed or Wither).ToArray();
                 Check(statuses.Length == 5 && statuses[0] is Wound && statuses[1] is Burn &&
-                    statuses[2] is MegaCrit.Sts2.Core.Models.Cards.Void && statuses[3] is Dazed && statuses[4] is Wither,
-                    "The actual twelfth play produces all five ordered statuses.");
-                Check(count == 1 ? hand.Count == 5 && statuses.All(card => card.Pile == PileType.Hand.GetPile(local)) :
-                    hand.Count == 10 && originalHand.All(card => hand.Contains(card)) &&
-                    statuses[0].Pile == PileType.Hand.GetPile(local) && statuses.Skip(1).All(card => card.Pile == PileType.Discard.GetPile(local)),
-                    "Native insertion preserves nine original cards and spills only the final four statuses.");
+                    statuses[2] is Wither && statuses[3] is Dazed && statuses[4] is MegaCrit.Sts2.Core.Models.Cards.Void,
+                    "The actual twelfth play produces one of each status.");
+                Check(statuses[4].Pile == PileType.Draw.GetPile(local) && statuses[3].Pile == PileType.Discard.GetPile(local),
+                    "Void goes to the draw pile and Dazed goes to the discard pile.");
+                Check(count != 1 ? hand.Count == 10 && originalHand.All(card => hand.Contains(card)) && statuses[0].Pile == PileType.Hand.GetPile(local) &&
+                    statuses.Skip(1).Take(2).All(card => card.Pile == PileType.Discard.GetPile(local)) :
+                    hand.Count == 3 && statuses.Take(3).All(card => card.Pile == PileType.Hand.GetPile(local)),
+                    "Native insertion puts Wound, Burn and Wither in hand, with Burn and Wither spilling when only one slot is open.");
             }
         }
         async Task Checkpoint(int value, string phase, bool resize)

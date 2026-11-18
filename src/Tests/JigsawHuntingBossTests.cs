@@ -20,7 +20,7 @@ internal static class JigsawHuntingBossTests
 {
     internal static readonly (string Name, Func<Task> Test)[] Cases =
     [ ("Jigsaw hunting Boss Aeonglass initializes independent twelve card counters without Artifact", AeonglassOpening),
-      ("Jigsaw hunting Boss Aeonglass mixed owner twelfth plays generate five ordered statuses and reset displays", AeonglassPlays),
+      ("Jigsaw hunting Boss Aeonglass mixed owner twelfth plays route five statuses to three piles and reset displays", AeonglassPlays),
       ("Jigsaw hunting Boss Test Subject first real revival replaces only its phase two grants", TestSubjectFirstRevival),
       ("Jigsaw hunting Boss Test Subject bound A8 A9 damage retains hunted scope after preload", TestSubjectDamage),
       ("Jigsaw hunting Boss Test Subject native second revival and nine complete player turns", TestSubjectTurns),
@@ -382,6 +382,7 @@ internal static class JigsawHuntingBossTests
 
                 WitheringPresencePower Counter(Player player) => counters.Single(power => power.Target.Player == player);
                 CardModel[] Statuses(Player player) => PileType.Hand.GetPile(player).Cards.Concat(PileType.Discard.GetPile(player).Cards)
+                    .Concat(PileType.Draw.GetPile(player).Cards)
                     .Where(card => card is Wound or Burn or MegaCrit.Sts2.Core.Models.Cards.Void or Dazed or Wither).ToArray();
                 async Task Play(Player player)
                 {
@@ -393,15 +394,17 @@ internal static class JigsawHuntingBossTests
                 {
                     var statuses = Statuses(player);
                     NativeEventTests.Check(statuses.Length == 5 && statuses[0] is Wound && statuses[1] is Burn &&
-                        statuses[2] is MegaCrit.Sts2.Core.Models.Cards.Void && statuses[3] is Dazed && statuses[4] is Wither &&
-                        statuses.All(card => card.Owner == player), "The actual owner's twelfth play generates exactly Wound, Burn, Void, Dazed, Wither in order.");
+                        statuses[2] is Wither && statuses[3] is Dazed && statuses[4] is MegaCrit.Sts2.Core.Models.Cards.Void &&
+                        statuses.All(card => card.Owner == player), "The actual owner's twelfth play generates exactly one of each status.");
                     NativeEventTests.Check(Counter(player).DisplayAmount == 12 && Counter(player).DynamicVars["CardsLeft"].IntValue == 12,
                         "The actual owner's twelfth-play counter and display reset to twelve.");
                     var hand = PileType.Hand.GetPile(player).Cards;
+                    NativeEventTests.Check(statuses[4].Pile == PileType.Draw.GetPile(player) && statuses[3].Pile == PileType.Discard.GetPile(player),
+                        "Void goes to the draw pile and Dazed goes to the discard pile.");
                     NativeEventTests.Check(overflow ? hand.Count == 10 && statuses[0].Pile == PileType.Hand.GetPile(player) &&
-                        statuses.Skip(1).All(card => card.Pile == PileType.Discard.GetPile(player)) :
-                        hand.Count == 5 && statuses.All(card => card.Pile == PileType.Hand.GetPile(player)),
-                        "Native pile insertion keeps all five in an empty hand and spills only the last four from a nine-card hand to discard.");
+                        statuses.Skip(1).Take(2).All(card => card.Pile == PileType.Discard.GetPile(player)) :
+                        hand.Count == 3 && statuses.Take(3).All(card => card.Pile == PileType.Hand.GetPile(player)),
+                        "Native insertion puts Wound, Burn and Wither in hand, with Burn and Wither spilling when only one slot is open.");
                 }
             }
             finally

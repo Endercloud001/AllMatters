@@ -39,5 +39,5 @@
   "ALL_MATTERS_POWER_SCRUTINY_POWER.title": "细看",
   "ALL_MATTERS_POWER_SCRUTINY_POWER.description": "玩家在本回合无法额外抽牌。",
   "ALL_MATTERS_POWER_SCRUTINY_POWER.smartDescription": "玩家在本回合无法额外抽牌。",
-  "AM_HUNTED_AEONGLASS.description": "你每打出[blue]12[/blue]张牌，将[gold]{Wound}[/gold]、[gold]{Burn}[/gold]、[gold]{Void}[/gold]、[gold]{Dazed}[/gold]和[gold]{Wither}[/gold]各一张加入你的[gold]手牌[/gold]。还需打出[blue]{CardsLeft}[/blue]张牌。"
+  "AM_HUNTED_AEONGLASS.description": "你每打出[blue]{CardsPerTrigger}[/blue]张牌，将[gold]{Wound}[/gold]、[gold]{Burn}[/gold]、[gold]{Wither}[/gold]各1张加入你的[gold]手牌[/gold]，将1张[gold]{Void}[/gold]加入你的[gold]抽牌堆[/gold]，将1张[gold]{Dazed}[/gold]加入你的[gold]弃牌堆[/gold]。还需打出[blue]{CardsLeft}[/blue]张牌。"
 }

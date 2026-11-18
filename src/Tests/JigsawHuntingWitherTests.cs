@@ -162,22 +162,24 @@ internal static class JigsawHuntingWitherTests
                 await Play();
 
                 var statuses = PileType.Hand.GetPile(player).Cards.Concat(PileType.Discard.GetPile(player).Cards)
+                    .Concat(PileType.Draw.GetPile(player).Cards)
                     .Where(card => !beforeTrigger.Contains(card) &&
                         (card is Wound or Burn or MegaCrit.Sts2.Core.Models.Cards.Void or Dazed or Wither)).ToArray();
                 NativeEventTests.Check(statuses.Length == 5 && statuses[0] is Wound && statuses[1] is Burn &&
-                    statuses[2] is MegaCrit.Sts2.Core.Models.Cards.Void && statuses[3] is Dazed && statuses[4] is Wither &&
+                    statuses[2] is Wither && statuses[3] is Dazed && statuses[4] is MegaCrit.Sts2.Core.Models.Cards.Void &&
                     statuses.All(card => card.Owner == player),
-                    $"overflow={overflow}: the owner's actual twelfth play preserves the five native status identities, order and ownership.");
-                NativeEventTests.Check(((Wither)statuses[4]).DynamicVars.Damage.BaseValue == 6 &&
+                    $"overflow={overflow}: the owner's actual twelfth play preserves the five status identities and their ownership.");
+                NativeEventTests.Check(((Wither)statuses[2]).DynamicVars.Damage.BaseValue == 6 &&
                     intensityWither.DynamicVars.Damage.BaseValue == 6 && aeonglass.WitherUpgradeCount == 1 &&
                     PileType.Discard.GetPile(player).Cards.Contains(intensityWither),
                     $"overflow={overflow}: the twelfth-play Wither matches the native upgrade count once and preserves the earlier damage-six Wither.");
                 var hand = PileType.Hand.GetPile(player).Cards;
-                NativeEventTests.Check(overflow ? hand.Count == 10 && held.All(card => hand.Contains(card)) &&
-                    statuses[0].Pile == PileType.Hand.GetPile(player) &&
-                    statuses.Skip(1).All(card => card.Pile == PileType.Discard.GetPile(player)) :
-                    hand.Count == 5 && statuses.All(card => card.Pile == PileType.Hand.GetPile(player)),
-                    $"overflow={overflow}: native insertion retains all five in an empty hand or spills only the last four from the nine-card hand.");
+                NativeEventTests.Check(statuses[4].Pile == PileType.Draw.GetPile(player) && statuses[3].Pile == PileType.Discard.GetPile(player),
+                    "Void goes to the draw pile and Dazed goes to the discard pile.");
+                NativeEventTests.Check(overflow ? hand.Count == 10 && held.All(card => hand.Contains(card)) && statuses[0].Pile == PileType.Hand.GetPile(player) &&
+                    statuses.Skip(1).Take(2).All(card => card.Pile == PileType.Discard.GetPile(player)) :
+                    hand.Count == 3 && statuses.Take(3).All(card => card.Pile == PileType.Hand.GetPile(player)),
+                    "Native insertion puts Wound, Burn and Wither in hand, with Burn and Wither spilling when only one slot is open.");
                 NativeEventTests.Check(presence.DisplayAmount == 12 && presence.DynamicVars["CardsLeft"].IntValue == 12 &&
                     player.PlayerCombatState.AllCards.OfType<Wither>().Count() == 2,
                     $"overflow={overflow}: the twelfth-play reset preserves both independently generated Withers.");

@@ -14,8 +14,8 @@ internal static class NativeTrashRelicLocalization
         __result.MergeWith(new Dictionary<string, string>
         {
             ["SWORD_OF_STONE.description"] = zh
-                ? "击败 [blue]{Elites}[/blue] 名精英或 Boss 敌人后，变为一件强力遗物。"
-                : "After defeating [blue]{Elites}[/blue] Elite or Boss enemies, transform into a powerful relic.",
+                ? "完成 [blue]{Elites}[/blue] 场精英或 Boss 战斗后，变为一件强力遗物。"
+                : "After winning [blue]{Elites}[/blue] Elite or Boss combats, transform into a powerful relic.",
             ["TOUGH_BANDAGES.description"] = zh
                 ? "每当你在自己的回合丢弃一张牌，获得 [blue]{Block}[/blue] 点[gold]格挡[/gold]。"
                 : "Whenever you discard a card during your turn, gain [blue]{Block}[/blue] [gold]Block[/gold].",

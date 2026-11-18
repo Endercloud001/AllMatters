@@ -1,12 +1,15 @@
 using System.Reflection;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Entities.Cards;
+using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Entities.Relics;
+using MegaCrit.Sts2.Core.Factories;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.CardPools;
 using MegaCrit.Sts2.Core.Models.Cards;
 using MegaCrit.Sts2.Core.Models.RelicPools;
 using MegaCrit.Sts2.Core.Models.Relics;
+using MegaCrit.Sts2.Core.Rooms;
 
 namespace AllMatters.Cards;
 
@@ -84,4 +87,28 @@ internal static class TrashHeapRelicRarity
         .Select(type => AccessTools.PropertyGetter(type, nameof(RelicModel.Rarity)));
 
     private static void Postfix(ref RelicRarity __result) => __result = RelicRarity.Common;
+}
+
+[HarmonyPatch(typeof(RelicModel), nameof(RelicModel.IsAllowedInShops), MethodType.Getter)]
+internal static class MawBankShopAvailability
+{
+    private static void Postfix(RelicModel __instance, ref bool __result)
+    {
+        if (__instance is MawBank)
+            __result = false;
+    }
+}
+
+[HarmonyPatch(typeof(RelicFactory), nameof(RelicFactory.PullNextRelicFromFront),
+    [typeof(Player), typeof(RelicRarity), typeof(Func<RelicModel, bool>)])]
+internal static class MawBankCombatAvailability
+{
+    private static void Prefix(Player player, ref Func<RelicModel, bool> filter)
+    {
+        if (player.RunState.CurrentActIndex < 2 || player.RunState.CurrentRoom is not CombatRoom)
+            return;
+
+        var originalFilter = filter;
+        filter = relic => relic is not MawBank && originalFilter(relic);
+    }
 }
