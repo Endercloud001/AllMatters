@@ -25,6 +25,7 @@ internal sealed class JigsawEntryTransition : IDisposable
         this.transition = transition;
         cancellation = CancellationTokenSource.CreateLinkedTokenSource(displaced.Token, session.ClosedToken);
         active = this;
+        transition.TreeExiting += Displace;
     }
 
     internal static JigsawEntryTransition? Begin(JigsawNativeSession session)
@@ -39,6 +40,10 @@ internal sealed class JigsawEntryTransition : IDisposable
             return null;
         if (transition.InTransition || active != null)
             throw new InvalidOperationException("上一次房间过场尚未结束，请稍后重试。");
+        // Native fades can darken the simple cover even without a shader, then
+        // bail out of reveal before clearing that cover or its mouse filter.
+        if (transition.Material is not ShaderMaterial)
+            return null;
         return new(session, transition);
     }
     internal bool IsCurrent => !disposed && !cancellation.IsCancellationRequested && active == this && JigsawNativeSession.Current == session &&
@@ -65,8 +70,14 @@ internal sealed class JigsawEntryTransition : IDisposable
             return;
         // Native transitions share one tween. A new caller may Kill the old tween
         // without faulting its task; stop awaiting/entering before it does so.
-        active = null;
-        owner.displaced.Cancel();
+        owner.Displace();
+    }
+
+    private void Displace()
+    {
+        if (active == this)
+            active = null;
+        displaced.Cancel();
     }
     private Task Invoke(Func<Task> animation)
     {
@@ -92,6 +103,8 @@ internal sealed class JigsawEntryTransition : IDisposable
         disposed = true;
         if (active == this)
             active = null;
+        if (GodotObject.IsInstanceValid(transition))
+            transition.TreeExiting -= Displace;
         cancellation.Dispose();
         displaced.Dispose();
     }

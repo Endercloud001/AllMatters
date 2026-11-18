@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using Godot;
 using HarmonyLib;
+using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Helpers;
 using MegaCrit.Sts2.Core.Map;
 using MegaCrit.Sts2.Core.Entities.Merchant;
@@ -203,6 +204,10 @@ public sealed class JigsawNativeSession
         if (Map?.Reconnect(player.id).Success == true)
         { OnEdited(); RefreshEditor(); }
     }
+
+    internal bool RejoinWouldInterruptEntry(RunLobby lobby, ulong player) =>
+        ReferenceEquals(boundLobby, lobby) && Map is { } map &&
+        (map.PendingEntry != null || RunManager.Instance.IsChangingRooms || map.ActivePlayers.Contains(player));
 #endif
     internal void ApplyStepRelicPickup()
     {
@@ -309,7 +314,7 @@ public sealed class JigsawNativeSession
         screen.SetMap(Map, Native.Act);
         if (NMapScreen.Instance is { } drawingMap)
             screen.AttachDrawingTools(drawingMap);
-        screen.SetRoomPreview(Map.CurrentNode != null || Map.Phase == JigsawPhase.Ancient && Native.CurrentRoom is EventRoom ? HideMap : null);
+        screen.SetRoomPreview(!entryFailed && (Map.CurrentNode != null || Map.Phase == JigsawPhase.Ancient && Native.CurrentRoom is EventRoom) ? HideMap : null);
         if (!blockingHotkeys)
         {
             NHotkeyManager.Instance?.AddBlockingScreen(screen);
@@ -600,8 +605,6 @@ public sealed class JigsawNativeSession
                 result = await JigsawAutomaticWorker.Run(map, operation.ExpansionBudget).WaitAsync(closedCancellation.Token);
             if (!Active())
                 return;
-            if (!TestMode.IsOn && NGame.Instance != null)
-                await NGame.Instance.Transition.FadeOut(.4f);
         }
         catch (OperationCanceledException) when (closed) { return; }
         catch (Exception error)
@@ -627,21 +630,19 @@ public sealed class JigsawNativeSession
             screen?.SetGenerating(false);
         if (ReferenceEquals(automaticApplied, applied))
             automaticApplied = null;
-        bool saved = false;
-        try
-        { await WaitForSave(); saved = true; }
-        finally
-        {
-            if ((!accepted.Success || !saved) && Current == this && ReferenceEquals(Map, map) && !TestMode.IsOn && NGame.Instance != null)
-                await NGame.Instance.Transition.FadeIn(.4f);
-        }
+        await WaitForSave();
         if (Current != this || !ReferenceEquals(Map, map) || !ReferenceEquals(map.AutomaticOperation, operation))
             return;
         if (!accepted.Success)
             return;
-        BeforeAncient = JigsawSaveSource.Copy(RunManager.Instance.ToSave(null));
         try
-        { await EnterAncient(); }
+        {
+            BeforeAncient = JigsawSaveSource.Copy(RunManager.Instance.ToSave(null));
+            if (!TestMode.IsOn && NGame.Instance != null)
+                await NGame.Instance.Transition.FadeOut(.4f);
+            if (Current == this && ReferenceEquals(Map, map))
+                await EnterAncient();
+        }
         finally
         {
             if (Current == this && ReferenceEquals(Map, map))
@@ -837,8 +838,19 @@ public sealed class JigsawNativeSession
 
     internal void OnDestinationFinalized(int node)
     {
+        var attempt = Map?.PendingEntry;
         OnEdited();
-        TrackEntryRecovery(() => Enter(node));
+        TrackEntryRecovery(async () =>
+        {
+            // The native fade releases input before its task finishes. A new
+            // committed destination must wait for the outgoing reveal to finish.
+            if (enteringTask is { IsCompleted: false } previous)
+                try
+                { await previous; }
+                catch { /* The previous entry reports its own failure. */ }
+            if (Current == this && Map?.PendingEntry == attempt)
+                await Enter(node);
+        });
     }
 
     public Task AbandonEntry()
@@ -886,7 +898,7 @@ public sealed class JigsawNativeSession
             {
                 var submitted = JigsawEditorAction.Submit(this, JigsawEditorOperation.ConfirmEntry);
                 if (!submitted.Success)
-                    entryConfirmQueued = false;
+                    ReportLocalEntryFailure();
             }
             return Task.CompletedTask;
         });
@@ -896,13 +908,33 @@ public sealed class JigsawNativeSession
     {
         if (Map?.PendingEntry == null || !Map.ActivePlayers.Contains(player))
             return JigsawResult.Reject(JigsawFailure.StaleEntry);
+        MarkEntryFailed();
+        ShowMap();
+        return JigsawResult.Ok;
+    }
+
+    private void MarkEntryFailed()
+    {
         entryFailed = true;
         entryConfirmQueued = false;
         entryReadyPlayers.Clear();
         entryDecision?.TrySetResult(false);
         entryFadeDecision?.TrySetResult(false);
+    }
+
+    private void ReportLocalEntryFailure()
+    {
+        if (!entryFailed)
+        {
+            MarkEntryFailed();
+            if (netService is not NetSingleplayerGameService)
+            {
+                RunManager.Instance.RunLocationTargetedBuffer.OnLocationChanged(Native.RunLocation);
+                JigsawEditorAction.Submit(this, JigsawEditorOperation.EntryFailed, completedOwner: LocalPlayerId);
+                RunManager.Instance.ActionExecutor.Unpause();
+            }
+        }
         ShowMap();
-        return JigsawResult.Ok;
     }
 
     private TaskCompletionSource<bool> EntryFadeDecision()
@@ -961,7 +993,25 @@ public sealed class JigsawNativeSession
             return JigsawResult.Reject(JigsawFailure.StaleEntry);
         entryRecoveryRequested = true;
         if (JigsawEditorAction.IsHost(LocalPlayerId))
-            TrackEntryRecovery(() => SendEntryRecovery(abandon));
+            TrackEntryRecovery(async () =>
+            {
+                try
+                { await SendEntryRecovery(abandon); }
+                catch
+                {
+                    if (Current == this && !JigsawEditorAction.Submit(this, JigsawEditorOperation.CancelEntryRecovery).Success)
+                        CancelEntryRecovery();
+                    throw;
+                }
+            });
+        return JigsawResult.Ok;
+    }
+
+    internal JigsawResult CancelEntryRecovery()
+    {
+        if (!entryFailed || Map?.PendingEntry == null || !entryRecoveryRequested)
+            return JigsawResult.Reject(JigsawFailure.StaleEntry);
+        entryRecoveryRequested = false;
         return JigsawResult.Ok;
     }
 
@@ -977,7 +1027,6 @@ public sealed class JigsawNativeSession
         { await task; }
         catch (Exception error)
         {
-            entryRecoveryRequested = false;
             if (Current == this)
                 screen?.ShowNotice("进入恢复失败，请检查联机连接后重试。");
             Console.Error.WriteLine($"Jigsaw entry recovery failed: {error}");
@@ -1023,13 +1072,21 @@ public sealed class JigsawNativeSession
             restored = RunState.FromSerializable(checkpoint);
             if (!JigsawCheckpoint.Slot.TryGet(restored, out var data) || data.Map?.NextEntry != Map.CreateSave().NextEntry ||
                 data.Map.OriginalPlayers == null || !data.Map.OriginalPlayers.ToHashSet().SetEquals(Map.OriginalPlayers))
-                return JigsawResult.Reject("恢复检查点与当前进入不匹配。");
+                return RejectRecovery("恢复检查点与当前进入不匹配。");
         }
-        catch (Exception error) { return JigsawResult.Reject(error.Message); }
+        catch (Exception error) { return RejectRecovery(error.Message); }
         var active = Map.ActivePlayers.ToArray();
         long round = EntryRound + 1;
         TrackEntryRecovery(() => LoadCheckpoint(checkpoint, restored, active, round));
         return JigsawResult.Ok;
+
+        JigsawResult RejectRecovery(string reason)
+        {
+            CancelEntryRecovery();
+            if (GodotObject.IsInstanceValid(screen))
+                screen!.ShowNotice("进入恢复失败，请重试。");
+            return JigsawResult.Reject(reason);
+        }
     }
 
     private async Task AbandonEntryCore()
@@ -1093,20 +1150,41 @@ public sealed class JigsawNativeSession
         bool nativeStarted = false;
         try
         {
+            var fadeDecision = netService is NetSingleplayerGameService ? null : EntryFadeDecision().Task;
+            if (entryFailed)
+                throw new IOException("队友房间过场失败；本次未计步。");
             if (GodotObject.IsInstanceValid(view))
             { view!.ProcessMode = Node.ProcessModeEnum.Disabled; view.SetProcessInput(false); }
             transition = JigsawEntryTransition.Begin(this);
             if (transition != null)
-                await transition.FadeOut();
-            if (Current != this || Map.PendingEntry?.Id != attempt.Id || paused || BeforeAncient != null || entryRecoveryRequested)
-                throw new OperationCanceledException("进入目标或会话已改变。");
-            if (netService is not NetSingleplayerGameService)
             {
-                if (entryFailed)
+                var fade = transition.FadeOut();
+                if (fadeDecision != null && await Task.WhenAny(fade, fadeDecision) == fadeDecision && !await fadeDecision)
+                {
+                    TaskHelper.RunSafely(fade);
                     throw new IOException("队友房间过场失败；本次未计步。");
-                var decision = EntryFadeDecision().Task;
+                }
+                await fade;
+            }
+            if (!CanEnter())
+                throw new OperationCanceledException("进入目标或会话已改变。");
+
+            entryDecision = null;
+            entryReadyPlayers.Clear();
+            entryConfirmQueued = false;
+            nativeReadyAttempt = 0;
+            // Finish fallible local preparation before promising to enter native sync.
+            await JigsawHuntingNative.SynchronizeMasks(this);
+            if (!CanEnter())
+                throw new OperationCanceledException("进入目标或会话已改变。");
+            entryCheckpoint ??= JigsawSaveSource.Copy(RunManager.Instance.ToSave(null));
+            var projection = JigsawEntryProjection.Append(Native.Map, NextProjectionRow, Map.ResolvedRoom(node));
+            JigsawCheckpoint.Capture(Native, Map);
+
+            if (fadeDecision != null)
+            {
                 var submitted = JigsawEditorAction.Submit(this, JigsawEditorOperation.EntryFadeReady, completedOwner: LocalPlayerId);
-                if (!submitted.Success || !await decision.WaitAsync(ClosedToken))
+                if (!submitted.Success || !await fadeDecision.WaitAsync(ClosedToken))
                     throw new IOException("队友房间过场失败；本次未计步。");
                 // Once local fade readiness was sent, visual ownership no longer
                 // retracts this endpoint from native sync. A later visual takeover
@@ -1114,30 +1192,17 @@ public sealed class JigsawNativeSession
                 if (Current != this || Map.PendingEntry?.Id != attempt.Id || entryFailed || entryRecoveryRequested)
                     throw new OperationCanceledException("进入目标或过场已改变。");
             }
-            await EnterPreparedCore(node, attempt, transition, () => nativeStarted = true);
+            Native.Map = projection.Map;
+            await EnterPreparedCore(node, attempt, projection.Point.coord, transition, () => nativeStarted = true);
         }
         catch (Exception error)
         {
             failure = error;
             if (!nativeStarted && Current == this && Map.PendingEntry?.Id == attempt.Id)
             {
-                // Before fade readiness, no native state has changed. Preparation
-                // failures after readiness already retain their before-entry point.
+                ReportLocalEntryFailure();
                 entryCheckpoint ??= JigsawSaveSource.Copy(RunManager.Instance.ToSave(null));
-                if (!entryFailed)
-                {
-                    entryFailed = true;
-                    if (netService is not NetSingleplayerGameService)
-                    {
-                        entryFadeDecision?.TrySetResult(false);
-                        RunManager.Instance.RunLocationTargetedBuffer.OnLocationChanged(Native.RunLocation);
-                        JigsawEditorAction.Submit(this, JigsawEditorOperation.EntryFailed, completedOwner: LocalPlayerId);
-                        RunManager.Instance.ActionExecutor.Unpause();
-                    }
-                }
             }
-            if (Current == this && (transition?.IsCurrent == true || NGame.Instance?.Transition == null))
-                ShowMap();
             throw;
         }
         finally
@@ -1153,27 +1218,16 @@ public sealed class JigsawNativeSession
                 { view!.ProcessMode = processMode!.Value; view.SetProcessInput(!paused); }
             }
         }
+
+        bool CanEnter() => Current == this && Map.PendingEntry?.Id == attempt.Id && !entryFailed &&
+            !paused && BeforeAncient == null && !entryRecoveryRequested;
     }
 
-    private async Task EnterPreparedCore(int node, JigsawEnterAttempt attempt, JigsawEntryTransition? transition, Action startingNative)
+    private async Task EnterPreparedCore(int node, JigsawEnterAttempt attempt, MapCoord coordinate, JigsawEntryTransition? transition, Action startingNative)
     {
         if (Map == null)
             return;
-        entryDecision = null;
-        entryReadyPlayers.Clear();
-        entryConfirmQueued = false;
-        nativeReadyAttempt = 0;
-        entryRecoveryRequested = false;
-        await JigsawHuntingNative.SynchronizeMasks(this);
-        // Pending hunting and its masks belong to the same recoverable entry point.
-        // Retain it before native AddVisited/exit/sync can fail.
-        entryCheckpoint ??= JigsawSaveSource.Copy(RunManager.Instance.ToSave(null));
         var destination = Map.Nodes.Single(n => n.Id == node);
-        var projection = JigsawEntryProjection.Append(Native.Map,
-            NextProjectionRow,
-            Map.ResolvedRoom(node));
-        Native.Map = projection.Map;
-        JigsawCheckpoint.Capture(Native, Map);
         // Keep the opaque map over the previous room until native has mounted
         // the destination. Hiding it before EnterMapCoord exposed stale scenery.
         if (GodotObject.IsInstanceValid(screen))
@@ -1183,7 +1237,7 @@ public sealed class JigsawNativeSession
         void RoomReady()
         {
             if (Current == this && Native.CurrentRoom is { } room && room != previous && room is not MapRoom &&
-                Native.CurrentMapPoint?.coord == projection.Point.coord)
+                Native.CurrentMapPoint?.coord == coordinate)
             {
                 if (ready)
                     return;
@@ -1216,7 +1270,7 @@ public sealed class JigsawNativeSession
         {
             startingNative();
             using (transition?.NativeEntry())
-                await RunManager.Instance.EnterMapCoord(projection.Point.coord);
+                await RunManager.Instance.EnterMapCoord(coordinate);
             if (Current != this)
                 return;
             if (!ready)
@@ -1237,18 +1291,13 @@ public sealed class JigsawNativeSession
             {
                 if (ready)
                     await WaitForEntryDecision();
-                else if (!entryFailed)
-                {
-                    entryFailed = true;
-                    RunManager.Instance.RunLocationTargetedBuffer.OnLocationChanged(Native.RunLocation);
-                    JigsawEditorAction.Submit(this, JigsawEditorOperation.EntryFailed, completedOwner: LocalPlayerId);
-                    RunManager.Instance.ActionExecutor.Unpause();
-                }
+                else
+                    ReportLocalEntryFailure();
                 if (Map?.PendingEntry != null)
                     ShowMap();
             }
-            else if (Current == this)
-            { entryFailed = !ready; ShowMap(); }
+            else if (Current == this && !ready)
+                ReportLocalEntryFailure();
             throw;
         }
         finally
@@ -1264,6 +1313,25 @@ public sealed class JigsawNativeSession
 
     internal Task<bool> WaitForEntryDecision() =>
         (entryDecision ??= new(TaskCreationOptions.RunContinuationsAsynchronously)).Task;
+
+    internal bool DeferCombatStart(CombatManager manager)
+    {
+        if (netService is NetSingleplayerGameService || Map?.PendingEntry == null ||
+            Native.CurrentRoom is not CombatRoom { IsPreFinished: false, ParentEventId: null } room)
+            return false;
+
+        // Opening choices can suspend a player's queue ahead of EntryReady or
+        // ConfirmEntry. Drain entry actions before the native turn loop starts.
+        TaskHelper.RunSafely(StartAfterConfirmation());
+        RunManager.Instance.ActionExecutor.Unpause();
+        return true;
+
+        async Task StartAfterConfirmation()
+        {
+            if (await WaitForEntryDecision() && Current == this && ReferenceEquals(Native.CurrentRoom, room))
+                manager.AfterCombatRoomLoaded();
+        }
+    }
 
     internal void CapturePendingEntry(SerializableRun checkpoint)
     {
@@ -1375,16 +1443,9 @@ public sealed class JigsawNativeSession
         if (Current == this && Map?.PendingEntry != null)
         {
             if (!NativeEntryWasReady)
-            {
-                entryFailed = true;
-                if (netService is not NetSingleplayerGameService)
-                {
-                    RunManager.Instance.RunLocationTargetedBuffer.OnLocationChanged(Native.RunLocation);
-                    JigsawEditorAction.Submit(this, JigsawEditorOperation.EntryFailed, completedOwner: LocalPlayerId);
-                    RunManager.Instance.ActionExecutor.Unpause();
-                }
-            }
-            ShowMap();
+                ReportLocalEntryFailure();
+            else
+                ShowMap();
         }
     }
 
@@ -1477,7 +1538,11 @@ public sealed class JigsawNativeSession
             {
                 nativeReadyAttempt = pending.Id;
                 entryDecision ??= new(TaskCreationOptions.RunContinuationsAsynchronously);
-                JigsawEditorAction.Submit(this, JigsawEditorOperation.EntryReady, completedOwner: LocalPlayerId);
+                if (!JigsawEditorAction.Submit(this, JigsawEditorOperation.EntryReady, completedOwner: LocalPlayerId).Success)
+                {
+                    nativeReadyAttempt = 0;
+                    ReportLocalEntryFailure();
+                }
                 return;
             }
             if (!Map.ConfirmEnter(pending.Id).Success)
@@ -1501,6 +1566,28 @@ public sealed class JigsawNativeSession
         _ => declared
     };
 }
+
+[HarmonyPatch(typeof(CombatManager), nameof(CombatManager.AfterCombatRoomLoaded))]
+internal static class JigsawSharedCombatEntry
+{
+    private static bool Prefix(CombatManager __instance) =>
+        JigsawNativeSession.Current?.DeferCombatStart(__instance) != true;
+}
+
+#if !STS2_PUBLIC
+[HarmonyPatch(typeof(RunLobby), "HandleClientRejoinRequestMessage")]
+internal static class JigsawRejoinDuringEntry
+{
+    private static bool Prefix(RunLobby __instance, ulong senderId)
+    {
+        if (RunManager.Instance.NetService is not NetHostGameService host ||
+            JigsawNativeSession.Current?.RejoinWouldInterruptEntry(__instance, senderId) != true)
+            return true;
+        host.DisconnectClient(senderId, NetError.RunInProgress);
+        return false;
+    }
+}
+#endif
 
 #if STS2_PUBLIC
 [HarmonyPatch(typeof(MegaCrit.Sts2.Core.Nodes.Rooms.NMerchantRoom), "HideScreen")]

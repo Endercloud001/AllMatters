@@ -20,12 +20,18 @@ internal static class JigsawEntryTransitionTests
     [("Jigsaw entry transition waits before native save and enters once", () => Run("ordinary")),
      ("Jigsaw entry transition external room fade takes ownership without stale native entry", () => Run("stolen")),
      ("Jigsaw entry transition a closed session cannot enter or reveal a replacement", () => Run("closed")),
+     ("Jigsaw entry transition a removed transition cannot trap the map under its old fade", () => Run("detached")),
      ("Jigsaw entry transition invalidated attempt never changes native state", () => Run("attempt")),
      ("Jigsaw entry transition leaves an already active native fade untouched", () => Run("busy")),
      ("Jigsaw entry transition failed native entry restores map and engine input", () => Run("failure")),
+     ("Jigsaw entry transition starts the next committed destination after a held reveal", () => Run("next")),
      ("Jigsaw entry transition native ENet slow endpoint waits for shared readiness", () => Network("slow")),
      ("Jigsaw entry transition native ENet fade failure releases every endpoint", () => Network("failure")),
      ("Jigsaw entry transition native ENet early failure reaches endpoints still fading", () => Network("earlyfailure")),
+     ("Jigsaw entry transition native ENet preparation failure releases peers before native sync", () => Network("preparation")),
+#if !STS2_PUBLIC
+     ("Jigsaw entry transition native ENet confirms the combat before opening choices can block its queue", () => Network("combat")),
+#endif
 #if STS2_PUBLIC
      ("Jigsaw entry transition public defers only the native ordinary reveal callsite", () => Run("public")),
      ("Jigsaw entry transition public keeps native participation after a committed visual takeover", () => Network("takeover")),
@@ -38,13 +44,14 @@ internal static class JigsawEntryTransitionTests
         finally { System.Environment.SetEnvironmentVariable("JIGSAW_ENTRY_TRANSITION", previous); }
     }
     private static TaskCompletionSource<bool>? fade;
+    private static TaskCompletionSource<bool>? heldReveal;
     private static int outs, ins, nativeIns, nativeSaves;
     private static void ObserveSave() => nativeSaves++;
     private static void ObserveNativeIn() => nativeIns++;
     private static bool HoldOut(ref Task __result)
     { outs++; __result = fade!.Task; return false; }
     private static bool ObserveIn(ref Task __result)
-    { ins++; __result = Task.CompletedTask; return false; }
+    { ins++; __result = ins == 1 && heldReveal != null ? heldReveal.Task : Task.CompletedTask; return false; }
     private static void Check(bool value, string message)
     { if (!value) throw new InvalidOperationException(message); }
 
@@ -63,7 +70,7 @@ internal static class JigsawEntryTransitionTests
         using var host = new JigsawNativeMapUiHost();
         var tree = (SceneTree)Engine.GetMainLoop();
         var originalSize = tree.Root.Size; tree.Root.Size = new(1280, 720);
-        var transition = new NTransition();
+        var transition = new NTransition { Material = new ShaderMaterial() };
         transition.AddChild(new Control { Name = "GradientTransition" });
         transition.AddChild(new Control { Name = "SimpleTransition" });
         try
@@ -90,6 +97,7 @@ internal static class JigsawEntryTransitionTests
             if (mode == "public")
                 harmony.Patch(AccessTools.Method(typeof(RunManager), "FadeIn", [typeof(bool)]), prefix: new HarmonyMethod(typeof(JigsawEntryTransitionTests), nameof(ObserveNativeIn)));
             fade = new(TaskCreationOptions.RunContinuationsAsynchronously); outs = ins = nativeIns = nativeSaves = 0;
+            heldReveal = mode == "next" ? new(TaskCreationOptions.RunContinuationsAsynchronously) : null;
             int visited = native.VisitedMapCoords.Count;
             if (mode == "busy")
             {
@@ -97,6 +105,7 @@ internal static class JigsawEntryTransitionTests
                 try { await session.Enter(1); } catch (InvalidOperationException) { rejected = true; }
                 Check(rejected && transition.InTransition && outs == 0 && ins == 0 && native.VisitedMapCoords.Count == visited && view.CanProcess(),
                     "An already active native fade must keep its ownership and input state without another native call or reveal.");
+                Check(view.DecisionControl.IsVisibleInTree(), "A busy transition still exposes entry recovery controls.");
                 return;
             }
             var point = view.MapControl.GlobalPosition + view.GridToCanvas(session.Map!.Nodes.Single(n => n.Id == 1).Center);
@@ -110,6 +119,15 @@ internal static class JigsawEntryTransitionTests
             Check(!view.DecisionControl.IsVisibleInTree(),
                 "A pending destination during the normal fade must hide the recovery buttons.");
             Check(ReferenceEquals(session.Enter(1), entering), "Repeated entry during the fade shares the one native operation.");
+            if (mode == "detached")
+            {
+                transition.GetParent().RemoveChild(transition);
+                for (int i = 0; i < 6; i++) await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
+                Check(entering.IsCanceled && native.VisitedMapCoords.Count == visited && ins == 0 &&
+                    view.IsProcessingInput() && view.DecisionControl.IsVisibleInTree(),
+                    "Removing the transition must restore map recovery without advancing or revealing through the detached node.");
+                return;
+            }
             if (mode is "closed" or "attempt")
             {
                 if (mode == "closed")
@@ -157,7 +175,27 @@ internal static class JigsawEntryTransitionTests
                 Check(JigsawNativeSession.Current != session, "Engine confirmation on the restored retry button starts actual whole-checkpoint recovery.");
                 return;
             }
-            fade.SetResult(true); await entering;
+            fade.SetResult(true);
+            if (heldReveal != null)
+            {
+                for (int i = 0; i < 30 && ins == 0; i++)
+                    await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
+                Check(ins == 1 && !entering.IsCompleted && session.Map!.CurrentNode == 1, "Hold the real outgoing entry at its reveal.");
+                Check(session.Map!.RecordRoomCompletion(1).Success, "The first destination is complete.");
+                var next = session.Map.VotingDestinations.First();
+                Check(JigsawEditorAction.Submit(session, JigsawEditorOperation.VoteDestination, nodeId: next).Success,
+                    "Cast the next destination ballot via the production ordered action.");
+                for (int i = 0; i < 30 && session.Map.PendingEntry?.NodeId != next; i++)
+                    await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
+                Check(session.Map.PendingEntry?.NodeId == next, "The next ballot commits before the previous reveal completes.");
+                heldReveal.SetResult(true);
+                for (int i = 0; i < 60 && session.Map.PendingEntry != null; i++)
+                    await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
+                Check(session.Map.PendingEntry == null && session.Map.CurrentNode == next && session.Map.Steps == 2 && outs == 2 && ins == 2,
+                    "The committed second destination must enter and reveal once after the held reveal releases.");
+                return;
+            }
+            await entering;
             Check(native.CurrentRoom is MerchantRoom && session.Map!.Steps == 1 && nativeSaves > 0 && native.VisitedMapCoords.Count == visited + 1 && outs == 1 && ins == 1,
                 "The real native room and RoomEntered confirmation enter once and reveal once.");
             Check(!view.Visible, "Successful readiness hides the production map.");
@@ -170,7 +208,8 @@ internal static class JigsawEntryTransitionTests
         }
         finally
         {
-            fade?.TrySetResult(true); JigsawEntryFailureHost.Reset(); harmony.UnpatchAll(harmony.Id); transition.Free(); tree.Root.Size = originalSize; RunManager.Instance.CleanUp(false);
+            fade?.TrySetResult(true); heldReveal?.TrySetResult(true); heldReveal = null;
+            JigsawEntryFailureHost.Reset(); harmony.UnpatchAll(harmony.Id); transition.Free(); tree.Root.Size = originalSize; RunManager.Instance.CleanUp(false);
         }
     }
 }

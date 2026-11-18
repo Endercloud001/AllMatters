@@ -6,7 +6,7 @@ using STS2RitsuLib.Networking.ManagedActions;
 
 namespace AllMatters.Jigsaw;
 
-public enum JigsawEditorOperation { Take, Rotate, Drop, Cancel, ReturnToPool, SelectEndpoint, ChooseEnd, CompleteAncient, ContinueAncient, Reset, FinalizeAutomatic, Disconnect, CompleteRoom, VoteDestination, FinalizeDestination, EntryReady, EntryFailed, ConfirmEntry, RetryEntry, AbandonEntry, RecoverEntry, EntryFadeReady, SetRemainingSteps }
+public enum JigsawEditorOperation { Take, Rotate, Drop, Cancel, ReturnToPool, SelectEndpoint, ChooseEnd, CompleteAncient, ContinueAncient, Reset, FinalizeAutomatic, Disconnect, CompleteRoom, VoteDestination, FinalizeDestination, EntryReady, EntryFailed, ConfirmEntry, RetryEntry, AbandonEntry, RecoverEntry, EntryFadeReady, SetRemainingSteps, CancelEntryRecovery }
 public sealed record JigsawEditorIntent(int Act, JigsawEditorOperation Operation, int Piece = 0, GridPoint Point = default, int? NodeId = null, EndChoice? Choice = null, long Sequence = 0, long EditRevision = 0, int? FirstEndpoint = null, bool? DesiredAdd = null, ulong? CompletedOwner = null, JigsawLayout? Layout = null, string? AutomaticFailure = null, long EntryRevision = 0, long EntryRound = 0, string? EntryCheckpoint = null);
 
 internal static class JigsawEditorAction
@@ -65,6 +65,7 @@ internal static class JigsawEditorAction
                     JigsawEditorOperation.ConfirmEntry => IsHost(context.Player.NetId) ? session.ConfirmSharedEntry() : JigsawResult.Reject("Only Host can confirm entry."),
                     JigsawEditorOperation.RetryEntry or JigsawEditorOperation.AbandonEntry => IsHost(context.Player.NetId) ? session.RequestEntryRecovery(message.Operation == JigsawEditorOperation.AbandonEntry) : JigsawResult.Reject("Only Host can choose entry recovery."),
                     JigsawEditorOperation.RecoverEntry => IsHost(context.Player.NetId) && message.EntryCheckpoint != null ? session.AcceptEntryRecovery(message.EntryCheckpoint) : JigsawResult.Reject("Only Host can restore entry."),
+                    JigsawEditorOperation.CancelEntryRecovery => IsHost(context.Player.NetId) ? session.CancelEntryRecovery() : JigsawResult.Reject("Only Host can cancel entry recovery."),
                     _ => JigsawResult.Reject("未知拼图操作。")
                 };
                 if (context.Player.NetId == RunManager.Instance.NetService.NetId && message.Sequence >= input.Next)
@@ -79,7 +80,9 @@ internal static class JigsawEditorAction
                     session.OnAncientCompleted();
                 if (result.Success && message.Operation == JigsawEditorOperation.ContinueAncient)
                     session.RefreshAncientPreview();
-                if (result.Success && message.Operation is JigsawEditorOperation.CompleteRoom or JigsawEditorOperation.Disconnect or JigsawEditorOperation.FinalizeDestination)
+                // A finalized destination is already pending. Its fallible native
+                // preparation runs inside the entry task and recovery protocol.
+                if (result.Success && message.Operation is JigsawEditorOperation.CompleteRoom or JigsawEditorOperation.Disconnect)
                     await JigsawHuntingNative.CompleteRoom(session, wasHunting);
                 if (result.Success && !entry)
                     session.OnEdited();
@@ -112,7 +115,7 @@ internal static class JigsawEditorAction
         operation is JigsawEditorOperation.Disconnect or JigsawEditorOperation.EntryReady or JigsawEditorOperation.EntryFadeReady or
             JigsawEditorOperation.EntryFailed or JigsawEditorOperation.ConfirmEntry or
             JigsawEditorOperation.RetryEntry or JigsawEditorOperation.AbandonEntry or
-            JigsawEditorOperation.RecoverEntry;
+            JigsawEditorOperation.RecoverEntry or JigsawEditorOperation.CancelEntryRecovery;
 
     internal static bool IsHost(ulong issuer) => RunManager.Instance.NetService switch
     {
