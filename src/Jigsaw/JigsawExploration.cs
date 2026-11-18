@@ -300,7 +300,11 @@ internal static class JigsawNativeExploration
     {
         if (State(session).DrainingTreasure)
             return false;
-        if (session.Map?.CurrentNode == null || session.Native.CurrentRoomCount > 1)
+        if (session.Map?.CurrentNode == null)
+            return false;
+        // Terminal child rewards proceed to the map without popping the parent event.
+        if (session.Native.CurrentRoomCount > 1 && session.Native.CurrentRoom is not CombatRoom
+            { IsPreFinished: true, ParentEventId: not null, ShouldResumeParentEventAfterCombat: false })
             return false;
         var nativePlayer = session.Native.Players.FirstOrDefault(candidate => candidate.NetId == player);
         if (nativePlayer == null)

@@ -26,7 +26,7 @@ internal static class JigsawHuntingEventCombatTests
 {
     internal static readonly (string Name, Func<Task> Test)[] Cases =
     [("JigsawHuntingEventCombat actual second Colosseum battle restores its own whole before point", () => SecondBattle()),
-     ("JigsawHuntingEventCombat second battle victory clears rollback and preserves terminal parent", () => SecondBattle(victory: true)),
+     ("JigsawHuntingEventCombat second battle victory reload unlocks the next map node", () => SecondBattle(victory: true)),
      ("JigsawHuntingEventCombat native Vegetation restores post heal before fight without repeating rest", Vegetation),
      ("JigsawHuntingEventCombat scene encounters provide real markers for every added enemy", FormalSlots)];
 
@@ -174,6 +174,8 @@ internal static class JigsawHuntingEventCombatTests
             await manager.EventSynchronizer.AwaitPendingOptionTasks();
             Check(native.CurrentRoom is EventRoom && model.CurrentOptions.Count == 2,
                 "Actual native victory and Resume return the same event to intermission.");
+            Check(JigsawNativeSession.Current!.Map!.CurrentNode == map.CurrentNode && map.CurrentNode != null,
+                "Returning from the first battle keeps the parent event's logical room open.");
             await model.CurrentOptions.Single(option => option.TextKey.EndsWith(".FIGHT")).Chosen();
             await Until(() => native.CurrentRoom is CombatRoom);
             var second = (CombatRoom)native.CurrentRoom!;
@@ -196,7 +198,12 @@ internal static class JigsawHuntingEventCombatTests
             var restored = RunState.FromSerializable(saved.SaveData!);
             await manager.SetUpSavedSingleplayer(restored, saved.SaveData!);
             LocalContext.NetId = 1;
+            manager.CombatReplayWriter.IsEnabled = true;
             await manager.GenerateMap(); await manager.LoadIntoLatestMapCoord(null);
+            Check(manager.CombatReplayWriter.IsRecordingReplay,
+                "A restored active event combat initializes replay recording before the first combat checksum.");
+            manager.CombatReplayWriter.StopRecording();
+            manager.CombatReplayWriter.IsEnabled = false;
             Check(restored.CurrentRoomCount == 2 && restored.BaseRoom is EventRoom &&
                 restored.CurrentRoom is CombatRoom restoredBattle && restoredBattle.Encounter.Id.Entry == encounter && FungusCount(restoredBattle) == 1,
                 "Real native load rebuilds this same second battle with its parent stack, rather than restarting the root event.");
@@ -236,6 +243,15 @@ internal static class JigsawHuntingEventCombatTests
                 if (rewardFlee != null) await rewardFlee.Chosen();
                 Check(!rewardParent.IsFinished,
                     "The parent restored behind terminal victory rewards cannot flee as though the second battle never happened.");
+                var resumed = JigsawNativeSession.Current!;
+                var rewardMap = resumed.Map!;
+                Check(rewardMap.CurrentNode != null && rewardMap.VotingDestinations.Count > 0,
+                    "The restored terminal room has a reachable next destination.");
+                await HeadlessNativeApi.Proceed(manager);
+                Check(rewardMap.CurrentNode == null && rewardMap.AvailableDestinations.Count > 0,
+                    "Continuing from the restored terminal rewards unlocks a next map node.");
+                Check(rewardMap.Steps == steps,
+                    "Leaving the terminal event battle does not charge another exploration step.");
             }
         }
         finally

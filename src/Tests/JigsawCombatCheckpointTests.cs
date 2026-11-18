@@ -511,6 +511,23 @@ internal static class JigsawCombatCheckpointTests
                 "The real three-owner load lobby rebuilds the parent and child together.");
             Check(JsonNode.DeepEquals(JsonNode.Parse(State()), JsonNode.Parse(File.ReadAllText(Path.Combine(directory, "event-opening.json")))),
                 "A fresh three-process native load preserves every player's complete state, every run and owner RNG, opening enemies, logical entry, budget and history.");
+            var map = JigsawNativeSession.Current!.Map!;
+            int steps = map.Steps;
+            var child = (CombatRoom)native.CurrentRoom!;
+            Check(!child.ShouldResumeParentEventAfterCombat && map.VotingDestinations.Count > 0,
+                "The restored fight has terminal rewards and a next map destination.");
+            await (Task)AccessTools.Method(typeof(CombatManager), "EndCombatInternal", Type.EmptyTypes)
+                .Invoke(CombatManager.Instance, null)!;
+            signal("event-terminal-victory");
+            await until(() => peers.All(peer => signaled(peer, "event-terminal-victory")), "all replicas finish the restored fight");
+            await HeadlessNativeApi.Proceed(manager);
+            await until(() => map.ActivePlayers.All(map.RoomCompletedPlayers.Contains),
+                "all owners' terminal proceeds are accepted across the network");
+            Check(map.Steps == steps && map.VotingDestinations.Count > 0,
+                "Terminal completion exposes the next vote without charging another step.");
+            signal("event-terminal-proceeded");
+            await until(() => peers.All(peer => signaled(peer, "event-terminal-proceeded")),
+                "all replicas observe completion before the host disconnects");
             Console.WriteLine($"COMBAT_CHECKPOINT_ENET role={role} original=3 active=3 restored=parent+child");
             return;
         }
