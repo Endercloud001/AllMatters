@@ -160,6 +160,14 @@ internal static class JigsawEventCombatCheckpoint
             AccessTools.Property(typeof(EventModel), nameof(EventModel.Rng)).SetValue(model, Restore(point.Owners[model.Owner!.NetId]));
         }
         var room = CombatRoom.FromSerializable(point.Combat, session.Native);
+        var writer = manager.CombatReplayWriter;
+        // This restore enters the child directly, bypassing EnterMapPointInternal's replay initialization.
+        if (writer.IsEnabled && !writer.IsRecordingReplay)
+        {
+            var replay = manager.ToSave(null);
+            replay.PreFinishedRoom = point.Combat;
+            writer.RecordInitialState(JigsawSaveSource.Copy(replay));
+        }
         await (Task)enter.Invoke(manager, [room, false])!;
     }
 

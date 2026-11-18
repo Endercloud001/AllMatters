@@ -175,8 +175,18 @@ internal static class JigsawRecoveryNetworkTests
             Require(JsonNode.DeepEquals(JsonNode.Parse(JsonSerializer.Serialize(expectedMap)), JsonNode.Parse(RestoredMap)), "Setup preserves every persisted map field; only this session's active roster changes.");
             RunManager.Instance.Launch();
             await RunManager.Instance.GenerateMap();
+            bool resumesActiveEventCombat = Lobby.Run.PreFinishedRoom == null && checkpoint.EventCombat != null;
+            var replayWriter = RunManager.Instance.CombatReplayWriter;
+            if (resumesActiveEventCombat)
+                replayWriter.IsEnabled = true;
             try { await RunManager.Instance.LoadIntoLatestMapCoord(Lobby.Run.PreFinishedRoom is { RoomType: RoomType.Monster or RoomType.Elite or RoomType.Boss } finished ? CombatRoom.FromSerializable(finished, Native) : null); }
             catch (Exception error) when (AllowEntryFailure && error is IOException or InvalidOperationException) { }
+            if (resumesActiveEventCombat)
+            {
+                Require(replayWriter.IsRecordingReplay, "Each endpoint starts recording the restored event combat before handling combat checksums.");
+                replayWriter.StopRecording();
+                replayWriter.IsEnabled = false;
+            }
         }
 #if STS2_PUBLIC
         public void PlayerConnected(ulong playerId) { }
@@ -433,7 +443,7 @@ internal static class JigsawRecoveryNetworkTests
         using var atlases = HeadlessTestSetup.LoadAtlases("card_atlas", "relic_atlas", "ui_atlas");
         using var eventAtlas = phase is "event-combat-lag" or "event-holes-lag" or "event-holes-reward" or "event-holes-completed" ? HeadlessTestSetup.LoadAtlases("compressed") : null;
         var rewardHarmony = new HarmonyLib.Harmony("AllMatters.Tests.RecoveryDeferred");
-        if (phase.StartsWith("combat-", StringComparison.Ordinal))
+        if (phase.StartsWith("combat-", StringComparison.Ordinal) || phase == "event-combat-lag")
         {
             // Own profile/replay persistence only; the real native victory, room,
             // action synchronizer, rewards, completion and map input still execute.
