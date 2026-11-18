@@ -293,7 +293,7 @@ Debug.Log($"LobbyReady: {lobby.IsLobbyReady()}");
 ## 参考资源
 
 - **代码**：`src/Jigsaw/SaveStateRecovery.cs`, `src/Jigsaw/ExplorationStateRecovery.cs`
-- **文档**：`docs/BATCH_COMPLETION_REPORT_91_94.md`
+- **文档**：[第 91–94 项历史验收报告](https://github.com/Endercloud001/AllMatters/blob/9619b8f5bfaccb559ae69440fac9a948d5bf1788/docs/BATCH_COMPLETION_REPORT_91_94.md)
 - **日志**：`.local/logs/multiplayer-recovery.log`
 - **测试 mod**：`tools/TestMod-MultiplayerRecovery.cs`
 

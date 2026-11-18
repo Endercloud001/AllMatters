@@ -7,7 +7,7 @@ This document suggests improvements to how future GitHub issues are written, bas
 ## Lessons from #80
 
 **What Worked Well:**
-- Clear boundary doc (`jigsaw-multiplayer-boundary.md`) explaining scope limits
+- Clear boundary doc ([jigsaw-multiplayer-boundary.md](https://github.com/Endercloud001/AllMatters/blob/9619b8f5bfaccb559ae69440fac9a948d5bf1788/docs/jigsaw-multiplayer-boundary.md)) explaining scope limits
 - Specific acceptance criteria (core scenarios: protocol, reset, ancient, etc.)
 - User confirmation of responsibility boundaries (GitHub comment reference)
 

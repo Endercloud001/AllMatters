@@ -6,7 +6,7 @@
 
 此次开发依赖使用完整 RitsuLib **0.6.11 variant-pack**，独立保存在 `.local/dependencies/RitsuLib-0.6.11/`，保留旧包。`RitsuLibDir` 可在本机 `Paths.local.props` 指定；public 编译引用 `compat/0.107.1`，beta 引用 `compat/0.113.0`，均须来自同一完整包。0.113.1 实际启动选择该包的 `0.113.0` 兼容分支并已通过严格冒烟；这不等于新版完整玩法已验证。官方包包含两个目标不等于 AllMatters 行为已验证；新目标仍需实际宿主、保存恢复及受影响流程的验证。不向游戏安装目录复制产物或依赖。
 
-API 反编译按实际版本分目录：`.local/api/queries/public-v0.107.1/`、`.local/api/queries/public-beta-v0.113.1/`；保留旧 `.local/api/queries/public-beta-v0.113.0/` 和 `.local/api/queries/public-beta-v0.111.0/` 用于比较，不覆盖或混写新旧证据。匹配 public 资源及所需辅助依赖已准备到主仓 `.local/public-resource-recovery-20261113/public107-content/`；`8a69527` 起宿主按实际目标加载 DLL / PCK / Spine，日志输出目标目录、资源路径和实际程序集版本。匹配资源的专项通过与完整回归分别留证，当前结论见[实施索引](issues-82-88-implementation.md)。
+API 反编译按实际版本分目录：`.local/api/queries/public-v0.107.1/`、`.local/api/queries/public-beta-v0.113.1/`；保留旧 `.local/api/queries/public-beta-v0.113.0/` 和 `.local/api/queries/public-beta-v0.111.0/` 用于比较，不覆盖或混写新旧证据。匹配 public 资源及所需辅助依赖已准备到主仓 `.local/public-resource-recovery-20261113/public107-content/`；`8a69527` 起宿主按实际目标加载 DLL / PCK / Spine，日志输出目标目录、资源路径和实际程序集版本。匹配资源的专项通过与完整回归分别留证。
 
 ## 已发现环境（2026-10-20）
 
@@ -112,7 +112,7 @@ CLI 遇到连接问题时按 [GitHub 操作约定](agents/issue-tracker.md) 处�
 
 ## 并行实施与 worktree
 
-多issue拆片、WIP/角色配置、派发顺序和测试复用见[批次流程](agents/batch-flow.md)；#82–#88当前拉取入口为[唯一调度看板](issues-82-88-board.md)。先确定行为切片和所有权，再按本节创建/复用worktree，完成一片后继续拉取就绪项。
+多issue拆片、WIP/角色配置、派发顺序和测试复用见[批次流程](agents/batch-flow.md)。先确定行为切片和所有权，再按本节创建/复用worktree，完成一片后继续拉取就绪项。
 
 创建或复用树后核对 `git config --show-origin --get core.hooksPath`。本机已启用 `extensions.worktreeConfig`；确认当前树的 `.husky/pre-commit`、`.husky/pre-push`、`.husky/_/husky.sh` 和 `task-runner.json` 完整后，在该树运行 `git config --worktree core.hooksPath .husky`，让正常提交读取自己的配置。旧绝对主仓路径仍保留在 common 配置，供缺少 hooks 的历史树继承；不把它全局改成相对路径，否则那些树会悄悄失去 hooks。其他 clone 先核实 worktree 配置扩展和既有 hooks，再配置对应入口。
 
@@ -229,7 +229,7 @@ Agent 完成适当的自动化测试和两目标构建后，向用户提供 `dis
 
 用户反馈写回对应功能验证记录，分别标明自动化、资源加载和用户实测的证据；本票完成条件按 issue 验收范围判断，完整 public、真实联机或回放等集成工作仅在其确为本票要求时阻塞完成。历史记录中的 Agent 部署只描述当时行为，不作为后续操作流程。
 
-分批人工验收按 [tracker 状态约定](agents/issue-tracker.md) 收尾。交付时明确本票所属批次及成员、统一包是否就绪、用户现在是否需要操作和尚未执行的场景；包未就绪时提供后续清单，不要求逐票安装。拼图第 1 批的成员与当前交接见 [单人拼图基本流程](jigsaw-batch-1.md)。
+分批人工验收按 [tracker 状态约定](agents/issue-tracker.md) 收尾。交付时明确本票所属批次及成员、统一包是否就绪、用户现在是否需要操作和尚未执行的场景；包未就绪时提供后续清单，不要求逐票安装。拼图第 1 批的成员与当前交接见 [单人拼图基本流程](https://github.com/Endercloud001/AllMatters/blob/ca5520bc456bebfb2500753f4fa6f7ad02b3cda4/docs/jigsaw-batch-1.md)。
 
 测试宿主接入 RitsuLib 时，沿用 `src/Tests/HelloWorldTests.cs` 的已验证初始化顺序；变更宿主后先复验受影响的既有行为。牧师接入中曾因宿主生命周期替代安装晚于框架预备方法而导致 public 回归失败，证据见 牧师验证记录（本地记录：`docs/testing/cleric.md`，不随仓库分发）。
 
