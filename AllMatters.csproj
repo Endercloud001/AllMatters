@@ -7,7 +7,7 @@
     <AnalysisLevel>latest-recommended</AnalysisLevel>
     <WarningsAsErrors>CS8600;CS8602;CS8603;CS8618;CS8625</WarningsAsErrors>
     <DefineConstants Condition="'$(GameBranch)' == 'public'">$(DefineConstants);STS2_PUBLIC</DefineConstants>
-    <Version>0.1.1</Version>
+    <Version>0.1.2</Version>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
     <EnableDefaultNoneItems>false</EnableDefaultNoneItems>

@@ -244,7 +244,12 @@ foreach ($scenario in @('fresh', 'reuse', 'missing-pack')) {
     Write-FixtureFile 'failure.txt' $scenario
     Write-FixtureFile 'LICENSE' 'fixture license'
     Write-FixtureFile 'THIRD_PARTY_NOTICES.md' 'fixture notices'
-    if ($scenario -eq 'reuse') { Write-FixtureFile 'dist/AllMatters.pck' 'existing fixture pack' }
+    if ($scenario -eq 'reuse') {
+        Write-FixtureFile 'dist/AllMatters.pck' 'existing fixture pack'
+        New-Item -ItemType Directory -Path (Join-Path $fixture 'dist/public-beta/AllMatters') | Out-Null
+        Write-FixtureFile 'dist/public-beta/AllMatters/LICENSE' 'previous build license'
+        Write-FixtureFile 'dist/public-beta/AllMatters/THIRD_PARTY_NOTICES.md' 'previous build notices'
+    }
     Write-FixtureFile 'run.ps1' @'
 function global:dotnet {
     Add-Content (Join-Path $PSScriptRoot 'calls.txt') 'compile'
@@ -264,6 +269,10 @@ exit $LASTEXITCODE
     Assert (($calls -join ',') -eq $expected) "Build $scenario must obey explicit resource reuse. Calls: $calls"
     $package = Join-Path $fixture 'dist/public-beta/AllMatters'
     Assert ((Test-Path (Join-Path $package 'AllMatters.pck')) -eq ($scenario -ne 'missing-pack')) 'Build must package only a successful or explicitly reused export.'
+    if ($scenario -ne 'missing-pack') {
+        $files = (Get-ChildItem -LiteralPath $package -Force | Sort-Object Name).Name -join ','
+        Assert ($files -ceq 'AllMatters.dll,AllMatters.json,AllMatters.pck') "Unexpected package contents: $files"
+    }
     "PASS: Build $scenario"
 }
 

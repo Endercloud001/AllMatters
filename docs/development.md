@@ -32,7 +32,7 @@ pwsh -NoProfile -File ./tools/Build.ps1 -Branch public -GameDataDir 'D:/STS2-pub
 
 Paths.local.props 不提交 Git；PublicGameDataDir 与 BetaGameDataDir 分别指向两套 `data_sts2_windows_x86_64` DLL 目录。本工作区前者使用独立 public 开发资源，后者使用本机 Steam beta 安装。无界面测试还要求所选数据目录的父目录含匹配的 `SlayTheSpire2.pck` 与 Spine 原生库，以及该版本所需辅助 DLL；不再以 beta 目录替 public 补依赖。保留本地配置后再按实际路径填写示例，也可直接运行 `dotnet build -p:GameBranch=public-beta`。引用游戏程序集时 Private=false，避免把游戏 DLL 打包进 Mod。
 
-输出按分支隔离到 `dist/<branch>/AllMatters/`；构建不会自动写游戏目录。现在包含 DLL、manifest、PCK、GPLv3 LICENSE 和来源声明。构建脚本先导入 `src/Resources/`，再用 `src/Tooling/PackResources.gd` 的原生 `PCKPacker` 打包纹理导入文件及原样场景/Spine 资源，不依赖 Windows 导出模板。`tools/ExportResources.ps1` 可单独运行；`tools/Test.ps1` 也会先导出最新 PCK。
+构建将 DLL、模组清单和 PCK 写入 `dist/<branch>/AllMatters/`。构建脚本先导入 `src/Resources/`，再用 `src/Tooling/PackResources.gd` 的原生 `PCKPacker` 打包纹理导入文件及原样场景/Spine 资源，不依赖 Windows 导出模板。`tools/ExportResources.ps1` 可单独运行；`tools/Test.ps1` 也会先导出最新 PCK。
 
 需要本机验证时，由用户将开发包复制到游戏 `mods/AllMatters/`，将完整 RitsuLib variant-pack 另装到 `mods/STS2-RitsuLib/`，再通过 Steam 启动游戏。不要只复制 compat 下的单个 DLL。Agent 的安装与实测边界见根目录 `AGENTS.md`。独立测试项目不参与 Mod 打包。牧师的手动验收及环境准备见 牧师验证记录（本地记录：`docs/testing/cleric.md`，不随仓库分发）；你好世界既有用户验收见 原验证记录（本地记录：`docs/testing/hello-world.md`，不随仓库分发）。
 
@@ -198,14 +198,12 @@ mod 包白名单（仅包含以下文件，不含 `.pdb`、`.xml` 或其他调�
 AllMatters/
   ├─ AllMatters.dll
   ├─ AllMatters.pck
-  ├─ AllMatters.json (manifest)
-  ├─ LICENSE
-  └─ THIRD_PARTY_NOTICES.md
+  └─ AllMatters.json (manifest)
 ```
 
 生成位置：`dist/batch-N-integration/AllMatters-public-beta/` 和 `.../AllMatters-public/`
 
-构建脚本采用白名单复制（`Copy-Item -Include`），不全量复制输出目录。
+构建脚本只复制上述三项，并清理同一输出目录中旧构建遗留的 `LICENSE` 和 `THIRD_PARTY_NOTICES.md`。制作 GitHub Release ZIP 时只归档这三项，许可证与第三方署名作为独立附件随 Release 提供。
 
 ### 测试文档
 

@@ -23,5 +23,11 @@ $outputDir = Join-Path $repoDir "bin/$Branch/$Configuration/net9.0"
 $packageDir = Join-Path $repoDir "dist/$Branch/AllMatters"
 New-Item -ItemType Directory -Path $packageDir -Force | Out-Null
 Copy-Item -LiteralPath (Join-Path $outputDir 'AllMatters.dll'), (Join-Path $outputDir 'AllMatters.json') -Destination $packageDir
-Copy-Item -LiteralPath (Join-Path $repoDir 'dist/AllMatters.pck'), (Join-Path $repoDir 'LICENSE'), (Join-Path $repoDir 'THIRD_PARTY_NOTICES.md') -Destination $packageDir
+Copy-Item -LiteralPath (Join-Path $repoDir 'dist/AllMatters.pck') -Destination $packageDir
+foreach ($name in @('LICENSE', 'THIRD_PARTY_NOTICES.md')) {
+    $legacyFile = Join-Path $packageDir $name
+    if (Test-Path -LiteralPath $legacyFile -PathType Leaf) {
+        Remove-Item -LiteralPath $legacyFile -Force
+    }
+}
 Write-Output "Development build packaged at $packageDir"

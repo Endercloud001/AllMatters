@@ -20,14 +20,14 @@
 
 v0.1.2 的开发验证目标为 **public 0.107.1** 和 **public-beta 0.113.1**，使用 [RitsuLib 0.6.11 完整 variant-pack](https://github.com/BAKAOLC/STS2-RitsuLib/releases/download/v0.6.11/STS2-RitsuLib.0.6.11.variant-pack.zip)。联机玩家应使用相同的游戏分支与兼容模组组合。
 
-GitHub Releases 当前提供 **v0.1.1 预览版**，其下载包和依赖对应以下版本。v0.1.2 可按下文从源码构建。当前构建的模组清单仍显示 v0.1.1。
+从 [v0.1.2 发布页](https://github.com/Endercloud001/AllMatters/releases/tag/v0.1.2) 下载与你的游戏分支对应的安装包。
 
-| 游戏分支 | v0.1.1 预览安装包 |
+| 游戏分支 | v0.1.2 安装包 |
 | --- | --- |
-| public / 0.107.1 | [AllMatters-v0.1.1-public.zip](https://github.com/Endercloud001/AllMatters/releases/download/v0.1.1-preview.1/AllMatters-v0.1.1-public.zip) |
-| public-beta / 0.111.0 | [AllMatters-v0.1.1-public-beta.zip](https://github.com/Endercloud001/AllMatters/releases/download/v0.1.1-preview.1/AllMatters-v0.1.1-public-beta.zip) |
+| public / 0.107.1 | [AllMatters-v0.1.2-public.zip](https://github.com/Endercloud001/AllMatters/releases/download/v0.1.2/AllMatters-v0.1.2-public.zip) |
+| public-beta / 0.113.1 | [AllMatters-v0.1.2-public-beta.zip](https://github.com/Endercloud001/AllMatters/releases/download/v0.1.2/AllMatters-v0.1.2-public-beta.zip) |
 
-1. 退出游戏，解压对应游戏分支的 AllMatters 安装包。预览版依赖 [RitsuLib 0.6.7 完整 variant-pack](https://github.com/BAKAOLC/STS2-RitsuLib/releases/download/v0.6.7/STS2-RitsuLib.0.6.7.variant-pack.zip)。
+1. 退出游戏，解压对应游戏分支的 AllMatters 安装包。
 2. 在 Steam 的游戏「管理 → 浏览本地文件」打开安装目录。放入解压后的模组，确保清单位于 `mods/AllMatters/AllMatters.json`。
 3. 把解压后的完整 RitsuLib 安装到 `mods/STS2-RitsuLib/`，保留原有目录结构及 `assets.zip`。
 4. 启动游戏，在模组列表中启用 RitsuLib 与 AllMatters。
