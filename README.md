@@ -23,11 +23,12 @@
 
 为大部分二代事件新增或修改了交易、选牌、离开和战斗选项。具体的改动见[此文档](docs/event-in-STS2-change.md)。
 
-
+![二代事件演示1](docs/images/event-example-1.png)
+![二代事件演示2](docs/images/event-example-2.png)
 
 回归了部分一代事件，但同样进行了部分修改。具体的改动见[此文档](docs/event-in-STS1-return.md)。
 
-
+![一代事件演示1](docs/images/event-example-3.png)
 
 ## 下载与安装
 
