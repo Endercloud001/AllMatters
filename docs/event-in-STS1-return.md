@@ -107,7 +107,7 @@
 
 选项：
 
-- **第一阶段**：与**1只[活雾](https://sts2.huijiwiki.com/wiki/%E6%B4%BB%E9%9B%BE) + 1只[潮湿邪教徒](https://sts2.huijiwiki.com/wiki/%E6%BD%AE%E6%B9%BF%E9%82%AA%E6%95%99%E5%BE%92)**战斗，获胜无战利品，直接进入中场抉择。
+- **第一阶段**：与 **1只[活雾](https://sts2.huijiwiki.com/wiki/%E6%B4%BB%E9%9B%BE) + 1只[潮湿邪教徒](https://sts2.huijiwiki.com/wiki/%E6%BD%AE%E6%B9%BF%E9%82%AA%E6%95%99%E5%BE%92)** 战斗，获胜无战利品，直接进入中场抉择。
 - **中场抉择**：
   - **死斗**：与一组第二幕的精英战斗，胜利后获得100金币、一件随机的稀有遗物、一组稀有卡牌奖励。
   - **懦弱**：趁乱逃离竞技场（无奖励，直接离开）。

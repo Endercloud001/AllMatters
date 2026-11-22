@@ -8,25 +8,27 @@
 
 - **拼出自己的路线。** 每幕开始时可摆放、旋转并连接地图碎片，再选「由先古之民审视」。也可选「令先古之民决定」，让游戏生成地图。联机时可以一起编辑，全员同意后才开始检查地图或生成地图。
 
-
+![拼图演示](docs/images/jigsaw-example.png)
 
 - **探索与续局。** 从已探索区域前往相邻的新房间，也可以沿已探索路线折返商店。
 
-
+![拼图地图演示](docs/images/jigsaw-map-example.png)
 
 - **建筑师惩罚。** 每幕有有限的步数。耗尽后仍能探索，后续适用房间进入惩罚。密林、暗港、巢穴和荣耀均会改变怪物阵容、行动或首领机制。惩罚期间商店不允许交易，休息处仅能选择"休息"与"愈合"，普通宝箱必定为空。击败当幕Boss后移除建筑师面具。具体的改动见[此文档](docs/v0.1.2-battle-enhancement-in-hunting.md)。
 
-
+![追猎演示1](docs/images/hunting-example-overgrowth-1.png)
+![追猎演示2](docs/images/hunting-example-overgrowth-vantom.png)
 
 ## v0.1.1 事件、遗物与卡牌
 
 为大部分二代事件新增或修改了交易、选牌、离开和战斗选项。具体的改动见[此文档](docs/event-in-STS2-change.md)。
 
-
+![二代事件演示1](docs/images/event-example-1.png)
+![二代事件演示2](docs/images/event-example-2.png)
 
 回归了部分一代事件，但同样进行了部分修改。具体的改动见[此文档](docs/event-in-STS1-return.md)。
 
-
+![一代事件演示1](docs/images/event-example-3.png)
 
 ## 下载与安装
 
@@ -58,7 +60,7 @@ v0.1.2.* 的当前适用版本为 **public 0.107.1** 和 **public-beta 0.113.1**
 若有bug，请使用"游戏设置"中的"反馈功能"，在"Category"中选择"For AllMatters"，然后点击Export会在游戏目录下生成当局对局的必要信息压缩包。
 
 当然，如果你有任何想告诉作者的建议或调整，均可以发送到 ender_cloud@163.com 。
-
+![反馈示意](docs/images/feedback-example.png)
 作者很希望收到以下相关的反馈：
 
 - 与其他mod联合使用时的bug（因为本身想主推玩法而不是仅限于修改数值/平衡性调整/一代内容回归，所以本作者鼓励玩家将本mod和其他mod一起使用）；
