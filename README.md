@@ -32,12 +32,12 @@
 
 ## 下载与安装
 
-v0.1.2.* 的当前适用版本为 **public 0.107.1** 和 **public-beta 0.113.1**，建议使用 [RitsuLib 0.6.11](https://github.com/BAKAOLC/STS2-RitsuLib/releases/download/v0.6.11/STS2-RitsuLib.0.6.11.variant-pack.zip)。联机玩家应使用相同的游戏分支与兼容模组组合。可以从 [发布页](https://github.com/Endercloud001/AllMatters/releases/) 下载与你的游戏版本对应的安装包。
+v0.1.2a 的适用版本为 **public 0.107.1** 和 **public-beta 0.113.1**，建议使用 [RitsuLib 0.6.11](https://github.com/BAKAOLC/STS2-RitsuLib/releases/download/v0.6.11/STS2-RitsuLib.0.6.11.variant-pack.zip)。联机玩家应使用相同的游戏分支与兼容模组组合。可以从 [发布页](https://github.com/Endercloud001/AllMatters/releases/) 下载与你的游戏版本对应的安装包。
 
-| 游戏分支 | v0.1.2 安装包 |
+| 游戏分支 | v0.1.2a 安装包（约 13.34 MiB） |
 | --- | --- |
-| public / 0.107.1 | [AllMatters-v0.1.2-public.zip](https://github.com/Endercloud001/AllMatters/releases/download/v0.1.2/AllMatters-v0.1.2-public.zip) |
-| public-beta / 0.113.1 | [AllMatters-v0.1.2-public-beta.zip](https://github.com/Endercloud001/AllMatters/releases/download/v0.1.2/AllMatters-v0.1.2-public-beta.zip) |
+| public / 0.107.1 | [AllMatters-v0.1.2a-public.zip](https://github.com/Endercloud001/AllMatters/releases/download/v0.1.2a/AllMatters-v0.1.2a-public.zip) |
+| public-beta / 0.113.1 | [AllMatters-v0.1.2a-public-beta.zip](https://github.com/Endercloud001/AllMatters/releases/download/v0.1.2a/AllMatters-v0.1.2a-public-beta.zip) |
 
 1. 退出游戏，解压对应游戏分支的 AllMatters 安装包。
 2. 在 Steam 的游戏「管理 → 浏览本地文件」打开安装目录。放入解压后的模组，确保清单位于 `mods/AllMatters/AllMatters.json`。

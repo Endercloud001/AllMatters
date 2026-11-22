@@ -34,6 +34,14 @@ Paths.local.props 不提交 Git；PublicGameDataDir 与 BetaGameDataDir 分别�
 
 构建将 DLL、模组清单和 PCK 写入 `dist/<branch>/AllMatters/`。构建脚本先导入 `src/Resources/`，再用 `src/Tooling/PackResources.gd` 的原生 `PCKPacker` 打包纹理导入文件及原样场景/Spine 资源，不依赖 Windows 导出模板。`tools/ExportResources.ps1` 可单独运行；`tools/Test.ps1` 也会先导出最新 PCK。
 
+### 事件插画的导入和装包
+
+1. 将源 PNG 保存在 `src/Resources/AllMatters/images/events/`，在 Godot 的 Import 面板将 **Compress → Mode** 设为 **Lossy**，质量设为 **0.85**，保持 **Size Limit** 为 **0**，然后重新导入。提交原图及对应的 `.png.import`，压缩设置应为 `compress/mode=1`、`compress/lossy_quality=0.85` 和 `process/size_limit=0`。
+2. 对只通过 `ResourceLoader` 读取的插画，将完整 `res://` 路径加入 `src/Tooling/PackResources.gd` 的 `EVENT_PORTRAIT_SOURCES`。打包脚本会先核对 `.png.import` 的源文件、重映射和 `.ctex`，再从 PCK 略过原始 PNG。直接通过 `FileAccess` 读取的文件和 Spine 图集纹理继续按原流程打包。这个打包入口使用 `PCKPacker`，过滤规则应写在打包脚本里。
+3. 用 `tools/ExportResources.ps1` 重新生成 PCK。将它挂载到没有项目源图和导入缓存的 Godot 项目，核对原路径可通过 `ResourceLoader.load()` 加载为 `Texture2D`、尺寸与源图一致，且 `FileAccess.file_exists()` 对原 PNG 返回 false。检查 ZIP 只含 DLL、JSON 和 PCK。调整质量后，用相同显示设置做无损与有损的实机对照，重点看细线、渐变和透明边缘。
+
+`v0.1.2a` 的十张事件插画已通过实机画质验收。public 和 public-beta 的 ZIP 均约 13.34 MiB，发布标签区分这次包体修订，模组清单沿用 `v0.1.2`。
+
 需要本机验证时，由用户将开发包复制到游戏 `mods/AllMatters/`，将完整 RitsuLib variant-pack 另装到 `mods/STS2-RitsuLib/`，再通过 Steam 启动游戏。不要只复制 compat 下的单个 DLL。Agent 的安装与实测边界见根目录 `AGENTS.md`。独立测试项目不参与 Mod 打包。牧师的手动验收及环境准备见 牧师验证记录（本地记录：`docs/testing/cleric.md`，不随仓库分发）；你好世界既有用户验收见 原验证记录（本地记录：`docs/testing/hello-world.md`，不随仓库分发）。
 
 默认公开版完整运行环境的准备：可通过 Steam 切换至默认分支，退出游戏后准备独立开发副本，再切回 public-beta。GitHub 下载的 DLL 足以进行本轮方法体检查和编译，但没有 PCK、原生库等完整环境，不能用于启动游戏验收。本次未切换 Steam 分支或修改存档；已更新 mods 中的 AllMatters 并安装 RitsuLib，原 AllMatters 已备份。
