@@ -16,6 +16,7 @@ using MegaCrit.Sts2.Core.Hooks;
 using MegaCrit.Sts2.Core.Rooms;
 using MegaCrit.Sts2.Core.Models.Powers;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Localization;
 using Godot;
 using System.Text.Json;
@@ -103,6 +104,10 @@ internal static class AugmenterTests
                     var locked = await Begin(player);
                     var option = locked.CurrentOptions.Single(option => option.TextKey.EndsWith(".MUTAGENS_LOCKED"));
                     Check(option.IsLocked, "A replacement cannot pay the starter cost.");
+                    Check(option.HoverTips.OfType<HoverTip>().All(tip => tip.Title != starter.HoverTip.Title && tip.Title != mask.HoverTip.Title),
+                        "A locked exchange must not preview an absent starter or the unrelated replacement as payment.");
+                    Check(option.HoverTips.OfType<HoverTip>().Any(tip => tip.Title == ModelDb.Relic<AllMatters.Relics.MutagenicStrength>().HoverTip.Title),
+                        "A locked exchange still previews Mutagenic Strength.");
                     await option.Chosen();
                     Check(player.Relics.SequenceEqual(new[] { mask }), "A locked choice cannot grant a free relic or remove a replacement.");
                     await RelicCmd.Remove(mask);
@@ -115,6 +120,12 @@ internal static class AugmenterTests
                 var teammates = other.Relics.ToArray();
                 var model = await Begin(player);
                 var exchange = model.CurrentOptions.Single(option => option.TextKey.EndsWith(".MUTAGENS"));
+                string starterTitle = starter.Title.GetFormattedText();
+                Check(exchange.Description.GetFormattedText().Contains(starterTitle),
+                    "Each character's exchange must name the actual starter even when it is not the first relic.");
+                var starterTip = exchange.HoverTips.OfType<HoverTip>().Single(tip => tip.Title == starter.HoverTip.Title);
+                Check(starterTip.Description == starter.HoverTip.Description,
+                    "The exchange must preview the actual starter's description.");
                 await exchange.Chosen();
                 Check(model.IsFinished && player.Relics.Count == 2 && player.Relics.Contains(mask) && !player.Relics.Contains(starter), "Exchange must remove the actual starter and keep the unrelated first relic.");
                 Check(player.Relics.Any(relic => relic.Id.Entry == "ALL_MATTERS_MUTAGENIC_STRENGTH"), "Exchange must grant Mutagenic Strength.");
@@ -246,6 +257,21 @@ internal static class AugmenterTests
                 var model = await Begin(player);
                 Check(model.Title.GetFormattedText() == (language == "eng" ? "Augmenter" : "增益研究者"), "Event title must follow language.");
                 Check(model.CurrentOptions.Count == 3 && model.CurrentOptions.All(option => !option.IsLocked), "All three choices must be visible and usable.");
+                var exchange = model.CurrentOptions.Single(option => option.TextKey.EndsWith(".MUTAGENS"));
+                string starterTitle = player.Relics.Single().Title.GetFormattedText();
+                string exchangeText = exchange.Description.GetFormattedText();
+                Check(exchangeText == (language == "zhs"
+                    ? $"失去你的{starterTitle}，获得[gold]突变之力[/gold]。"
+                    : $"Lose your {starterTitle}. Obtain [gold]Mutagenic Strength[/gold]."),
+                    "Mutagens must name the actual starter relic in the selected language.");
+                Check(exchange.HoverTips.OfType<HoverTip>().Any(tip => tip.Title == ModelDb.Relic<AllMatters.Relics.MutagenicStrength>().HoverTip.Title),
+                    "The starter preview must preserve the reward preview.");
+                if (language == "zhs")
+                {
+                    var jax = model.CurrentOptions.Single(option => option.TextKey.EndsWith(".JAX"));
+                    Check(jax.Description.GetFormattedText().Contains("你的[gold]牌组[/gold]。"),
+                        "The Chinese J.A.X. option must join 牌组 to the preceding text.");
+                }
                 var card = ModelDb.Card<AllMatters.Cards.Jax>().ToMutable();
                 var description = card.GetDescriptionForPile(PileType.None);
                 Check(description.Contains("3") && description.Contains("2") && !description.Contains('{'), "Ordinary card text must resolve 3 HP and 2 Strength.");

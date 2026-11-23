@@ -71,7 +71,8 @@ public partial class JigsawScreen : Control
     private readonly PanelContainer helpPanel = new();
     private readonly VBoxContainer helpContent = new();
     private readonly Label helpText = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart };
-    private readonly List<Button> poolButtons = [], actionButtons = [];
+    private readonly List<(int PieceId, Button Button)> poolButtons = [];
+    private readonly List<Button> actionButtons = [];
     private readonly List<(TextureRect Icon, string Action)> inputIcons = [];
     private readonly HBoxContainer hints = new();
     private readonly Label mouseHints = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart };
@@ -359,13 +360,22 @@ public partial class JigsawScreen : Control
         mouseHints.Text = L(pool.Visible ? "左键 拿放 · 右键 旋转／连拆线 · 中键 平移 · 滚轮 缩放 · Esc 取消／暂停" : "左键 选择目的地 · 中键 平移 · 滚轮 缩放 · Esc 暂停");
         if (previousPhase != map.Phase)
         { if (map.Phase != JigsawPhase.Editing) ClearRecent(); replay = null; helpOpen = false; helpShade.Hide(); helpPanel.Hide(); previousPhase = map.Phase; zone = FocusRegion.Map; nodeIndex = 0; }
-        foreach (var b in poolButtons)
+        int? focusedPiece = poolButtons.Count > 0 ? poolButtons[poolIndex].PieceId : null;
+        foreach (var (_, b) in poolButtons)
         { cards.RemoveChild(b); b.QueueFree(); }
         poolButtons.Clear();
         foreach (var p in map.Pool.Where(p => !map.Placements.Any(x => x.PieceId == p.Id)))
         {
+            int row = poolButtons.Count;
             var holders = map.Holdings.Where(h => h.Value.PieceId == p.Id).Select(h => h.Key).ToArray();
             var b = MakeButton("", () => Take(p.Id));
+            b.FocusEntered += () =>
+            {
+                if (Reading)
+                    return;
+                zone = FocusRegion.Pool;
+                poolIndex = row;
+            };
             foreach (var state in new[] { "normal", "hover", "pressed", "disabled" })
                 b.AddThemeStyleboxOverride(state, new StyleBoxEmpty());
             var cardFrame = new JigsawCardFrame { MouseFilter = MouseFilterEnum.Ignore, ShowBehindParent = true };
@@ -378,8 +388,10 @@ public partial class JigsawScreen : Control
             foreach (var holder in holders)
             { var portrait = Portrait(holder); portrait.Position = new(135, 16); b.AddChild(portrait); }
             cards.AddChild(b);
-            cards.MoveChild(b, poolButtons.Count + 1);
-            poolButtons.Add(b);
+            cards.MoveChild(b, row + 1);
+            poolButtons.Add((p.Id, b));
+            if (p.Id == focusedPiece)
+                poolIndex = row;
             if (holders.Length > 0)
                 b.Modulate = new Color(1, 1, 1, .55f);
         }
@@ -644,7 +656,7 @@ public partial class JigsawScreen : Control
         root.OffsetBottom = -20 * scale;
         float poolWidth = Size.Y <= 800 ? 240 : 300 * scale, buttonWidth = Size.Y <= 800 ? 225 : 300 * scale;
         poolFrame.CustomMinimumSize = new(poolWidth, 0);
-        foreach (var card in poolButtons)
+        foreach (var (_, card) in poolButtons)
             card.CustomMinimumSize = new(0, Math.Max(105, 126 * scale));
         bool continueOnly = map.Phase == JigsawPhase.Ancient && map.PendingEntry == null;
         decisions.CustomMinimumSize = new(continueOnly ? buttonWidth : buttonWidth * 2 + 12 * scale, 0);
@@ -673,7 +685,11 @@ public partial class JigsawScreen : Control
         if (next.Visible)
         { next.GrabFocus(); return; }
         if (zone == FocusRegion.Pool && poolButtons.Count > 0)
-        { poolButtons[poolIndex].GrabFocus(); pool.EnsureControlVisible(poolButtons[poolIndex]); }
+        {
+            var button = poolButtons[poolIndex].Button;
+            button.GrabFocus();
+            pool.EnsureControlVisible(button);
+        }
         if (zone == FocusRegion.Map)
             canvas.GrabFocus();
         if (zone == FocusRegion.Actions)
@@ -808,7 +824,7 @@ public partial class JigsawScreen : Control
             else if (next.Visible)
                 AdvanceDialog();
             else if (zone == FocusRegion.Pool && poolButtons.Count > 0)
-                poolButtons[poolIndex].EmitSignal(Button.SignalName.Pressed);
+                poolButtons[poolIndex].Button.EmitSignal(Button.SignalName.Pressed);
             else if (zone == FocusRegion.Map)
                 ActivateMap(FocusedNodeId, cursor, false);
             else if (zone == FocusRegion.Actions)

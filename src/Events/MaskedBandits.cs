@@ -58,9 +58,9 @@ public sealed class MaskedBandits : ModEventTemplate
     {
         return
         [
-          new(this, Pay, InitialOptionKey("PAY"), []),
-      new(this, Fight, InitialOptionKey("FIGHT"), []),
-    ];
+            new(this, Pay, InitialOptionKey("PAY"), []),
+            new(this, Fight, InitialOptionKey("FIGHT"), ModelDb.Relic<RedMask>().HoverTips),
+        ];
     }
 
     private async Task Pay()

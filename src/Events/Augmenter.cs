@@ -26,12 +26,21 @@ public sealed class Augmenter : ModEventTemplate
     protected override IReadOnlyList<EventOption> GenerateInitialOptions()
     {
         bool canTransform = Owner!.Deck.Cards.Count(card => card.Type != CardType.Quest && card.IsTransformable) >= 2;
-        bool canExchange = StartingRelic() != null;
+        var starter = StartingRelic();
+        var exchange = new EventOption(this, starter != null ? Mutagens : null,
+            InitialOptionKey(starter != null ? "MUTAGENS" : "MUTAGENS_LOCKED"),
+            HoverTipFactory.FromRelic(ModelDb.Relic<MutagenicStrength>()).ToArray());
+        if (starter != null)
+        {
+            exchange.Description.Add("StartingRelic", starter.Title);
+            exchange.HoverTips = starter.HoverTips.Concat(exchange.HoverTips).ToArray();
+        }
+
         return
         [
             new(this, Jax, InitialOptionKey("JAX"), [HoverTipFactory.FromCard(ModelDb.Card<Jax>())]),
             new(this, canTransform ? Transform : null, InitialOptionKey(canTransform ? "TRANSFORM" : "TRANSFORM_LOCKED"), []),
-            new(this, canExchange ? Mutagens : null, InitialOptionKey(canExchange ? "MUTAGENS" : "MUTAGENS_LOCKED"), HoverTipFactory.FromRelic(ModelDb.Relic<MutagenicStrength>()).ToArray()),
+            exchange,
         ];
     }
 

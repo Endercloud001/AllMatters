@@ -38,25 +38,26 @@ public sealed class TheLibrary : ModEventTemplate
     protected override IReadOnlyList<EventOption> GenerateInitialOptions()
     {
         bool canRead = ReadingPool().Count > 0;
-        bool canClean = AvailableBottles().Count > 0;
+        var bottles = BottleRelics();
+        bool canClean = bottles.Any(bottle => bottle.IsAvailable(Owner!));
         return
         [
             new(this, canRead ? Read : null, InitialOptionKey(canRead ? "READ" : "READ_LOCKED"), []),
             new(this, Sleep, InitialOptionKey("SLEEP"), []),
-            new(this, canClean ? Clean : null, InitialOptionKey(canClean ? "CLEAN" : "CLEAN_LOCKED"), []),
+            new(this, canClean ? Clean : null, InitialOptionKey(canClean ? "CLEAN" : "CLEAN_LOCKED"),
+                bottles.SelectMany(bottle => bottle.HoverTips).ToArray()),
         ];
     }
 
-    private List<BottledCard> AvailableBottles() =>
-        new BottledCard[] { ModelDb.Relic<BottledFlame>(), ModelDb.Relic<BottledLightning>(), ModelDb.Relic<BottledTornado>() }
-            .Where(bottle => bottle.IsAvailable(Owner!)).ToList();
+    private static BottledCard[] BottleRelics() =>
+        [ModelDb.Relic<BottledFlame>(), ModelDb.Relic<BottledLightning>(), ModelDb.Relic<BottledTornado>()];
 
     private async Task Clean()
     {
         if (!StartChoice())
             return;
-        var bottles = AvailableBottles();
-        await RelicCmd.Obtain(bottles[Rng.NextInt(bottles.Count)].ToMutable(), Owner!);
+        var bottles = BottleRelics().Where(bottle => bottle.IsAvailable(Owner!)).ToArray();
+        await RelicCmd.Obtain(bottles[Rng.NextInt(bottles.Length)].ToMutable(), Owner!);
         SetEventFinished(PageDescription("CLEAN"));
     }
 

@@ -9,6 +9,7 @@ using MegaCrit.Sts2.Core.Models.Powers;
 using MegaCrit.Sts2.Core.Multiplayer;
 using MegaCrit.Sts2.Core.Multiplayer.Game;
 using MegaCrit.Sts2.Core.Rewards;
+using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Localization;
 using Godot;
 using MegaCrit.Sts2.Core.Entities.Players;
@@ -188,6 +189,13 @@ internal static class MaskedBanditsTests
             {
                 LocManager.Instance.SetLanguage(language);
                 Check(Canonical.Title.GetFormattedText().Length > 0, "Event title missing.");
+                var player = Player.CreateForNewRun<Ironclad>(UnlockState.all, 1);
+                RunState.CreateForTest([player], acts: [], seed: "BANDITS_TEXT");
+                var model = await Begin(player);
+                var fight = model.CurrentOptions.Single(option => option.TextKey.EndsWith(".FIGHT"));
+                var mask = ModelDb.Relic<RedMask>().HoverTip;
+                var tip = fight.HoverTips.OfType<HoverTip>().Single(tip => tip.Title == mask.Title);
+                Check(tip.Description == mask.Description, "Fighting must preview Red Mask's description in the selected language.");
                 foreach (var monster in ModelDb.Encounter<RedMaskBandits>().AllPossibleMonsters)
                     Check(monster.Title.Exists() && monster.Title.GetFormattedText().Length > 0, "Monster name missing.");
             }

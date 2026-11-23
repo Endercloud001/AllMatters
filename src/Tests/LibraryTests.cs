@@ -9,6 +9,7 @@ using MegaCrit.Sts2.Core.TestSupport;
 using MegaCrit.Sts2.Core.Entities.CardRewardAlternatives;
 using MegaCrit.Sts2.Core.Models.Cards;
 using MegaCrit.Sts2.Core.Models.RelicPools;
+using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.CardSelection;
 using MegaCrit.Sts2.Core.Combat;
@@ -333,15 +334,20 @@ internal static class LibraryTests
                 player.Creature.SetMaxHpInternal(83);
                 var model = await Begin(player);
                 Check(model.Title.GetFormattedText() == (language == "zhs" ? "大图书馆" : "The Library"), "Localize the event title.");
+                string read = model.CurrentOptions[0].Description.GetFormattedText();
+                Check(read.Contains("[blue]20[/blue]"), "Color the reading candidate count blue.");
                 model.DynamicVars.AddTo(model.CurrentOptions[1].Description);
                 string sleep = model.CurrentOptions[1].Description.GetFormattedText();
-                Check(sleep.Contains("27") && !sleep.Contains('{'), "Display the calculated, rounded healing amount.");
+                Check(sleep.Contains("[green]27[/green]") && !sleep.Contains('{'), "Display the calculated, rounded healing amount in green.");
+                var clean = model.CurrentOptions.Single(option => option.TextKey.EndsWith(".CLEAN"));
                 foreach (string suffix in new[] { "READ", "SLEEP", "CLEAN" })
                     Check(model.CurrentOptions.Any(option => option.TextKey.EndsWith('.' + suffix)), "Offer Read, Sleep and Clean in that order.");
                 var prompt = new LocString("events", Canonical.Id.Entry + ".pages.READ.selectionScreenPrompt");
                 Check(!prompt.GetFormattedText().Contains("selectionScreenPrompt"), "Reading selection prompt must be translated.");
                 foreach (var relic in new RelicModel[] { ModelDb.Relic<BottledFlame>(), ModelDb.Relic<BottledLightning>(), ModelDb.Relic<BottledTornado>() })
                 {
+                    var tip = clean.HoverTips.OfType<HoverTip>().Single(tip => tip.Title == relic.HoverTip.Title);
+                    Check(tip.Description == relic.HoverTip.Description, "Cleaning must preview each bottle's localized description.");
                     var asset = ((BottledCard)relic).AssetProfile;
                     foreach (string? path in new[] { asset.IconPath, asset.IconOutlinePath, asset.BigIconPath })
                         Check(Godot.ResourceLoader.Load<Godot.Texture2D>(path!).GetWidth() > 0, "All bottle icon variants must load from PCK.");

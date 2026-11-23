@@ -215,7 +215,17 @@ internal static class BeggarFountainTests
                         }
                         finally { node.Free(); }
                     }
-                    else await model.CurrentOptions[0].Chosen();
+                    else
+                    {
+                        if (language == "zhs")
+                        {
+                            Check(model.Description!.GetFormattedText().Contains("源源不断[blue][sine]闪着光的水[/sine][/blue]。"),
+                                "The Chinese fountain opening must join 闪着光的水 to the preceding text.");
+                            Check(description.Contains("可移除的[red]诅咒[/red]。"),
+                                "The Chinese fountain option must join 诅咒 to the preceding text.");
+                        }
+                        await model.CurrentOptions[0].Chosen();
+                    }
                     Check(model.IsFinished, "The localized service must finish.");
                 }
             }

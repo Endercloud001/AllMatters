@@ -1,6 +1,7 @@
 using AllMatters.Jigsaw;
 using AllMatters.Jigsaw.Presentation;
 using Godot;
+using MegaCrit.Sts2.Core.ControllerInput;
 
 internal static class JigsawFeedbackPresentationTests
 {
@@ -8,8 +9,65 @@ internal static class JigsawFeedbackPresentationTests
     [
         ("Jigsaw feedback Ancient continue shows actual multiplayer consensus", ContinueConsensus),
         ("Jigsaw feedback visited unknown combat uses native resolved icon", ResolvedIcon),
-        ("Jigsaw feedback multiplayer HUD restores actual visibility on close", HudVisibility)
+        ("Jigsaw feedback multiplayer HUD restores actual visibility on close", HudVisibility),
+        ("Jigsaw feedback picking the second pool piece keeps its outline", PoolPieceOutline)
     ];
+
+    private static async Task PoolPieceOutline()
+    {
+        using var atlases = HeadlessTestSetup.LoadAtlases("ui_atlas", "compressed");
+        var map = JigsawRun.Create(74, players: [1, 2]);
+        HeadlessUiHost.EnsureInputActions();
+        var tree = (SceneTree)Engine.GetMainLoop();
+        var originalSize = tree.Root.Size;
+        var view = JigsawScreen.Create(map, 1, () => {}, () => Task.CompletedTask, () => Task.CompletedTask,
+            _ => Task.CompletedTask, () => {}, new MemoryJigsawTutorialProfile { Sentence = 6 });
+        try
+        {
+            tree.Root.Size = new Vector2I(1280, 720);
+            await HeadlessUiHost.Mount(view);
+            view.Refresh();
+            await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
+            await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
+            var cards = view.PoolControl.GetChild<VBoxContainer>(0);
+            Button[] Rows() => cards.GetChildren().OfType<Button>()
+                .Where(button => button.GetChildren().OfType<JigsawPiecePreview>().Any()).ToArray();
+            var target = Rows()[1];
+            var position = target.GetGlobalRect().GetCenter();
+            var viewportRect = tree.Root.GetVisibleRect();
+            var poolRect = view.PoolControl.GetGlobalRect();
+            Require(viewportRect.HasPoint(position) && poolRect.HasPoint(position),
+                $"Second row center {position} must be visible in the pool {poolRect} and viewport {viewportRect}.");
+            tree.Root.PushInput(new InputEventMouseMotion { Position = position, GlobalPosition = position }, true);
+            await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
+            var hovered = tree.Root.GuiGetHoveredControl();
+            Require(hovered == target,
+                $"Engine hover at {position} must hit {target.GetPath()}. Actual: {hovered?.GetPath().ToString() ?? "no control"}.");
+            tree.Root.PushInput(new InputEventMouseButton { Position = position, GlobalPosition = position, ButtonIndex = MouseButton.Left, Pressed = true }, true);
+            await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
+            tree.Root.PushInput(new InputEventMouseButton { Position = position, GlobalPosition = position, ButtonIndex = MouseButton.Left, Pressed = false }, true);
+            await tree.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
+
+            Require(map.Holdings.TryGetValue(1, out var held) && held.PieceId == map.Pool[1].Id,
+                "The first click takes the second available piece.");
+            var rows = Rows();
+            Require(rows[1].Modulate.A < 1 && rows[1].GetChildren().OfType<TextureRect>().Count() == 1,
+                "The held piece's row is dimmed and shows a portrait control.");
+            Require(tree.Root.GuiGetFocusOwner() == rows[1],
+                $"The held second row keeps the outline after refresh. Focused pool row: {Array.IndexOf(rows, tree.Root.GuiGetFocusOwner()) + 1}.");
+
+            Require(map.Take(2, map.Pool[0].Id).Success && map.Drop(2, new GridPoint(0, 7)).Success,
+                "Another player places the piece above the focused piece.");
+            view.Refresh();
+            rows = Rows();
+            Require(rows[0].GetChildren().OfType<JigsawPiecePreview>().Single().Piece.Id == map.Pool[1].Id && rows[0].HasFocus(),
+                "The outline follows the same piece when it moves to the first row.");
+
+            tree.Root.PushInput(new InputEventAction { Action = MegaInput.down, Pressed = true }, true);
+            Require(rows[1].HasFocus(), "Controller down moves one row from the focused piece after the pool refresh.");
+        }
+        finally { view.Free(); tree.Root.Size = originalSize; }
+    }
 
     private static async Task HudVisibility()
     {
