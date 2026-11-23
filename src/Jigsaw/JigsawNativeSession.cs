@@ -274,13 +274,15 @@ public sealed class JigsawNativeSession
         var mapData = data.Map.OriginalPlayers == null ? data.Map with { OriginalPlayers = originals } : data.Map;
         if (!originals.ToHashSet().SetEquals(mapData.OriginalPlayers!))
             throw new InvalidDataException("拼图原队员与原生存档角色名单不一致，不能替换角色恢复。");
-        bool validating = JigsawLobbyCheckpoint.IsValidating || native.Players.Count > 1 &&
-            !ReferenceEquals(RunManager.Instance.DebugOnlyGetState(), native);
-        var restoredMap = validating ? JigsawRun.Restore(mapData) : JigsawRun.RestoreForDeferredAncient(mapData, ActivePlayers(native));
-        // The native lobby validates/rebuilds saves before a live session exists.
-        // Validate the document here without activating multiplayer gameplay.
-        if (validating)
+        bool canActivate = !JigsawLobbyCheckpoint.IsValidating &&
+            ReferenceEquals(RunManager.Instance.DebugOnlyGetState(), native);
+        if (!canActivate)
+        {
+            // Only native setup can supply the live roster and network service.
+            JigsawRun.Restore(mapData);
             return;
+        }
+        var restoredMap = JigsawRun.RestoreForDeferredAncient(mapData, ActivePlayers(native));
         var session = Enable(native);
         session.act = data.Act;
         session.Map = restoredMap;
@@ -1103,15 +1105,16 @@ public sealed class JigsawNativeSession
         if (checkpoint.VisitedMapCoords.Count > 0 && checkpoint.VisitedMapCoords[^1] == new MapCoord(0, row))
             checkpoint.VisitedMapCoords.RemoveAt(checkpoint.VisitedMapCoords.Count - 1);
         var restored = RunState.FromSerializable(checkpoint);
-        var selection = sessions.GetValue(restored, state => new(state));
-        if (selection.Map == null || !selection.Map.AbandonEntry(attempt.Id).Success)
+        if (!JigsawCheckpoint.Slot.TryGet(restored, out var data) || data.Map == null)
+            throw new InvalidDataException("进入前检查点缺少拼图地图。");
+        var selectionMap = JigsawRun.Restore(data.Map);
+        if (!selectionMap.AbandonEntry(attempt.Id).Success)
             throw new InvalidDataException("不能从完整进入点恢复目的地选择。");
-        selection.entryCheckpoint = null;
-        JigsawCheckpoint.Capture(restored, selection.Map);
+        JigsawCheckpoint.Capture(restored, selectionMap);
         JigsawSaveSource.CaptureDocument(checkpoint, restored);
         HideMap();
         await LoadCheckpoint(checkpoint, restored);
-        if (Current != selection)
+        if (Current is not { } selection || !ReferenceEquals(selection.Native, restored))
             return;
         selection.OnEdited();
         try

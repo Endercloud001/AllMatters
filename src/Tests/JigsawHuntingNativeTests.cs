@@ -336,14 +336,24 @@ internal static class JigsawHuntingNativeTests
         JigsawNativeSession.Restore(native); session = JigsawNativeSession.Current!;
         Require(!session.Map!.HuntingActive && session.Map.RemainingSteps == 0 && !native.Players[0].Relics.OfType<ArchitectMask>().Any(), "The complete native selection save restores without premature mask issuance.");
         int boss = session.Map.Nodes.Single(node => node.Room == JigsawRoom.Boss).Id;
+        int stepsBefore = session.Map.Steps;
         await session.Enter(boss);
-        Require(native.CurrentRoom is CombatRoom && session.Map.HuntingActive && session.Map.CurrentRoomHunted && !session.Map.BossReachedOnTime && native.Players[0].Relics.OfType<ArchitectMask>().Count() == 1,
+        Require(native.CurrentRoom is CombatRoom && session.Map.CurrentNode == boss && session.Map.Steps == stepsBefore + 1 &&
+            session.Map.HuntingActive && session.Map.CurrentRoomHunted && !session.Map.BossReachedOnTime &&
+            native.Players[0].Relics.OfType<ArchitectMask>().Count() == 1,
             "The actual next first-Boss native entry is immediately punished, has one mask, and is not timely.");
+        long entryId = session.Map.CreateSave().NextEntry;
         await saves.SaveRun(RunManager.Instance.ToSave(null), false);
-        var entered = RunState.FromSerializable(saves.LoadRunSave().SaveData!);
-        JigsawNativeSession.Restore(entered);
-        Require(JigsawNativeSession.Current!.Map is { HuntingActive: true, CurrentRoomHunted: true, BossReachedOnTime: false } && entered.Players[0].Relics.OfType<ArchitectMask>().Count() == 1,
-            "A complete native post-entry save restores the same punished Boss and unique mask.");
+        var loaded = saves.LoadRunSave();
+        Require(loaded.Success && loaded.SaveData != null, "The native save during the unfinished Boss fight parses.");
+        var beforeRoll = RunState.FromSerializable(loaded.SaveData!);
+        Require(JigsawNativeSession.TryGet(beforeRoll) == null &&
+            JigsawCheckpoint.Slot.TryGet(beforeRoll, out var point) &&
+            point.Map is { CurrentNode: null, PendingEntry: { } pending, Hunting: { Active: true, RootHunted: false, BossChecked: false, RemainingSteps: 0 } } savedMap &&
+            savedMap.Steps == stepsBefore && pending.NodeId == boss && pending.Id == entryId,
+            "The unfinished Boss save retains the same pending destination and uncharged step from before the encounter roll.");
+        Require(beforeRoll.Players[0].Relics.OfType<ArchitectMask>().Count() == 1,
+            "The before-roll native player retains the single mask granted before the encounter.");
     });
 
     private static Task EventService() => WithRoom(JigsawRoom.Unknown, true, async session =>

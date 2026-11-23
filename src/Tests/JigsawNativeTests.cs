@@ -222,8 +222,21 @@ internal static class JigsawNativeTests
             }
             if(!twoPlayers)
             {
+                var previousService = RunManager.Instance.NetService;
                 var resumed=RunState.FromSerializable(incoming.serializableRun);
-                Require(JigsawNativeSession.Enable(resumed).Map!.Take(1,1).Success,"A new native single-player session restores its current original player instead of inheriting the prior session's disconnected roster.");
+                Require(JigsawNativeSession.TryGet(resumed) == null, "Reading the checkpoint with a previous run active must leave the restored run detached.");
+                bool rejected = false;
+                try { await RunManager.Instance.SetUpSavedSingleplayer(resumed, incoming.serializableRun); }
+                catch (InvalidOperationException error) when (error.Message == "State is already set.") { rejected = true; }
+                Require(rejected && JigsawNativeSession.TryGet(resumed) == null,
+                    "A failed native setup propagates its error and leaves the restored run detached.");
+                RunManager.Instance.CleanUp(false);
+                await RunManager.Instance.SetUpSavedSingleplayer(resumed, incoming.serializableRun);
+                var session = JigsawNativeSession.TryGet(resumed);
+                Require(session is { Map: { } } && !ReferenceEquals(previousService, RunManager.Instance.NetService) &&
+                    ReferenceEquals(AccessTools.Field(typeof(JigsawNativeSession), "netService").GetValue(session), RunManager.Instance.NetService),
+                    "The restored session must use the new native service before generating or loading the map.");
+                Require(session!.Map!.Take(1,1).Success,"A new native single-player session restores its current original player instead of inheriting the prior session's disconnected roster.");
             }
             if(twoPlayers)
             {
@@ -455,9 +468,10 @@ internal static class JigsawNativeTests
         {
             var save=manager.LoadRunSave();Require(save.Success && save.SaveData!=null,"New process parses the actual native container.");
             var restored=RunState.FromSerializable(save.SaveData!);
+            Require(JigsawNativeSession.TryGet(restored) == null, "A cold process validates the checkpoint without creating a live session.");
             await RunManager.Instance.SetUpSavedSingleplayer(restored,save.SaveData!);
             MegaCrit.Sts2.Core.Context.LocalContext.NetId=restored.Players[0].NetId;
-            var session=JigsawNativeSession.Current!;var map=session.Map!;
+            var session=JigsawNativeSession.TryGet(restored)!;var map=session.Map!;
             Require(map.Phase==JigsawPhase.Generating && map.AutomaticOperation!=null,"Saved authorization is restored without another vote.");
             var expected=JigsawAutomatic.Solve(map,map.AutomaticOperation!.ExpansionBudget)!;
             await RunManager.Instance.GenerateMap();await RunManager.Instance.LoadIntoLatestMapCoord(null);
@@ -1113,7 +1127,7 @@ internal static class JigsawNativeTests
             int expectedGold=native.Players[0].Gold;
             RunManager.Instance.CleanUp(false);
             var restored=RunState.FromSerializable(loaded.SaveData!);
-            Require(JigsawNativeSession.Current==null,"Deserialization alone does not replace the active native run.");
+            Require(JigsawNativeSession.TryGet(restored) == null, "Deserialization alone does not activate the restored run.");
             await RunManager.Instance.SetUpSavedSingleplayer(restored,loaded.SaveData!);
             MegaCrit.Sts2.Core.Context.LocalContext.NetId=restored.Players[0].NetId;
             await RunManager.Instance.GenerateMap();
