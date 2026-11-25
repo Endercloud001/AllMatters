@@ -1156,7 +1156,11 @@ internal static class JigsawNativeTests
                     "A local terminal reward callback cannot complete an unrelated player.");
                 // Deliver the actual accepted native skip action. The headless host
                 // omits the UI/action-loop pump, so execute this queued action directly.
-                var skip=new MegaCrit.Sts2.Core.GameActions.PickRelicAction(restored.Players[0],null);
+                var skip=new MegaCrit.Sts2.Core.GameActions.PickRelicAction(restored.Players[0],null
+#if !STS2_PUBLIC
+                    ,0
+#endif
+                    );
                 skip.OnEnqueued(_=>{},1);
                 await skip.Execute();
                 await HeadlessNativeApi.Proceed(RunManager.Instance);

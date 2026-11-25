@@ -27,7 +27,12 @@ internal static class NlothSkipTreasure
             ____runState
 #endif
             .Players.Where(NlothsHungryFace.IsEmptyFor))
-            __instance.OnPicked(player, null);
+            // The native synchronizer starts every chest at round zero.
+            __instance.OnPicked(player, null
+#if !STS2_PUBLIC
+                , 0
+#endif
+                );
     }
 }
 

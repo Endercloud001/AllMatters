@@ -158,9 +158,12 @@ internal static class JigsawHuntingColonyOpening
 [HarmonyPatch]
 internal static class JigsawHuntingColonyFixedPower
 {
-    private static IEnumerable<System.Reflection.MethodBase> TargetMethods() =>
-    [ AccessTools.Method(typeof(PowerModel), nameof(PowerModel.GetScaledAmountForMultiplayer)),
-      AccessTools.Method(typeof(PlatingPower), nameof(PlatingPower.GetScaledAmountForMultiplayer)) ];
+    private static IEnumerable<System.Reflection.MethodBase> TargetMethods()
+    {
+        Type[] parameters = [typeof(ICombatState), typeof(Creature), typeof(decimal), typeof(Creature), typeof(CardModel)];
+        yield return AccessTools.Method(typeof(PowerModel), nameof(PowerModel.GetScaledAmountForMultiplayer), parameters);
+        yield return AccessTools.Method(typeof(PlatingPower), nameof(PlatingPower.GetScaledAmountForMultiplayer), parameters);
+    }
 
     private static bool Prefix(PowerModel __instance, decimal amount, ref decimal __result)
     {

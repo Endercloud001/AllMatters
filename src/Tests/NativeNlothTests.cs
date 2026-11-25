@@ -62,8 +62,13 @@ internal static class NativeNlothTests
             sync.BeginRelicPicking();
             NativeEventTests.Check(sync.CurrentRelics!.Count == 1 && sync.GetPlayerVote(p).voteReceived && !sync.GetPlayerVote(p).index.HasValue,
                 "Generate one teammate relic and automatically skip the holder's native vote.");
+#if STS2_PUBLIC
             sync.OnPicked(p, 0);
             sync.OnPicked(other, 0);
+#else
+            sync.OnPicked(p, 0, 0);
+            sync.OnPicked(other, 0, 0);
+#endif
             NativeEventTests.Check(awards != null && awards.All(a => a.player != p) && awards.Any(a => a.player == other), "A holder cannot take a teammate's relic or receive consolation.");
             var restored = Player.FromSerializable(p.ToSerializable());
             NativeEventTests.Check(restored.Relics.OfType<NlothsHungryFace>().Single().Spent, "The used state must survive native player restoration.");

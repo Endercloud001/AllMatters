@@ -160,6 +160,8 @@ internal static class NativeVegetationTests
 
     private static Task Text() => WithPlayer(async player =>
     {
+        player.Creature.SetMaxHpInternal(85);
+        player.Creature.SetCurrentHpInternal(41);
         try
         {
             foreach (string language in new[] { "eng", "zhs" })
@@ -168,14 +170,27 @@ internal static class NativeVegetationTests
                 var model = await Begin<DenseVegetation>(player);
                 foreach (var option in Rest(model))
                 {
+                    model.DynamicVars.AddTo(option.Description);
                     string text = option.Description.GetFormattedText();
-                    Check(!text.Contains('{') && text.Contains(language == "zhs" ? "进入战斗" : "Enter combat"), "Action descriptions format in both languages.");
+                    Check(!text.Contains('{') && text.Contains(language == "zhs" ? "[red]进入战斗[/red]" : "[red]Enter combat[/red]"), "Action descriptions highlight combat in both languages.");
                     Check(!text.Contains('：') && !text.Contains(':') && !text.Contains('\n'), "The effect follows the action title without a repeated label or an added line break.");
                 }
                 Check(Action(model, "HEAL").Title.GetFormattedText() == (language == "zhs" ? "休息" : "Rest"), "Healing uses the original rest-site Rest title.");
                 Check(Action(model, "SMITH").Title.GetFormattedText() == (language == "zhs" ? "锻造" : "Smith"), "Upgrading uses the original rest-site Smith title.");
-                Check(Action(model, "HEAL").Description.GetFormattedText().Contains("24"), "Heal displays 30 percent of 80.");
+                string heal = Action(model, "HEAL").Description.GetFormattedText();
+                Check(heal.StartsWith(language == "zhs" ? "回复[green]25[/green]点生命。" : "Heal [green]25[/green] HP.", StringComparison.Ordinal),
+                    "Healing displays the truncated native amount and colors only the number.");
             }
+            LocManager.Instance.SetLanguage("zhs");
+            await RelicCmd.Obtain<TinyMailbox>(player);
+            var withMailbox = await Begin<DenseVegetation>(player);
+            var mailboxDescription = Action(withMailbox, "HEAL").Description;
+            withMailbox.DynamicVars.AddTo(mailboxDescription);
+            string textWithMailbox = mailboxDescription.GetFormattedText();
+            Check(textWithMailbox.StartsWith("回复[green]25[/green]点生命。", StringComparison.Ordinal)
+                && textWithMailbox.Contains("小邮箱") && textWithMailbox.Contains("药水")
+                && textWithMailbox.EndsWith("，[red]进入战斗[/red]。", StringComparison.Ordinal)
+                && !textWithMailbox.Contains('\n'), "Mailbox reward and combat follow the heal amount on the same line.");
         }
         finally { LocManager.Instance.SetLanguage("eng"); }
     });

@@ -6,6 +6,7 @@ using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Entities.RestSite;
 using MegaCrit.Sts2.Core.Events;
+using MegaCrit.Sts2.Core.Hooks;
 using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Events;
@@ -94,8 +95,11 @@ internal static class NativeDenseVegetation
         var options = visit.Actions.Select(action =>
         {
             string key = "DENSE_VEGETATION.pages.INITIAL.options.AM_REST_" + action.OptionId;
-            var description = new LocString("events", "DENSE_VEGETATION.AM_ACTION.description");
-            description.Add("ActionDescription", action.Description.GetFormattedText());
+            var description = action is HealRestSiteOption
+                ? HealDescription(model.Owner!)
+                : new LocString("events", "DENSE_VEGETATION.AM_ACTION.description");
+            if (action is not HealRestSiteOption)
+                description.Add("ActionDescription", action.Description.GetFormattedText());
             return new EventOption(model, async () =>
             {
                 if (visit.Choosing || visit.Completed || !action.IsEnabled)
@@ -133,6 +137,20 @@ internal static class NativeDenseVegetation
         }, visit.Trudge.Title, visit.Trudge.Description, visit.Trudge.TextKey, visit.Trudge.HoverTips)
             .ThatDoesDamage(model.DynamicVars.HpLoss.BaseValue));
         return options;
+    }
+
+    private static LocString HealDescription(Player owner)
+    {
+        bool zh = LocManager.Instance.Language == "zhs";
+        var relicText = Hook.ModifyExtraRestSiteHealText(owner.RunState, owner, [])
+            .Select(text => text.GetFormattedText().ReplaceLineEndings(" ").Trim().TrimEnd('.', '。'))
+            .Where(text => text.Length > 0).ToArray();
+        var description = new LocString("events", "DENSE_VEGETATION.AM_HEAL.description");
+        description.Add("AmHeal", (int)HealRestSiteOption.GetHealAmount(owner));
+        description.Add("RelicText", relicText.Length == 0
+            ? string.Empty
+            : string.Join(zh ? "。" : ". ", relicText) + (zh ? "，" : ". "));
+        return description;
     }
 
     // A restored child battle follows an already completed rest action. Keep
@@ -173,14 +191,22 @@ internal static class DenseVegetationLocalization
         if (name != "events")
             return;
         bool zh = __instance.Language == "zhs";
-        __result.MergeWith(new Dictionary<string, string>
+        var strings = new Dictionary<string, string>
         {
             ["DENSE_VEGETATION.AM_ACTION.description"] = zh
-                ? "{ActionDescription}进入战斗。"
-                : "{ActionDescription} Enter combat.",
+                ? "{ActionDescription}[red]进入战斗[/red]。"
+                : "{ActionDescription} [red]Enter combat[/red].",
+            ["DENSE_VEGETATION.AM_HEAL.description"] = zh
+                ? "回复[green]{AmHeal}[/green]点生命。{RelicText}[red]进入战斗[/red]。"
+                : "Heal [green]{AmHeal}[/green] HP. {RelicText}[red]Enter combat[/red].",
             ["DENSE_VEGETATION.pages.AM_REST.description"] = zh
                 ? "你完成了休整。\n\n忽然，身旁的植被开始剧烈摇晃。你并不孤单……"
                 : "You finish tending to yourself.\n\nSuddenly, the vegetation around you begins to shake. You are not alone…",
-        });
+        };
+        if (zh || __instance.Language == "eng")
+            strings["DENSE_VEGETATION.pages.REST.options.FIGHT.title"] = zh
+                ? "[red]进入战斗[/red]"
+                : "[red]Enter combat[/red]";
+        __result.MergeWith(strings);
     }
 }

@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 using Godot;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Combat;
+using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Helpers;
 using MegaCrit.Sts2.Core.Map;
 using MegaCrit.Sts2.Core.Entities.Merchant;
@@ -851,7 +852,14 @@ public sealed class JigsawNativeSession
                 { await previous; }
                 catch { /* The previous entry reports its own failure. */ }
             if (Current == this && Map?.PendingEntry == attempt)
+            {
+                if (netService is NetSingleplayerGameService)
+                {
+                    SfxCmd.Play("event:/sfx/ui/map/map_select");
+                    SfxCmd.Play("event:/sfx/ui/wipe_map");
+                }
                 await Enter(node);
+            }
         });
     }
 

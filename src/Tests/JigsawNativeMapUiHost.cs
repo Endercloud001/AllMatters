@@ -5,6 +5,7 @@ using HarmonyLib;
 using MegaCrit.Sts2.Core.Nodes;
 using MegaCrit.Sts2.Core.Nodes.CommonUi;
 using MegaCrit.Sts2.Core.Nodes.Screens;
+using MegaCrit.Sts2.Core.Nodes.Screens.Capstones;
 using MegaCrit.Sts2.Core.TestSupport;
 
 // Owns native scene lookup and containers, without running NGame's asset/audio startup.
@@ -16,6 +17,7 @@ internal sealed class JigsawNativeMapUiHost : IDisposable
     private readonly NSceneContainer scenes = new();
     private readonly NRun run = new();
     private readonly NGlobalUi global = new();
+    private readonly NCapstoneContainer capstone = new();
     private readonly NCapstoneSubmenuStack submenu = new();
     private readonly NInputManager input = new();
     private readonly NGame? previous = NGame.Instance;
@@ -31,6 +33,7 @@ internal sealed class JigsawNativeMapUiHost : IDisposable
         AccessTools.Property(typeof(NGame), nameof(NGame.InputManager)).SetValue(game, input);
         AccessTools.Property(typeof(NSceneContainer), nameof(NSceneContainer.CurrentScene)).SetValue(scenes, run);
         AccessTools.Property(typeof(NRun), nameof(NRun.GlobalUi)).SetValue(run, global);
+        AccessTools.Property(typeof(NGlobalUi), nameof(NGlobalUi.CapstoneContainer)).SetValue(global, capstone);
         AccessTools.Property(typeof(NGlobalUi), nameof(NGlobalUi.SubmenuStack)).SetValue(global, submenu);
         run.AddChild(global);
         global.AddChild(submenu);
@@ -51,7 +54,7 @@ internal sealed class JigsawNativeMapUiHost : IDisposable
     public void Dispose()
     {
         AccessTools.Property(typeof(NGame), nameof(NGame.Instance)).SetValue(null, previous);
-        run.Free(); scenes.Free(); input.Free(); game.Free();
+        run.Free(); capstone.Free(); scenes.Free(); input.Free(); game.Free();
         harmony.UnpatchAll(harmony.Id);
     }
 }

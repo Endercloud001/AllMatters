@@ -1,6 +1,7 @@
 using AllMatters.Jigsaw;
 using Godot;
 using HarmonyLib;
+using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Acts;
@@ -46,6 +47,12 @@ internal static class JigsawEntryTransitionTests
     private static TaskCompletionSource<bool>? fade;
     private static TaskCompletionSource<bool>? heldReveal;
     private static int outs, ins, nativeIns, nativeSaves;
+    private static readonly List<string> mapSounds = [];
+    private static void ObserveMapSound(string sfx)
+    {
+        if (sfx is "event:/sfx/ui/map/map_select" or "event:/sfx/ui/wipe_map")
+            mapSounds.Add(sfx);
+    }
     private static void ObserveSave() => nativeSaves++;
     private static void ObserveNativeIn() => nativeIns++;
     private static bool HoldOut(ref Task __result)
@@ -99,6 +106,12 @@ internal static class JigsawEntryTransitionTests
             fade = new(TaskCreationOptions.RunContinuationsAsynchronously); outs = ins = nativeIns = nativeSaves = 0;
             heldReveal = mode == "next" ? new(TaskCreationOptions.RunContinuationsAsynchronously) : null;
             int visited = native.VisitedMapCoords.Count;
+            if (mode == "ordinary")
+            {
+                mapSounds.Clear();
+                harmony.Patch(AccessTools.Method(typeof(SfxCmd), nameof(SfxCmd.Play), [typeof(string), typeof(float)]),
+                    prefix: new HarmonyMethod(typeof(JigsawEntryTransitionTests), nameof(ObserveMapSound)));
+            }
             if (mode == "busy")
             {
                 bool rejected = false;
@@ -119,6 +132,9 @@ internal static class JigsawEntryTransitionTests
             Check(!view.DecisionControl.IsVisibleInTree(),
                 "A pending destination during the normal fade must hide the recovery buttons.");
             Check(ReferenceEquals(session.Enter(1), entering), "Repeated entry during the fade shares the one native operation.");
+            if (mode == "ordinary")
+                Check(mapSounds.SequenceEqual(["event:/sfx/ui/map/map_select", "event:/sfx/ui/wipe_map"]),
+                    "A real solo map click plays both native travel sounds once, before the fade completes.");
             if (mode == "detached")
             {
                 transition.GetParent().RemoveChild(transition);
